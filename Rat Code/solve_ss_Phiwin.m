@@ -12,14 +12,19 @@ function solve_ss_Phiwin
 
 close all
 
+% Add directory containing data.
+mypath = pwd;
+mypath = strcat(mypath, '/Data');
+addpath(genpath(mypath))
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Number of iterations below/above baseline.
-iteration = 51;
+iteration = 3001;
 % Fold decrease/increase.
-lower = 1/6; upper = 6;
+lower = 1/5; upper = 5;
 
 % Scenarios
 % Normal - normal conditions
@@ -28,19 +33,35 @@ lower = 1/6; upper = 6;
 scenario = {'Normal', 'ACEi', 'AngII'};
 num_scen = length(scenario);
 
-% Baseline of water intake for each scenario.
-Phi_win_bl_m    = zeros(num_scen,1);
-Phi_win_bl_f    = zeros(num_scen,1);
-Phi_win_bl_m(1) = 7.0502e-03;
-Phi_win_bl_f(1) = 4.0070e-03;
-Phi_win_bl_m(2) = 7.0684e-03;
-Phi_win_bl_f(2) = 4.6217e-03;
-Phi_win_bl_m(3) = 4.3587e-03;
-Phi_win_bl_f(3) = 2.3402e-03;
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Reduce 1 variable since water intake is fixed.
+num_vars = 91-1;
+
+Phi_win_bl_m = zeros(num_scen,1);
+Phi_win_bl_f = zeros(num_scen,1);
+% Load data for baseline water intake and renal perfusion pressure for each
+% scenario.
+load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+Phi_win_bl_m(1) = SSdata(27);
+clear SSdata;
+% load('female_ss_data_scenario_Normal.mat', 'SSdata');
+% Phi_win_bl_f(1) = SSdata(27);
+% clear SSdata;
+load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+Phi_win_bl_m(2) = SSdata(27);
+clear SSdata;
+% load('female_ss_data_scenario_AngII.mat', 'SSdata');
+% Phi_win_bl_f(2) = SSdata(27);
+% clear SSdata;
+load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
+Phi_win_bl_m(3) = SSdata(27);
+clear SSdata;
+% load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+% Phi_win_bl_f(3) = SSdata(27);
+% clear SSdata;
 
 % Range for fold decrease/increase.
 iter_range_l = linspace(lower, 1, iteration);
@@ -56,17 +77,17 @@ Phi_win_range_f = Phi_win_bl_f * iter_range;
 
 % Initialize variables.
 % X = (variable, iteration, gender, scenario)
-X = zeros(81,2*iteration-1,2,num_scen);
+X = zeros(num_vars,2*iteration-1,2,num_scen);
 % Retrieve male/female. 
 % X_m/f = [variable, iteration, scenario]
-X_m = zeros(82,2*iteration-1,num_scen);
-X_f = zeros(82,2*iteration-1,num_scen);
+X_m = zeros(num_vars+1,2*iteration-1,num_scen);
+X_f = zeros(num_vars+1,2*iteration-1,num_scen);
 
 gender = {'male',     'female'  };
 change = {'decrease', 'increase'};
 
-for ss = 1:num_scen % scenario
-for gg = 1:2        % gender
+for ss = 3:3 % scenario
+for gg = 1:1        % gender
 for cc = 1:2        % change
 
 % Add directory containing data.
@@ -75,23 +96,35 @@ mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
 % Load data for steady state initial value. 
-if     strcmp(scenario{ss}, 'AngII')
+if strcmp(scenario{ss}, 'Normal')
+    if     strcmp(gender{gg}, 'male')
+        load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_Normal.mat', 'SSdata');
+    end
+elseif strcmp(scenario{ss}, 'ACEi')
+    if     strcmp(gender{gg}, 'male')
+        load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+    end
+elseif strcmp(scenario{ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
         load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
-        SSdataIG = SSdata;
-        clear SSdata;
     elseif strcmp(gender{gg}, 'female')
         load('female_ss_data_scenario_AngII.mat', 'SSdata');
-        SSdataIG = SSdata;
-        clear SSdata;
-    end
-else
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_IG.mat', 'SSdataIG');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_IG.mat', 'SSdataIG');
     end
 end
+
+% Retrieve and replace parameters in fixed variable equations.
+fixed_ind = [2, 10, 14, 20, 24, 43, 48, 61, 65, 70, 87];
+fixed_var_pars = SSdata(fixed_ind);
+SF = 4.5*10^(-3)*10^(3);
+a = 0.2787 * exp(SSdata(32) * 0.2281 / SF);
+fixed_var_pars = [fixed_var_pars; a];
+SSdata(fixed_ind) = 1;
+SSdataIG = SSdata;
+clear SSdata
 
 % Delete Phi_win.
 SSdataIG(27) = '';
@@ -121,21 +154,28 @@ P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
 C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
-   eta_etapt = 0.8; 
+    eta_ptsodreab_eq = 0.93; 
+    eta_dtsodreab_eq = 0.77; 
+    eta_cdsodreab_eq = 0.15;
 elseif strcmp(gender{gg}, 'female')
-   eta_etapt = 0.5; 
+    eta_ptsodreab_eq = 0.5;
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.972;
 end
-eta_epsdt = 0.5; 
 if     strcmp(gender{gg}, 'male')
-   eta_etacd = 0.93; 
+    eta_ptwreab_eq = 0.86; 
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-   eta_etacd = 0.972; 
+    eta_ptwreab_eq = 0.5;
+    eta_dtwreab_eq = 0.5; 
+    eta_cdwreab_eq = 0.972;
 end
 K_vd      = 0.00001;
 K_bar     = 16.6 / SF;    % mmHg min / l
 R_bv      = 3.4 / SF;     % mmHg min / l
 T_adh     = 6;            % min
-Phi_sodin = 0.126 * SF;   % mEq / min
+Phi_sodin = 1.2278;   % mEq / min
 C_K       = 5;               % mEq / l 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
@@ -161,8 +201,8 @@ if     strcmp(gender{gg}, 'male')
     c_IIIV   = 0.29800;
     c_AT1R   = 0.19700;
     c_AT2R   = 0.065667;
-    AT1R_eq  = 20.46;
-    AT2R_eq  = 6.82;
+    AT1R_eq  = 20.4807902818665;
+    AT2R_eq  = 6.82696474842298;
 elseif strcmp(gender{gg}, 'female')
     X_PRCPRA = 114.22/17.312;
     k_AGT    = 779.63;
@@ -173,15 +213,17 @@ elseif strcmp(gender{gg}, 'female')
     c_IIIV   = 0.29800;
     c_AT1R   = 0.19700;
     c_AT2R   = 0.065667;
-    AT1R_eq  = 20.46;
-    AT2R_eq  = 6.82;
+    AT1R_eq  = 20.4538920068419;
+    AT2R_eq  = 6.81799861123497;
 end
 
-pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_etapt; eta_epsdt; ...
-        eta_etacd; K_vd; K_bar; R_bv; T_adh; Phi_sodin; C_K; T_al; ...
-        N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; ...
-        h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; ...
-        c_IIIV; c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; gen; SF];
+pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
+        eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
+        eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
+        Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
+        h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
+        c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
+        AT2R_eq; gen; SF];
 
 %% Drugs
 
@@ -191,7 +233,11 @@ if     strcmp(scenario{ss}, 'Normal')
 elseif strcmp(scenario{ss}, 'ACEi')
     drugs = [0   , 1]; % Hall 2018
 elseif strcmp(scenario{ss}, 'AngII')
-    drugs = [5492, 0]; % Zimmerman 2015
+    if     strcmp(gender{gg}, 'male')
+        drugs = [(3/3)*10984, 0]; % Sampson 2008
+    elseif strcmp(gender{gg}, 'female')
+        drugs = [(2/3)*10984, 0]; % Sampson 2008
+    end
 end
 
 %% Variables initial guess
@@ -210,12 +256,16 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; '$R_{vr}$'; ...
           '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; '$a_{auto}$'; ...
           '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; '$N_{adh}$'; ...
-          '$N_{adhs}$'; '$\delta_{ra}$'; '$\Phi_{t-wreab}$'; ...
-          '$\mu_{al}$'; '$\mu_{adh}$'; '$\Phi_{u}$'; '$M_{sod}$'; ...
-          '$C_{sod}$'; '$\nu_{md-sod}$'; '$\nu_{rsna}$'; '$C_{al}$'; ...
-          '$N_{al}$'; '$N_{als}$'; '$\xi_{k/sod}$'; '$\xi_{map}$'; ...
-          '$\xi_{at}$'; '$\hat{C}_{anp}$'; '$AGT$'; '$\nu_{AT1}$'; ...
-          '$R_{sec}$'; '$PRC$'; '$PRA$'; '$Ang I$'; '$Ang II$'; ...
+          '$N_{adhs}$'; '$\delta_{ra}$'; '$\Phi_{pt-wreab}$'; ...
+          '$\eta_{pt-wreab}$'; '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; ...
+          '$\Phi_{dt-wreab}$'; '$\eta_{dt-wreab}$'; ...
+          '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; '$\Phi_{cd-wreab}$'; ...
+          '$\eta_{cd-wreab}$'; '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
+          '$\Phi_{u}$'; '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; ...
+          '$\nu_{rsna}$'; '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; ...
+          '$\xi_{k/sod}$'; '$\xi_{map}$'; '$\xi_{at}$'; ...
+          '$\hat{C}_{anp}$'; '$AGT$'; '$\nu_{AT1}$'; '$R_{sec}$'; ...
+          '$PRC$'; '$PRA$'; '$Ang I$'; '$Ang II$'; ...
           '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
           '$Ang (1-7)$'; '$Ang IV$'; '$R_{aa}$'; '$R_{ea}$'; ...
           '$\Sigma_{myo}$'; '$\Psi_{AT1R-AA}$'; '$\Psi_{AT1R-EA}$'; ...
@@ -224,7 +274,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
 % Arbitrary value for time to input.
-x0 = SSdataIG; x_p0 = zeros(81,1); t = 0;
+x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
 % Vary water intake.
 if     strcmp(gender{gg}, 'male')
@@ -243,10 +293,13 @@ end
 
 %% Find steady state solution
 
-% options = optimset(); %options = optimset('MaxFunEvals',8100+10000);
+% options = optimset(); %options = optimset('MaxFunEvals',num_vars*100+10000);
 options = optimset('Display','off');
 [SSdata, ~, ...
- exitflag, output] = fsolve(@(x) bp_reg_solve_Phiwin(t,x,x_p0,pars,drugs,Phi_win_input), ...
+ exitflag, output] = fsolve(@(x) bp_reg_solve_Phiwin(t,x,x_p0,pars, ...
+                                                     fixed_var_pars, ...
+                                                     drugs, ...
+                                                     Phi_win_input), ...
                             x0, options);
 
 % Check for solver convergence.
@@ -313,15 +366,15 @@ end
 % X_f = zeros(size(X_f));
 % X_m = zeros(size(X_m));
 
-f = gobjects(6,1);
-s = gobjects(6,15);
+f = gobjects(7,1);
+s = gobjects(7,15);
 % Loop through each set of subplots.
-for i = 1:6
-%     f(i) = figure;
-    f(i) = figure('pos',[750 500 650 450]);
+for i = 1:7
+    f(i) = figure;
+%     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
-    if i == 6
-        last_plot = 7;
+    if i == 7
+        last_plot = 1;
     else
         last_plot = 15;
     end
@@ -337,7 +390,7 @@ for i = 1:6
         
         xlabel(names(27), 'Interpreter','latex', 'FontSize',15)
         title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
-        legend('Male', 'Female')
+%         legend('Male', 'Female')
     end
 end
 
@@ -353,7 +406,7 @@ end
 
 g = figure('pos',[100 100 675 450]);
 plot(X_m(41,:,1),xscale,'b-', X_f(41,:,1),xscale,'r-', 'LineWidth',3)
-xlim([90, 120])
+% xlim([90, 120])
 ylim([lower, upper])
 legend('Male', 'Female')
 set(gca,'FontSize',14)
@@ -367,7 +420,7 @@ ylabel(names(27), 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
 
 h = figure('pos',[100 100 675 450]);
 plot(X_m(41,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
-xlim([80, 160])
+% xlim([80, 160])
 ylim([lower, upper])
 set(gca,'FontSize',14)
 xlabel(names(41), 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
@@ -391,20 +444,20 @@ hold all
 plot(X_f(41,:,3),xscale,'r:', 'LineWidth',3, 'DisplayName','F AngII')
 legend('-DynamicLegend');
 
-% Save figures.
-
-% savefig(f, 'all_vars_vs_Phiwin.fig')
-% savefig(g, 'Phiwin_vs_Pma.fig')
-
-% savefig(f, 'all_vars_vs_Phiwin_new_Nadhs.fig')
-% savefig(g, 'Phiwin_vs_Pma_new_Nadhs.fig')
-
+% % Save figures.
+% 
+% % savefig(f, 'all_vars_vs_Phiwin.fig')
+% % savefig(g, 'Phiwin_vs_Pma.fig')
+% 
+% % savefig(f, 'all_vars_vs_Phiwin_new_Nadhs.fig')
+% % savefig(g, 'Phiwin_vs_Pma_new_Nadhs.fig')
+% 
+% % savefig(f, 'all_vars_vs_Phiwin_new_Phitwreab.fig')
+% % savefig(g, 'Phiwin_vs_Pma_new_Phitwreab.fig')
+% 
 % savefig(f, 'all_vars_vs_Phiwin_new_Phitwreab.fig')
 % savefig(g, 'Phiwin_vs_Pma_new_Phitwreab.fig')
-
-savefig(f, 'all_vars_vs_Phiwin_new_Phitwreab.fig')
-savefig(g, 'Phiwin_vs_Pma_new_Phitwreab.fig')
-savefig(h, 'Phiwin_vs_Pma_new_Phitwreab_AngII.fig')
+% savefig(h, 'Phiwin_vs_Pma_new_Phitwreab_AngII.fig')
 
 end
 

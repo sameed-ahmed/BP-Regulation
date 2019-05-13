@@ -1,5 +1,6 @@
 % This script is a post processing script. It loads the data from some
-% different scenarios to compute the change in mean arterial pressure.
+% different drug administration scenarios to compute the change in mean 
+% arterial pressure.
 
 function MAP_comp
 
@@ -72,9 +73,8 @@ b(1).FaceColor = [0.203, 0.592, 0.835];
 b(2).FaceColor = [0.835, 0.203, 0.576];
 
 
-% Save figure.
-
-savefig(f, 'Pma_change_ACEi_ARB.fig')
+% % Save figure.
+% savefig(f, 'Pma_change_ACEi_ARB.fig')
 
 end
 

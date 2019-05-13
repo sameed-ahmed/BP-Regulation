@@ -49,36 +49,75 @@ C_adh         = x(46); C_adh_p         = x_p(46);
 N_adh         = x(47); N_adh_p         = x_p(47); 
 N_adhs        = x(48); N_adhs_p        = x_p(48); 
 delta_ra      = x(49); delta_ra_p      = x_p(49); 
-Phi_twreab    = x(50); Phi_twreab_p    = x_p(50); 
-mu_al         = x(51); mu_al_p         = x_p(51); 
-mu_adh        = x(52); mu_adh_p        = x_p(52); 
-Phi_u         = x(53); Phi_u_p         = x_p(53); 
-M_sod         = x(54); M_sod_p         = x_p(54); 
-C_sod         = x(55); C_sod_p         = x_p(55); 
-nu_mdsod      = x(56); nu_mdsod_p      = x_p(56); 
-nu_rsna       = x(57); nu_rsna_p       = x_p(57); 
-C_al          = x(58); C_al_p          = x_p(58); 
-N_al          = x(59); N_al_p          = x_p(59); 
-N_als         = x(60); N_als_p         = x_p(60); 
-xi_ksod       = x(61); xi_ksod_p       = x_p(61); 
-xi_map        = x(62); xi_map_p        = x_p(62); 
-xi_at         = x(63); xi_at_p         = x_p(63); 
-hatC_anp      = x(64); hatC_anp_p      = x_p(64); 
-AGT           = x(65); AGT_p           = x_p(65); 
-nu_AT1        = x(66); nu_AT1_p        = x_p(66); 
-R_sec         = x(67); R_sec_p         = x_p(67); 
-PRC           = x(68); PRC_p           = x_p(68); 
-PRA           = x(69); PRA_p           = x_p(69); 
-AngI          = x(70); AngI_p          = x_p(70); 
-AngII         = x(71); AngII_p         = x_p(71); 
-AT1R          = x(72); AT1R_p          = x_p(72); 
-AT2R          = x(73); AT2R_p          = x_p(73); 
-Ang17         = x(74); Ang17_p         = x_p(74); 
-AngIV         = x(75); AngIV_p         = x_p(75); 
-R_aa          = x(76); R_aa_p          = x_p(76); 
-R_ea          = x(77); R_ea_p          = x_p(77); 
-Sigma_myo     = x(78); Sigma_myo_p     = x_p(78); 
-Psi_AT1RAA    = x(79); Psi_AT1RAA_p    = x_p(79); 
-Psi_AT1REA    = x(80); Psi_AT1REA_p    = x_p(80); 
-Psi_AT2RAA    = x(81); Psi_AT2RAA_p    = x_p(81); 
-Psi_AT2REA    = x(82); Psi_AT2REA_p    = x_p(82); 
+
+Phi_ptwreab   = x(50); Phi_ptwreab_p   = x_p(50); 
+eta_ptwreab   = x(51); eta_ptwreab_p   = x_p(51); 
+mu_ptsodreab  = x(52); mu_ptsodreab_p  = x_p(52); 
+Phi_mdu       = x(53); Phi_mdu_p       = x_p(53); 
+Phi_dtwreab   = x(54); Phi_dtwreab_p   = x_p(54); 
+eta_dtwreab   = x(55); eta_dtwreab_p   = x_p(55); 
+mu_dtsodreab  = x(56); mu_dtsodreab_p  = x_p(56); 
+Phi_dtu       = x(57); Phi_dtu_p       = x_p(57); 
+Phi_cdwreab   = x(58); Phi_cdwreab_p   = x_p(58); 
+eta_cdwreab   = x(59); eta_cdwreab_p   = x_p(59); 
+mu_cdsodreab  = x(60); mu_cdsodreab_p  = x_p(60); 
+mu_adh        = x(61); mu_adh_p        = x_p(61); 
+
+Phi_u         = x(62); Phi_u_p         = x_p(62); 
+M_sod         = x(63); M_sod_p         = x_p(63); 
+C_sod         = x(64); C_sod_p         = x_p(64); 
+nu_mdsod      = x(65); nu_mdsod_p      = x_p(65); 
+nu_rsna       = x(66); nu_rsna_p       = x_p(66); 
+C_al          = x(67); C_al_p          = x_p(67); 
+N_al          = x(68); N_al_p          = x_p(68); 
+N_als         = x(69); N_als_p         = x_p(69); 
+xi_ksod       = x(70); xi_ksod_p       = x_p(70); 
+xi_map        = x(71); xi_map_p        = x_p(71); 
+xi_at         = x(72); xi_at_p         = x_p(72); 
+hatC_anp      = x(73); hatC_anp_p      = x_p(73); 
+AGT           = x(74); AGT_p           = x_p(74); 
+nu_AT1        = x(75); nu_AT1_p        = x_p(75); 
+R_sec         = x(76); R_sec_p         = x_p(76); 
+PRC           = x(77); PRC_p           = x_p(77); 
+PRA           = x(78); PRA_p           = x_p(78); 
+AngI          = x(79); AngI_p          = x_p(79); 
+AngII         = x(80); AngII_p         = x_p(80); 
+AT1R          = x(81); AT1R_p          = x_p(81); 
+AT2R          = x(82); AT2R_p          = x_p(82); 
+Ang17         = x(83); Ang17_p         = x_p(83); 
+AngIV         = x(84); AngIV_p         = x_p(84); 
+R_aa          = x(85); R_aa_p          = x_p(85); 
+R_ea          = x(86); R_ea_p          = x_p(86); 
+Sigma_myo     = x(87); Sigma_myo_p     = x_p(87); 
+Psi_AT1RAA    = x(88); Psi_AT1RAA_p    = x_p(88); 
+Psi_AT1REA    = x(89); Psi_AT1REA_p    = x_p(89); 
+Psi_AT2RAA    = x(90); Psi_AT2RAA_p    = x_p(90); 
+Psi_AT2REA    = x(91); Psi_AT2REA_p    = x_p(91); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
