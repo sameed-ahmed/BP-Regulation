@@ -1,10 +1,15 @@
-% This is the nephron submodel. This script is used to adjust different
-% fractional sodium reabsorption in the proximal tubule, while keeping the
-% urine sodium excretion the same. As a result, the rest of the quantities
-% related to the nephron change.
+% This is the nephron submodel sodium handling. This script is used to 
+% adjust different fractional sodium reabsorption in the proximal tubule, 
+% while keeping the urine sodium excretion the same. As a result, the rest 
+% of the quantities related to the nephron change.
+
 % This script also calculates the factor by which the quanities change.
 % This is needed to reparametrize any multiplicative factors that involve
 % these variables so that they are still 1 at baseline.
+
+
+
+function adjust_frac_sodreab
 
 % Fix fixed quantities
 
@@ -36,3 +41,38 @@ Phi_mdsod_scale = Phi_mdsod/0.0121349862331580;
 Phi_dtsodreab_scale = Phi_dtsodreab/0.00607635498966443;
 Phi_dtsod_scale = Phi_dtsod/0.00605863124349362;
 Phi_cdsodreab_scale = Phi_cdsodreab/0.00563863124349362;
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
