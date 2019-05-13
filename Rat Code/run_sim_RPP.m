@@ -29,13 +29,13 @@ scenario = {'Normal', 'Denerve', 'Denerve & AT2R-'};
 num_scen = length(scenario);
 
 % Number of variables
-num_vars   = 81;
+num_vars   = 91-1;
 % Number of points for plotting resolution
 num_points = 121;
 
 % Temporary single perfusion pressure at a time until I figure out a good 
 % way to plot all three.
-exact_per = 1;
+exact_per = 3;
 
 % Temporary single scenario at a time until I figure out a good way to plot
 % all three.
@@ -60,7 +60,7 @@ RPP = zeros(2,1);
 
 for pp = 1:num_per  % perturbation
 for ss = 1:num_scen % scenario
-for gg = 1:2        % gender
+for gg = 1:1        % gender
 
 %% Parameters
 
@@ -85,25 +85,28 @@ P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
 C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
-   eta_etapt = 0.8; 
-%    eta_etapt   = 0.5; % female
+    eta_ptsodreab_eq = 0.93; 
+    eta_dtsodreab_eq = 0.77; 
+    eta_cdsodreab_eq = 0.15;
 elseif strcmp(gender{gg}, 'female')
-   eta_etapt = 0.5; 
-%    eta_etapt   = 0.8; % male
+    eta_ptsodreab_eq = 0.5;
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.972;
 end
-eta_epsdt = 0.5; 
 if     strcmp(gender{gg}, 'male')
-   eta_etacd = 0.93; 
-%    eta_etacd = 0.972; % female
+    eta_ptwreab_eq = 0.86; 
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-   eta_etacd = 0.972; 
-%    eta_etacd = 0.93; % male
+    eta_ptwreab_eq = 0.5;
+    eta_dtwreab_eq = 0.5; 
+    eta_cdwreab_eq = 0.972;
 end
 K_vd      = 0.00001;
 K_bar     = 16.6 / SF;    % mmHg min / l
 R_bv      = 3.4 / SF;     % mmHg min / l
 T_adh     = 6;            % min
-Phi_sodin = 0.126 * SF;   % mEq / min
+Phi_sodin = 1.2278;   % mEq / min
 C_K       = 5;            % mEq / l 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
@@ -129,8 +132,8 @@ if     strcmp(gender{gg}, 'male')
     c_IIIV   = 0.29800;
     c_AT1R   = 0.19700;
     c_AT2R   = 0.065667;
-    AT1R_eq  = 20.46;
-    AT2R_eq  = 6.82;
+    AT1R_eq  = 20.4807902818665;
+    AT2R_eq  = 6.82696474842298;
 elseif strcmp(gender{gg}, 'female')
     X_PRCPRA = 114.22/17.312;
     k_AGT    = 779.63;
@@ -141,34 +144,22 @@ elseif strcmp(gender{gg}, 'female')
     c_IIIV   = 0.29800;
     c_AT1R   = 0.19700;
     c_AT2R   = 0.065667;
-    AT1R_eq  = 20.46;
-    AT2R_eq  = 6.82;
-%     % male
-%     X_PRCPRA = 135.59/17.312;
-%     k_AGT    = 801.02;
-%     c_ACE    = 0.096833;
-%     c_Chym   = 0.010833;
-%     c_NEP    = 0.012667;
-%     c_ACE2   = 0.0026667;
-%     c_IIIV   = 0.29800;
-%     c_AT1R   = 0.19700;
-%     c_AT2R   = 0.065667;
-%     AT1R_eq  = 20.46;
-%     AT2R_eq  = 6.82;
-%     % male
+    AT1R_eq  = 20.4538920068419;
+    AT2R_eq  = 6.81799861123497;
 end
 
-pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_etapt; eta_epsdt; ...
-        eta_etacd; K_vd; K_bar; R_bv; T_adh; Phi_sodin; C_K; T_al; ...
-        N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; ...
-        h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; ...
-        c_IIIV; c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; gen; SF];
+pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
+        eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
+        eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
+        Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
+        h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
+        c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
+        AT2R_eq; gen; SF];
 
 %% Drugs
 
-% drugs = [5492, 0]; % Zimmerman 2015 male + female; 14 days
-% drugs = [0   , 1]; % Total ACEi
-drugs = [0, 0]; % Test
+% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
+drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
@@ -207,6 +198,11 @@ else
     end
 end
 
+% Retrieve and replace parameters in fixed variable equations.
+fixed_ind = [2, 10, 14, 20, 24, 43, 48, 61, 65, 70, 87];
+fixed_var_pars = SSdata(fixed_ind);
+SSdata(fixed_ind) = 1;
+
 % if     strcmp(gender{gg}, 'male')
 %     load(  'male_ss_data_new_Phitwreab.mat', 'SSdata');
 % elseif strcmp(gender{gg}, 'female')
@@ -234,12 +230,16 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; '$R_{vr}$'; ...
           '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; '$a_{auto}$'; ...
           '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; '$N_{adh}$'; ...
-          '$N_{adhs}$'; '$\delta_{ra}$'; '$\Phi_{t-wreab}$'; ...
-          '$\mu_{al}$'; '$\mu_{adh}$'; '$\Phi_{u}$'; '$M_{sod}$'; ...
-          '$C_{sod}$'; '$\nu_{md-sod}$'; '$\nu_{rsna}$'; '$C_{al}$'; ...
-          '$N_{al}$'; '$N_{als}$'; '$\xi_{k/sod}$'; '$\xi_{map}$'; ...
-          '$\xi_{at}$'; '$\hat{C}_{anp}$'; '$AGT$'; '$\nu_{AT1}$'; ...
-          '$R_{sec}$'; '$PRC$'; '$PRA$'; '$Ang I$'; '$Ang II$'; ...
+          '$N_{adhs}$'; '$\delta_{ra}$'; '$\Phi_{pt-wreab}$'; ...
+          '$\eta_{pt-wreab}$'; '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; ...
+          '$\Phi_{dt-wreab}$'; '$\eta_{dt-wreab}$'; ...
+          '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; '$\Phi_{cd-wreab}$'; ...
+          '$\eta_{cd-wreab}$'; '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
+          '$\Phi_{u}$'; '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; ...
+          '$\nu_{rsna}$'; '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; ...
+          '$\xi_{k/sod}$'; '$\xi_{map}$'; '$\xi_{at}$'; ...
+          '$\hat{C}_{anp}$'; '$AGT$'; '$\nu_{AT1}$'; '$R_{sec}$'; ...
+          '$PRC$'; '$PRA$'; '$Ang I$'; '$Ang II$'; ...
           '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
           '$Ang (1-7)$'; '$Ang IV$'; '$R_{aa}$'; '$R_{ea}$'; ...
           '$\Sigma_{myo}$'; '$\Psi_{AT1R-AA}$'; '$\Psi_{AT1R-EA}$'; ...
@@ -266,7 +266,7 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-                bp_reg_sim_RPP(t,x,x_p,pars,Phi_win_input,...
+                bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,Phi_win_input,...
                                tchange,drugs,RPP(gg),RPP_per(pp),SSdata,scenario{ss}), ...
                 tspan, x0, x_p0, options);
 t = t'; x = x';
@@ -317,15 +317,15 @@ for i = 1:num_vars+1
 end
 
 % Plot all variables vs time. ---------------------------------------------
-f  = gobjects(6,1);
-s1 = gobjects(6,15);
+f  = gobjects(7,1);
+s1 = gobjects(7,15);
 % Loop through each set of subplots.
-for i = 1:6
-%     f(i) = figure; 
-    f(i) = figure('pos',[750 500 650 450]);
+for i = 1:7
+    f(i) = figure; 
+%     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
-    if i == 6
-        last_plot = 7;
+    if i == 7
+        last_plot = 1;
     else
         last_plot = 15;
     end
@@ -549,9 +549,10 @@ yUSOD_upper = max( max(max([USOD_m(:,:);USOD_f(:,:)])) , max(max([USODdata_m(:,2
 %     end
 % end
 
-i(1) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
+i(1) = figure('DefaultAxesFontSize',30);
+% i(1) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
 plot(RPP_m,RBF_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-xlim([75,125]); xticks([80,100,120]);
+xlim([75,125]); %xticks([80,100,120]);
 ylim([0.6,1.2])
 xlabel('RPP (mmHg)'); ylabel('RBF (relative)');
 title('A')
@@ -562,9 +563,10 @@ plot(RPP_f,RBFdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 
 legend('Male sim','Male data','Female sim','Female data', 'Location','Southeast')
 hold off
 
-i(2) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
+i(2) = figure('DefaultAxesFontSize',30);
+% i(2) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
 plot(RPP_m,GFR_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-xlim([75,125]); xticks([80,100,120]);
+xlim([75,125]); %xticks([80,100,120]);
 ylim([0.6,1.2])
 xlabel('RPP (mmHg)'); ylabel('GFR (relative)');
 title('B')
@@ -575,10 +577,11 @@ plot(RPP_f,GFRdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 
 legend('Male sim','Male data','Female sim','Female data', 'Location','Southeast')
 hold off
 
-i(3) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
+i(3) = figure('DefaultAxesFontSize',30);
+% i(3) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
 plot(RPP_m,UF_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-xlim([75 ,125]); xticks([80,100,120]);
-ylim([0.0,3.5]); yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
+xlim([75 ,125]); %xticks([80,100,120]);
+ylim([0.0,3.5]); %yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
 xlabel('RPP (mmHg)'); ylabel('UF (relative)');
 title('C')
 hold on
@@ -588,10 +591,11 @@ plot(RPP_f,UFdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, '
 legend('Male sim','Male data','Female sim','Female data', 'Location','Northwest')
 hold off
 
-i(4) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
+i(4) = figure('DefaultAxesFontSize',30);
+% i(4) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
 plot(RPP_m,USOD_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-xlim([75,125]); xticks([80,100,120]);
-ylim([0.0,3.5]); yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
+xlim([75,125]); %xticks([80,100,120]);
+ylim([0.0,3.5]); %yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
 xlabel('RPP (mmHg)'); ylabel('UNa^{+} (relative)');
 title('D')
 hold on
@@ -601,63 +605,10 @@ plot(RPP_f,USODdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5,
 legend('Male sim','Male data','Female sim','Female data', 'Location','Northwest')
 hold off
 
-savefig(i, 'quant_of_int_vs_RPP.fig')
-
-% % Plot Mean Arterial Pressure vs Time
-% 
-% % Data from Zimmerman 2015. MAP is in relative change.
-% tdata     = [0    ,1    ,2    ,3    ,4    ,5    ,6    ,7    ,...
-%              8    ,9    ,10   ,11   ,12   ,13   ,14    ];
-% MAPdata_m = [1.000,1.018,1.061,1.114,1.123,1.167,1.167,1.237,...
-%              1.316,1.333,1.333,1.368,1.404,1.430,1.430,];
-% MAPdata_f = [1.000,1.010,1.069,1.176,1.225,1.275,1.304,1.304,...
-%              1.333,1.392,1.402,1.422,1.441,1.451,1.441,];
-% % Convert time from days to minutes.
-% tdata     = 1440 * tdata + tchange;
-% % Multiply MAP relative change by baseline.
-% MAPdata_m = X_m(41,1) * MAPdata_m;
-% MAPdata_f = X_f(41,1) * MAPdata_f;
-% 
-% g = figure('pos',[100 100 675 450]);
-% plot(t_m,X_m(41,:),'b-', t_f,X_f(41,:),'r-', 'LineWidth',3)
-% xlim([xlower, xupper])
-% ylim([80, 160])
-% set(gca,'FontSize',14)
-% ax = gca;
-% ax.XTick = (tchange+0*(1*1440) : 1440 : tchange+days*(1*1440));
-% ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
-%                  '8','9','10','11','12','13','14'};
-% xlabel('t (days)', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-% ylabel(names(41) , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-% legend('Male','Female');
-% hold all
-% plot(tdata,MAPdata_m,'bx', tdata,MAPdata_f,'rx', 'MarkerSize',10, 'LineWidth',3)
-% 
 % % Save figures.
 % 
 % % savefig(f, 'all_vars.fig')
-% 
-% % savefig(f, 'all_vars_new_sigmamyo0.0.fig')
-% 
-% % savefig(f, 'all_vars_new_Phitwreab.fig')
-% 
-% savefig(f, 'all_vars_stepwise_Phisodin.fig')
-% savefig(f, 'all_vars_stepwise_Phisodin_female_sodreab.fig')
-% 
-% savefig(f, 'all_vars_new_Phitwreab_AngII_inf.fig')
-% savefig(g, 'Pma_vs_t_new_Phitwreab_AngII_inf.fig')
-% 
-% % savefig(f, 'all_vars_Phisodin_inc.fig')
-% 
-% % male_Pma   = X_m(41,end)
-% % female_Pma = X_f(41,end)
-% % 
-% % BP = round(X_m(41,end));
-% % save_fig_name = sprintf('BP=%s.fig', num2str(BP));
-% % savefig(f ,save_fig_name)
-% 
-% % savefig(f ,'0.06x_Phisodin_no_rsna.fig')
-
+% savefig(i, 'quant_of_int_vs_RPP.fig')
 
 end
 

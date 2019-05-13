@@ -4,26 +4,23 @@
 % 2005?).
 
 % function SSdata = solve_ss
-function solve_ss
+function solve_ss_baseline
 
 % Scenarios
 % Normal - Normal conditions
-% AngII  - Ang II infusion
-% ACEi   - Angiotensin convernting enzyme inhibitor
-% ARB    - Angiotensin receptor blocker
-% AT2R-  - Block AT2R through decay
-% RHyp   - Renal hypertension due to increases afferent arteriolar resistance
-scenario = {'Normal', 'AngII', 'ACEi', 'ARB', 'AT2R-', 'RHyp'};
-ss = 6;
+scenario = {'Normal'};
+ss = 1;
+
+num_vars = 91;
 
 gender = {'male', 'female'};
 
-X          = zeros(82,2);
-RESIDUAL   = zeros(82,2);
-EXITFLAG   = zeros(1 ,2);
-OUTPUT     = cell (1 ,2);
+X        = zeros(num_vars,2);
+RESIDUAL = zeros(num_vars,2);
+EXITFLAG = zeros(1 ,2);
+OUTPUT   = cell (1 ,2);
 
-for gg = 1:2 % gender
+for gg = 1:1 % gender
 
 %% Parameters
 
@@ -51,26 +48,29 @@ P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
 C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
-   eta_etapt = 0.8; 
-%    eta_etapt = 0.5; % female
+    eta_ptsodreab_eq = 0.93; 
+    eta_dtsodreab_eq = 0.77; 
+    eta_cdsodreab_eq = 0.15;
 elseif strcmp(gender{gg}, 'female')
-    eta_etapt = 0.5; 
-%    eta_etapt = 0.8; % male
+    eta_ptsodreab_eq = 0.5;
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.972;
 end
-eta_epsdt = 0.5; 
 if     strcmp(gender{gg}, 'male')
-   eta_etacd = 0.93; 
-%    eta_etacd = 0.972; % female
+    eta_ptwreab_eq = 0.86; 
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-   eta_etacd = 0.972; 
-%    eta_etacd = 0.93; % male
+    eta_ptwreab_eq = 0.5;
+    eta_dtwreab_eq = 0.5; 
+    eta_cdwreab_eq = 0.972;
 end
 K_vd      = 0.00001;
 K_bar     = 16.6 / SF;    % mmHg min / ml
 R_bv      = 3.4 / SF;     % mmHg min / ml
 T_adh     = 6;            % min
-Phi_sodin = 0.126 * SF;   % microEq / min
-C_K       = 5;               % microEq / l 
+Phi_sodin = 1.2278;       % microEq / min
+C_K       = 5;            % microEq / l 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
 
@@ -95,8 +95,8 @@ if     strcmp(gender{gg}, 'male')
     c_IIIV   = 0.29800;
     c_AT1R   = 0.19700;
     c_AT2R   = 0.065667;
-    AT1R_eq  = 20.46;
-    AT2R_eq  = 6.82;
+    AT1R_eq  = 20.4807902818665;
+    AT2R_eq  = 6.82696474842298;
 elseif strcmp(gender{gg}, 'female')
     X_PRCPRA = 114.22/17.312;
     k_AGT    = 779.63;
@@ -107,28 +107,17 @@ elseif strcmp(gender{gg}, 'female')
     c_IIIV   = 0.29800;
     c_AT1R   = 0.19700;
     c_AT2R   = 0.065667;
-    AT1R_eq  = 20.46;
-    AT2R_eq  = 6.82;
-%     % male
-%     X_PRCPRA = 135.59/17.312;
-%     k_AGT    = 801.02;
-%     c_ACE    = 0.096833;
-%     c_Chym   = 0.010833;
-%     c_NEP    = 0.012667;
-%     c_ACE2   = 0.0026667;
-%     c_IIIV   = 0.29800;
-%     c_AT1R   = 0.19700;
-%     c_AT2R   = 0.065667;
-%     AT1R_eq  = 20.46;
-%     AT2R_eq  = 6.82;
-%     % male
+    AT1R_eq  = 20.4538920068419;
+    AT2R_eq  = 6.81799861123497;
 end
 
-pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_etapt; eta_epsdt; ...
-        eta_etacd; K_vd; K_bar; R_bv; T_adh; Phi_sodin; C_K; T_al; ...
-        N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; ...
-        h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; ...
-        c_IIIV; c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; gen; SF];
+pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
+        eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
+        eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
+        Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
+        h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
+        c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
+        AT2R_eq; gen; SF];
 
 %% Drugs
 
@@ -159,11 +148,11 @@ addpath(genpath(mypath))
 
 % Load data for steady state initial value. 
 % Need to first run transform_data.m on Jessica's data files.
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_IG.mat', 'SSdataIG');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_IG.mat', 'SSdataIG');
-% end
+if     strcmp(gender{gg}, 'male')
+    load(  'male_ss_data_IG.mat', 'SSdataIG');
+elseif strcmp(gender{gg}, 'female')
+    load('female_ss_data_IG.mat', 'SSdataIG');
+end
 if     strcmp(scenario{ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
         load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
@@ -190,7 +179,9 @@ end
 %       lambda_dt; lambda_anp; Phi_usod; Phi_win; V_ecf; V_b; P_mf; ...
 %       Phi_vr; Phi_co; P_ra; vas; vas_f; vas_d; R_a; R_ba; R_vr; R_tp; ...
 %       P_ma; epsilon_aum; a_auto; a_chemo; a_baro; C_adh; N_adh; ...
-%       N_adhs; delta_ra; Phi_twreab; mu_al; mu_adh; Phi_u; M_sod; ...
+%       N_adhs; delta_ra; Phi_ptwreab; eta_ptwreab; mu_ptsodreab; ...
+%       Phi_mdu; Phi_dtwreab; eta_dtwreab; mu_dtsodreab; Phi_dtu; ...
+%       Phi_cdwreab; eta_cdwreab; mu_cdsodreab; mu_adh; Phi_u; M_sod; ...
 %       C_sod; nu_mdsod; nu_rsna; C_al; N_al; N_als; xi_ksod; xi_map; ...
 %       xi_at; hatC_anp; AGT; nu_AT1; R_sec; PRC; PRA; AngI; AngII; ...
 %       AT1R; AT2R; Ang17; AngIV; R_aa; R_ea; Sigma_myo; Psi_AT1RAA; ...
@@ -199,13 +190,13 @@ end
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
 % Arbitrary value for time to input.
-x0 = SSdataIG; x_p0 = zeros(82,1); t = 0;
+x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
 %% Find steady state solution
 
-options = optimset(); %options = optimset('MaxFunEvals',8200+10000);
+options = optimset(); %options = optimset('MaxFunEvals',num_vars*100+10000);
 [SSdata, residual, ...
- exitflag, output] = fsolve(@(x) bp_reg_solve(t,x,x_p0,pars,drugs), ...
+ exitflag, output] = fsolve(@(x) bp_reg_solve_baseline(t,x,x_p0,pars,drugs), ...
                             x0, options);
 
 % Check for solver convergence.

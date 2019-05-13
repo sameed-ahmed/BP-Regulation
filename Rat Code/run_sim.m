@@ -13,7 +13,7 @@ function run_sim
 
 close all
 
-num_vars = 82;
+num_vars = 91;
 
 gender   = {'male', 'female'};
 SSDATA   = zeros(num_vars,2);
@@ -24,7 +24,7 @@ T        = cell(1,2);
 % % Jacobian sparsity pattern
 % [dfdy_s,dfdy_p_s] = jac_spar;
 
-for gg = 1:2 % gender
+for gg = 1:1 % gender
 
 %% Parameters
 
@@ -49,25 +49,28 @@ P_B         = 18;           % mmHg
 P_go        = 28;           % mmHg
 C_gcf       = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
-   eta_etapt   = 0.8; 
-%    eta_etapt   = 0.5; % female
+    eta_ptsodreab_eq = 0.93; 
+    eta_dtsodreab_eq = 0.77; 
+    eta_cdsodreab_eq = 0.15;
 elseif strcmp(gender{gg}, 'female')
-   eta_etapt   = 0.5; 
-%    eta_etapt   = 0.8; % male
+    eta_ptsodreab_eq = 0.5;
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.972;
 end
-eta_epsdt   = 0.5; 
 if     strcmp(gender{gg}, 'male')
-   eta_etacd   = 0.93; 
-%    eta_etacd   = 0.972; % female
+    eta_ptwreab_eq = 0.86; 
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-   eta_etacd   = 0.972; 
-%    eta_etacd   = 0.93; % male
+    eta_ptwreab_eq = 0.5;
+    eta_dtwreab_eq = 0.5; 
+    eta_cdwreab_eq = 0.972;
 end
 K_vd        = 0.00001;
 K_bar       = 16.6 / SF;    % mmHg min / l
 R_bv        = 3.4 / SF;     % mmHg min / l
 T_adh       = 6;            % min
-Phi_sodin   = 0.126 * SF;   % mEq / min
+Phi_sodin   = 1.2278;   % mEq / min
 C_K         = 5;            % mEq / l 
 T_al        = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs        = 1;            % ng / ml / min
@@ -93,8 +96,8 @@ if     strcmp(gender{gg}, 'male')
     c_IIIV   = 0.29800;
     c_AT1R   = 0.19700;
     c_AT2R   = 0.065667;
-    AT1R_eq  = 20.46;
-    AT2R_eq  = 6.82;
+    AT1R_eq  = 20.4807902818665;
+    AT2R_eq  = 6.82696474842298;
 elseif strcmp(gender{gg}, 'female')
     X_PRCPRA = 114.22/17.312;
     k_AGT    = 779.63;
@@ -105,28 +108,17 @@ elseif strcmp(gender{gg}, 'female')
     c_IIIV   = 0.29800;
     c_AT1R   = 0.19700;
     c_AT2R   = 0.065667;
-    AT1R_eq  = 20.46;
-    AT2R_eq  = 6.82;
-%     % male
-%     X_PRCPRA = 135.59/17.312;
-%     k_AGT    = 801.02;
-%     c_ACE    = 0.096833;
-%     c_Chym   = 0.010833;
-%     c_NEP    = 0.012667;
-%     c_ACE2   = 0.0026667;
-%     c_IIIV   = 0.29800;
-%     c_AT1R   = 0.19700;
-%     c_AT2R   = 0.065667;
-%     AT1R_eq  = 20.46;
-%     AT2R_eq  = 6.82;
-%     % male
+    AT1R_eq  = 20.4538920068419;
+    AT2R_eq  = 6.81799861123497;
 end
 
-pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_etapt; eta_epsdt; ...
-        eta_etacd; K_vd; K_bar; R_bv; T_adh; Phi_sodin; C_K; T_al; ...
-        N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; ...
-        h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; ...
-        c_IIIV; c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; gen; SF];
+pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
+        eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
+        eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
+        Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
+        h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
+        c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
+        AT2R_eq; gen; SF];
 
 %% Drugs
 
@@ -201,6 +193,11 @@ elseif strcmp(gender{gg}, 'female')
     load('female_ss_data_scenario_Normal.mat', 'SSdata');
 end
 
+% Retrieve and replace parameters in fixed variable equations.
+fixed_ind = [2, 10, 14, 20, 24, 43, 48, 61, 65, 70, 87];
+fixed_var_pars = SSdata(fixed_ind);
+SSdata(fixed_ind) = 1;
+
 % if     strcmp(gender{gg}, 'male')
 %     load(  'male_ss_data_new_Phitwreab.mat', 'SSdata');
 % elseif strcmp(gender{gg}, 'female')
@@ -221,12 +218,16 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; '$R_{vr}$'; ...
           '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; '$a_{auto}$'; ...
           '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; '$N_{adh}$'; ...
-          '$N_{adhs}$'; '$\delta_{ra}$'; '$\Phi_{t-wreab}$'; ...
-          '$\mu_{al}$'; '$\mu_{adh}$'; '$\Phi_{u}$'; '$M_{sod}$'; ...
-          '$C_{sod}$'; '$\nu_{md-sod}$'; '$\nu_{rsna}$'; '$C_{al}$'; ...
-          '$N_{al}$'; '$N_{als}$'; '$\xi_{k/sod}$'; '$\xi_{map}$'; ...
-          '$\xi_{at}$'; '$\hat{C}_{anp}$'; '$AGT$'; '$\nu_{AT1}$'; ...
-          '$R_{sec}$'; '$PRC$'; '$PRA$'; '$Ang I$'; '$Ang II$'; ...
+          '$N_{adhs}$'; '$\delta_{ra}$'; '$\Phi_{pt-wreab}$'; ...
+          '$\eta_{pt-wreab}$'; '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; ...
+          '$\Phi_{dt-wreab}$'; '$\eta_{dt-wreab}$'; ...
+          '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; '$\Phi_{cd-wreab}$'; ...
+          '$\eta_{cd-wreab}$'; '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
+          '$\Phi_{u}$'; '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; ...
+          '$\nu_{rsna}$'; '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; ...
+          '$\xi_{k/sod}$'; '$\xi_{map}$'; '$\xi_{at}$'; ...
+          '$\hat{C}_{anp}$'; '$AGT$'; '$\nu_{AT1}$'; '$R_{sec}$'; ...
+          '$PRC$'; '$PRA$'; '$Ang I$'; '$Ang II$'; ...
           '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
           '$Ang (1-7)$'; '$Ang IV$'; '$R_{aa}$'; '$R_{ea}$'; ...
           '$\Sigma_{myo}$'; '$\Psi_{AT1R-AA}$'; '$\Psi_{AT1R-EA}$'; ...
@@ -237,16 +238,16 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 x0 = SSdata; x_p0 = zeros(num_vars,1);
 
 % Factor by which to change something.
-fact = 3.5;
+fact = 2;
 
 % Time at which to keep steady state, change a parameter, etc.
-% tchange = 1440;
-tchange = 10;
-days = 13;
+tchange = 1440;
+% tchange = 10;
+days = 1;
 
 % Initial time (min); Final time (min);
-% t0 = 0*1440; tend = tchange + days*1440;
-t0 = 0; tend = tchange + 90;
+t0 = 0*1440; tend = tchange + days*1440;
+% t0 = 0; tend = tchange + 1000;
 
 % Time vector
 tspan = [t0, tend]; %linspace(t0,tf,N);
@@ -261,7 +262,7 @@ options = odeset('MaxStep',0.1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,drugs,tchange,fact), ...
+               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,fact), ...
                tspan, x0, x_p0, options);
 
 T{gg} = t';
@@ -276,33 +277,34 @@ end % gender
 % Retrieve male and female.
 t_m = T{1}; t_f = T{2};
 X_m = X{1}; X_f = X{2};
+t_f = t_m; X_f = X_m; 
 
 % x-axis limits
 xlower = t0; xupper = tend; 
 
-% % Convert minutes to days for longer simulations.
-% t_m = t_m/1440; t_f = t_f/1440; tchange = tchange/1440; 
-% xlower = xlower/1440; xupper = xupper/1440; 
+% Convert minutes to days for longer simulations.
+t_m = t_m/1440; t_f = t_f/1440; tchange = tchange/1440; 
+xlower = xlower/1440; xupper = xupper/1440; 
 
 % y-axis limits
 ylower = zeros(length(X_m(:,1)),1); yupper = ylower; 
 for i = 1:length(ylower)
-    ylower(i) = 0.9*min(min(X_m(i,:)), min(X_f(i,:)));
-    yupper(i) = 1.1*max(max(X_m(i,:)), max(X_f(i,:)));
-    if abs(yupper(i)) < eps*100
-        ylower(i) = -10^(-5); yupper(i) = 10^(-5);
-    end
+    ylower(i) = 0.9*min( min(X_m(i,:)), min(X_f(i,:)) );
+    yupper(i) = 1.1*max( max(X_m(i,:)), max(X_f(i,:)) );
+%     if abs(yupper(i)) < eps*100
+%         ylower(i) = -10^(-5); yupper(i) = 10^(-5);
+%     end
 end
 
-f = gobjects(6,1);
-s = gobjects(6,15);
+f = gobjects(7,1);
+s = gobjects(7,15);
 % Loop through each set of subplots.
-for i = 1:6
+for i = 1:7
     f(i) = figure; 
 %     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
-    if i == 6
-        last_plot = 7;
+    if i == 7
+        last_plot = 1;
     else
         last_plot = 15;
     end
@@ -316,17 +318,17 @@ for i = 1:6
         xlim([xlower, xupper])
         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
         
-%         Minutes
-        xlabel('Time (min)')
-% %         Days
-%         ax = gca;
-% %         ax.XTick = (tchange+0*(1*1440) : 1440 : tchange+days*(1*1440));
-%         ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
-%         ax.XTickLabel = {'0' ,'1' ,'2' ,'3' ,'4' ,'5' ,'6' ,...
-%                          '7' ,'8' ,'9' ,'10','11','12','13',...
-%                          '14','15','16','17','18','19','20',...
-%                          '21','22','23','24','25','26'};
-%         xlabel('Time (days)')
+% %         Minutes
+%         xlabel('Time (min)')
+%         Days
+        ax = gca;
+%         ax.XTick = (tchange+0*(1*1440) : 1440 : tchange+days*(1*1440));
+        ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
+        ax.XTickLabel = {'0' ,'1' ,'2' ,'3' ,'4' ,'5' ,'6' ,...
+                         '7' ,'8' ,'9' ,'10','11','12','13',...
+                         '14','15','16','17','18','19','20',...
+                         '21','22','23','24','25','26'};
+        xlabel('Time (days)')
 % %         Weeks
 %         ax = gca;
 %         ax.XTick = [tchange+0*(7*1440); tchange+1*(7*1440); ...
