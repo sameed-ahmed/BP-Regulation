@@ -33,11 +33,11 @@ elseif strcmp(gender{gg}, 'female')
     Phi_gfilt = 0.84;
 end
 
-% Fractional water reabsorption in each segment obtained from Rui's model.
+% Fractional water reabsorption in each segment. Values from Layton - 2016.
 if     strcmp(gender{gg},   'male')
-    eta_ptwreab = 0.85;
-    eta_dtwreab = 0.71;
-    eta_cdwreab = 0.81;
+    eta_ptwreab = 0.86;
+    eta_dtwreab = 0.60;
+    eta_cdwreab = 0.78;
 elseif strcmp(gender{gg}, 'female')
     eta_ptwreab = 0.81;
     eta_dtwreab = 0.78;

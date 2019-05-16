@@ -23,7 +23,7 @@ addpath(genpath(mypath))
 win = 'varied';
 
 % Number of iterations below/above baseline.
-iteration = 51;
+iteration = 501;
 % Fold decrease/increase.
 lower = 1/5; upper = 5;
 
@@ -41,9 +41,9 @@ num_scen = length(scenario);
 % Number of variables changes based on whether water intake is
 % fixed/varied.
 if     strcmp(win,  'fixed')
-    num_vars = 91-1;
+    num_vars = 92-1;
 elseif strcmp(win, 'varied')
-    num_vars = 91;
+    num_vars = 92;
 end
 
 % Baseline of water intake for each scenario if it is fixed.
@@ -52,22 +52,22 @@ Phi_win_bl_f = zeros(num_scen,2*iteration-1);
 % Load data for baseline water intake and renal perfusion pressure for each
 % scenario.
 load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-Phi_win_bl_m(1,1) = SSdata(27);
+Phi_win_bl_m(1,1) = SSdata(28);
 clear SSdata;
 % load('female_ss_data_scenario_Normal.mat', 'SSdata');
-% Phi_win_bl_f(1,1) = SSdata(27);
-% clear SSdata;
-load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
-Phi_win_bl_m(2,1) = SSdata(27);
-clear SSdata;
-% load('female_ss_data_scenario_AngII.mat', 'SSdata');
-% Phi_win_bl_f(2,1) = SSdata(27);
+% Phi_win_bl_f(1,1) = SSdata(28);
 % clear SSdata;
 load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
-Phi_win_bl_m(3,1) = SSdata(27);
+Phi_win_bl_m(2,1) = SSdata(28);
 clear SSdata;
 % load('female_ss_data_scenario_ACEi.mat', 'SSdata');
-% Phi_win_bl_f(3,1) = SSdata(27);
+% Phi_win_bl_f(2,1) = SSdata(28);
+% clear SSdata;
+load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+Phi_win_bl_m(3,1) = SSdata(28);
+clear SSdata;
+% load('female_ss_data_scenario_AngII.mat', 'SSdata');
+% Phi_win_bl_f(3,1) = SSdata(28);
 % clear SSdata;
 
 % Range for fold decrease/increase.
@@ -94,7 +94,7 @@ end
 gender   = {'male',     'female'  };
 change   = {'decrease', 'increase'};
 
-for ss = 1:num_scen % scenario
+for ss = 1:1 % scenario
 for gg = 1:1        % gender
 for cc = 1:2        % change
 
@@ -103,6 +103,18 @@ mypath = pwd;
 mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
+% Retrieve and replace parameters in fixed variable equations.
+if     strcmp(gender{gg}, 'male')
+    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+elseif strcmp(gender{gg}, 'female')
+    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+end
+fixed_ind = [2, 10, 14, 24, 44, 49, 62, 66, 71, 88];
+fixed_var_pars = SSdata(fixed_ind);
+SF = 4.5*10^(-3)*10^(3);
+a = 0.2787 * exp(SSdata(33) * 0.2281 / SF);
+fixed_var_pars = [fixed_var_pars; a];
+
 % Load data for steady state initial value. 
 if strcmp(scenario{ss}, 'Normal')
     if     strcmp(gender{gg}, 'male')
@@ -110,33 +122,31 @@ if strcmp(scenario{ss}, 'Normal')
     elseif strcmp(gender{gg}, 'female')
         load('female_ss_data_scenario_Normal.mat', 'SSdata');
     end
+    fixed_ind = [2, 10, 14, 24, 44, 49, 62, 66, 71, 88];
+    SSdata(fixed_ind) = 1;
+    SSdataIG = SSdata;
+    clear SSdata
 elseif strcmp(scenario{ss}, 'ACEi')
     if     strcmp(gender{gg}, 'male')
         load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
     elseif strcmp(gender{gg}, 'female')
         load('female_ss_data_scenario_ACEi.mat', 'SSdata');
     end
+    SSdataIG = SSdata;
+    clear SSdata
 elseif strcmp(scenario{ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
         load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
     elseif strcmp(gender{gg}, 'female')
         load('female_ss_data_scenario_AngII.mat', 'SSdata');
     end
+    SSdataIG = SSdata;
+    clear SSdata
 end
-
-% Retrieve and replace parameters in fixed variable equations.
-fixed_ind = [2, 10, 14, 20, 24, 43, 48, 61, 65, 70, 87];
-fixed_var_pars = SSdata(fixed_ind);
-SF = 4.5*10^(-3)*10^(3);
-a = 0.2787 * exp(SSdata(32) * 0.2281 / SF);
-fixed_var_pars = [fixed_var_pars; a];
-SSdata(fixed_ind) = 1;
-SSdataIG = SSdata;
-clear SSdata
 
 % Delete Phi_win if it is fixed.
 if     strcmp(win,  'fixed')
-    SSdataIG(27) = '';
+    SSdataIG(28) = '';
 elseif strcmp(win, 'varied')
 end
 
@@ -163,7 +173,12 @@ R_aass    = 31.67 / SF;   % mmHg min / l
 R_eass    = 51.66 / SF;   % mmHg min / l
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
-C_gcf     = 0.00781 * SF;
+% C_gcf     = 0.00781 * SF;
+if     strcmp(gender{gg}, 'male')
+    C_gcf     = 0.068;
+elseif strcmp(gender{gg}, 'female')
+    C_gcf     = 0.068;
+end
 if     strcmp(gender{gg}, 'male')
     eta_ptsodreab_eq = 0.93; 
     eta_dtsodreab_eq = 0.77; 
@@ -186,14 +201,15 @@ K_vd      = 0.00001;
 K_bar     = 16.6 / SF;    % mmHg min / l
 R_bv      = 3.4 / SF;     % mmHg min / l
 T_adh     = 6;            % min
-% Phi_sodin = 1.2278;   % mEq / min
-C_K       = 5;               % mEq / l 
+% % Phi_sodin = 1.2278;       % microEq / min
+% Phi_sodin = 2.3875;       % microEq / min
+C_K       = 5;            % microEq / l 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
 
 % Baseline/range of sodium intake.
-Phi_sodin_bl_m = 1.2278;
-Phi_sodin_bl_f = 1.2278; % CHECK IF DIFFERENT LATER.
+Phi_sodin_bl_m = 2.3875;
+Phi_sodin_bl_f = 2.3875; % CHECK IF DIFFERENT LATER.
 Phi_sodin_range_m = Phi_sodin_bl_m * iter_range;
 Phi_sodin_range_f = Phi_sodin_bl_f * iter_range;
 
@@ -289,23 +305,23 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{md-sod}$'; '$\Phi_{dt-sodreab}$'; ...
           '$\eta_{dt-sodreab}$'; '$\psi_{al}$'; '$\Phi_{dt-sod}$'; ...
           '$\Phi_{cd-sodreab}$'; '$\eta_{cd-sodreab}$'; ...
-          '$\lambda_{dt}$'; '$\lambda_{anp}$'; '$\Phi_{u-sod}$'; ...
-          '$\Phi_{win}$'; '$V_{ecf}$'; '$V_{b}$'; '$P_{mf}$'; ...
-          '$\Phi_{vr}$'; '$\Phi_{co}$'; '$P_{ra}$'; '$vas$'; ...
-          '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; '$R_{vr}$'; ...
-          '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; '$a_{auto}$'; ...
-          '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; '$N_{adh}$'; ...
-          '$N_{adhs}$'; '$\delta_{ra}$'; '$\Phi_{pt-wreab}$'; ...
-          '$\eta_{pt-wreab}$'; '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; ...
-          '$\Phi_{dt-wreab}$'; '$\eta_{dt-wreab}$'; ...
-          '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; '$\Phi_{cd-wreab}$'; ...
-          '$\eta_{cd-wreab}$'; '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
-          '$\Phi_{u}$'; '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; ...
-          '$\nu_{rsna}$'; '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; ...
-          '$\xi_{k/sod}$'; '$\xi_{map}$'; '$\xi_{at}$'; ...
-          '$\hat{C}_{anp}$'; '$AGT$'; '$\nu_{AT1}$'; '$R_{sec}$'; ...
-          '$PRC$'; '$PRA$'; '$Ang I$'; '$Ang II$'; ...
-          '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
+          '$\lambda_{dt}$'; '$\lambda_{anp}$'; '$\lambda_{al}$'; ...
+          '$\Phi_{u-sod}$'; '$\Phi_{win}$'; '$V_{ecf}$'; '$V_{b}$'; ...
+          '$P_{mf}$'; '$\Phi_{vr}$'; '$\Phi_{co}$'; '$P_{ra}$'; ...
+          '$vas$'; '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; ...
+          '$R_{vr}$'; '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; ...
+          '$a_{auto}$'; '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; ...
+          '$N_{adh}$'; '$N_{adhs}$'; '$\delta_{ra}$'; ...
+          '$\Phi_{pt-wreab}$'; '$\eta_{pt-wreab}$'; ...
+          '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; '$\Phi_{dt-wreab}$'; ...
+          '$\eta_{dt-wreab}$'; '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; ...
+          '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
+          '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; '$\Phi_{u}$'; ...
+          '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; '$\nu_{rsna}$'; ...
+          '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; '$\xi_{k/sod}$'; ...
+          '$\xi_{map}$'; '$\xi_{at}$'; '$\hat{C}_{anp}$'; '$AGT$'; ...
+          '$\nu_{AT1}$'; '$R_{sec}$'; '$PRC$'; '$PRA$'; '$Ang I$'; ...
+          '$Ang II$'; '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
           '$Ang (1-7)$'; '$Ang IV$'; '$R_{aa}$'; '$R_{ea}$'; ...
           '$\Sigma_{myo}$'; '$\Psi_{AT1R-AA}$'; '$\Psi_{AT1R-EA}$'; ...
           '$\Psi_{AT2R-AA}$'; '$\Psi_{AT2R-EA}$'};
@@ -371,8 +387,8 @@ end % gender
 if     strcmp(win,  'fixed')
     Phi_win_bl_m(ss,:) = Phi_win_bl_m(ss,1) * ones(1,2*iteration-1);
     Phi_win_bl_f(ss,:) = Phi_win_bl_f(ss,1) * ones(1,2*iteration-1);
-    X_m(:,:,ss) = [X(1:26,:,1,ss); Phi_win_bl_m(ss,:); X(27:end,:,1,ss)];
-    X_f(:,:,ss) = [X(1:26,:,2,ss); Phi_win_bl_f(ss,:); X(27:end,:,2,ss)];
+    X_m(:,:,ss) = [X(1:27,:,1,ss); Phi_win_bl_m(ss,:); X(28:end,:,1,ss)];
+    X_f(:,:,ss) = [X(1:27,:,2,ss); Phi_win_bl_f(ss,:); X(28:end,:,2,ss)];
 elseif strcmp(win, 'varied')
     X_m(:,:,ss) = X(:,:,1,ss); X_f(:,:,ss) = X(:,:,2,ss);
 end
@@ -400,11 +416,11 @@ f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-    f(i) = figure;
-%     f(i) = figure('pos',[750 500 650 450]);
+%     f(i) = figure;
+    f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
-        last_plot = 1;
+        last_plot = 2;
     else
         last_plot = 15;
     end
@@ -426,21 +442,20 @@ end
 
 % Data
 % Relative MAP change, Relative sodium excretion change
-
 pn_m = [1, 1.12; 1, 4.9]; % 
-pn_m(1,:) = pn_m(1,:)*101;
+pn_m(1,:) = pn_m(1,:)*X_m(42,iteration+1,1);
 pn_f = [1, 1.17; 1, 8.0]; % 
-pn_f(1,:) = pn_f(1,:)*100;
+pn_f(1,:) = pn_f(1,:)*X_f(42,iteration+1,1);
 
 % Plot Sodium Intake vs Mean Arterial Pressure
 
 g = figure('pos',[100 100 675 450]);
-plot(X_m(41,:,1),xscale,'b-', X_f(41,:,1),xscale,'r-', 'LineWidth',3)
+plot(X_m(42,:,1),xscale,'b-', X_f(42,:,1),xscale,'r-', 'LineWidth',3)
 % xlim([90, 120])
 ylim([lower, upper])
 legend('Male', 'Female')
 set(gca,'FontSize',14)
-xlabel(names(41)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+xlabel(names(42)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
 ylabel('$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
 hold all
 plot(pn_m(1,:),pn_m(2,:),'bx', pn_f(1,:),pn_f(2,:),'rx', ...
@@ -449,29 +464,29 @@ plot(pn_m(1,:),pn_m(2,:),'bx', pn_f(1,:),pn_f(2,:),'rx', ...
 %
 
 h = figure('pos',[100 100 675 450]);
-plot(X_m(41,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
+plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
 % xlim([80, 160])
 ylim([lower, upper])
 set(gca,'FontSize',14)
-xlabel(names(41)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+xlabel(names(42)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
 ylabel('$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
 legend('-DynamicLegend');
 hold all
-plot(X_f(41,:,1),xscale,'r-', 'LineWidth',3, 'DisplayName','F Normal')
+plot(X_f(42,:,1),xscale,'r-', 'LineWidth',3, 'DisplayName','F Normal')
 legend('-DynamicLegend');
 
 hold all
-plot(X_m(41,:,2),xscale,'b--' , 'LineWidth',3, 'DisplayName','M ACEi')
+plot(X_m(42,:,2),xscale,'b--' , 'LineWidth',3, 'DisplayName','M ACEi')
 legend('-DynamicLegend');
 hold all
-plot(X_f(41,:,2),xscale,'r--', 'LineWidth',3, 'DisplayName','F ACEi')
+plot(X_f(42,:,2),xscale,'r--', 'LineWidth',3, 'DisplayName','F ACEi')
 legend('-DynamicLegend');
 
 hold all
-plot(X_m(41,:,3),xscale,'b:' , 'LineWidth',3, 'DisplayName','M AngII')
+plot(X_m(42,:,3),xscale,'b:' , 'LineWidth',3, 'DisplayName','M AngII')
 legend('-DynamicLegend');
 hold all
-plot(X_f(41,:,3),xscale,'r:', 'LineWidth',3, 'DisplayName','F AngII')
+plot(X_f(42,:,3),xscale,'r:', 'LineWidth',3, 'DisplayName','F AngII')
 legend('-DynamicLegend');
 
 % % Save figures.

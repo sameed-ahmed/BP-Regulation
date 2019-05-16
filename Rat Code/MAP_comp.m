@@ -55,8 +55,8 @@ end
 %      Male    Female
 % ACEi
 % ARB
-deltaMAP(1,gg) = SSdata_ACEi(41) - SSdata_Normal(41);
-deltaMAP(2,gg) = SSdata_ARB (41) - SSdata_Normal(41);
+deltaMAP(1,gg) = SSdata_ACEi(42) - SSdata_Normal(42);
+deltaMAP(2,gg) = SSdata_ARB (42) - SSdata_Normal(42);
 
 end % gender
 

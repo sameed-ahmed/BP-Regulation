@@ -11,7 +11,7 @@ function solve_ss_baseline
 scenario = {'Normal'};
 ss = 1;
 
-num_vars = 91;
+num_vars = 92;
 
 gender = {'male', 'female'};
 
@@ -46,11 +46,19 @@ end
 R_eass    = 51.66 / SF;   % mmHg min / ml
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
-C_gcf     = 0.00781 * SF;
+% C_gcf     = 0.00781 * SF;
+if     strcmp(gender{gg}, 'male')
+    C_gcf     = 0.068;
+elseif strcmp(gender{gg}, 'female')
+    C_gcf     = 0.068;
+end
 if     strcmp(gender{gg}, 'male')
     eta_ptsodreab_eq = 0.93; 
     eta_dtsodreab_eq = 0.77; 
     eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.8; 
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
     eta_ptsodreab_eq = 0.5;
     eta_dtsodreab_eq = 0.5; 
@@ -69,8 +77,9 @@ K_vd      = 0.00001;
 K_bar     = 16.6 / SF;    % mmHg min / ml
 R_bv      = 3.4 / SF;     % mmHg min / ml
 T_adh     = 6;            % min
-Phi_sodin = 1.2278;       % microEq / min
-C_K       = 5;            % microEq / l 
+% Phi_sodin = 1.2278;       % microEq / min
+Phi_sodin = 2.3875;       % microEq / min
+C_K       = 5;            % microEq / ml 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
 
@@ -153,32 +162,15 @@ if     strcmp(gender{gg}, 'male')
 elseif strcmp(gender{gg}, 'female')
     load('female_ss_data_IG.mat', 'SSdataIG');
 end
-if     strcmp(scenario{ss}, 'AngII')
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
-        SSdataIG = SSdata;
-        clear SSdata;
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_AngII.mat', 'SSdata');
-        SSdataIG = SSdata;
-        clear SSdata;
-    end
-else
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_IG.mat', 'SSdataIG');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_IG.mat', 'SSdataIG');
-    end
-end
 
 % Order
 % x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
 %       P_f; P_gh; Sigma_tgf; Phi_filsod; Phi_ptsodreab; eta_ptsodreab; ...
 %       gamma_filsod; gamma_at; gamma_rsna; Phi_mdsod; Phi_dtsodreab; ...
 %       eta_dtsodreab; psi_al; Phi_dtsod; Phi_cdsodreab; eta_cdsodreab; ...
-%       lambda_dt; lambda_anp; Phi_usod; Phi_win; V_ecf; V_b; P_mf; ...
-%       Phi_vr; Phi_co; P_ra; vas; vas_f; vas_d; R_a; R_ba; R_vr; R_tp; ...
-%       P_ma; epsilon_aum; a_auto; a_chemo; a_baro; C_adh; N_adh; ...
+%       lambda_dt; lambda_anp; lambda_al; Phi_usod; Phi_win; V_ecf; V_b; ...
+%       P_mf; Phi_vr; Phi_co; P_ra; vas; vas_f; vas_d; R_a; R_ba; R_vr; ...
+%       R_tp; P_ma; epsilon_aum; a_auto; a_chemo; a_baro; C_adh; N_adh; ...
 %       N_adhs; delta_ra; Phi_ptwreab; eta_ptwreab; mu_ptsodreab; ...
 %       Phi_mdu; Phi_dtwreab; eta_dtwreab; mu_dtsodreab; Phi_dtu; ...
 %       Phi_cdwreab; eta_cdwreab; mu_cdsodreab; mu_adh; Phi_u; M_sod; ...

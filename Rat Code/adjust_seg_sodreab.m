@@ -25,14 +25,14 @@ if     strcmp(gender{gg},   'male')
 elseif strcmp(gender{gg}, 'female')
     Phi_gfilt = 0.84;
 end
-% Input [Sod] mEq/ml.
-C_sod = 0.143;
+% Input [Sod] micro Eq/ml.
+C_sod = 143;
 
-% Fractional sodium reabsorption in each segment.
+% Fractional sodium reabsorption in each segment. Values from Layton - 2016.
 if     strcmp(gender{gg},   'male')
-    eta_ptsodreab = 0.800;
-    eta_dtsodreab = 0.500;
-    eta_cdsodreab = 0.93;
+    eta_ptsodreab = 0.93;
+    eta_dtsodreab = 0.77;
+    eta_cdsodreab = 0.15;
 elseif strcmp(gender{gg}, 'female')
     eta_ptsodreab = 0.500;
     eta_dtsodreab = 0.500;

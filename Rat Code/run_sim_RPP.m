@@ -29,7 +29,7 @@ scenario = {'Normal', 'Denerve', 'Denerve & AT2R-'};
 num_scen = length(scenario);
 
 % Number of variables
-num_vars   = 91-1;
+num_vars   = 92-1;
 % Number of points for plotting resolution
 num_points = 121;
 
@@ -62,6 +62,23 @@ for pp = 1:num_per  % perturbation
 for ss = 1:num_scen % scenario
 for gg = 1:1        % gender
 
+% Add directory containing data.
+mypath = pwd;
+mypath = strcat(mypath, '/Data');
+addpath(genpath(mypath))
+
+% Retrieve and replace parameters in fixed variable equations.
+if     strcmp(gender{gg}, 'male')
+    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+elseif strcmp(gender{gg}, 'female')
+    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+end
+fixed_ind = [2, 10, 14, 24, 44, 49, 62, 66, 71, 88];
+fixed_var_pars = SSdata(fixed_ind);
+SF = 4.5*10^(-3)*10^(3);
+a = 0.2787 * exp(SSdata(33) * 0.2281 / SF);
+fixed_var_pars = [fixed_var_pars; a];
+
 %% Parameters
 
 if     strcmp(gender{gg}, 'male')
@@ -83,11 +100,19 @@ R_aass    = 31.67 / SF;   % mmHg min / l
 R_eass    = 51.66 / SF;   % mmHg min / l
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
-C_gcf     = 0.00781 * SF;
+% C_gcf     = 0.00781 * SF;
+if     strcmp(gender{gg}, 'male')
+    C_gcf     = 0.068;
+elseif strcmp(gender{gg}, 'female')
+    C_gcf     = 0.068;
+end
 if     strcmp(gender{gg}, 'male')
     eta_ptsodreab_eq = 0.93; 
     eta_dtsodreab_eq = 0.77; 
     eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.8; 
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
     eta_ptsodreab_eq = 0.5;
     eta_dtsodreab_eq = 0.5; 
@@ -106,8 +131,9 @@ K_vd      = 0.00001;
 K_bar     = 16.6 / SF;    % mmHg min / l
 R_bv      = 3.4 / SF;     % mmHg min / l
 T_adh     = 6;            % min
-Phi_sodin = 1.2278;   % mEq / min
-C_K       = 5;            % mEq / l 
+% Phi_sodin = 1.2278;       % microEq / min
+Phi_sodin = 2.3875;       % microEq / min
+C_K       = 5;            % microEq / l 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
 
@@ -196,12 +222,9 @@ else
     elseif strcmp(gender{gg}, 'female')
         load('female_ss_data_scenario_Normal.mat', 'SSdata');
     end
+    fixed_ind = [2, 10, 14, 24, 44, 49, 62, 66, 71, 88];
+    SSdata(fixed_ind) = 1;
 end
-
-% Retrieve and replace parameters in fixed variable equations.
-fixed_ind = [2, 10, 14, 20, 24, 43, 48, 61, 65, 70, 87];
-fixed_var_pars = SSdata(fixed_ind);
-SSdata(fixed_ind) = 1;
 
 % if     strcmp(gender{gg}, 'male')
 %     load(  'male_ss_data_new_Phitwreab.mat', 'SSdata');
@@ -210,11 +233,11 @@ SSdata(fixed_ind) = 1;
 % end
 
 % Store water intake as an input and delete it as a variable.
-Phi_win_input = SSdata(27);
-SSdata(27) = '';
+Phi_win_input = SSdata(28);
+SSdata(28) = '';
 
 % Input Renal Perfusion Pressure.
-RPP(gg) = SSdata(41-1);
+RPP(gg) = SSdata(42-1);
 
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
@@ -224,23 +247,23 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{md-sod}$'; '$\Phi_{dt-sodreab}$'; ...
           '$\eta_{dt-sodreab}$'; '$\psi_{al}$'; '$\Phi_{dt-sod}$'; ...
           '$\Phi_{cd-sodreab}$'; '$\eta_{cd-sodreab}$'; ...
-          '$\lambda_{dt}$'; '$\lambda_{anp}$'; '$\Phi_{u-sod}$'; ...
-          '$\Phi_{win}$'; '$V_{ecf}$'; '$V_{b}$'; '$P_{mf}$'; ...
-          '$\Phi_{vr}$'; '$\Phi_{co}$'; '$P_{ra}$'; '$vas$'; ...
-          '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; '$R_{vr}$'; ...
-          '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; '$a_{auto}$'; ...
-          '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; '$N_{adh}$'; ...
-          '$N_{adhs}$'; '$\delta_{ra}$'; '$\Phi_{pt-wreab}$'; ...
-          '$\eta_{pt-wreab}$'; '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; ...
-          '$\Phi_{dt-wreab}$'; '$\eta_{dt-wreab}$'; ...
-          '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; '$\Phi_{cd-wreab}$'; ...
-          '$\eta_{cd-wreab}$'; '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
-          '$\Phi_{u}$'; '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; ...
-          '$\nu_{rsna}$'; '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; ...
-          '$\xi_{k/sod}$'; '$\xi_{map}$'; '$\xi_{at}$'; ...
-          '$\hat{C}_{anp}$'; '$AGT$'; '$\nu_{AT1}$'; '$R_{sec}$'; ...
-          '$PRC$'; '$PRA$'; '$Ang I$'; '$Ang II$'; ...
-          '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
+          '$\lambda_{dt}$'; '$\lambda_{anp}$'; '$\lambda_{al}$'; ...
+          '$\Phi_{u-sod}$'; '$\Phi_{win}$'; '$V_{ecf}$'; '$V_{b}$'; ...
+          '$P_{mf}$'; '$\Phi_{vr}$'; '$\Phi_{co}$'; '$P_{ra}$'; ...
+          '$vas$'; '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; ...
+          '$R_{vr}$'; '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; ...
+          '$a_{auto}$'; '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; ...
+          '$N_{adh}$'; '$N_{adhs}$'; '$\delta_{ra}$'; ...
+          '$\Phi_{pt-wreab}$'; '$\eta_{pt-wreab}$'; ...
+          '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; '$\Phi_{dt-wreab}$'; ...
+          '$\eta_{dt-wreab}$'; '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; ...
+          '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
+          '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; '$\Phi_{u}$'; ...
+          '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; '$\nu_{rsna}$'; ...
+          '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; '$\xi_{k/sod}$'; ...
+          '$\xi_{map}$'; '$\xi_{at}$'; '$\hat{C}_{anp}$'; '$AGT$'; ...
+          '$\nu_{AT1}$'; '$R_{sec}$'; '$PRC$'; '$PRA$'; '$Ang I$'; ...
+          '$Ang II$'; '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
           '$Ang (1-7)$'; '$Ang IV$'; '$R_{aa}$'; '$R_{ea}$'; ...
           '$\Sigma_{myo}$'; '$\Psi_{AT1R-AA}$'; '$\Psi_{AT1R-EA}$'; ...
           '$\Psi_{AT2R-AA}$'; '$\Psi_{AT2R-EA}$'};
@@ -273,7 +296,7 @@ t = t'; x = x';
 
 % Add in Phi_win where it originally was.
 Phi_win = Phi_win_input*ones(1,length(t));
-x = [x(1:26,:); Phi_win; x(27:end,:)];
+x = [x(1:27,:); Phi_win; x(28:end,:)];
 % Store solution.
 % X = (variables, points, gender, perturbation, scenario)
 X(:,:,gg,pp,ss) = x;
@@ -297,7 +320,7 @@ end % perturbation
 
 % X_m/f = (variables, points, perturbation, scenario)
 X_m(:,:,:,:) = X(:,:,1,:,:);
-X_f(:,:,:,:) = X(:,:,2,:,:);
+X_f(:,:,:,:) = X(:,:,2,:,:); X_f = X_m;
 
 % x-axis limits
 xlower = t0; xupper = tend; 
@@ -321,11 +344,11 @@ f  = gobjects(7,1);
 s1 = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-    f(i) = figure; 
-%     f(i) = figure('pos',[750 500 650 450]);
+%     f(i) = figure; 
+    f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
-        last_plot = 1;
+        last_plot = 2;
     else
         last_plot = 15;
     end
@@ -347,7 +370,7 @@ for i = 1:7
 %                          '140','160','180','200','220','140','260',...
 %                          '280','300','320','340','360','380','400',...
 %                          '420','440','460','480','500','520'};
-        xlabel('$t$ (min)', 'Interpreter','latex')
+%         xlabel('$t$ (min)', 'Interpreter','latex')
 % %         Days
 %         ax = gca;
 % %         ax.XTick = (tchange+0*(1*1440) : 1440 : tchange+days*(1*1440));
@@ -397,19 +420,19 @@ for ss = 1:num_scen
                       / (sum(X_m(6 , time_int, 2 , ss)) / time_points);
         GFR_m (pp,ss) = (sum(X_m(7 , time_int, pp, ss)) / time_points) ...
                       / (sum(X_m(7 , time_int, 2 , ss)) / time_points);
-        UF_m  (pp,ss) = (sum(X_m(53, time_int, pp, ss)) / time_points) ...
-                      / (sum(X_m(53, time_int, 2 , ss)) / time_points);
-        USOD_m(pp,ss) = (sum(X_m(26, time_int, pp, ss)) / time_points) ...
-                      / (sum(X_m(26, time_int, 2 , ss)) / time_points);
+        UF_m  (pp,ss) = (sum(X_m(63, time_int, pp, ss)) / time_points) ...
+                      / (sum(X_m(63, time_int, 2 , ss)) / time_points);
+        USOD_m(pp,ss) = (sum(X_m(27, time_int, pp, ss)) / time_points) ...
+                      / (sum(X_m(27, time_int, 2 , ss)) / time_points);
         
         RBF_f (pp,ss) = (sum(X_f(6 , time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(6 , time_int, 2 , ss)) / time_points);
         GFR_f (pp,ss) = (sum(X_f(7 , time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(7 , time_int, 2 , ss)) / time_points);
-        UF_f  (pp,ss) = (sum(X_f(53, time_int, pp, ss)) / time_points) ...
-                      / (sum(X_f(53, time_int, 2 , ss)) / time_points);
-        USOD_f(pp,ss) = (sum(X_f(26, time_int, pp, ss)) / time_points) ...
-                      / (sum(X_f(26, time_int, 2 , ss)) / time_points);
+        UF_f  (pp,ss) = (sum(X_f(63, time_int, pp, ss)) / time_points) ...
+                      / (sum(X_f(63, time_int, 2 , ss)) / time_points);
+        USOD_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points) ...
+                      / (sum(X_f(27, time_int, 2 , ss)) / time_points);
     end
 end
 

@@ -27,7 +27,8 @@ alpha_rap     = 1;
 R_r           = 18.58; 
 beta_rsna     = 1; 
 Phi_rb        = 5.495; 
-Phi_gfilt     = 0.6274; 
+% Phi_gfilt     = 0.6274; 
+Phi_gfilt     = 1.22; 
 P_f           = 16; 
 P_gh          = 62; 
 Sigma_tgf     = 3.859 * SF; 
@@ -41,15 +42,20 @@ gamma_rsna    = 1;
 Phi_mdsod     = Phi_filsod - Phi_ptsodreab; 
 Phi_dtsodreab = Phi_mdsod * 0.77; 
 eta_dtsodreab = 0.77; 
-psi_al        = 0.5455; 
+psi_al        = 1; 
 Phi_dtsod     = Phi_mdsod - Phi_dtsodreab; 
 Phi_cdsodreab = Phi_dtsod * 0.15; 
 eta_cdsodreab = 0.15; 
 lambda_dt     = 2.03 * SF; 
-lambda_anp    = 1; 
-Phi_usod      = 1.2278; 
+lambda_anp    = 1;
 
-Phi_win       = 0.0086; 
+lambda_al     = 1;
+
+% Phi_usod      = 1.2278; 
+Phi_usod      = 2.3875; 
+
+% Phi_win       = 0.0086; 
+Phi_win       = 0.0150;
 V_ecf         = 61; 
 V_b           = 21; 
 P_mf          = 7; 
@@ -85,7 +91,8 @@ Phi_cdwreab   = Phi_dtu * 0.78;
 eta_cdwreab   = 0.78; 
 mu_cdsodreab  = 1; 
 mu_adh        = 0.46; 
-Phi_u         = 0.0086; 
+% Phi_u         = 0.0086; 
+Phi_u         = 0.0150;
 
 M_sod         = 8818; 
 C_sod         = 143; 
@@ -123,9 +130,9 @@ x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
       P_f; P_gh; Sigma_tgf; Phi_filsod; Phi_ptsodreab; eta_ptsodreab; ...
       gamma_filsod; gamma_at; gamma_rsna; Phi_mdsod; Phi_dtsodreab; ...
       eta_dtsodreab; psi_al; Phi_dtsod; Phi_cdsodreab; eta_cdsodreab; ...
-      lambda_dt; lambda_anp; Phi_usod; Phi_win; V_ecf; V_b; P_mf; ...
-      Phi_vr; Phi_co; P_ra; vas; vas_f; vas_d; R_a; R_ba; R_vr; R_tp; ...
-      P_ma; epsilon_aum; a_auto; a_chemo; a_baro; C_adh; N_adh; ...
+      lambda_dt; lambda_anp; lambda_al; Phi_usod; Phi_win; V_ecf; V_b; ...
+      P_mf; Phi_vr; Phi_co; P_ra; vas; vas_f; vas_d; R_a; R_ba; R_vr; ...
+      R_tp; P_ma; epsilon_aum; a_auto; a_chemo; a_baro; C_adh; N_adh; ...
       N_adhs; delta_ra; Phi_ptwreab; eta_ptwreab; mu_ptsodreab; ...
       Phi_mdu; Phi_dtwreab; eta_dtwreab; mu_dtsodreab; Phi_dtu; ...
       Phi_cdwreab; eta_cdwreab; mu_cdsodreab; mu_adh; Phi_u; M_sod; ...
