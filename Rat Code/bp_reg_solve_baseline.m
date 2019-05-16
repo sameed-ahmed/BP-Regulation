@@ -25,7 +25,9 @@ alpha     = drugs(4);
 
 % Scaling factor
 % Rat flow = Human flow x SF
-SF = pars(end);
+SF = pars(end-1);
+% Rat resistance = Human resistance x SF
+SF_R = pars(end);
 
 N_rsna           = pars(1 );
 R_aass           = pars(2 );
@@ -136,7 +138,7 @@ Phi_dtu       = x(58); Phi_dtu_p       = x_p(58);
 Phi_cdwreab   = x(59); Phi_cdwreab_p   = x_p(59); 
 eta_cdwreab   = x(60); eta_cdwreab_p   = x_p(60); 
 mu_cdsodreab  = x(61); mu_cdsodreab_p  = x_p(61); 
-mu_adh_v        = x(62); mu_adh_p_v        = x_p(62); 
+mu_adh        = x(62); mu_adh_p        = x_p(62); 
 Phi_u         = x(63); Phi_u_p         = x_p(63); 
 M_sod         = x(64); M_sod_p         = x_p(64); 
 C_sod         = x(65); C_sod_p         = x_p(65); 
@@ -291,13 +293,13 @@ f(32) = Phi_vr - ( (P_mf - P_ra) / R_vr );
 f(33) = Phi_co - ( Phi_vr );
 % P_ra - rat
 % f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281) - 0.8256 ) );
-a = 0.2787 * exp(Phi_co * 0.2281 / SF);
-f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 / SF) - a ) );
+a = 0.2787 * exp(Phi_co * 0.2281 * SF_R);
+f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - a ) );
 % vas
 f(35) = vas_p - ( vas_f - vas_d );
 % vas_f - rat
 % f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799)) / 100000 );
-f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799 / SF)) / 100000 );
+f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799 * SF_R)) / 100000 );
 % vas_d
 f(37) = vas_d - ( vas * K_vd );
 % R_a
@@ -351,7 +353,10 @@ f(60) = eta_cdwreab - ( eta_cdwreab_eq * mu_cdsodreab * 1 );
 % mu_cdsodreab
 f(61) = mu_cdsodreab - ( 0.5 * 11/39 * tanh(9.7 * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
 % mu_adh
-f(62) = 1 - ( 1.0325 - 0.1698 * exp(-mu_adh_v * C_adh) );
+aaa = 1.0328;
+bbb = 0.1938;
+ccc = -1/4 * log((aaa - 1) / bbb);
+f(62) = mu_adh - ( aaa - bbb * exp(-ccc * C_adh) );
 % Phi_u - rat
 % f(63) = Phi_u - ( max( 0.0003, Phi_gfilt - Phi_twreab ) );
 f(63) = Phi_u - ( Phi_dtu - Phi_cdwreab );

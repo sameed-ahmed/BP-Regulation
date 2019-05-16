@@ -52,6 +52,7 @@ C_adh         = x(47); C_adh_p         = x_p(47);
 N_adh         = x(48); N_adh_p         = x_p(48); 
 N_adhs        = x(49); N_adhs_p        = x_p(49); 
 delta_ra      = x(50); delta_ra_p      = x_p(50); 
+
 Phi_ptwreab   = x(51); Phi_ptwreab_p   = x_p(51); 
 eta_ptwreab   = x(52); eta_ptwreab_p   = x_p(52); 
 mu_ptsodreab  = x(53); mu_ptsodreab_p  = x_p(53); 
@@ -65,6 +66,7 @@ eta_cdwreab   = x(60); eta_cdwreab_p   = x_p(60);
 mu_cdsodreab  = x(61); mu_cdsodreab_p  = x_p(61); 
 mu_adh        = x(62); mu_adh_p        = x_p(62); 
 Phi_u         = x(63); Phi_u_p         = x_p(63); 
+
 M_sod         = x(64); M_sod_p         = x_p(64); 
 C_sod         = x(65); C_sod_p         = x_p(65); 
 nu_mdsod      = x(66); nu_mdsod_p      = x_p(66); 
