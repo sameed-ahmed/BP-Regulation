@@ -12,7 +12,8 @@ gender = {'male', 'female'};
 
 for gg = 1:1 % gender
 
-% Scaling factor
+%% Scaling factors
+
 % Rat flow = Human flow x SF
 if     strcmp(gender{gg}, 'male')
     SF = 4.5*10^(-3)*10^(3);
@@ -20,13 +21,23 @@ elseif strcmp(gender{gg}, 'female')
     SF = 2/3 * 4.5*10^(-3)*10^(3);
 end
 
+% Rat resistance = Human resistance x SFR
+% Note: Karaaslan human values have been converted from l to ml.
+if     strcmp(gender{gg}, 'male')
+    SF_R = 0.343;
+elseif strcmp(gender{gg}, 'female')
+    SF_R = 0.522;
+end
+
 %% Manual entry of values
 rsna          = 1; 
 alpha_map     = 100; 
 alpha_rap     = 1; 
-R_r           = 18.58; 
+% R_r           = 18.58; 
+R_r           = 28; 
 beta_rsna     = 1; 
-Phi_rb        = 5.495; 
+% Phi_rb        = 5.495; 
+Phi_rb        = 3.6; 
 % Phi_gfilt     = 0.6274; 
 Phi_gfilt     = 1.22; 
 P_f           = 16; 
@@ -56,19 +67,27 @@ Phi_usod      = 2.3875;
 
 % Phi_win       = 0.0086; 
 Phi_win       = 0.0150;
-V_ecf         = 61; 
-V_b           = 21; 
+% V_ecf         = 61; 
+% V_b           = 21; 
+V_ecf         = 1/ (-0.4744) * log((2.4312 / (16 - 4.5479 - 10)) - 1) + 18.1128 + 30; 
+V_b           = 16;
 P_mf          = 7; 
-Phi_vr        = 21; 
-Phi_co        = 21; 
+% Phi_vr        = 14; 
+% Phi_co        = 14; 
+Phi_vr        = 5 / SF_R; 
+Phi_co        = 5 / SF_R; 
 P_ra          = 0; 
 vas           = 1; 
-vas_f         = 1.14e-05; 
-vas_d         = 1.14e-05; 
-R_a           = 4; 
-R_ba          = 3.2; 
-R_vr          = 0.32; 
-R_tp          = 4.7; 
+vas_f         = 0.00001; 
+vas_d         = 0.00001; 
+% R_a           = 4; 
+R_a           = 16.6 * SF_R;
+% R_ba          = 3.2; 
+R_ba          = 16.6 * SF_R; 
+% R_vr          = 0.32; 
+R_vr          = 1.4 * SF_R; 
+% R_tp          = 4.7; 
+R_tp          = 20 * SF_R; 
 P_ma          = 100; 
 epsilon_aum   = 1; 
 a_auto        = 0.011; 
@@ -90,7 +109,7 @@ Phi_dtu       = Phi_mdu - Phi_dtwreab;
 Phi_cdwreab   = Phi_dtu * 0.78; 
 eta_cdwreab   = 0.78; 
 mu_cdsodreab  = 1; 
-mu_adh        = 0.46; 
+mu_adh        = 1; 
 % Phi_u         = 0.0086; 
 Phi_u         = 0.0150;
 
@@ -116,8 +135,10 @@ AT1R          = 20;
 AT2R          = 7; 
 Ang17         = 50; 
 AngIV         = 1.3; 
-R_aa          = 7; 
-R_ea          = 11; 
+% R_aa          = 7;
+% R_ea          = 11;
+R_aa          = 10; 
+R_ea          = 17;
 Sigma_myo     = 62; 
 Psi_AT1RAA    = 1; 
 Psi_AT1REA    = 1; 

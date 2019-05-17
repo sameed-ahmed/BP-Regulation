@@ -41,10 +41,19 @@ if     strcmp(gender{gg}, 'male')
 elseif strcmp(gender{gg}, 'female')
     SF = 2/3 * 4.5*10^(-3)*10^(3);
 end
+% Rat resistance = Human resistance x SF
+% Note: This includes conversion from l to ml.
+if     strcmp(gender{gg}, 'male')
+    SF_R = 0.343;
+elseif strcmp(gender{gg}, 'female')
+    SF_R = 0.522;
+end
 
 N_rsna      = 1;
-R_aass      = 31.67 / SF;   % mmHg min / l
-R_eass      = 51.66 / SF;   % mmHg min / l
+% R_aass    = 31.67 / SF;   % mmHg min / ml
+% R_eass    = 51.66 / SF;   % mmHg min / ml
+R_aass    = 10.87;   % mmHg min / ml
+R_eass    = 17.74;   % mmHg min / ml
 P_B         = 18;           % mmHg
 P_go        = 28;           % mmHg
 % C_gcf     = 0.00781 * SF;
@@ -71,15 +80,17 @@ elseif strcmp(gender{gg}, 'female')
     eta_dtwreab_eq = 0.5; 
     eta_cdwreab_eq = 0.972;
 end
-K_vd        = 0.00001;
-K_bar       = 16.6 / SF;    % mmHg min / l
-R_bv        = 3.4 / SF;     % mmHg min / l
-T_adh       = 6;            % min
-% Phi_sodin = 1.2278;         % microEq / min
-Phi_sodin = 2.3875;         % microEq / min
-C_K         = 5;            % microEq / ml 
-T_al        = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
-N_rs        = 1;            % ng / ml / min
+K_vd      = 0.00001;
+% K_bar     = 16.6 / SF;    % mmHg min / ml
+K_bar     = 16.6 * SF_R;    % mmHg min / ml
+% R_bv      = 3.4 / SF;     % mmHg min / ml
+R_bv      = 3.4 * SF_R;     % mmHg min / ml
+T_adh     = 6;            % min
+% Phi_sodin = 1.2278;       % microEq / min
+Phi_sodin = 2.3875;       % microEq / min
+C_K       = 5;            % microEq / ml 
+T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
+N_rs      = 1;            % ng / ml / min
 
 % RAS
 h_renin     = 12;      % min
@@ -124,7 +135,7 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
         h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
         c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
-        AT2R_eq; gen; SF];
+        AT2R_eq; gen; SF; SF_R];
 
 %% Drugs
 
@@ -141,16 +152,16 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 % end
 % drugs = [0, 1]; % Total ACEi
 
-% if     strcmp(gender{gg}, 'male')
-%     drugs = [(3/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
-% elseif strcmp(gender{gg}, 'female')
-%     drugs = [(2/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
-% end
-
 % drugs = [0, 0.78, 0]; % Leete 2018 ACEi
 % drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
-drugs = [0, 0, 0]; % No drug
+if     strcmp(gender{gg}, 'male')
+    drugs = [(3/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
+elseif strcmp(gender{gg}, 'female')
+    drugs = [(2/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
+end
+
+% drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
@@ -200,7 +211,7 @@ elseif strcmp(gender{gg}, 'female')
 end
 
 % Retrieve and replace parameters in fixed variable equations.
-fixed_ind = [2, 10, 14, 24, 44, 49, 62, 66, 71, 88];
+fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 SSdata(fixed_ind) = 1;
 
@@ -244,8 +255,8 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 x0 = SSdata; x_p0 = zeros(num_vars,1);
 
 % Factor by which to change something.
-% fact = 2;
-fact = 0.05;
+fact = 2;
+% fact = 0.05;
 % fact = 0.5;
 % fact = 1;
 
@@ -360,11 +371,11 @@ end
 % MAPdata_f = [1.000,1.010,1.069,1.176,1.225,1.275,1.304,1.304,...
 %              1.333,1.392,1.402,1.422,1.441,1.451,1.441,];
 % % Multiply MAP relative change by baseline.
-% MAPdata_m = X_m(41,1) * MAPdata_m;
-% MAPdata_f = X_f(41,1) * MAPdata_f;
+% MAPdata_m = X_m(42,1) * MAPdata_m;
+% MAPdata_f = X_f(42,1) * MAPdata_f;
 % 
 % g = figure('pos',[100 100 675 450]);
-% plot(t_m,X_m(41,:),'b-', t_f,X_f(41,:),'r-', 'LineWidth',3)
+% plot(t_m,X_m(42,:),'b-', t_f,X_f(42,:),'r-', 'LineWidth',3)
 % xlim([xlower, xupper])
 % ylim([80, 160])
 % set(gca,'FontSize',14)
@@ -373,7 +384,7 @@ end
 % ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
 %                  '8','9','10','11','12','13','14'};
 % xlabel('t (days)', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-% ylabel(names(41) , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+% ylabel(names(42) , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
 % legend('Male sim','Female sim');
 % hold on
 % plot(tdata,MAPdata_m,'bx', 'DisplayName',  'Male data', 'MarkerSize',10, 'LineWidth',3)
@@ -387,8 +398,8 @@ end
 % MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
 %              13.91,17.31,17.04,18.37,19.63,23.23,24.42];
 % % Substract MAP by baseline.
-% MAP_m = X_m(41,:) - X_m(41,1);
-% MAP_f = X_f(41,:) - X_f(41,1);
+% MAP_m = X_m(42,:) - X_m(42,1);
+% MAP_f = X_f(42,:) - X_f(42,1);
 % 
 % g = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
 % plot(t_m,MAP_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
@@ -411,11 +422,18 @@ end
 
 % Save figures.
 
-% savefig(f, 'all_vars.fig')
+% savefig(f, 'all_vars_baseline.fig')
 
-% savefig(f, 'all_vars_new_sigmamyo0.0.fig')
+% savefig(f, 'all_vars_0.05xPhisodin.fig')
 
-% savefig(f, 'all_vars_new_Phitwreab.fig')
+% savefig(f, 'all_vars_2xPhisodin.fig')
+
+% savefig(f, 'all_vars_AngII_inf.fig')
+% savefig(g, 'Pma_vs_t_AngII_inf.fig')
+
+
+
+
 
 % savefig(f, 'all_vars_stepwise_Phisodin.fig')
 % savefig(f, 'all_vars_stepwise_Phisodin_female_sodreab.fig')
@@ -424,13 +442,6 @@ end
 % savefig(g, 'Pma_vs_t_new_Phitwreab_new_Sigmamyo_AngII_inf.fig')
 
 % savefig(f, 'all_vars_Phisodin_inc.fig')
-
-% male_Pma   = X_m(41,end)
-% female_Pma = X_f(41,end)
-% 
-% BP = round(X_m(41,end));
-% save_fig_name = sprintf('BP=%s.fig', num2str(BP));
-% savefig(f ,save_fig_name)
 
 % savefig(f ,'0.06x_Phisodin_no_rsna.fig')
 

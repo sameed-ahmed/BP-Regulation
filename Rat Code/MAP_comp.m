@@ -14,7 +14,7 @@ gender   = {'male', 'female'};
 % ARB
 deltaMAP = zeros(2,2);
 
-for gg = 1:2 % gender
+for gg = 1:1 % gender
 
 % Add directory containing data.
 mypath = pwd;

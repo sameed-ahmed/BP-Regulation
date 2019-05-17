@@ -226,7 +226,7 @@ f(17) = Phi_mdsod - ( Phi_filsod - Phi_ptsodreab );
 % Phi_dtsodreab
 f(18) = Phi_dtsodreab - ( Phi_mdsod * eta_dtsodreab );
 % eta_dtsodreab
-f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * 1 );
+f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al );
 % psi_al - rat
 % f(20) = psi_al - ( 0.17 + 0.94 / (1 + exp((0.48 - 1.2 * log10(C_al)) / 0.88)) );
 if     strcmp(gender,  'male')
@@ -283,23 +283,30 @@ f(28) = Phi_win - ( 0.003 * 15 / (1 + exp(-2.25 * (C_adh - 4.30806541358))) );
 f(29) = V_ecf_p - ( Phi_win - Phi_u );
 % V_b - rat
 % f(29) = V_b - ( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128) * 0.4744)) );
-f(30) = V_b - ( 4.5479 * SF + 2.4312 * SF / (1 + exp(-(V_ecf - 18.1128 * SF) * (0.4744 / SF) )) );
+% f(30) = V_b - ( 4.5479 * SF + 2.4312 * SF / (1 + exp(-(V_ecf - 18.1128 * SF) * (0.4744 / SF) )) );
+f(30) = V_b - ( 4.5479+10 + 2.4312 / (1 + exp(-(V_ecf-30 - 18.1128) * (0.4744) )) );
 % P_mf - rat
 % f(31) = P_mf - ( (7.436 * V_b - 30.18) * epsilon_aum );
-f(31) = P_mf - ( ( (7.436 / SF) * V_b - 30.18) * epsilon_aum );
+% f(31) = P_mf - ( ( (7.436 / SF) * V_b - 30.18) * epsilon_aum );
+% pmfpmf = (7 + 30.18) / V_b;
+pmfpmf = (7.4360/3);
+f(31) = P_mf - ( ( pmfpmf * V_b - 30.18) * epsilon_aum );
 % Phi_vr
 f(32) = Phi_vr - ( (P_mf - P_ra) / R_vr );
 % Phi_co
 f(33) = Phi_co - ( Phi_vr );
 % P_ra - rat
 % f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281) - 0.8256 ) );
-a = 0.2787 * exp(Phi_co * 0.2281 * SF_R);
-f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - a ) );
+prapra = 0.2787 * exp(Phi_co * 0.2281 * SF_R);
+% prapra = 0.2787 * exp(15.023518577713430 * 0.2281 / SF_R);
+f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - prapra ) );
 % vas
 f(35) = vas_p - ( vas_f - vas_d );
 % vas_f - rat
 % f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799)) / 100000 );
-f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799 * SF_R)) / 100000 );
+% f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799 / SF)) / 100000 );
+vvv = -1/Phi_co * log(1/11.312);
+f(36) = vas_f - ( (11.312 * exp(-Phi_co * vvv)) / 100000 );
 % vas_d
 f(37) = vas_d - ( vas * K_vd );
 % R_a
@@ -349,7 +356,7 @@ f(58) = Phi_dtu - ( Phi_mdu - Phi_dtwreab );
 % Phi_cdwreab
 f(59) = Phi_cdwreab - ( Phi_dtu * eta_cdwreab );
 % eta_cdwreab
-f(60) = eta_cdwreab - ( eta_cdwreab_eq * mu_cdsodreab * 1 );
+f(60) = eta_cdwreab - ( eta_cdwreab_eq * mu_cdsodreab * mu_adh );
 % mu_cdsodreab
 f(61) = mu_cdsodreab - ( 0.5 * 11/39 * tanh(9.7 * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
 % mu_adh

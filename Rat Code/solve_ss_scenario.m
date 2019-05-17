@@ -41,13 +41,22 @@ if     strcmp(gender{gg}, 'male')
 elseif strcmp(gender{gg}, 'female')
     SF = 2/3 * 4.5*10^(-3)*10^(3);
 end
+% Rat resistance = Human resistance x SF
+% Note: This includes conversion from l to ml.
+if     strcmp(gender{gg}, 'male')
+    SF_R = 0.343;
+elseif strcmp(gender{gg}, 'female')
+    SF_R = 0.522;
+end
 
 N_rsna    = 1.00;
-R_aass    = 31.67 / SF;   % mmHg min / ml
+% R_aass    = 31.67 / SF;   % mmHg min / ml
+% R_eass    = 51.66 / SF;   % mmHg min / ml
+R_aass    = 10.87;   % mmHg min / ml
+R_eass    = 17.74;   % mmHg min / ml
 if     strcmp(scenario{ss}, 'RHyp') %|| strcmp(scenario{ss}, 'ACEi') || strcmp(scenario{ss}, 'ARB')
-    R_aass = R_aass*3.5;
+    R_aass = R_aass*1.1;
 end
-R_eass    = 51.66 / SF;   % mmHg min / ml
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
 % C_gcf     = 0.00781 * SF;
@@ -75,12 +84,14 @@ elseif strcmp(gender{gg}, 'female')
     eta_cdwreab_eq = 0.972;
 end
 K_vd      = 0.00001;
-K_bar     = 16.6 / SF;    % mmHg min / ml
-R_bv      = 3.4 / SF;     % mmHg min / ml
+% K_bar     = 16.6 / SF;    % mmHg min / ml
+K_bar     = 16.6 * SF_R;    % mmHg min / ml
+% R_bv      = 3.4 / SF;     % mmHg min / ml
+R_bv      = 3.4 * SF_R;     % mmHg min / ml
 T_adh     = 6;            % min
 % Phi_sodin = 1.2278;       % microEq / min
 Phi_sodin = 2.3875;       % microEq / min
-C_K       = 5;            % microEq / l 
+C_K       = 5;            % microEq / ml 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
 
@@ -127,7 +138,7 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
         h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
         c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
-        AT2R_eq; gen; SF];
+        AT2R_eq; gen; SF; SF_R];
 
 %% Drugs
 
@@ -164,11 +175,11 @@ elseif strcmp(gender{gg}, 'female')
 end
 
 % Retrieve and replace parameters in fixed variable equations.
-fixed_ind = [2, 10, 14, 24, 44, 49, 62, 66, 71, 88];
+fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 SF = 4.5*10^(-3)*10^(3);
-a = 0.2787 * exp(SSdata(33) * 0.2281 / SF);
-fixed_var_pars = [fixed_var_pars; a];
+phicophico = SSdata(33);
+fixed_var_pars = [fixed_var_pars; phicophico];
 SSdata(fixed_ind) = 1;
 SSdataIG = SSdata;
 clear SSdata
