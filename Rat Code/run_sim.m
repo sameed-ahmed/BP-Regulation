@@ -48,6 +48,13 @@ if     strcmp(gender{gg}, 'male')
 elseif strcmp(gender{gg}, 'female')
     SF_R = 0.522;
 end
+% Rat volume = Human volume x SF
+% Note: This includes conversion from l to ml.
+if     strcmp(gender{gg}, 'male')
+    SF_V = 3;
+elseif strcmp(gender{gg}, 'female')
+    SF_V = 3;
+end
 
 N_rsna      = 1;
 % R_aass    = 31.67 / SF;   % mmHg min / ml
@@ -80,7 +87,8 @@ elseif strcmp(gender{gg}, 'female')
     eta_dtwreab_eq = 0.5; 
     eta_cdwreab_eq = 0.972;
 end
-K_vd      = 0.00001;
+% K_vd      = 0.00001;
+K_vd      = 0.01;
 % K_bar     = 16.6 / SF;    % mmHg min / ml
 K_bar     = 16.6 * SF_R;    % mmHg min / ml
 % R_bv      = 3.4 / SF;     % mmHg min / ml
@@ -135,7 +143,7 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
         h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
         c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
-        AT2R_eq; gen; SF; SF_R];
+        AT2R_eq; gen; SF; SF_R; SF_V];
 
 %% Drugs
 
@@ -155,13 +163,13 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 % drugs = [0, 0.78, 0]; % Leete 2018 ACEi
 % drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
-if     strcmp(gender{gg}, 'male')
-    drugs = [(3/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
-elseif strcmp(gender{gg}, 'female')
-    drugs = [(2/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
-end
+% if     strcmp(gender{gg}, 'male')
+%     drugs = [(3/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
+% elseif strcmp(gender{gg}, 'female')
+%     drugs = [(2/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
+% end
 
-% drugs = [0, 0, 0]; % No drug
+drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
@@ -255,8 +263,8 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 x0 = SSdata; x_p0 = zeros(num_vars,1);
 
 % Factor by which to change something.
-fact = 2;
-% fact = 0.05;
+% fact = 2;
+fact = 0.05;
 % fact = 0.5;
 % fact = 1;
 

@@ -25,9 +25,11 @@ alpha     = drugs(4);
 
 % Scaling factor
 % Rat flow = Human flow x SF
-SF = pars(end-1);
+SF   = pars(end-2);
 % Rat resistance = Human resistance x SF
-SF_R = pars(end);
+SF_R = pars(end-1);
+% Rat volume = Human volume x SF
+SF_V = pars(end  );
 
 N_rsna           = pars(1 );
 R_aass           = pars(2 );
@@ -278,18 +280,21 @@ f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
 % Phi_win - rat
 % f(28) = Phi_win - ( 0.003 / (1 + exp(-2.25 * (C_adh - 3.87))) );
 % f(28) = Phi_win - ( 0.003 * SF / (1 + exp(-2.25 * (C_adh - 3.87))) );
-f(28) = Phi_win - ( 0.003 * 15 / (1 + exp(-2.25 * (C_adh - 4.30806541358))) );
+phiwin_a = 0.8;
+phiwin_b = C_adh + 1 / phiwin_a * log(0.002313*15 / 0.0150 - 1);
+f(28) = Phi_win - ( 0.002313 * 15 / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
 % V_ecf
 f(29) = V_ecf_p - ( Phi_win - Phi_u );
 % V_b - rat
 % f(29) = V_b - ( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128) * 0.4744)) );
 % f(30) = V_b - ( 4.5479 * SF + 2.4312 * SF / (1 + exp(-(V_ecf - 18.1128 * SF) * (0.4744 / SF) )) );
-f(30) = V_b - ( 4.5479+10 + 2.4312 / (1 + exp(-(V_ecf-30 - 18.1128) * (0.4744) )) );
+% f(30) = V_b - ( 4.5479+10 + 2.4312 / (1 + exp(-(V_ecf-30 - 18.1128) * (0.4744) )) );
+f(30) = V_b - ( SF_V*( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128*SF_V) * (0.4744/SF_V) )) ) );
 % P_mf - rat
 % f(31) = P_mf - ( (7.436 * V_b - 30.18) * epsilon_aum );
 % f(31) = P_mf - ( ( (7.436 / SF) * V_b - 30.18) * epsilon_aum );
 % pmfpmf = (7 + 30.18) / V_b;
-pmfpmf = (7.4360/3);
+pmfpmf = (7.4360/SF_V);
 f(31) = P_mf - ( ( pmfpmf * V_b - 30.18) * epsilon_aum );
 % Phi_vr
 f(32) = Phi_vr - ( (P_mf - P_ra) / R_vr );
@@ -301,12 +306,14 @@ prapra = 0.2787 * exp(Phi_co * 0.2281 * SF_R);
 % prapra = 0.2787 * exp(15.023518577713430 * 0.2281 / SF_R);
 f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - prapra ) );
 % vas
-f(35) = vas_p - ( vas_f - vas_d );
+% f(35) = vas_p - ( vas_f - vas_d );
+f(35) = vas_p - ( 1 / 1000 * (vas_f - vas_d) );
 % vas_f - rat
 % f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799)) / 100000 );
 % f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799 / SF)) / 100000 );
 vvv = -1/Phi_co * log(1/11.312);
-f(36) = vas_f - ( (11.312 * exp(-Phi_co * vvv)) / 100000 );
+% f(36) = vas_f - ( (11.312 * exp(-Phi_co * vvv)) / 100000 );
+f(36) = vas_f - ( (11.312 * exp(-Phi_co * vvv)) / 100 );
 % vas_d
 f(37) = vas_d - ( vas * K_vd );
 % R_a

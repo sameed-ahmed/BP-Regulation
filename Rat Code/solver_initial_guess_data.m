@@ -21,12 +21,20 @@ elseif strcmp(gender{gg}, 'female')
     SF = 2/3 * 4.5*10^(-3)*10^(3);
 end
 
-% Rat resistance = Human resistance x SFR
-% Note: Karaaslan human values have been converted from l to ml.
+% Rat resistance = Human resistance x SF
+% Note: This includes conversion from l to ml.
 if     strcmp(gender{gg}, 'male')
     SF_R = 0.343;
 elseif strcmp(gender{gg}, 'female')
     SF_R = 0.522;
+end
+
+% Rat volume = Human volume x SF
+% Note: This includes conversion from l to ml.
+if     strcmp(gender{gg}, 'male')
+    SF_V = 3;
+elseif strcmp(gender{gg}, 'female')
+    SF_V = 3;
 end
 
 %% Manual entry of values
@@ -69,7 +77,7 @@ Phi_usod      = 2.3875;
 Phi_win       = 0.0150;
 % V_ecf         = 61; 
 % V_b           = 21; 
-V_ecf         = 1/ (-0.4744) * log((2.4312 / (16 - 4.5479 - 10)) - 1) + 18.1128 + 30; 
+V_ecf         = (1/ (-0.4744) * log((2.4312*SF_V / (16 - 4.5479*SF_V)) - 1) + 18.1128)*SF_V; 
 V_b           = 16;
 P_mf          = 7; 
 % Phi_vr        = 14; 
@@ -78,8 +86,10 @@ Phi_vr        = 5 / SF_R;
 Phi_co        = 5 / SF_R; 
 P_ra          = 0; 
 vas           = 1; 
-vas_f         = 0.00001; 
-vas_d         = 0.00001; 
+% vas_f         = 0.00001; 
+% vas_d         = 0.00001; 
+vas_f         = 0.01; 
+vas_d         = 0.01;
 % R_a           = 4; 
 R_a           = 16.6 * SF_R;
 % R_ba          = 3.2; 

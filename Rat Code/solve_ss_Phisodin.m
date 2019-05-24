@@ -113,7 +113,8 @@ fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 SF = 4.5*10^(-3)*10^(3);
 phicophico = SSdata(33);
-fixed_var_pars = [fixed_var_pars; phicophico];
+cadhcadh   = SSdata(47);
+fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
 
 % Load data for steady state initial value. 
 if strcmp(scenario{ss}, 'Normal')
@@ -174,6 +175,13 @@ if     strcmp(gender{gg}, 'male')
 elseif strcmp(gender{gg}, 'female')
     SF_R = 0.522;
 end
+% Rat volume = Human volume x SF
+% Note: This includes conversion from l to ml.
+if     strcmp(gender{gg}, 'male')
+    SF_V = 3;
+elseif strcmp(gender{gg}, 'female')
+    SF_V = 3;
+end
 
 N_rsna    = 1;
 % R_aass    = 31.67 / SF;   % mmHg min / ml
@@ -206,7 +214,8 @@ elseif strcmp(gender{gg}, 'female')
     eta_dtwreab_eq = 0.5; 
     eta_cdwreab_eq = 0.972;
 end
-K_vd      = 0.00001;
+% K_vd      = 0.00001;
+K_vd      = 0.01;
 % K_bar     = 16.6 / SF;    % mmHg min / ml
 K_bar     = 16.6 * SF_R;    % mmHg min / ml
 % R_bv      = 3.4 / SF;     % mmHg min / ml
@@ -289,7 +298,7 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
         h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
         c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
-        AT2R_eq; gen; SF; SF_R];
+        AT2R_eq; gen; SF; SF_R; SF_V];
 
 %% Drugs
 
@@ -410,7 +419,7 @@ end % scenario
 xscale = iter_range;
 
 % y-axis limits
-% X_f = X_m;
+X_f = X_m;
 % X_m = X_f;
 ylower = zeros(length(X_m(:,1,1)),1); yupper = ylower; 
 for i = 1:length(ylower)
@@ -502,13 +511,13 @@ legend('-DynamicLegend');
 
 % Save figures.
 
-if     strcmp(win,  'fixed')
-    savefig(f, 'all_vars_vs_Phisodin_fixed_Phiwin.fig' )
-    savefig(g, 'Phisodin_vs_Pma_fixed_Phiwin.fig'      )
-elseif strcmp(win, 'varied')
-    savefig(f, 'all_vars_vs_Phisodin_varied_Phiwin.fig')
-    savefig(g, 'Phisodin_vs_Pma_varied_Phiwin.fig'     )
-end
+% if     strcmp(win,  'fixed')
+%     savefig(f, 'all_vars_vs_Phisodin_fixed_Phiwin.fig' )
+%     savefig(g, 'Phisodin_vs_Pma_fixed_Phiwin.fig'      )
+% elseif strcmp(win, 'varied')
+%     savefig(f, 'all_vars_vs_Phisodin_varied_Phiwin.fig')
+%     savefig(g, 'Phisodin_vs_Pma_varied_Phiwin.fig'     )
+% end
 
 % if     strcmp(win,  'fixed')
 %     savefig(f, 'all_vars_vs_Phisodin_fixed_Phiwin_new_Phitwreab.fig'  )
