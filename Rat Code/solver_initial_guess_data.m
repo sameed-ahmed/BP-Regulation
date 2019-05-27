@@ -10,7 +10,7 @@ function solver_initial_guess_data
 
 gender = {'male', 'female'};
 
-for gg = 1:1 % gender
+for gg = 1:2 % gender
 
 %% Scaling factors
 
@@ -18,7 +18,7 @@ for gg = 1:1 % gender
 if     strcmp(gender{gg}, 'male')
     SF = 4.5*10^(-3)*10^(3);
 elseif strcmp(gender{gg}, 'female')
-    SF = 2/3 * 4.5*10^(-3)*10^(3);
+    SF = 4.5*10^(-3)*10^(3);
 end
 
 % Rat resistance = Human resistance x SF
@@ -26,7 +26,7 @@ end
 if     strcmp(gender{gg}, 'male')
     SF_R = 0.343;
 elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.522;
+    SF_R = 0.537;
 end
 
 % Rat volume = Human volume x SF
@@ -34,7 +34,7 @@ end
 if     strcmp(gender{gg}, 'male')
     SF_V = 3;
 elseif strcmp(gender{gg}, 'female')
-    SF_V = 3;
+    SF_V = 2.4;
 end
 
 %% Manual entry of values
@@ -42,19 +42,36 @@ rsna          = 1;
 alpha_map     = 100; 
 alpha_rap     = 1; 
 % R_r           = 18.58; 
+if     strcmp(gender{gg}, 'male')
 R_r           = 28; 
+elseif strcmp(gender{gg}, 'female')
+R_r           = 44; 
+end
+
 beta_rsna     = 1; 
 % Phi_rb        = 5.495; 
+if     strcmp(gender{gg}, 'male')
 Phi_rb        = 3.6; 
-% Phi_gfilt     = 0.6274; 
+elseif strcmp(gender{gg}, 'female')
+Phi_rb        = 2.3; 
+end
+% Phi_gfilt     = 0.6274;
+if     strcmp(gender{gg}, 'male')
 Phi_gfilt     = 1.22; 
+elseif strcmp(gender{gg}, 'female')
+Phi_gfilt     = 0.84; 
+end
 P_f           = 16; 
 P_gh          = 62; 
 Sigma_tgf     = 3.859 * SF; 
 
 Phi_filsod    = Phi_gfilt * 143; 
-Phi_ptsodreab = Phi_filsod * 0.93; 
+if     strcmp(gender{gg}, 'male')
 eta_ptsodreab = 0.93; 
+elseif strcmp(gender{gg}, 'female')
+eta_ptsodreab = 0.90; 
+end
+Phi_ptsodreab = Phi_filsod * eta_ptsodreab; 
 gamma_filsod  = 14 * SF; 
 gamma_at      = 1; 
 gamma_rsna    = 1; 
@@ -77,9 +94,13 @@ Phi_usod      = 2.3875;
 Phi_win       = 0.0150;
 % V_ecf         = 61; 
 % V_b           = 21; 
-V_ecf         = (1/ (-0.4744) * log((2.4312*SF_V / (16 - 4.5479*SF_V)) - 1) + 18.1128)*SF_V; 
-V_b           = 16;
-P_mf          = 7; 
+if     strcmp(gender{gg}, 'male')
+V_b           = 15;
+elseif strcmp(gender{gg}, 'female')
+V_b           = 12;
+end
+V_ecf         = (1/ (-0.4744) * log((2.4312*SF_V / (V_b - 4.5479*SF_V)) - 1) + 18.1128)*SF_V; 
+P_mf          = 7;
 % Phi_vr        = 14; 
 % Phi_co        = 14; 
 Phi_vr        = 5 / SF_R; 
@@ -108,8 +129,12 @@ N_adh         = 1;
 N_adhs        = 141; 
 delta_ra      = 0; 
 
-Phi_ptwreab   = Phi_gfilt * 0.86; 
+if     strcmp(gender{gg}, 'male')
 eta_ptwreab   = 0.86; 
+elseif strcmp(gender{gg}, 'female')
+eta_ptwreab   = 0.80; 
+end
+Phi_ptwreab   = Phi_gfilt * eta_ptwreab; 
 mu_ptsodreab  = 1; 
 Phi_mdu       = Phi_gfilt - Phi_ptwreab; 
 Phi_dtwreab   = Phi_mdu * 0.60; 
@@ -123,11 +148,15 @@ mu_adh        = 1;
 % Phi_u         = 0.0086; 
 Phi_u         = 0.0150;
 
-M_sod         = 8818; 
+M_sod         = 2160 * SF_V; 
 C_sod         = 143; 
 nu_mdsod      = 1.731 * SF; 
 nu_rsna       = 1; 
-C_al          = 110; 
+if     strcmp(gender{gg},  'male')
+C_al = 395;
+elseif strcmp(gender{gg},'female')
+C_al = 379;
+end
 N_al          = 1; 
 N_als         = 1; 
 xi_ksod       = 23.6; 
@@ -147,8 +176,13 @@ Ang17         = 50;
 AngIV         = 1.3; 
 % R_aa          = 7;
 % R_ea          = 11;
+if     strcmp(gender{gg},  'male')
 R_aa          = 10; 
 R_ea          = 17;
+elseif strcmp(gender{gg},'female')
+R_aa          = 17; 
+R_ea          = 27;
+end
 Sigma_myo     = 62; 
 Psi_AT1RAA    = 1; 
 Psi_AT1REA    = 1; 

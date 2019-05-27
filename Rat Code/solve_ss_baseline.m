@@ -20,7 +20,7 @@ RESIDUAL = zeros(num_vars,2);
 EXITFLAG = zeros(1 ,2);
 OUTPUT   = cell (1 ,2);
 
-for gg = 1:1 % gender
+for gg = 1:2 % gender
 
 %% Parameters
 
@@ -35,56 +35,61 @@ end
 if     strcmp(gender{gg}, 'male')
     SF = 4.5*10^(-3)*10^(3);
 elseif strcmp(gender{gg}, 'female')
-    SF = 2/3 * 4.5*10^(-3)*10^(3);
+    SF = 4.5*10^(-3)*10^(3);
 end
 % Rat resistance = Human resistance x SF
 % Note: This includes conversion from l to ml.
 if     strcmp(gender{gg}, 'male')
     SF_R = 0.343;
 elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.522;
+    SF_R = 0.537;
 end
 % Rat volume = Human volume x SF
 % Note: This includes conversion from l to ml.
 if     strcmp(gender{gg}, 'male')
     SF_V = 3;
 elseif strcmp(gender{gg}, 'female')
-    SF_V = 3;
+    SF_V = 2.4;
 end
 
 N_rsna    = 1.00;
 % R_aass    = 31.67 / SF;   % mmHg min / ml
 % R_eass    = 51.66 / SF;   % mmHg min / ml
+if     strcmp(gender{gg}, 'male')
 R_aass    = 10.87;   % mmHg min / ml
 R_eass    = 17.74;   % mmHg min / ml
+elseif strcmp(gender{gg}, 'female')
+R_aass    = 17.02;   % mmHg min / ml
+R_eass    = 27.76;   % mmHg min / ml
+end
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
 % C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
-    C_gcf     = 0.068;
+C_gcf     = 0.068;
 elseif strcmp(gender{gg}, 'female')
-    C_gcf     = 0.068;
+C_gcf     = 0.047;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptsodreab_eq = 0.93; 
     eta_dtsodreab_eq = 0.77; 
     eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.8; 
+%     eta_ptsodreab_eq = 0.8; % karaaslan
 %     eta_dtsodreab_eq = 0.5; 
 %     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptsodreab_eq = 0.5;
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.972;
+    eta_ptsodreab_eq = 0.90;
+    eta_dtsodreab_eq = 0.77; 
+    eta_cdsodreab_eq = 0.15;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptwreab_eq = 0.5;
-    eta_dtwreab_eq = 0.5; 
-    eta_cdwreab_eq = 0.972;
+    eta_ptwreab_eq = 0.80;
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
 end
 % K_vd      = 0.00001;
 K_vd      = 0.01;
@@ -151,9 +156,9 @@ if     strcmp(scenario{ss}, 'Normal') || strcmp(scenario{ss}, 'RHyp')
     drugs = [0, 0, 0, 0];
 elseif strcmp(scenario{ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
-        drugs = [(3/3)*10984, 0, 0, 0]; % Sampson 2008
+        drugs = [2022, 0, 0, 0]; % Sampson 2008
     elseif strcmp(gender{gg}, 'female')
-        drugs = [(2/3)*10984, 0, 0, 0]; % Sampson 2008
+        drugs = [2060, 0, 0, 0]; % Sampson 2008
     end
 elseif strcmp(scenario{ss}, 'ACEi')
 %     drugs = [0, 1, 0, 0 ]; % Hall 1980
@@ -218,12 +223,12 @@ if not (isreal(SSdata))
     disp('Imaginary number returned.')
 end
 
-% Set any values that are within machine precision of 0 equal to 0.
-for i = 1:length(SSdata)
-    if abs(SSdata(i)) < eps*100
-        SSdata(i) = 0;
-    end
-end
+% % Set any values that are within machine precision of 0 equal to 0.
+% for i = 1:length(SSdata)
+%     if abs(SSdata(i)) < eps*100
+%         SSdata(i) = 0;
+%     end
+% end
 
 % save_data_name = sprintf('%s_ss_data.mat', gender{gg});
 % save_data_name = strcat('Data/', save_data_name);

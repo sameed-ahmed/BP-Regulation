@@ -54,21 +54,21 @@ Phi_win_bl_f = zeros(num_scen,2*iteration-1);
 load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
 Phi_win_bl_m(1,1) = SSdata(28);
 clear SSdata;
-% load('female_ss_data_scenario_Normal.mat', 'SSdata');
-% Phi_win_bl_f(1,1) = SSdata(28);
-% clear SSdata;
+load('female_ss_data_scenario_Normal.mat', 'SSdata');
+Phi_win_bl_f(1,1) = SSdata(28);
+clear SSdata;
 load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
 Phi_win_bl_m(2,1) = SSdata(28);
 clear SSdata;
-% load('female_ss_data_scenario_ACEi.mat', 'SSdata');
-% Phi_win_bl_f(2,1) = SSdata(28);
-% clear SSdata;
+load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+Phi_win_bl_f(2,1) = SSdata(28);
+clear SSdata;
 load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
 Phi_win_bl_m(3,1) = SSdata(28);
 clear SSdata;
-% load('female_ss_data_scenario_AngII.mat', 'SSdata');
-% Phi_win_bl_f(3,1) = SSdata(28);
-% clear SSdata;
+load('female_ss_data_scenario_AngII.mat', 'SSdata');
+Phi_win_bl_f(3,1) = SSdata(28);
+clear SSdata;
 
 % Range for fold decrease/increase.
 iter_range_l = linspace(lower, 1, iteration);
@@ -95,7 +95,7 @@ gender   = {'male',     'female'  };
 change   = {'decrease', 'increase'};
 
 for ss = 1:1 % scenario
-for gg = 1:1        % gender
+for gg = 1:2        % gender
 for cc = 1:2        % change
 
 % Add directory containing data.
@@ -111,7 +111,6 @@ elseif strcmp(gender{gg}, 'female')
 end
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
-SF = 4.5*10^(-3)*10^(3);
 phicophico = SSdata(33);
 cadhcadh   = SSdata(47);
 fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
@@ -166,53 +165,58 @@ end
 if     strcmp(gender{gg}, 'male')
     SF = 4.5*10^(-3)*10^(3);
 elseif strcmp(gender{gg}, 'female')
-    SF = 2/3 * 4.5*10^(-3)*10^(3);
+    SF = 4.5*10^(-3)*10^(3);
 end
 % Rat resistance = Human resistance x SF
 % Note: This includes conversion from l to ml.
 if     strcmp(gender{gg}, 'male')
     SF_R = 0.343;
 elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.522;
+    SF_R = 0.537;
 end
 % Rat volume = Human volume x SF
 % Note: This includes conversion from l to ml.
 if     strcmp(gender{gg}, 'male')
     SF_V = 3;
 elseif strcmp(gender{gg}, 'female')
-    SF_V = 3;
+    SF_V = 2.4;
 end
 
 N_rsna    = 1;
 % R_aass    = 31.67 / SF;   % mmHg min / ml
 % R_eass    = 51.66 / SF;   % mmHg min / ml
+if     strcmp(gender{gg}, 'male')
 R_aass    = 10.87;   % mmHg min / ml
 R_eass    = 17.74;   % mmHg min / ml
+elseif strcmp(gender{gg}, 'female')
+R_aass    = 17.02;   % mmHg min / ml
+R_eass    = 27.76;   % mmHg min / ml
+end
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
 % C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
     C_gcf     = 0.068;
 elseif strcmp(gender{gg}, 'female')
-    C_gcf     = 0.068;
+    C_gcf     = 0.047;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptsodreab_eq = 0.93; 
     eta_dtsodreab_eq = 0.77; 
     eta_cdsodreab_eq = 0.15;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptsodreab_eq = 0.5;
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.972;
+    eta_ptsodreab_eq = 0.90;
+    eta_dtsodreab_eq = 0.77; 
+    eta_cdsodreab_eq = 0.15;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptwreab_eq = 0.5;
-    eta_dtwreab_eq = 0.5; 
-    eta_cdwreab_eq = 0.972;
+    eta_ptwreab_eq = 0.80;
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
 end
 % K_vd      = 0.00001;
 K_vd      = 0.01;
@@ -309,9 +313,9 @@ elseif strcmp(scenario{ss}, 'ACEi')
     drugs = [0   , 1]; % Hall 2018
 elseif strcmp(scenario{ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
-        drugs = [(3/3)*10984, 0]; % Sampson 2008
+        drugs = [2022, 0]; % Sampson 2008
     elseif strcmp(gender{gg}, 'female')
-        drugs = [(2/3)*10984, 0]; % Sampson 2008
+        drugs = [2060, 0]; % Sampson 2008
     end
 end
 
@@ -419,7 +423,7 @@ end % scenario
 xscale = iter_range;
 
 % y-axis limits
-X_f = X_m;
+% X_f = X_m;
 % X_m = X_f;
 ylower = zeros(length(X_m(:,1,1)),1); yupper = ylower; 
 for i = 1:length(ylower)

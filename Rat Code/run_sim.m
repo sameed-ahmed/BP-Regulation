@@ -24,7 +24,7 @@ T        = cell(1,2);
 % % Jacobian sparsity pattern
 % [dfdy_s,dfdy_p_s] = jac_spar;
 
-for gg = 1:1 % gender
+for gg = 1:2 % gender
 
 %% Parameters
 
@@ -39,53 +39,61 @@ end
 if     strcmp(gender{gg}, 'male')
     SF = 4.5*10^(-3)*10^(3);
 elseif strcmp(gender{gg}, 'female')
-    SF = 2/3 * 4.5*10^(-3)*10^(3);
+    SF = 4.5*10^(-3)*10^(3);
 end
 % Rat resistance = Human resistance x SF
 % Note: This includes conversion from l to ml.
 if     strcmp(gender{gg}, 'male')
     SF_R = 0.343;
 elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.522;
+    SF_R = 0.537;
 end
 % Rat volume = Human volume x SF
 % Note: This includes conversion from l to ml.
 if     strcmp(gender{gg}, 'male')
     SF_V = 3;
 elseif strcmp(gender{gg}, 'female')
-    SF_V = 3;
+    SF_V = 2.4;
 end
 
 N_rsna      = 1;
 % R_aass    = 31.67 / SF;   % mmHg min / ml
 % R_eass    = 51.66 / SF;   % mmHg min / ml
+if     strcmp(gender{gg}, 'male')
 R_aass    = 10.87;   % mmHg min / ml
 R_eass    = 17.74;   % mmHg min / ml
+elseif strcmp(gender{gg}, 'female')
+R_aass    = 17.02;   % mmHg min / ml
+R_eass    = 27.76;   % mmHg min / ml
+end
 P_B         = 18;           % mmHg
 P_go        = 28;           % mmHg
 % C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
     C_gcf     = 0.068;
 elseif strcmp(gender{gg}, 'female')
-    C_gcf     = 0.068;
+    C_gcf     = 0.047;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptsodreab_eq = 0.93; 
     eta_dtsodreab_eq = 0.77; 
     eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.8; % karaaslan
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptsodreab_eq = 0.5;
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.972;
+    eta_ptsodreab_eq = 0.90;
+    eta_dtsodreab_eq = 0.77; 
+    eta_cdsodreab_eq = 0.15;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptwreab_eq = 0.5;
-    eta_dtwreab_eq = 0.5; 
-    eta_cdwreab_eq = 0.972;
+    eta_ptwreab_eq = 0.80;
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
 end
 % K_vd      = 0.00001;
 K_vd      = 0.01;
@@ -163,13 +171,13 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 % drugs = [0, 0.78, 0]; % Leete 2018 ACEi
 % drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
-% if     strcmp(gender{gg}, 'male')
-%     drugs = [(3/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
-% elseif strcmp(gender{gg}, 'female')
-%     drugs = [(2/3)*10984, 0, 0]; % Sampson 2008 male + female; 13 days
-% end
+if     strcmp(gender{gg}, 'male')
+    drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
+elseif strcmp(gender{gg}, 'female')
+    drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
+end
 
-drugs = [0, 0, 0]; % No drug
+% drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
@@ -286,7 +294,7 @@ options = odeset();
 % options = odeset('JPattern',{ dfdy_s{gg},dfdy_p_s{gg} });
 % options = odeset('RelTol',1e-1, 'AbsTol',1e-4); % default is -3, -6
 options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
-% options = odeset('RelTol',1e-7, 'AbsTol',1e-10, 'MaxStep',1e-1);
+% options = odeset('RelTol',1e-2, 'AbsTol',1e-4, 'MaxStep',1e-0);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
@@ -305,7 +313,7 @@ end % gender
 % Retrieve male and female.
 t_m = T{1}; t_f = T{2};
 X_m = X{1}; X_f = X{2};
-t_f = t_m; X_f = X_m; 
+% t_f = t_m; X_f = X_m; 
 
 % x-axis limits
 xlower = t0; xupper = tend; 

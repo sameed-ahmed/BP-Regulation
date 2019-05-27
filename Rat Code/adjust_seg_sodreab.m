@@ -16,6 +16,8 @@ function adjust_seg_sodreab
 
 % Gender.
 gender = {'male','female'};
+% Variables
+vars = zeros(11,2);
 
 for gg = 1:2 % gender
 
@@ -28,37 +30,59 @@ end
 % Input [Sod] micro Eq/ml.
 C_sod = 143;
 
-% Fractional sodium reabsorption in each segment. Values from Layton - 2016.
 if     strcmp(gender{gg},   'male')
-    eta_ptsodreab = 0.93;
-    eta_dtsodreab = 0.77;
-    eta_cdsodreab = 0.15;
-elseif strcmp(gender{gg}, 'female')
-    eta_ptsodreab = 0.500;
-    eta_dtsodreab = 0.500;
-    eta_cdsodreab = 0.972;
-end
 
-% Compute varying quantities.
-Phi_filsod = Phi_gfilt * C_sod;
+% Fractional sodium reabsorption in each segment. Values from Layton - 2016.
+eta_ptsodreab = 0.93;
+eta_dtsodreab = 0.77;
+eta_cdsodreab = 0.15;
+
+% Compute quantities.
+Phi_filsod    = Phi_gfilt * C_sod;
 Phi_ptsodreab = Phi_filsod * eta_ptsodreab;
-Phi_mdsod = Phi_filsod - Phi_ptsodreab;
+Phi_mdsod     = Phi_filsod - Phi_ptsodreab;
 Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
-Phi_dtsod = Phi_mdsod - Phi_dtsodreab;
+Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
 Phi_cdsodreab = Phi_dtsod * eta_cdsodreab;
-Phi_usod = Phi_dtsod - Phi_cdsodreab;
+Phi_usod      = Phi_dtsod - Phi_cdsodreab
 
-vars = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
-        Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
-        Phi_gfilt    ; Phi_filsod   ; Phi_mdsod    ; Phi_dtsod; Phi_usod];
+vars(:,1) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
+             Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
+             Phi_gfilt    ; Phi_filsod   ; Phi_mdsod    ; Phi_dtsod; Phi_usod];
 
-save_data_name = sprintf('%s_seg_sodreab_vars.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'vars')
+% % Save quantities.
+% save_data_name = sprintf('%s_seg_sodreab_vars.mat', gender{gg});
+% % save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'vars')
 
-end % gender
+elseif strcmp(gender{gg}, 'female')
 
-end
+% Compute quantities.
+Phi_filsod    = Phi_gfilt * C_sod;
+Phi_usod      = Phi_usod; % same as male
+Phi_mdsod     = Phi_mdsod; % same as male
+Phi_ptsodreab = Phi_filsod - Phi_mdsod;
+eta_ptsodreab = Phi_ptsodreab / Phi_filsod
+eta_dtsodreab = 0.77; % same as male
+Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
+Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
+Phi_cdsodreab = Phi_dtsod - Phi_usod;
+eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
+
+vars(:,2) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
+             Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
+             Phi_gfilt    ; Phi_filsod   ; Phi_mdsod    ; Phi_dtsod; Phi_usod];
+
+% % Save quantities.
+% save_data_name = sprintf('%s_seg_sodreab_vars.mat', gender{gg});
+% % save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'vars')
+
+end % gender conditional
+
+end % gender loop
+
+end % function
 
 
 

@@ -201,26 +201,21 @@ f(7 ) = Phi_gfilt - ( P_f * C_gcf );
 f(8 ) = P_f - ( P_gh - (P_B + P_go) );
 % P_gh
 f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );
-% Sigma_tgf - rat - female reabsorption
+% Sigma_tgf - rat
 % f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859) / (-0.9617))) );
-if     strcmp(gender,'male')
-    f(10) = 1 - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - Sigma_tgf_v) / (-0.9617 * SF) )) );
-%     f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859 * SF * 2.500) / (-0.9617 * SF * 2.500) )) ); % female
-elseif strcmp(gender,'female')
-    f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859 * SF * 2.500) / (-0.9617 * SF * 2.500) )) );
-%     f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859 * SF) / (-0.9617 * SF) )) ); % male
-end
+f(10) = 1 - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - Sigma_tgf_v) / (-0.9617 * SF) )) );
 % Phi_filsod
 f(11) = Phi_filsod - ( Phi_gfilt * C_sod );
 % Phi_ptsodreab
 f(12) = Phi_ptsodreab - ( Phi_filsod * eta_ptsodreab );
 % eta_ptsodreab
-f(13) = eta_ptsodreab - ( eta_ptsodreab_eq * 1 * 1 * gamma_rsna );
+f(13) = eta_ptsodreab - ( eta_ptsodreab_eq * 1 * gamma_at * gamma_rsna );
 % gamma_filsod - rat
 % f(14) = gamma_filsod - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - 18)/138)) );
 f(14) = 1 - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - gamma_filsod_v)/(138 * SF) )) );
 % gamma_at
-f(15) = gamma_at - ( 0.95 + 0.12 / (1 + exp(2.6785 - 2.342 * (AT1R/AT1R_eq))) );
+gammaat_a = log(0.12 / (1 - 0.95) - 1) + 2.342;
+f(15) = gamma_at - ( 0.95 + 0.12 / (1 + exp(gammaat_a - 2.342 * (AT1R/AT1R_eq))) );
 % gamma_rsna
 f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
 % Phi_mdsod
@@ -248,7 +243,21 @@ if     strcmp(gender,  'male')
     % ------------------------------------------------------
 %     f(20) = psi_al - 1;
 elseif strcmp(gender,'female')
-    f(20) = psi_al - ( 1/(379^0.3) * C_al^0.3 );
+%     f(20) = psi_al - ( 1/(379^0.3) * C_al^0.3 );
+%     % ------------------------------------------------------
+%     h1 = 2 / eta_dtsodreab_eq;
+%     g1 = h1 / 2;
+%     f1 = -1/379 * log(h1 / (1 + g1) - 1);
+%     f(20) = psi_al - ( -g1 + h1 / (1 + exp(-f1 * C_al)) );
+%     % ------------------------------------------------------
+    % ------------------------------------------------------
+    dd = 0.3 / eta_dtsodreab_eq;
+    aa = 1 / eta_dtsodreab_eq - dd;
+    bb = 1.34;
+    cc = (aa * 379^bb) / (1 - dd) - 379^bb;
+    f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
+    % ------------------------------------------------------
+%     f(20) = psi_al - 1;
 end
 % Phi_dtsod
 f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
@@ -256,17 +265,9 @@ f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
 f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
 % eta_cdsodreab
 f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * 1 * lambda_anp * lambda_al );
-% lambda_dt - rat - female reabsorption
+% lambda_dt - rat
 % f(24) = lambda_dt - ( 0.82 + 0.39 / (1 + exp((Phi_dtsod - 1.7625) / 0.375)) );
-if     strcmp(gender,'male')
-%     f(24) = lambda_dt - ( 0.82 + 0.39 / (1 + exp((Phi_dtsod - 1.7625 * SF) / (0.375 * SF) )) );
-    f(24) = 1 - ( 0.82 + 0.2553 / (1 + exp((Phi_dtsod - lambda_dt_v) / (0.245 * SF) )) );
-%     f(24) = lambda_dt - ( 0.82 + 0.2109 / (1 + exp((Phi_dtsod - 2.22 * SF * 2.504) / (0.224 * SF * 2.504) )) ); % female
-elseif strcmp(gender,'female')
-%     f(24) = lambda_dt - ( 0.82 + 0.39 / (1 + exp((Phi_dtsod - 1.7625 * SF * 2.504) / (0.375 * SF * 2.504) )) );
-    f(24) = lambda_dt - ( 0.82 + 0.2109 / (1 + exp((Phi_dtsod - 2.22 * SF * 2.504) / (0.224 * SF * 2.504) )) );
-%     f(24) = lambda_dt - ( 0.82 + 0.2553 / (1 + exp((Phi_dtsod - 2.03 * SF) / (0.245 * SF) )) ); % male
-end
+f(24) = 1 - ( 0.82 + 0.2553 / (1 + exp((Phi_dtsod - lambda_dt_v) / (0.245 * SF) )) );
 % lambda_anp
 f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
 % lambda_al
@@ -303,6 +304,7 @@ f(33) = Phi_co - ( Phi_vr );
 % P_ra - rat
 % f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281) - 0.8256 ) );
 prapra = 0.2787 * exp(Phi_co * 0.2281 * SF_R);
+prapra = prapra + 0.01 * prapra;
 % prapra = 0.2787 * exp(15.023518577713430 * 0.2281 / SF_R);
 f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - prapra ) );
 % vas
@@ -379,20 +381,14 @@ f(63) = Phi_u - ( Phi_dtu - Phi_cdwreab );
 f(64) = M_sod_p - ( Phi_sodin - Phi_usod );
 % C_sod
 f(65) = C_sod - ( M_sod / V_ecf );
-% nu_mdsod - rat - female reabsorption
+% nu_mdsod - rat
 % if     strcmp(gender,'male')
 %     f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.731) / 0.6056)) );
 % elseif strcmp(gender,'female')
 %     f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.637) / 0.6056)) );
 % end
 % % f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.667) / 0.6056)) );
-if     strcmp(gender,'male')
-    f(66) = 1 - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - nu_mdsod_v) / (0.6056 * SF) )) );
-%     f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.637 * SF * 2.500) / (0.6056 * SF * 2.500) )) ); % female
-elseif strcmp(gender,'female')
-    f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.637 * SF * 2.500) / (0.6056 * SF * 2.500) )) );
-%     f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.731 * SF) / (0.6056 * SF) )) ); % male
-end
+f(66) = 1 - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - nu_mdsod_v) / (0.6056 * SF) )) );
 % nu_rsna
 f(67) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
 % C_al - rat
@@ -420,7 +416,8 @@ else
     f(72) = xi_map - ( 1 );
 end
 % xi_at
-f(73) = xi_at - ( 0.47 + 2.4 / (1 + exp(3.525 - 2.2642 * (AT1R/AT1R_eq))) );
+xiat_a = log(2.4 / (1 - 0.47) - 1) + 2.2642;
+f(73) = xi_at - ( 0.47 + 2.4 / (1 + exp(xiat_a - 2.2642 * (AT1R/AT1R_eq))) );
 % hatC_anp
 f(74) = hatC_anp - ( 7.4052 - 6.554 / (1 + exp(P_ra - 3.762)) ); 
 % AGT

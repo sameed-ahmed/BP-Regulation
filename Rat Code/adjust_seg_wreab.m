@@ -23,6 +23,8 @@ function adjust_seg_wreab
 
 % Gender.
 gender = {'male','female'};
+% Variables
+vars = zeros(10,2);
 
 for gg = 1:2 % gender
 
@@ -33,16 +35,12 @@ elseif strcmp(gender{gg}, 'female')
     Phi_gfilt = 0.84;
 end
 
-% Fractional water reabsorption in each segment. Values from Layton - 2016.
 if     strcmp(gender{gg},   'male')
-    eta_ptwreab = 0.86;
-    eta_dtwreab = 0.60;
-    eta_cdwreab = 0.78;
-elseif strcmp(gender{gg}, 'female')
-    eta_ptwreab = 0.81;
-    eta_dtwreab = 0.78;
-    eta_cdwreab = 0.75;
-end
+
+% Fractional water reabsorption in each segment. Values from Layton - 2016.
+eta_ptwreab = 0.86;
+eta_dtwreab = 0.60;
+eta_cdwreab = 0.78;
 
 % Compute varying quantities.
 Phi_ptwreab = Phi_gfilt * eta_ptwreab;
@@ -50,19 +48,44 @@ Phi_mdu = Phi_gfilt - Phi_ptwreab;
 Phi_dtwreab = Phi_mdu * eta_dtwreab;
 Phi_dtu = Phi_mdu - Phi_dtwreab;
 Phi_cdwreab = Phi_dtu * eta_cdwreab;
-Phi_u = Phi_dtu - Phi_cdwreab;
+Phi_u = Phi_dtu - Phi_cdwreab
 
-vars = [eta_ptwreab; eta_dtwreab; eta_cdwreab; ...
-        Phi_ptwreab; Phi_dtwreab; Phi_cdwreab; ...
-        Phi_gfilt  ; Phi_mdu    ; Phi_dtu    ; Phi_u];
+vars(:,1) = [eta_ptwreab; eta_dtwreab; eta_cdwreab; ...
+             Phi_ptwreab; Phi_dtwreab; Phi_cdwreab; ...
+             Phi_gfilt  ; Phi_mdu    ; Phi_dtu    ; Phi_u];
 
-save_data_name = sprintf('%s_seg_wreab_vars.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'vars')
+% % Save quantities.
+% save_data_name = sprintf('%s_seg_wreab_vars.mat', gender{gg});
+% % save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'vars')
 
-end % gender
+elseif strcmp(gender{gg}, 'female')
 
-end
+% Compute varying quantities.
+Phi_u       = Phi_u; % same as male
+Phi_mdu     = Phi_mdu; % same as male
+Phi_ptwreab = Phi_gfilt - Phi_mdu;
+eta_ptwreab = Phi_ptwreab / Phi_gfilt
+eta_dtwreab = 0.60; % same as male
+Phi_dtwreab = Phi_mdu * eta_dtwreab;
+Phi_dtw     = Phi_mdu - Phi_dtwreab;
+Phi_cdwreab = Phi_dtw - Phi_u;
+eta_cdwreab = Phi_cdwreab / Phi_dtw
+
+vars(:,2) = [eta_ptwreab; eta_dtwreab; eta_cdwreab; ...
+             Phi_ptwreab; Phi_dtwreab; Phi_cdwreab; ...
+             Phi_gfilt  ; Phi_mdu    ; Phi_dtu    ; Phi_u];
+
+% % Save quantities.
+% save_data_name = sprintf('%s_seg_wreab_vars.mat', gender{gg});
+% % save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'vars')
+
+end % gender conditional
+
+end % gender loop
+
+end % function
 
 
 
