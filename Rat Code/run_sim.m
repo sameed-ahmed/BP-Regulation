@@ -35,11 +35,14 @@ elseif strcmp(gender{gg}, 'female')
 end
 
 % Scaling factor
-% Rat flow = Human flow x SF
+% Rat sodium flow = Human sodium flow x SF
+% Note: This includes conversion from mEq to microEq.
 if     strcmp(gender{gg}, 'male')
-    SF = 4.5*10^(-3)*10^(3);
+%     SF_S = 18.9; % layton 2016
+    SF_S = 9.69; % karaaslan
 elseif strcmp(gender{gg}, 'female')
-    SF = 4.5*10^(-3)*10^(3);
+%     SF_S = 18.9; % layton 2016
+    SF_S = 9.69; % karaaslan
 end
 % Rat resistance = Human resistance x SF
 % Note: This includes conversion from l to ml.
@@ -75,16 +78,22 @@ elseif strcmp(gender{gg}, 'female')
     C_gcf     = 0.047;
 end
 if     strcmp(gender{gg}, 'male')
-    eta_ptsodreab_eq = 0.93; 
-    eta_dtsodreab_eq = 0.77; 
-    eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.8; % karaaslan
+%     eta_ptsodreab_eq = 0.93;  % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+    eta_ptsodreab_eq = 0.8; % karaaslan
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.93;
+elseif strcmp(gender{gg}, 'female')
+%     eta_ptsodreab_eq = 0.90;  % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.71; % karaaslan
 %     eta_dtsodreab_eq = 0.5; 
 %     eta_cdsodreab_eq = 0.93;
-elseif strcmp(gender{gg}, 'female')
-    eta_ptsodreab_eq = 0.90;
-    eta_dtsodreab_eq = 0.77; 
-    eta_cdsodreab_eq = 0.15;
+    eta_ptsodreab_eq = 0.5; % anita suggested
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
@@ -102,8 +111,9 @@ K_bar     = 16.6 * SF_R;    % mmHg min / ml
 % R_bv      = 3.4 / SF;     % mmHg min / ml
 R_bv      = 3.4 * SF_R;     % mmHg min / ml
 T_adh     = 6;            % min
-% Phi_sodin = 1.2278;       % microEq / min
-Phi_sodin = 2.3875;       % microEq / min
+% Phi_sodin = 1.2278;       % microEq / min % old
+% Phi_sodin = 2.3875;       % microEq / min % layton 2016
+Phi_sodin = 1.2212;       % microEq / min % karaaslan
 C_K       = 5;            % microEq / ml 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
@@ -151,7 +161,7 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
         h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
         c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
-        AT2R_eq; gen; SF; SF_R; SF_V];
+        AT2R_eq; gen; SF_S; SF_R; SF_V];
 
 %% Drugs
 
@@ -220,22 +230,26 @@ addpath(genpath(mypath))
 %     load('female_ss_data_scenario_AT2R-.mat', 'SSdata');
 % end
 
+% if     strcmp(gender{gg}, 'male')
+%     load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+% elseif strcmp(gender{gg}, 'female')
+%     load('female_ss_data_scenario_Normal.mat', 'SSdata');
+% end
+% if     strcmp(gender{gg}, 'male')
+%     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
+% elseif strcmp(gender{gg}, 'female')
+%     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
+% end
 if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+    load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+    load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 end
 
 % Retrieve and replace parameters in fixed variable equations.
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 SSdata(fixed_ind) = 1;
-
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_new_Phitwreab.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_new_Phitwreab.mat', 'SSdata');
-% end
 
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
@@ -272,9 +286,10 @@ x0 = SSdata; x_p0 = zeros(num_vars,1);
 
 % Factor by which to change something.
 % fact = 2;
-fact = 0.05;
+% fact = (1-0.625);
+% fact = (1-0.95);
 % fact = 0.5;
-% fact = 1;
+fact = 1;
 
 % Time at which to keep steady state, change a parameter, etc.
 tchange = 1440;
@@ -325,8 +340,8 @@ xlower = xlower/1440; xupper = xupper/1440;
 % y-axis limits
 ylower = zeros(length(X_m(:,1)),1); yupper = ylower; 
 for i = 1:length(ylower)
-    ylower(i) = 0.9*min( min(X_m(i,:)), min(X_f(i,:)) );
-    yupper(i) = 1.1*max( max(X_m(i,:)), max(X_f(i,:)) );
+    ylower(i) = 0.95*min( min(X_m(i,:)), min(X_f(i,:)) );
+    yupper(i) = 1.05*max( max(X_m(i,:)), max(X_f(i,:)) );
     if abs(yupper(i)) < eps*100
         ylower(i) = -10^(-5); yupper(i) = 10^(-5);
     end
@@ -406,35 +421,35 @@ end
 % plot(tdata,MAPdata_m,'bx', 'DisplayName',  'Male data', 'MarkerSize',10, 'LineWidth',3)
 % plot(tdata,MAPdata_f,'rx', 'DisplayName','Female data', 'MarkerSize',10, 'LineWidth',3)
 
-% % Data from Sampson 2008. MAP is in difference from baseline.
-% tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
-%              7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
-% MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
-%              26.18,28.87,29.54,31.26,34.71,36.53,42.18];
-% MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
-%              13.91,17.31,17.04,18.37,19.63,23.23,24.42];
-% % Substract MAP by baseline.
-% MAP_m = X_m(42,:) - X_m(42,1);
-% MAP_f = X_f(42,:) - X_f(42,1);
-% 
-% g = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
-% plot(t_m,MAP_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
-% 
-% xlim([xlower, xupper])
-% ylim([0, 45])
-% ax = gca;
-% ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
-% ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
-%                  '8','9','10','11','12','13','14'};
-% xlabel('Time (days)')
-% ylabel('Change in MAP (mmHg)')
-% % 'FontSize',22, 'FontWeight','bold'
-% hold on
-% plot(t_f,MAP_f,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5)
-% plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',12, 'LineWidth',5)
-% plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',12, 'LineWidth',5)
-% legend('Male sim','Female sim','Male data','Female data', 'Location','Northwest');
-% hold off
+% Data from Sampson 2008. MAP is in difference from baseline.
+tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
+             7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
+MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
+             26.18,28.87,29.54,31.26,34.71,36.53,42.18];
+MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
+             13.91,17.31,17.04,18.37,19.63,23.23,24.42];
+% Substract MAP by baseline.
+MAP_m = X_m(42,:) - X_m(42,1);
+MAP_f = X_f(42,:) - X_f(42,1);
+
+g = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
+plot(t_m,MAP_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
+
+xlim([xlower, xupper])
+% ylim([0, 80])
+ax = gca;
+ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
+ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
+                 '8','9','10','11','12','13','14'};
+xlabel('Time (days)')
+ylabel('Change in MAP (mmHg)')
+% 'FontSize',22, 'FontWeight','bold'
+hold on
+plot(t_f,MAP_f,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5)
+plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',12, 'LineWidth',5)
+plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',12, 'LineWidth',5)
+legend('Male sim','Female sim','Male data','Female data', 'Location','Northwest');
+hold off
 
 % Save figures.
 
@@ -445,7 +460,7 @@ end
 % savefig(f, 'all_vars_2xPhisodin.fig')
 
 % savefig(f, 'all_vars_AngII_inf.fig')
-% savefig(g, 'Pma_vs_t_AngII_inf.fig')
+savefig(g, 'COPYPma_vs_t_AngII_inf.fig')
 
 
 

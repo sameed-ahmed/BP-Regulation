@@ -14,11 +14,14 @@ for gg = 1:2 % gender
 
 %% Scaling factors
 
-% Rat flow = Human flow x SF
+% Rat sodium flow = Human sodium flow x SF
+% Note: This includes conversion from mEq to microEq.
 if     strcmp(gender{gg}, 'male')
-    SF = 4.5*10^(-3)*10^(3);
+%     SF_S = 18.9; % layton 2016
+    SF_S = 9.69; % karaaslan
 elseif strcmp(gender{gg}, 'female')
-    SF = 4.5*10^(-3)*10^(3);
+%     SF_S = 18.9; % layton 2016
+    SF_S = 9.69; % karaaslan
 end
 
 % Rat resistance = Human resistance x SF
@@ -63,35 +66,44 @@ Phi_gfilt     = 0.84;
 end
 P_f           = 16; 
 P_gh          = 62; 
-Sigma_tgf     = 3.859 * SF; 
+Sigma_tgf     = 3.859 * SF_S; 
 
 Phi_filsod    = Phi_gfilt * 143; 
 if     strcmp(gender{gg}, 'male')
-eta_ptsodreab = 0.93; 
+% eta_ptsodreab = 0.93; % layton 2016
+% eta_dtsodreab = 0.77; 
+% eta_cdsodreab = 0.15; 
+eta_ptsodreab = 0.8; % karaaslan
+eta_dtsodreab = 0.5; 
+eta_cdsodreab = 0.93;
 elseif strcmp(gender{gg}, 'female')
-eta_ptsodreab = 0.90; 
+% eta_ptsodreab = 0.90; % layton 2016
+% eta_dtsodreab = 0.77; 
+% eta_cdsodreab = 0.15; 
+eta_ptsodreab = 0.71; % karaaslan
+eta_dtsodreab = 0.5; 
+eta_cdsodreab = 0.93;
+% eta_ptsodreab = 0.5; % anita suggested
+% eta_dtsodreab = 0.5; 
+% eta_cdsodreab = 0.96;
 end
+
 Phi_ptsodreab = Phi_filsod * eta_ptsodreab; 
-gamma_filsod  = 14 * SF; 
+gamma_filsod  = 14 * SF_S; 
 gamma_at      = 1; 
 gamma_rsna    = 1; 
 Phi_mdsod     = Phi_filsod - Phi_ptsodreab; 
-Phi_dtsodreab = Phi_mdsod * 0.77; 
-eta_dtsodreab = 0.77; 
+Phi_dtsodreab = Phi_mdsod * eta_dtsodreab; 
 psi_al        = 1; 
 Phi_dtsod     = Phi_mdsod - Phi_dtsodreab; 
-Phi_cdsodreab = Phi_dtsod * 0.15; 
-eta_cdsodreab = 0.15; 
-lambda_dt     = 2.03 * SF; 
+Phi_cdsodreab = Phi_dtsod * eta_cdsodreab; 
+lambda_dt     = 2.03 * SF_S; 
 lambda_anp    = 1;
-
 lambda_al     = 1;
-
 % Phi_usod      = 1.2278; 
-Phi_usod      = 2.3875; 
+% Phi_usod      = 2.3875; 
+Phi_usod      = Phi_dtsod - Phi_cdsodreab; 
 
-% Phi_win       = 0.0086; 
-Phi_win       = 0.0150;
 % V_ecf         = 61; 
 % V_b           = 21; 
 if     strcmp(gender{gg}, 'male')
@@ -131,26 +143,31 @@ delta_ra      = 0;
 
 if     strcmp(gender{gg}, 'male')
 eta_ptwreab   = 0.86; 
+eta_dtwreab   = 0.60; 
+eta_cdwreab   = 0.78; 
 elseif strcmp(gender{gg}, 'female')
 eta_ptwreab   = 0.80; 
+eta_dtwreab   = 0.60; 
+eta_cdwreab   = 0.78; 
 end
+
 Phi_ptwreab   = Phi_gfilt * eta_ptwreab; 
 mu_ptsodreab  = 1; 
 Phi_mdu       = Phi_gfilt - Phi_ptwreab; 
-Phi_dtwreab   = Phi_mdu * 0.60; 
-eta_dtwreab   = 0.60; 
+Phi_dtwreab   = Phi_mdu * eta_dtwreab; 
 mu_dtsodreab  = 1; 
 Phi_dtu       = Phi_mdu - Phi_dtwreab; 
-Phi_cdwreab   = Phi_dtu * 0.78; 
-eta_cdwreab   = 0.78; 
+Phi_cdwreab   = Phi_dtu * eta_cdwreab; 
 mu_cdsodreab  = 1; 
 mu_adh        = 1; 
 % Phi_u         = 0.0086; 
-Phi_u         = 0.0150;
+% Phi_u         = 0.0150;
+Phi_u         = Phi_dtu - Phi_cdwreab;
+Phi_win       = Phi_u;
 
 M_sod         = 2160 * SF_V; 
 C_sod         = 143; 
-nu_mdsod      = 1.731 * SF; 
+nu_mdsod      = 1.731 * SF_S; 
 nu_rsna       = 1; 
 if     strcmp(gender{gg},  'male')
 C_al = 395;
@@ -208,7 +225,9 @@ x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
 
 SSdataIG = x;
 
-save_data_name = sprintf('%s_ss_data_IG.mat', gender{gg});
+% save_data_name = sprintf('%s_ss_data_IG.mat', gender{gg});
+save_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
+% save_data_name = sprintf('COPYNEW%s_ss_data_IG.mat', gender{gg});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdataIG')
 

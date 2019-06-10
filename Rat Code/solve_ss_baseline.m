@@ -31,11 +31,14 @@ elseif strcmp(gender{gg}, 'female')
 end
 
 % Scaling factor
-% Rat flow = Human flow x SF
+% Rat sodium flow = Human sodium flow x SF
+% Note: This includes conversion from mEq to microEq.
 if     strcmp(gender{gg}, 'male')
-    SF = 4.5*10^(-3)*10^(3);
+%     SF_S = 18.9; % layton 2016
+    SF_S = 9.69; % karaaslan
 elseif strcmp(gender{gg}, 'female')
-    SF = 4.5*10^(-3)*10^(3);
+%     SF_S = 18.9; % layton 2016
+    SF_S = 9.69; % karaaslan
 end
 % Rat resistance = Human resistance x SF
 % Note: This includes conversion from l to ml.
@@ -71,16 +74,22 @@ elseif strcmp(gender{gg}, 'female')
 C_gcf     = 0.047;
 end
 if     strcmp(gender{gg}, 'male')
-    eta_ptsodreab_eq = 0.93; 
-    eta_dtsodreab_eq = 0.77; 
-    eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.8; % karaaslan
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.93;
+%     eta_ptsodreab_eq = 0.93; % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+    eta_ptsodreab_eq = 0.8; % karaaslan
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptsodreab_eq = 0.90;
-    eta_dtsodreab_eq = 0.77; 
-    eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.90; % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+    eta_ptsodreab_eq = 0.71; % karaaslan
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.93;
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
@@ -98,8 +107,9 @@ K_bar     = 16.6 * SF_R;    % mmHg min / ml
 % R_bv      = 3.4 / SF;     % mmHg min / ml
 R_bv      = 3.4 * SF_R;     % mmHg min / ml
 T_adh     = 6;            % min
-% Phi_sodin = 1.2278;       % microEq / min
-Phi_sodin = 2.3875;       % microEq / min
+% Phi_sodin = 1.2278;       % microEq / min % old
+% Phi_sodin = 2.3875;       % microEq / min % layton 2016
+Phi_sodin = 1.2212;       % microEq / min % karaaslan
 C_K       = 5;            % microEq / ml 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
@@ -147,7 +157,7 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
         h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
         c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
-        AT2R_eq; gen; SF; SF_R; SF_V];
+        AT2R_eq; gen; SF_S; SF_R; SF_V];
 
 %% Drugs
 
@@ -178,11 +188,21 @@ addpath(genpath(mypath))
 
 % Load data for steady state initial value. 
 % Need to first run transform_data.m on Jessica's data files.
+% if     strcmp(gender{gg}, 'male')
+%     load(  'male_ss_data_IG.mat', 'SSdataIG');
+% elseif strcmp(gender{gg}, 'female')
+%     load('female_ss_data_IG.mat', 'SSdataIG');
+% end
 if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_IG.mat', 'SSdataIG');
+    load(  'NEWmale_ss_data_IG.mat', 'SSdataIG');
 elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_IG.mat', 'SSdataIG');
+    load('NEWfemale_ss_data_IG.mat', 'SSdataIG');
 end
+% if     strcmp(gender{gg}, 'male')
+%     load(  'COPYNEWmale_ss_data_IG.mat', 'SSdataIG');
+% elseif strcmp(gender{gg}, 'female')
+%     load('COPYNEWfemale_ss_data_IG.mat', 'SSdataIG');
+% end
 
 % Order
 % x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
@@ -264,7 +284,9 @@ end
 
 %
 
-save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+% save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+save_data_name = sprintf('NEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+% save_data_name = sprintf('COPYNEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 

@@ -25,7 +25,7 @@ alpha     = drugs(4);
 
 % Scaling factor
 % Rat flow = Human flow x SF
-SF   = pars(end-2);
+SF_S   = pars(end-2);
 % Rat resistance = Human resistance x SF
 SF_R = pars(end-1);
 % Rat volume = Human volume x SF
@@ -203,7 +203,7 @@ f(8 ) = P_f - ( P_gh - (P_B + P_go) );
 f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );
 % Sigma_tgf - rat
 % f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859) / (-0.9617))) );
-f(10) = 1 - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - Sigma_tgf_v) / (-0.9617 * SF) )) );
+f(10) = 1 - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - Sigma_tgf_v) / (-0.9617 * SF_S) )) );
 % Phi_filsod
 f(11) = Phi_filsod - ( Phi_gfilt * C_sod );
 % Phi_ptsodreab
@@ -212,7 +212,7 @@ f(12) = Phi_ptsodreab - ( Phi_filsod * eta_ptsodreab );
 f(13) = eta_ptsodreab - ( eta_ptsodreab_eq * 1 * gamma_at * gamma_rsna );
 % gamma_filsod - rat
 % f(14) = gamma_filsod - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - 18)/138)) );
-f(14) = 1 - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - gamma_filsod_v)/(138 * SF) )) );
+f(14) = 1 - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - gamma_filsod_v)/(138 * SF_S) )) );
 % gamma_at
 gammaat_a = log(0.12 / (1 - 0.95) - 1) + 2.342;
 f(15) = gamma_at - ( 0.95 + 0.12 / (1 + exp(gammaat_a - 2.342 * (AT1R/AT1R_eq))) );
@@ -229,35 +229,40 @@ f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al );
 if     strcmp(gender,  'male')
 %     f(20) = psi_al - ( 1/(395^0.3) * C_al^0.3 );
 %     % ------------------------------------------------------
-%     h1 = 2 / eta_dtsodreab_eq;
-%     g1 = h1 / 2;
-%     f1 = -1/395 * log(h1 / (1 + g1) - 1);
-%     f(20) = psi_al - ( -g1 + h1 / (1 + exp(-f1 * C_al)) );
+% %     dd = 0.5;
+%     dd = 0.0;
+%     aa = 1 / eta_dtsodreab_eq - dd;
+% %     bb = 0.92;
+%     bb = 0.2;
+%     cc = (aa * 395^bb) / (1 - dd) - 395^bb;
+%     f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
 %     % ------------------------------------------------------
     % ------------------------------------------------------
-    dd = 0.3 / eta_dtsodreab_eq;
-    aa = 1 / eta_dtsodreab_eq - dd;
-    bb = 1.34;
-    cc = (aa * 395^bb) / (1 - dd) - 395^bb;
-    f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
+    dd = 2.9;
+    bb = 0.36;
+    aa = (1 + bb) * dd;
+    cc = -1/395 * log((aa / (1 + dd) - 1) / bb);
+    f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
     % ------------------------------------------------------
 %     f(20) = psi_al - 1;
 elseif strcmp(gender,'female')
 %     f(20) = psi_al - ( 1/(379^0.3) * C_al^0.3 );
 %     % ------------------------------------------------------
-%     h1 = 2 / eta_dtsodreab_eq;
-%     g1 = h1 / 2;
-%     f1 = -1/379 * log(h1 / (1 + g1) - 1);
-%     f(20) = psi_al - ( -g1 + h1 / (1 + exp(-f1 * C_al)) );
+% %     dd = 0.5;
+%     dd = 0.0;
+%     aa = 1 / eta_dtsodreab_eq - dd;
+% %     bb = 0.92;
+%     bb = 0.2;
+%     cc = (aa * 379^bb) / (1 - dd) - 379^bb;
+%     f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
 %     % ------------------------------------------------------
     % ------------------------------------------------------
-    dd = 0.3 / eta_dtsodreab_eq;
-    aa = 1 / eta_dtsodreab_eq - dd;
-    bb = 1.34;
-    cc = (aa * 379^bb) / (1 - dd) - 379^bb;
-    f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
+    dd = 2.9;
+    bb = 0.36;
+    aa = (1 + bb) * dd;
+    cc = -1/379 * log((aa / (1 + dd) - 1) / bb);
+    f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
     % ------------------------------------------------------
-%     f(20) = psi_al - 1;
 end
 % Phi_dtsod
 f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
@@ -267,7 +272,7 @@ f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
 f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * 1 * lambda_anp * lambda_al );
 % lambda_dt - rat
 % f(24) = lambda_dt - ( 0.82 + 0.39 / (1 + exp((Phi_dtsod - 1.7625) / 0.375)) );
-f(24) = 1 - ( 0.82 + 0.2553 / (1 + exp((Phi_dtsod - lambda_dt_v) / (0.245 * SF) )) );
+f(24) = 1 - ( 0.82 + 0.2553 / (1 + exp((Phi_dtsod - lambda_dt_v) / (0.245 * SF_S) )) );
 % lambda_anp
 f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
 % lambda_al
@@ -281,9 +286,23 @@ f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
 % Phi_win - rat
 % f(28) = Phi_win - ( 0.003 / (1 + exp(-2.25 * (C_adh - 3.87))) );
 % f(28) = Phi_win - ( 0.003 * SF / (1 + exp(-2.25 * (C_adh - 3.87))) );
+% -------------------------------------------------------------------------
+% phiwin_a = 0.8;
+% phiwin_d = 0.0150;
+% phiwin_c = (0.002313 - 0.001) * SF_V;
+% phiwin_b = C_adh;
+% f(28) = Phi_win - ( phiwin_c * tanh(phiwin_a * (C_adh - phiwin_b)) + phiwin_d );
+% -------------------------------------------------------------------------
+% phiwin_a = 0.8;
+% phiwin_b = C_adh + 1/phiwin_a * log(0.002313 / (0.001) - 1);
+% f(28) = Phi_win - ( 0.002313 / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) + (0.0150 - 0.001) );
+% -------------------------------------------------------------------------
+% f(28) = Phi_win - ( 0.0150 );
+% -------------------------------------------------------------------------
 phiwin_a = 0.8;
 phiwin_b = C_adh + 1 / phiwin_a * log(0.002313*15 / 0.0150 - 1);
 f(28) = Phi_win - ( 0.002313 * 15 / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
+% -------------------------------------------------------------------------
 % V_ecf
 f(29) = V_ecf_p - ( Phi_win - Phi_u );
 % V_b - rat
@@ -388,7 +407,7 @@ f(65) = C_sod - ( M_sod / V_ecf );
 %     f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.637) / 0.6056)) );
 % end
 % % f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.667) / 0.6056)) );
-f(66) = 1 - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - nu_mdsod_v) / (0.6056 * SF) )) );
+f(66) = 1 - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - nu_mdsod_v) / (0.6056 * SF_S) )) );
 % nu_rsna
 f(67) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
 % C_al - rat
@@ -447,7 +466,8 @@ f(86) = R_aa - ( R_aass * beta_rsna * 1 * 1 * Psi_AT1RAA * Psi_AT2RAA);
 % R_ea
 f(87) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
-f(88) = 1 - ( 0.8 + 1.2 / ( 1 + (5/1) * exp(-0.4 * (P_gh - Sigma_myo_v)) ) );
+f(88) = 1 - ( 0.8 + 1.5 / ( 1 + (13/2) * exp(-0.6 * (P_gh - Sigma_myo_v)) ) );
+% f(88) = 1 - ( 0.8  + 1.2 / ( 1 + (5 /1) * exp(-0.4 * (P_gh - Sigma_myo_v)) ) );
 % f(88) = 1 - ( 0.9 + 1.0 / ( 1 + (9/1) * exp(-0.9 * (P_gh - Sigma_myo_v)) ) );
 % f(88) = 1 - ( 5 * (P_gh / Sigma_myo_v - 1) + 1 );
 % Psi_AT1RAA

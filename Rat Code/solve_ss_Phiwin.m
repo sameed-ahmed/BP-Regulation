@@ -44,22 +44,40 @@ Phi_win_bl_m = zeros(num_scen,1);
 Phi_win_bl_f = zeros(num_scen,1);
 % Load data for baseline water intake and renal perfusion pressure for each
 % scenario.
-load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+% load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+% Phi_win_bl_m(1) = SSdata(28);
+% clear SSdata;
+% load('female_ss_data_scenario_Normal.mat', 'SSdata');
+% Phi_win_bl_f(1) = SSdata(28);
+% clear SSdata;
+% load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
+% Phi_win_bl_m(2) = SSdata(28);
+% clear SSdata;
+% load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+% Phi_win_bl_f(2) = SSdata(28);
+% clear SSdata;
+% load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+% Phi_win_bl_m(3) = SSdata(28);
+% clear SSdata;
+% load('female_ss_data_scenario_AngII.mat', 'SSdata');
+% Phi_win_bl_f(3) = SSdata(28);
+% clear SSdata;
+load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 Phi_win_bl_m(1) = SSdata(28);
 clear SSdata;
-load('female_ss_data_scenario_Normal.mat', 'SSdata');
+load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 Phi_win_bl_f(1) = SSdata(28);
 clear SSdata;
-load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
+load(  'NEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
 Phi_win_bl_m(2) = SSdata(28);
 clear SSdata;
-load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+load('NEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
 Phi_win_bl_f(2) = SSdata(28);
 clear SSdata;
-load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+load(  'NEWmale_ss_data_scenario_AngII.mat', 'SSdata');
 Phi_win_bl_m(3) = SSdata(28);
 clear SSdata;
-load('female_ss_data_scenario_AngII.mat', 'SSdata');
+load('NEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
 Phi_win_bl_f(3) = SSdata(28);
 clear SSdata;
 
@@ -96,10 +114,15 @@ mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
 % Retrieve and replace parameters in fixed variable equations.
+% if     strcmp(gender{gg}, 'male')
+%     load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+% elseif strcmp(gender{gg}, 'female')
+%     load('female_ss_data_scenario_Normal.mat', 'SSdata');
+% end
 if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+    load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+    load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 end
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
@@ -109,28 +132,43 @@ fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
 
 % Load data for steady state initial value. 
 if strcmp(scenario{ss}, 'Normal')
+%     if     strcmp(gender{gg}, 'male')
+%         load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+%     elseif strcmp(gender{gg}, 'female')
+%         load('female_ss_data_scenario_Normal.mat', 'SSdata');
+%     end
     if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+        load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
     elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_Normal.mat', 'SSdata');
+        load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
     end
     fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
     SSdata(fixed_ind) = 1;
     SSdataIG = SSdata;
     clear SSdata
 elseif strcmp(scenario{ss}, 'ACEi')
+%     if     strcmp(gender{gg}, 'male')
+%         load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
+%     elseif strcmp(gender{gg}, 'female')
+%         load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+%     end
     if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
+        load(  'NEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
     elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+        load('NEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
     end
     SSdataIG = SSdata;
     clear SSdata
 elseif strcmp(scenario{ss}, 'AngII')
+%     if     strcmp(gender{gg}, 'male')
+%         load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+%     elseif strcmp(gender{gg}, 'female')
+%         load('female_ss_data_scenario_AngII.mat', 'SSdata');
+%     end
     if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+        load(  'NEWmale_ss_data_scenario_AngII.mat', 'SSdata');
     elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_AngII.mat', 'SSdata');
+        load('NEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
     end
     SSdataIG = SSdata;
     clear SSdata
@@ -150,11 +188,12 @@ elseif strcmp(gender{gg}, 'female')
 end
 
 % Scaling factor
-% Rat flow = Human flow x SF
+% Rat sodium flow = Human sodium flow x SF
+% Note: This includes conversion from mEq to microEq.
 if     strcmp(gender{gg}, 'male')
-    SF = 4.5*10^(-3)*10^(3);
+    SF = 9.69;
 elseif strcmp(gender{gg}, 'female')
-    SF = 4.5*10^(-3)*10^(3);
+    SF = 9.69;
 end
 % Rat resistance = Human resistance x SF
 % Note: This includes conversion from l to ml.
@@ -190,13 +229,19 @@ elseif strcmp(gender{gg}, 'female')
 C_gcf     = 0.047;
 end
 if     strcmp(gender{gg}, 'male')
-    eta_ptsodreab_eq = 0.93; 
-    eta_dtsodreab_eq = 0.77; 
-    eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.93;  % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+    eta_ptsodreab_eq = 0.8; % karaaslan
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptsodreab_eq = 0.90;
-    eta_dtsodreab_eq = 0.77; 
-    eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.90; % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+    eta_ptsodreab_eq = 0.71; % karaaslan
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.93;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
@@ -214,8 +259,9 @@ K_bar     = 16.6 * SF_R;    % mmHg min / ml
 % R_bv      = 3.4 / SF;     % mmHg min / ml
 R_bv      = 3.4 * SF_R;     % mmHg min / ml
 T_adh     = 6;            % min
-% Phi_sodin = 1.2278;       % microEq / min
-Phi_sodin = 2.3875;       % microEq / min
+% Phi_sodin = 1.2278;       % microEq / min % old
+% Phi_sodin = 2.3875;       % microEq / min % layton 2016
+Phi_sodin = 1.2212;       % microEq / min % karaaslan
 C_K       = 5;            % microEq / ml 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1;            % ng / ml / min
