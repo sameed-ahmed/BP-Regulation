@@ -91,7 +91,10 @@ elseif strcmp(gender{gg}, 'female')
 %     eta_ptsodreab_eq = 0.71; % karaaslan
 %     eta_dtsodreab_eq = 0.5; 
 %     eta_cdsodreab_eq = 0.93;
-    eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
+    eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
 end
@@ -181,13 +184,13 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 % drugs = [0, 0.78, 0]; % Leete 2018 ACEi
 % drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
-if     strcmp(gender{gg}, 'male')
-    drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
-elseif strcmp(gender{gg}, 'female')
-    drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
-end
+% if     strcmp(gender{gg}, 'male')
+%     drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
+% elseif strcmp(gender{gg}, 'female')
+%     drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
+% end
 
-% drugs = [0, 0, 0]; % No drug
+drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
@@ -230,21 +233,21 @@ addpath(genpath(mypath))
 %     load('female_ss_data_scenario_AT2R-.mat', 'SSdata');
 % end
 
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_scenario_Normal.mat', 'SSdata');
-% end
+if     strcmp(gender{gg}, 'male')
+    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+elseif strcmp(gender{gg}, 'female')
+    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+end
 % if     strcmp(gender{gg}, 'male')
 %     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 % elseif strcmp(gender{gg}, 'female')
 %     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 % end
-if     strcmp(gender{gg}, 'male')
-    load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-elseif strcmp(gender{gg}, 'female')
-    load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-end
+% if     strcmp(gender{gg}, 'male')
+%     load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
+% elseif strcmp(gender{gg}, 'female')
+%     load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
+% end
 
 % Retrieve and replace parameters in fixed variable equations.
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
@@ -460,7 +463,7 @@ hold off
 % savefig(f, 'all_vars_2xPhisodin.fig')
 
 % savefig(f, 'all_vars_AngII_inf.fig')
-savefig(g, 'COPYPma_vs_t_AngII_inf.fig')
+% savefig(g, 'COPYPma_vs_t_AngII_inf.fig')
 
 
 

@@ -33,9 +33,12 @@ C_sod = 143;
 if     strcmp(gender{gg},   'male')
 
 % Fractional sodium reabsorption in each segment. Values from Layton - 2016.
-eta_ptsodreab = 0.93;
-eta_dtsodreab = 0.77;
-eta_cdsodreab = 0.15;
+% eta_ptsodreab = 0.93;  % layton 2016
+% eta_dtsodreab = 0.77; 
+% eta_cdsodreab = 0.15;
+eta_ptsodreab = 0.8; % karaaslan
+eta_dtsodreab = 0.5; 
+eta_cdsodreab = 0.93;
 
 % Compute quantities.
 Phi_filsod    = Phi_gfilt * C_sod;
@@ -57,21 +60,48 @@ vars(:,1) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
 
 elseif strcmp(gender{gg}, 'female')
 
-% Compute quantities.
+% % Compute quantities.
+% Phi_filsod    = Phi_gfilt * C_sod;
+% Phi_usod      = Phi_usod; % same as male
+% Phi_mdsod     = Phi_mdsod; % same as male
+% Phi_ptsodreab = Phi_filsod - Phi_mdsod;
+% eta_ptsodreab = Phi_ptsodreab / Phi_filsod
+% % eta_dtsodreab = 0.77; % same as male % layton 2016
+% eta_dtsodreab = 0.5; % same as male % karaaslan
+% Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
+% Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
+% Phi_cdsodreab = Phi_dtsod - Phi_usod;
+% eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
+
+% Compute quantities with calibratiion.
+
+% % male values
+% eta_ptsodreab = 0.8; % karaaslan
+% eta_dtsodreab = 0.5; 
+% eta_cdsodreab = 0.93;
+
+% Set pt, dt and compute cd
 Phi_filsod    = Phi_gfilt * C_sod;
 Phi_usod      = Phi_usod; % same as male
-Phi_mdsod     = Phi_mdsod; % same as male
-Phi_ptsodreab = Phi_filsod - Phi_mdsod;
-eta_ptsodreab = Phi_ptsodreab / Phi_filsod
-eta_dtsodreab = 0.77; % same as male
+eta_ptsodreab = 0.5 % calibrate
+Phi_ptsodreab = Phi_filsod * eta_ptsodreab;
+Phi_mdsod = Phi_filsod - Phi_ptsodreab;
+eta_dtsodreab = 0.6 % calibrate
 Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
 Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
 Phi_cdsodreab = Phi_dtsod - Phi_usod;
 eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
 
-vars(:,2) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
-             Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
-             Phi_gfilt    ; Phi_filsod   ; Phi_mdsod    ; Phi_dtsod; Phi_usod];
+% % Set dt, cd and compute pt
+% Phi_filsod    = Phi_gfilt * C_sod;
+% Phi_usod      = Phi_usod; % same as male
+% eta_dtsodreab = 0.65 % calibrate
+% eta_cdsodreab = 0.95 % calibrate 
+% eta_ptsodreab = 1 - Phi_usod / ( Phi_filsod * (1 - eta_dtsodreab) * (1 - eta_cdsodreab) )
+
+% vars(:,2) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
+%              Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
+%              Phi_gfilt    ; Phi_filsod   ; Phi_mdsod    ; Phi_dtsod; Phi_usod];
 
 % % Save quantities.
 % save_data_name = sprintf('%s_seg_sodreab_vars.mat', gender{gg});

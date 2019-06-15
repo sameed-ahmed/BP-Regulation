@@ -56,7 +56,8 @@ X_m = zeros(num_vars+1,num_points,num_per,num_scen);
 X_f = zeros(num_vars+1,num_points,num_per,num_scen);
 
 % Need to store male and female RPP for plotting later.
-RPP = zeros(2,1);
+% RPP = (gender, scenario)
+RPP = zeros(2,num_scen);
 
 for pp = 1:num_per  % perturbation
 for ss = 1:num_scen % scenario
@@ -68,21 +69,21 @@ mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
 % Retrieve and replace parameters in fixed variable equations.
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_scenario_Normal.mat', 'SSdata');
-% end
+if     strcmp(gender{gg}, 'male')
+    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+elseif strcmp(gender{gg}, 'female')
+    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+end
 % if     strcmp(gender{gg}, 'male')
 %     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 % elseif strcmp(gender{gg}, 'female')
 %     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 % end
-if     strcmp(gender{gg}, 'male')
-    load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-elseif strcmp(gender{gg}, 'female')
-    load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-end
+% if     strcmp(gender{gg}, 'male')
+%     load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
+% elseif strcmp(gender{gg}, 'female')
+%     load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
+% end
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 phicophico = SSdata(33);
@@ -154,7 +155,10 @@ elseif strcmp(gender{gg}, 'female')
 %     eta_ptsodreab_eq = 0.71; % karaaslan
 %     eta_dtsodreab_eq = 0.5; 
 %     eta_cdsodreab_eq = 0.93;
-    eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
+    eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
 end
@@ -254,21 +258,21 @@ addpath(genpath(mypath))
 % %     load('female_ss_dtata_male_raas.mat', 'SSdata'); % male
 % end
 
-% if   strcmp(scenario{ss},'Denerve & AT2R-')
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'male_ss_data_scenario_AT2R-.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('female_ss_data_scenario_AT2R-.mat', 'SSdata');
-%     end
-% else
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('female_ss_data_scenario_Normal.mat', 'SSdata');
-%     end
-%     fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-%     SSdata(fixed_ind) = 1;
-% end
+if   strcmp(scenario{ss},'Denerve & AT2R-')
+    if     strcmp(gender{gg}, 'male')
+        load(  'male_ss_data_scenario_AT2R-.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_AT2R-.mat', 'SSdata');
+    end
+else
+    if     strcmp(gender{gg}, 'male')
+        load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_Normal.mat', 'SSdata');
+    end
+    fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
+    SSdata(fixed_ind) = 1;
+end
 % if   strcmp(scenario{ss},'Denerve & AT2R-')
 %     if     strcmp(gender{gg}, 'male')
 %         load(  'NEWmale_ss_data_scenario_AT2R-.mat', 'SSdata');
@@ -284,28 +288,28 @@ addpath(genpath(mypath))
 %     fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 %     SSdata(fixed_ind) = 1;
 % end
-if   strcmp(scenario{ss},'Denerve & AT2R-')
-    if     strcmp(gender{gg}, 'male')
-        load(  'COPYNEWmale_ss_data_scenario_AT2R-.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('COPYNEWfemale_ss_data_scenario_AT2R-.mat', 'SSdata');
-    end
-else
-    if     strcmp(gender{gg}, 'male')
-        load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-    end
-    fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-    SSdata(fixed_ind) = 1;
-end
+% if   strcmp(scenario{ss},'Denerve & AT2R-')
+%     if     strcmp(gender{gg}, 'male')
+%         load(  'COPYNEWmale_ss_data_scenario_AT2R-.mat', 'SSdata');
+%     elseif strcmp(gender{gg}, 'female')
+%         load('COPYNEWfemale_ss_data_scenario_AT2R-.mat', 'SSdata');
+%     end
+% else
+%     if     strcmp(gender{gg}, 'male')
+%         load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
+%     elseif strcmp(gender{gg}, 'female')
+%         load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
+%     end
+%     fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
+%     SSdata(fixed_ind) = 1;
+% end
 
 % Store water intake as an input and delete it as a variable.
 Phi_win_input = SSdata(28);
 SSdata(28) = '';
 
 % Input Renal Perfusion Pressure.
-RPP(gg) = SSdata(42-1);
+RPP(gg,ss) = SSdata(42-1);
 
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
@@ -358,7 +362,7 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
                 bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,Phi_win_input,...
-                               tchange,drugs,RPP(gg),RPP_per(pp),SSdata,scenario{ss}), ...
+                               tchange,drugs,RPP(gg,ss),RPP_per(pp),SSdata,scenario{ss}), ...
                 tspan, x0, x_p0, options);
 t = t'; x = x';
 
@@ -463,8 +467,8 @@ end
 % Plot renal perfusion pressure input vs time. ----------------------------
 tplot   = [t0:1:tend];
 RPPplot = zeros(1,length(tplot));
-RPPplot(1        :tchange) = RPP(1);
-RPPplot(tchange+1:tend+1 ) = RPP(1) + RPP_per(exact_per);
+RPPplot(1        :tchange) = RPP(1,2);
+RPPplot(tchange+1:tend+1 ) = RPP(1,2) + RPP_per(exact_per);
 g = figure('pos',[100 100 675 450]);
 plot(tplot,RPPplot, 'LineWidth',3)
 xlabel('$t$ (min)', 'Interpreter','latex')
@@ -478,6 +482,7 @@ ylabel('$RPP$'    , 'Interpreter','latex')
 % X_m/f = (variables, points, perturbation, scenario)
 time_int    = (tchange+10)*ppm+1:(tchange+30)*ppm+1;
 time_points = length(time_int);
+time_value = (tchange+150)*ppm+1;
 RBF_m  = zeros(num_per,num_scen); RBF_f  = zeros(num_per,num_scen);  
 GFR_m  = zeros(num_per,num_scen); GFR_f  = zeros(num_per,num_scen); 
 UF_m   = zeros(num_per,num_scen); UF_f   = zeros(num_per,num_scen); 
@@ -501,11 +506,29 @@ for ss = 1:num_scen
                       / (sum(X_f(63, time_int, 2 , ss)) / time_points);
         USOD_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(27, time_int, 2 , ss)) / time_points);
+% % Value at time_value mintues
+%         RBF_m (pp,ss) = X_m(6 , time_value, pp, ss) ...
+%                       / X_m(6 , time_value, 2 , ss);
+%         GFR_m (pp,ss) = X_m(7 , time_value, pp, ss) ...
+%                       / X_m(7 , time_value, 2 , ss);
+%         UF_m  (pp,ss) = X_m(63, time_value, pp, ss) ...
+%                       / X_m(63, time_value, 2 , ss);
+%         USOD_m(pp,ss) = X_m(27, time_value, pp, ss) ...
+%                       / X_m(27, time_value, 2 , ss);
+%         
+%         RBF_f (pp,ss) = X_f(6 , time_value, pp, ss) ...
+%                       / X_f(6 , time_value, 2 , ss);
+%         GFR_f (pp,ss) = X_f(7 , time_value, pp, ss) ...
+%                       / X_f(7 , time_value, 2 , ss);
+%         UF_f  (pp,ss) = X_f(63, time_value, pp, ss) ...
+%                       / X_f(63, time_value, 2 , ss);
+%         USOD_f(pp,ss) = X_f(27, time_value, pp, ss) ...
+%                       / X_f(27, time_value, 2 , ss);
     end
 end
 
 % RPP
-RPP_m = RPP(1) + RPP_per; RPP_f = RPP(2) + RPP_per; 
+RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per; 
 
 % Data
 
@@ -698,9 +721,9 @@ hold off
 
 % % Save figures.
 % 
-% savefig(f, 'all_vars_RPP_inc.fig')
+% savefig(f, 'all_vars_RPP.fig')
 % savefig(i, 'quant_of_int_vs_RPP.fig')
-% savefig(i, 'rpp_karaaslan_sodreab_0.0_mu.fig')
+% savefig(i, 'COPYquant_of_int_vs_RPP.fig')
 
 end
 

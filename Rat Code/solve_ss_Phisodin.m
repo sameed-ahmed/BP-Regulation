@@ -51,24 +51,24 @@ Phi_win_bl_m = zeros(num_scen,2*iteration-1);
 Phi_win_bl_f = zeros(num_scen,2*iteration-1);
 % Load data for baseline water intake and renal perfusion pressure for each
 % scenario.
-% load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-% Phi_win_bl_m(1,1) = SSdata(28);
-% clear SSdata;
-% load('female_ss_data_scenario_Normal.mat', 'SSdata');
-% Phi_win_bl_f(1,1) = SSdata(28);
-% clear SSdata;
-% load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
-% Phi_win_bl_m(2,1) = SSdata(28);
-% clear SSdata;
-% load('female_ss_data_scenario_ACEi.mat', 'SSdata');
-% Phi_win_bl_f(2,1) = SSdata(28);
-% clear SSdata;
-% load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
-% Phi_win_bl_m(3,1) = SSdata(28);
-% clear SSdata;
-% load('female_ss_data_scenario_AngII.mat', 'SSdata');
-% Phi_win_bl_f(3,1) = SSdata(28);
-% clear SSdata;
+load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+Phi_win_bl_m(1,1) = SSdata(28);
+clear SSdata;
+load('female_ss_data_scenario_Normal.mat', 'SSdata');
+Phi_win_bl_f(1,1) = SSdata(28);
+clear SSdata;
+load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
+Phi_win_bl_m(2,1) = SSdata(28);
+clear SSdata;
+load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+Phi_win_bl_f(2,1) = SSdata(28);
+clear SSdata;
+load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+Phi_win_bl_m(3,1) = SSdata(28);
+clear SSdata;
+load('female_ss_data_scenario_AngII.mat', 'SSdata');
+Phi_win_bl_f(3,1) = SSdata(28);
+clear SSdata;
 % load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 % Phi_win_bl_m(1,1) = SSdata(28);
 % clear SSdata;
@@ -87,24 +87,24 @@ Phi_win_bl_f = zeros(num_scen,2*iteration-1);
 % load('NEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
 % Phi_win_bl_f(3,1) = SSdata(28);
 % clear SSdata;
-load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-Phi_win_bl_m(1,1) = SSdata(28);
-clear SSdata;
-load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-Phi_win_bl_f(1,1) = SSdata(28);
-clear SSdata;
-load(  'COPYNEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
-Phi_win_bl_m(2,1) = SSdata(28);
-clear SSdata;
-load('COPYNEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
-Phi_win_bl_f(2,1) = SSdata(28);
-clear SSdata;
-load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-Phi_win_bl_m(3,1) = SSdata(28);
-clear SSdata;
-load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-Phi_win_bl_f(3,1) = SSdata(28);
-clear SSdata;
+% load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
+% Phi_win_bl_m(1,1) = SSdata(28);
+% clear SSdata;
+% load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
+% Phi_win_bl_f(1,1) = SSdata(28);
+% clear SSdata;
+% load(  'COPYNEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
+% Phi_win_bl_m(2,1) = SSdata(28);
+% clear SSdata;
+% load('COPYNEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
+% Phi_win_bl_f(2,1) = SSdata(28);
+% clear SSdata;
+% load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
+% Phi_win_bl_m(3,1) = SSdata(28);
+% clear SSdata;
+% load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
+% Phi_win_bl_f(3,1) = SSdata(28);
+% clear SSdata;
 
 % Range for fold decrease/increase.
 iter_range_l = linspace(lower, 1, iteration);
@@ -140,21 +140,21 @@ mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
 % Retrieve and replace parameters in fixed variable equations.
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_scenario_Normal.mat', 'SSdata');
-% end
+if     strcmp(gender{gg}, 'male')
+    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+elseif strcmp(gender{gg}, 'female')
+    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+end
 % if     strcmp(gender{gg}, 'male')
 %     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 % elseif strcmp(gender{gg}, 'female')
 %     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 % end
-if     strcmp(gender{gg}, 'male')
-    load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-elseif strcmp(gender{gg}, 'female')
-    load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-end
+% if     strcmp(gender{gg}, 'male')
+%     load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
+% elseif strcmp(gender{gg}, 'female')
+%     load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
+% end
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 phicophico = SSdata(33);
@@ -163,59 +163,59 @@ fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
 
 % Load data for steady state initial value. 
 if strcmp(scenario{ss}, 'Normal')
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('female_ss_data_scenario_Normal.mat', 'SSdata');
-%     end
+    if     strcmp(gender{gg}, 'male')
+        load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_Normal.mat', 'SSdata');
+    end
 %     if     strcmp(gender{gg}, 'male')
 %         load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 %     elseif strcmp(gender{gg}, 'female')
 %         load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 %     end
-    if     strcmp(gender{gg}, 'male')
-        load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-    end
+%     if     strcmp(gender{gg}, 'male')
+%         load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
+%     elseif strcmp(gender{gg}, 'female')
+%         load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
+%     end
     fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
     SSdata(fixed_ind) = 1;
     SSdataIG = SSdata;
     clear SSdata
 elseif strcmp(scenario{ss}, 'ACEi')
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('female_ss_data_scenario_ACEi.mat', 'SSdata');
-%     end
+    if     strcmp(gender{gg}, 'male')
+        load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_ACEi.mat', 'SSdata');
+    end
 %     if     strcmp(gender{gg}, 'male')
 %         load(  'NEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
 %     elseif strcmp(gender{gg}, 'female')
 %         load('NEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
 %     end
-    if     strcmp(gender{gg}, 'male')
-        load(  'COPYNEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('COPYNEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
-    end
+%     if     strcmp(gender{gg}, 'male')
+%         load(  'COPYNEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
+%     elseif strcmp(gender{gg}, 'female')
+%         load('COPYNEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
+%     end
     SSdataIG = SSdata;
     clear SSdata
 elseif strcmp(scenario{ss}, 'AngII')
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('female_ss_data_scenario_AngII.mat', 'SSdata');
-%     end
+    if     strcmp(gender{gg}, 'male')
+        load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_AngII.mat', 'SSdata');
+    end
 %     if     strcmp(gender{gg}, 'male')
 %         load(  'NEWmale_ss_data_scenario_AngII.mat', 'SSdata');
 %     elseif strcmp(gender{gg}, 'female')
 %         load('NEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
 %     end
-    if     strcmp(gender{gg}, 'male')
-        load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-    end
+%     if     strcmp(gender{gg}, 'male')
+%         load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
+%     elseif strcmp(gender{gg}, 'female')
+%         load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
+%     end
     SSdataIG = SSdata;
     clear SSdata
 end
@@ -293,7 +293,10 @@ elseif strcmp(gender{gg}, 'female')
 %     eta_ptsodreab_eq = 0.71; % karaaslan
 %     eta_dtsodreab_eq = 0.5; 
 %     eta_cdsodreab_eq = 0.93;
-    eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
+    eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
 end
@@ -610,6 +613,13 @@ legend('-DynamicLegend');
 % elseif strcmp(win, 'varied')
 %     savefig(f, 'all_vars_vs_Phisodin_varied_Phiwin.fig')
 %     savefig(g, 'Phisodin_vs_Pma_varied_Phiwin.fig'     )
+% end
+% if     strcmp(win,  'fixed')
+%     savefig(f, 'COPYall_vars_vs_Phisodin_fixed_Phiwin.fig' )
+%     savefig(g, 'COPYPhisodin_vs_Pma_fixed_Phiwin.fig'      )
+% elseif strcmp(win, 'varied')
+%     savefig(f, 'COPYall_vars_vs_Phisodin_varied_Phiwin.fig')
+%     savefig(g, 'COPYPhisodin_vs_Pma_varied_Phiwin.fig'     )
 % end
 
 % if     strcmp(win,  'fixed')

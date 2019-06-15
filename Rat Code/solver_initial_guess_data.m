@@ -80,12 +80,15 @@ elseif strcmp(gender{gg}, 'female')
 % eta_ptsodreab = 0.90; % layton 2016
 % eta_dtsodreab = 0.77; 
 % eta_cdsodreab = 0.15; 
-eta_ptsodreab = 0.71; % karaaslan
-eta_dtsodreab = 0.5; 
-eta_cdsodreab = 0.93;
+% eta_ptsodreab = 0.71; % karaaslan
+% eta_dtsodreab = 0.5; 
+% eta_cdsodreab = 0.93;
 % eta_ptsodreab = 0.5; % anita suggested
 % eta_dtsodreab = 0.5; 
 % eta_cdsodreab = 0.96;
+eta_ptsodreab = 0.5; % calibrated
+eta_dtsodreab = 0.5; 
+eta_cdsodreab = 0.96;
 end
 
 Phi_ptsodreab = Phi_filsod * eta_ptsodreab; 
@@ -225,8 +228,8 @@ x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
 
 SSdataIG = x;
 
-% save_data_name = sprintf('%s_ss_data_IG.mat', gender{gg});
-save_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
+save_data_name = sprintf('%s_ss_data_IG.mat', gender{gg});
+% save_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
 % save_data_name = sprintf('COPYNEW%s_ss_data_IG.mat', gender{gg});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdataIG')

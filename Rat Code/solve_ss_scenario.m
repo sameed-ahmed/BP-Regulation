@@ -13,7 +13,7 @@ function solve_ss_scenario
 % AT2R- - Block AT2R through decay
 % RHyp  - Renal hypertension due to increased afferent arteriolar resistance
 scenario = {'AngII', 'ACEi', 'ARB', 'AT2R-', 'RHyp'};
-ss = 1;
+ss = 4;
 
 num_vars = 92;
 
@@ -94,7 +94,10 @@ elseif strcmp(gender{gg}, 'female')
 %     eta_ptsodreab_eq = 0.71; % karaaslan
 %     eta_dtsodreab_eq = 0.5; 
 %     eta_cdsodreab_eq = 0.93;
-    eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
+    eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
 end
@@ -194,21 +197,21 @@ mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
 % Load data for steady state initial value. 
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_scenario_Normal.mat', 'SSdata');
-% end
+if     strcmp(gender{gg}, 'male')
+    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+elseif strcmp(gender{gg}, 'female')
+    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+end
 % if     strcmp(gender{gg}, 'male')
 %     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 % elseif strcmp(gender{gg}, 'female')
 %     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 % end
-if     strcmp(gender{gg}, 'male')
-    load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-elseif strcmp(gender{gg}, 'female')
-    load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-end
+% if     strcmp(gender{gg}, 'male')
+%     load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
+% elseif strcmp(gender{gg}, 'female')
+%     load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
+% end
 
 % Retrieve and replace parameters in fixed variable equations.
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
@@ -224,15 +227,15 @@ clear SSdata
 % Thus it is done incrementally and iteratively.
 if     strcmp(scenario{ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
-%         load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
+        load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
 %         load(  'NEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-        load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
+%         load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
         SSdataIG = SSdata;
         clear SSdata;
     elseif strcmp(gender{gg}, 'female')
-%         load('female_ss_data_scenario_AngII.mat', 'SSdata');
+        load('female_ss_data_scenario_AngII.mat', 'SSdata');
 %         load('NEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-        load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
+%         load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
         SSdataIG = SSdata;
         clear SSdata;
     end
@@ -320,9 +323,9 @@ end
 
 %
 
-% save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 % save_data_name = sprintf('NEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
-save_data_name = sprintf('COPYNEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+% save_data_name = sprintf('COPYNEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 

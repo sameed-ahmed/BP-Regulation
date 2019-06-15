@@ -84,12 +84,15 @@ elseif strcmp(gender{gg}, 'female')
 %     eta_ptsodreab_eq = 0.90; % layton 2016
 %     eta_dtsodreab_eq = 0.77; 
 %     eta_cdsodreab_eq = 0.15;
-    eta_ptsodreab_eq = 0.71; % karaaslan
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.93;
+%     eta_ptsodreab_eq = 0.71; % karaaslan
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.93;
 %     eta_ptsodreab_eq = 0.5; % anita suggested
 %     eta_dtsodreab_eq = 0.5; 
 %     eta_cdsodreab_eq = 0.96;
+    eta_ptsodreab_eq = 0.5; % calibrated
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
@@ -188,16 +191,16 @@ addpath(genpath(mypath))
 
 % Load data for steady state initial value. 
 % Need to first run transform_data.m on Jessica's data files.
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_IG.mat', 'SSdataIG');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_IG.mat', 'SSdataIG');
-% end
 if     strcmp(gender{gg}, 'male')
-    load(  'NEWmale_ss_data_IG.mat', 'SSdataIG');
+    load(  'male_ss_data_IG.mat', 'SSdataIG');
 elseif strcmp(gender{gg}, 'female')
-    load('NEWfemale_ss_data_IG.mat', 'SSdataIG');
+    load('female_ss_data_IG.mat', 'SSdataIG');
 end
+% if     strcmp(gender{gg}, 'male')
+%     load(  'NEWmale_ss_data_IG.mat', 'SSdataIG');
+% elseif strcmp(gender{gg}, 'female')
+%     load('NEWfemale_ss_data_IG.mat', 'SSdataIG');
+% end
 % if     strcmp(gender{gg}, 'male')
 %     load(  'COPYNEWmale_ss_data_IG.mat', 'SSdataIG');
 % elseif strcmp(gender{gg}, 'female')
@@ -284,8 +287,8 @@ end
 
 %
 
-% save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
-save_data_name = sprintf('NEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+% save_data_name = sprintf('NEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 % save_data_name = sprintf('COPYNEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
