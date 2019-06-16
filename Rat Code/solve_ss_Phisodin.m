@@ -556,26 +556,22 @@ for i = 1:7
     end
 end
 
-% Data
-% Relative MAP change, Relative sodium excretion change
-pn_m = [1, 1.12; 1, 4.9]; % 
-pn_m(1,:) = pn_m(1,:)*X_m(42,iteration,1);
-pn_f = [1, 1.17; 1, 8.0]; % 
-pn_f(1,:) = pn_f(1,:)*X_f(42,iteration,1);
-
 % Plot Sodium Intake vs Mean Arterial Pressure
 
-g = figure('pos',[100 100 675 450]);
-plot(X_m(42,:,1),xscale,'b-', X_f(42,:,1),xscale,'r-', 'LineWidth',3)
-% xlim([80, 130])
+g = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
+plot(X_m(42,:,1),xscale,'b-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
+
+% xlim([80, 120])
 ylim([lower, upper])
+ax = gca;
+% ax.XTick = (80 : 10 : 120);
+xlabel('MAP (mmHg)')
+ylabel({'Fold change in'; 'sodium excretion'})
+% 'FontSize',22, 'FontWeight','bold'
+hold on
+plot(X_f(42,:,1),xscale,'r-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5)
 legend('Male', 'Female')
-set(gca,'FontSize',14)
-xlabel(names(42)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-ylabel('$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-hold all
-plot(pn_m(1,:),pn_m(2,:),'bx', pn_f(1,:),pn_f(2,:),'rx', ...
-     'MarkerSize',10, 'LineWidth',3)
+hold off
 
 %
 
@@ -614,13 +610,13 @@ legend('-DynamicLegend');
 %     savefig(f, 'all_vars_vs_Phisodin_varied_Phiwin.fig')
 %     savefig(g, 'Phisodin_vs_Pma_varied_Phiwin.fig'     )
 % end
-% if     strcmp(win,  'fixed')
-%     savefig(f, 'COPYall_vars_vs_Phisodin_fixed_Phiwin.fig' )
-%     savefig(g, 'COPYPhisodin_vs_Pma_fixed_Phiwin.fig'      )
-% elseif strcmp(win, 'varied')
-%     savefig(f, 'COPYall_vars_vs_Phisodin_varied_Phiwin.fig')
-%     savefig(g, 'COPYPhisodin_vs_Pma_varied_Phiwin.fig'     )
-% end
+if     strcmp(win,  'fixed')
+    savefig(f, 'COPYall_vars_vs_Phisodin_fixed_Phiwin.fig' )
+    savefig(g, 'COPYPhisodin_vs_Pma_fixed_Phiwin.fig'      )
+elseif strcmp(win, 'varied')
+    savefig(f, 'COPYall_vars_vs_Phisodin_varied_Phiwin.fig')
+    savefig(g, 'COPYPhisodin_vs_Pma_varied_Phiwin.fig'     )
+end
 
 % if     strcmp(win,  'fixed')
 %     savefig(f, 'all_vars_vs_Phisodin_fixed_Phiwin_new_Phitwreab.fig'  )
