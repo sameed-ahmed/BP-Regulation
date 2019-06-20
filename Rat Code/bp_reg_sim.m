@@ -451,8 +451,12 @@ f(50) = delta_ra_p - ( 0.2 * P_ra_p - 0.0007 * delta_ra );
 f(51) = Phi_ptwreab - ( Phi_gfilt * eta_ptwreab );
 % eta_ptwreab
 f(52) = eta_ptwreab - ( eta_ptwreab_eq * mu_ptsodreab );
+
+musodreab_a = 0.12;
+musodreab_b = 10;
 % mu_ptsodreab
-f(53) = mu_ptsodreab - ( 0.5 * 7/43 * tanh(13 * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
+% f(53) = mu_ptsodreab - ( 0.5 * 7/43 * tanh(13 * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
+f(53) = mu_ptsodreab - ( musodreab_a * tanh(musodreab_b * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
 % f(53) = mu_ptsodreab - ( 1 );
 % Phi_mdu
 f(54) = Phi_mdu - ( Phi_gfilt - Phi_ptwreab );
@@ -461,7 +465,8 @@ f(55) = Phi_dtwreab - ( Phi_mdu * eta_dtwreab );
 % eta_dtwreab
 f(56) = eta_dtwreab - ( eta_dtwreab_eq * mu_dtsodreab );
 % mu_dtsodreab
-f(57) = mu_dtsodreab - ( 0.5 * 2/3 * tanh(3.2 * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
+% f(57) = mu_dtsodreab - ( 0.5 * 2/3 * tanh(3.2 * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
+f(57) = mu_dtsodreab - ( musodreab_a * tanh(musodreab_b * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
 % f(57) = mu_dtsodreab - ( 1 );
 % Phi_dtu
 f(58) = Phi_dtu - ( Phi_mdu - Phi_dtwreab );
@@ -470,8 +475,10 @@ f(59) = Phi_cdwreab - ( Phi_dtu * eta_cdwreab );
 % eta_cdwreab
 f(60) = eta_cdwreab - ( eta_cdwreab_eq * mu_cdsodreab * mu_adh );
 % mu_cdsodreab
-f(61) = mu_cdsodreab - ( 0.5 * 11/39 * tanh(9.7 * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
+% f(61) = mu_cdsodreab - ( 0.5 * 11/39 * tanh(9.7 * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
+f(61) = mu_cdsodreab - ( musodreab_a * tanh(musodreab_b * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
 % f(61) = mu_cdsodreab - ( 1 );
+
 % mu_adh
 aaa = 1.0328;
 bbb = 0.1938;
@@ -551,9 +558,7 @@ f(86) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_A
 % R_ea
 f(87) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
-% f(88) = Sigma_myo - ( 0.6 + 1.4 / ( 1 + (5/2) * exp(-0.5 * (P_gh - fixed_var_pars(10))) ) );
-% f(88) = Sigma_myo - ( 0.8 + 1.2 / ( 1 + (5/1) * exp(-0.4 * (P_gh - fixed_var_pars(9))) ) );
-f(88) = Sigma_myo - ( 0.8 + 1.5 / ( 1 + (13/2) * exp(-0.6 * (P_gh - fixed_var_pars(9))) ) );
+f(88) = Sigma_myo - ( 0.8 + 2.5 / ( 1 + (23/2) * exp(-0.6 * (P_gh - fixed_var_pars(9))) ) );
 % f(88) = Sigma_myo - ( 1 );
 % f(88) = Sigma_myo - ( 5 * (P_gh / 62 - 1) + 1 );
 % Psi_AT1RAA

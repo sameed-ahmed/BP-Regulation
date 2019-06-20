@@ -305,9 +305,12 @@ if     strcmp(gender{gg}, 'male')
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptwreab_eq = 0.80;
-    eta_dtwreab_eq = 0.60; 
-    eta_cdwreab_eq = 0.78;
+%     eta_ptwreab_eq = 0.80;
+%     eta_dtwreab_eq = 0.60; 
+%     eta_cdwreab_eq = 0.78;
+    eta_ptwreab_eq = 0.5; % calibrated
+    eta_dtwreab_eq = 0.6; 
+    eta_cdwreab_eq = 0.91;
 end
 % K_vd      = 0.00001;
 K_vd      = 0.01;
@@ -610,13 +613,13 @@ legend('-DynamicLegend');
 %     savefig(f, 'all_vars_vs_Phisodin_varied_Phiwin.fig')
 %     savefig(g, 'Phisodin_vs_Pma_varied_Phiwin.fig'     )
 % end
-if     strcmp(win,  'fixed')
-    savefig(f, 'COPYall_vars_vs_Phisodin_fixed_Phiwin.fig' )
-    savefig(g, 'COPYPhisodin_vs_Pma_fixed_Phiwin.fig'      )
-elseif strcmp(win, 'varied')
-    savefig(f, 'COPYall_vars_vs_Phisodin_varied_Phiwin.fig')
-    savefig(g, 'COPYPhisodin_vs_Pma_varied_Phiwin.fig'     )
-end
+% if     strcmp(win,  'fixed')
+%     savefig(f, 'COPYall_vars_vs_Phisodin_fixed_Phiwin.fig' )
+%     savefig(g, 'COPYPhisodin_vs_Pma_fixed_Phiwin.fig'      )
+% elseif strcmp(win, 'varied')
+%     savefig(f, 'COPYall_vars_vs_Phisodin_varied_Phiwin.fig')
+%     savefig(g, 'COPYPhisodin_vs_Pma_varied_Phiwin.fig'     )
+% end
 
 % if     strcmp(win,  'fixed')
 %     savefig(f, 'all_vars_vs_Phisodin_fixed_Phiwin_new_Phitwreab.fig'  )

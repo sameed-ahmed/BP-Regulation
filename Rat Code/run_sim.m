@@ -103,9 +103,12 @@ if     strcmp(gender{gg}, 'male')
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-    eta_ptwreab_eq = 0.80;
-    eta_dtwreab_eq = 0.60; 
-    eta_cdwreab_eq = 0.78;
+%     eta_ptwreab_eq = 0.80;
+%     eta_dtwreab_eq = 0.60; 
+%     eta_cdwreab_eq = 0.78;
+    eta_ptwreab_eq = 0.5; % calibrated
+    eta_dtwreab_eq = 0.6; 
+    eta_cdwreab_eq = 0.91;
 end
 % K_vd      = 0.00001;
 K_vd      = 0.01;
@@ -463,6 +466,7 @@ hold off
 % savefig(f, 'all_vars_2xPhisodin.fig')
 
 % savefig(f, 'all_vars_AngII_inf.fig')
+% savefig(g, 'Pma_vs_t_AngII_inf.fig')
 % savefig(g, 'COPYPma_vs_t_AngII_inf.fig')
 
 

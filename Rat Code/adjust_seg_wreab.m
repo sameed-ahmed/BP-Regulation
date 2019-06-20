@@ -61,16 +61,34 @@ vars(:,1) = [eta_ptwreab; eta_dtwreab; eta_cdwreab; ...
 
 elseif strcmp(gender{gg}, 'female')
 
-% Compute varying quantities.
-Phi_u       = Phi_u; % same as male
-Phi_mdu     = Phi_mdu; % same as male
-Phi_ptwreab = Phi_gfilt - Phi_mdu;
-eta_ptwreab = Phi_ptwreab / Phi_gfilt
-eta_dtwreab = 0.60; % same as male
+% % Compute varying quantities.
+% Phi_u       = Phi_u; % same as male
+% Phi_mdu     = Phi_mdu; % same as male
+% Phi_ptwreab = Phi_gfilt - Phi_mdu;
+% eta_ptwreab = Phi_ptwreab / Phi_gfilt
+% eta_dtwreab = 0.60; % same as male
+% Phi_dtwreab = Phi_mdu * eta_dtwreab;
+% Phi_dtu     = Phi_mdu - Phi_dtwreab;
+% Phi_cdwreab = Phi_dtu - Phi_u;
+% eta_cdwreab = Phi_cdwreab / Phi_dtu
+
+% Compute quantities with calibratiion.
+
+% % male values
+% eta_ptwreab = 0.86; % layton
+% eta_dtwreab = 0.60;
+% eta_cdwreab = 0.78;
+
+% Set pt, dt and compute cd
+Phi_u      = Phi_u; % same as male
+eta_ptwreab = 0.5 % calibrate
+Phi_ptwreab = Phi_gfilt * eta_ptwreab;
+Phi_mdu = Phi_gfilt - Phi_ptwreab;
+eta_dtwreab = 0.6 % calibrate
 Phi_dtwreab = Phi_mdu * eta_dtwreab;
-Phi_dtw     = Phi_mdu - Phi_dtwreab;
-Phi_cdwreab = Phi_dtw - Phi_u;
-eta_cdwreab = Phi_cdwreab / Phi_dtw
+Phi_dtu     = Phi_mdu - Phi_dtwreab;
+Phi_cdwreab = Phi_dtu - Phi_u;
+eta_cdwreab = Phi_cdwreab / Phi_dtu
 
 vars(:,2) = [eta_ptwreab; eta_dtwreab; eta_cdwreab; ...
              Phi_ptwreab; Phi_dtwreab; Phi_cdwreab; ...

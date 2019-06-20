@@ -149,9 +149,12 @@ eta_ptwreab   = 0.86;
 eta_dtwreab   = 0.60; 
 eta_cdwreab   = 0.78; 
 elseif strcmp(gender{gg}, 'female')
-eta_ptwreab   = 0.80; 
-eta_dtwreab   = 0.60; 
-eta_cdwreab   = 0.78; 
+% eta_ptwreab   = 0.80; 
+% eta_dtwreab   = 0.60; 
+% eta_cdwreab   = 0.78; 
+    eta_ptwreab = 0.5; % calibrated
+    eta_dtwreab = 0.6; 
+    eta_cdwreab = 0.91;
 end
 
 Phi_ptwreab   = Phi_gfilt * eta_ptwreab; 
