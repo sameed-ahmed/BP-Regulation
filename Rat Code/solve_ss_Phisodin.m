@@ -1,4 +1,4 @@
-% This script varies the sodium intake and then calculates the steady state
+ % This script varies the sodium intake and then calculates the steady state
 % solution of the system for each inputted value. To avoid the solver not
 % converging, the initial guess for solution to the system is taken as the
 % previous solution value. That is, IG_i = SOL_i-1.

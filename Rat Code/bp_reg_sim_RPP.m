@@ -294,11 +294,26 @@ f(12) = Phi_ptsodreab - ( Phi_filsod * eta_ptsodreab );
 % eta_ptsodreab
 f(13) = eta_ptsodreab - ( eta_ptsodreab_eq * gamma_filsod * gamma_at * gamma_rsna );
 % gamma_filsod - rat
-% f(14) = gamma_filsod - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - 18)/138)) );
-f(14) = gamma_filsod - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - fixed_var_pars(3))/(138 * SF_S) )) );
+% f(14) = gamma_filsod - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - 18)/138)) );
+f(14) = gamma_filsod - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - fixed_var_pars(3))/(138 * SF_S) )) );
+
+% gammafilsod_a = 0.31;
+% % gammafilsod_d = 1 - 0.5*gammafilsod_a;
+% gammafilsod_d = 0.8;
+% upper_point = 1.1;
+% gammafilsod_b = 1/(14-18) * log(gammafilsod_a/(upper_point-gammafilsod_d) - 1) / SF_S;
+% f(14) = gamma_filsod - ( gammafilsod_d + gammafilsod_a / (1 + exp(gammafilsod_b * (Phi_filsod - fixed_var_pars(3))) ) );
+
 % gamma_at
-gammaat_a = log(0.12 / (1 - 0.95) - 1) + 2.342;
-f(15) = gamma_at - ( 0.95 + 0.12 / (1 + exp(gammaat_a - 2.342 * (AT1R/AT1R_eq))) );
+% gammaat_a = log(0.12 / (1 - 0.95) - 1) + 2.342;
+% f(15) = gamma_at - ( 0.95 + 0.12 / (1 + exp(gammaat_a - 2.342 * (AT1R/AT1R_eq))) );
+
+gammaat_c = 0.8017;
+gammaat_d = 0.92;
+gammaat_a = 0.136;
+gammaat_b = -1/(1-gammaat_c) * log(gammaat_a/(1-gammaat_d) - 1);
+f(15) = gamma_at - ( gammaat_d + gammaat_a / (1 + exp(-gammaat_b * ((AT1R/AT1R_eq) - gammaat_c)) ) );
+
 % MODIFY ------------------------------------------------------------------
 % gamma_rsna
 if     t < tchange
@@ -322,41 +337,41 @@ f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al );
 % f(20) = psi_al - ( 0.17 + 0.94 / (1 + exp((0.48 - 1.2 * log10(C_al)) / 0.88)) );
 if     strcmp(gender,  'male')
 %     f(20) = psi_al - ( 1/(395^0.3) * C_al^0.3 );
-    % ------------------------------------------------------
-%     dd = 0.5;
-    dd = 0.0;
-    aa = 1 / eta_dtsodreab_eq - dd;
-%     bb = 0.92;
-    bb = 0.1;
-    cc = (aa * 395^bb) / (1 - dd) - 395^bb;
-    f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
-    % ------------------------------------------------------
 %     % ------------------------------------------------------
+% %     dd = 0.5;
+%     dd = 0.0;
+%     aa = 1 / eta_dtsodreab_eq - dd;
+% %     bb = 0.92;
 %     bb = 0.1;
-%     dd = 1.05 / bb;
-%     aa = (1 + bb) * dd;
-%     cc = -1/395 * log((aa / (1 + dd) - 1) / bb);
-%     f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
+%     cc = (aa * 395^bb) / (1 - dd) - 395^bb;
+%     f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
 %     % ------------------------------------------------------
+    % ------------------------------------------------------
+    bb = 0.1;
+    dd = 1.05 / bb;
+    aa = (1 + bb) * dd;
+    cc = -1/395 * log((aa / (1 + dd) - 1) / bb);
+    f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
+    % ------------------------------------------------------
 %     f(20) = psi_al - 1;
 elseif strcmp(gender,'female')
 %     f(20) = psi_al - ( 1/(379^0.3) * C_al^0.3 );
-    % ------------------------------------------------------
-%     dd = 0.5;
-    dd = 0.0;
-    aa = 1 / eta_dtsodreab_eq - dd;
-%     bb = 0.92;
-    bb = 0.1;
-    cc = (aa * 379^bb) / (1 - dd) - 379^bb;
-    f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
-    % ------------------------------------------------------
 %     % ------------------------------------------------------
+% %     dd = 0.5;
+%     dd = 0.0;
+%     aa = 1 / eta_dtsodreab_eq - dd;
+% %     bb = 0.92;
 %     bb = 0.1;
-%     dd = 1.05 / bb;
-%     aa = (1 + bb) * dd;
-%     cc = -1/379 * log((aa / (1 + dd) - 1) / bb);
-%     f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
+%     cc = (aa * 379^bb) / (1 - dd) - 379^bb;
+%     f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
 %     % ------------------------------------------------------
+    % ------------------------------------------------------
+    bb = 0.1;
+    dd = 1.05 / bb;
+    aa = (1 + bb) * dd;
+    cc = -1/379 * log((aa / (1 + dd) - 1) / bb);
+    f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
+    % ------------------------------------------------------
 end
 % Phi_dtsod
 f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
@@ -368,43 +383,55 @@ f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * lambda_dt * lambda_anp );
 % f(24) = lambda_dt - ( 0.82 + 0.2553 / (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (0.245 * SF_S) )) );
 % -----------------------------------------------------------------------
 if     strcmp(gender,  'male')
-lambdadt_b = 0.2555; % new
-% lambdadt_b = 0.352; % old
-lambdadt_c = -17 / SF_S / (log(lambdadt_b / (1 / eta_cdsodreab_eq - 0.82) - 1) - log(lambdadt_b / (1 - 0.82) - 1));
+% lambdadt_b = 0.2555; % jessica
+% lambdadt_b = 0.352; % karaaslan original
+% lambdadt_c = -17 / SF_S / (log(lambdadt_b / (1 / eta_cdsodreab_eq - 0.82) - 1) - log(lambdadt_b / (1 - 0.82) - 1));
+% f(24) = lambda_dt - ( 0.82 + lambdadt_b/ (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (lambdadt_c * SF_S) )) );
+lambdadt_b = 0.275; % karaaslan refit
+lambdadt_c = 2.3140; % karaaslan refit
+f(24) = lambda_dt - ( 0.8 + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - fixed_var_pars(4))) ) );
 elseif strcmp(gender,'female')
-% lambdadt_b = 0.3855  ; % 83%
-% lambdadt_b = 0.357   ; % 85%
-% lambdadt_b = 0.3296  ; % 87%
-% lambdadt_b = 0.3165  ; % 88%
-% lambdadt_b = 0.3037  ; % 89%
-% lambdadt_b = 0.2912  ; % 90%
-% lambdadt_b = 0.27895 ; % 91%
-% lambdadt_b = 0.267   ; % 92%
-% lambdadt_b = 0.2553  ; % 93%
-% lambdadt_b = 0.24384 ; % 94%
-% lambdadt_b = 0.232635; % 95%
-lambdadt_b = 0.221668; % 96%
-% lambdadt_b = 0.210928; % 97%
-% % % lambdadt_b = 0.390; % <= 90%
-% % % lambdadt_b = 0.349; % 91%
-% % % lambdadt_b = 0.316; % 92%
-% % % lambdadt_b = 0.287; % 93%
-% % % lambdadt_b = 0.265; % 94%
-% % % lambdadt_b = 0.244; % 95%
-% % % lambdadt_b = 0.228; % 96%
-% % % lambdadt_b = 0.214; % 97%
-% % % lambdadt_b = 0.202; % 98%
-% ---
-% lambdadt_c = 2; % <= 90%
-lambdadt_c = -24 / SF_S / (log(lambdadt_b / (1 / eta_cdsodreab_eq - 0.82) - 1) - log(lambdadt_b / (1 - 0.82) - 1));
-end
-f(24) = lambda_dt - ( 0.82 + lambdadt_b/ (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (lambdadt_c * SF_S) )) );
-% -----------------------------------------------------------------------
-% % -----------------------------------------------------------------------
-% lambdadt_b = 0.296;
-% lambdadt_c = 1.5;
+% % lambdadt_b = 0.3855  ; % 83%
+% % lambdadt_b = 0.357   ; % 85%
+% % lambdadt_b = 0.3296  ; % 87%
+% % lambdadt_b = 0.3165  ; % 88%
+% % lambdadt_b = 0.3037  ; % 89%
+% % lambdadt_b = 0.2912  ; % 90%
+% % lambdadt_b = 0.27895 ; % 91%
+% % lambdadt_b = 0.267   ; % 92%
+% % lambdadt_b = 0.2553  ; % 93%
+% % lambdadt_b = 0.24384 ; % 94%
+% % lambdadt_b = 0.232635; % 95%
+% lambdadt_b = 0.221668; % 96%
+% % lambdadt_b = 0.210928; % 97%
+% % % % lambdadt_b = 0.390; % <= 90%
+% % % % lambdadt_b = 0.349; % 91%
+% % % % lambdadt_b = 0.316; % 92%
+% % % % lambdadt_b = 0.272; % 93% % redone
+% % % % lambdadt_b = 0.253; % 94% % redone
+% % % % lambdadt_b = 0.244; % 95%
+% % % % lambdadt_b = 0.224; % 96% % redone
+% % % % lambdadt_b = 0.212; % 97% % redone
+% % % % lambdadt_b = 0.2007; % 98% % redone
+% % ---
+% % lambdadt_c = 2; % <= 90%
+% lambdadt_c = -30 / SF_S / (log(lambdadt_b / (1 / eta_cdsodreab_eq - 0.82) - 1) - log(lambdadt_b / (1 - 0.82) - 1));
 % f(24) = lambda_dt - ( 0.82 + lambdadt_b/ (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (lambdadt_c * SF_S) )) );
 % % -----------------------------------------------------------------------
+% -----------------------------------------------------------------------
+% lambdadt_b = 0.275; % <= 93%
+lambdadt_b = 1/eta_cdsodreab_eq - 0.8; % karaaslan refit
+% ---
+% lambdadt_c = 2.3140; % <= 93%
+% lambdadt_c = 2.43; % 94%
+% lambdadt_c = 2.63; % 95%
+lambdadt_c = 2.86; % 96%
+% lambdadt_c = 3.05; % 97%
+% lambdadt_c = 3.43; % 98%
+% lambdadt_c = 4.23; % 99%
+f(24) = lambda_dt - ( 0.8 + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - fixed_var_pars(4))) ) );
+% -----------------------------------------------------------------------
+end
 % lambda_anp
 f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
 % lambda_al
@@ -567,8 +594,11 @@ else
     f(72-1) = xi_map - ( 1 );
 end
 % xi_at
-xiat_a = log(2.4 / (1 - 0.47) - 1) + 2.2642;
-f(73-1) = xi_at - ( 0.47 + 2.4 / (1 + exp(xiat_a - 2.2642 * (AT1R/AT1R_eq))) );
+xiat_a = 0.1;
+xiat_b = 2.9;
+xiat_c = 2.0;
+xiat_d = 1 + 1/xiat_c * log(xiat_b/(1-xiat_a) - 1);
+f(73-1) = xi_at - ( xiat_a + xiat_b / (1 + exp(-xiat_c * ((AT1R/AT1R_eq) - xiat_d)) ) );
 % hatC_anp
 f(74-1) = hatC_anp - ( 7.4052 - 6.554 / (1 + exp(P_ra - 3.762)) ); 
 % AGT

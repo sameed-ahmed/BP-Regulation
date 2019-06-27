@@ -187,13 +187,13 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 % drugs = [0, 0.78, 0]; % Leete 2018 ACEi
 % drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
-% if     strcmp(gender{gg}, 'male')
-%     drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
-% elseif strcmp(gender{gg}, 'female')
-%     drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
-% end
+if     strcmp(gender{gg}, 'male')
+    drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
+elseif strcmp(gender{gg}, 'female')
+    drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
+end
 
-drugs = [0, 0, 0]; % No drug
+% drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
