@@ -517,6 +517,13 @@ end % scenario
 % x-axis
 xscale = iter_range;
 
+% % Plot relative change/relative change vs relative change to see slope
+% xscale = xscale - 1;
+% X_m(:,:,1) = (X_m(:,:,1) - X_m(:,iteration,1)) ./ X_m(:,iteration,1);
+% X_f(:,:,1) = (X_f(:,:,1) - X_f(:,iteration,1)) ./ X_f(:,iteration,1);
+% X_m(:,:,1) = X_m(:,:,1) ./ xscale;
+% X_f(:,:,1) = X_f(:,:,1) ./ xscale;
+
 % y-axis limits
 % X_f = X_m;
 % X_m = X_f;
@@ -527,7 +534,11 @@ for i = 1:length(ylower)
     if ylower(i) == yupper(i)
         ylower(i) = ylower(i) - 10^(-5); yupper(i) = yupper(i) + 10^(-5);
     end
+    if ylower(i) == inf || yupper(i) == inf || isnan(ylower(i)) || isnan(yupper(i))
+        ylower(i) = -1; yupper(i) = 1;
+    end
 end
+
 % X_f = zeros(size(X_f));
 % X_m = zeros(size(X_m));
 
