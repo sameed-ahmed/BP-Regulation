@@ -580,7 +580,12 @@ f(86) = R_aa - ( R_aass * beta_rsna * 1 * 1 * Psi_AT1RAA * Psi_AT2RAA);
 % R_ea
 f(87) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
-f(88) = 1 - ( 0.8 + 2.5 / ( 1 + (23/2) * exp(-0.6 * (P_gh - Sigma_myo_v)) ) );
+sigmamyo_a = 0.75;
+sigmamyo_b = 1.2;
+sigmamyo_d = 0.6;
+sigmamyo_c = sigmamyo_b / (1-sigmamyo_a) - 1;
+f(88) = 1 - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - Sigma_myo_v)) ) );
+% f(88) = 1 - ( 0.8 + 2.5 / ( 1 + (23/2) * exp(-0.6 * (P_gh - Sigma_myo_v)) ) );
 % f(88) = 1 - ( 0.8 + 1.5 / ( 1 + (13/2) * exp(-0.6 * (P_gh - Sigma_myo_v)) ) );
 % f(88) = 1 - ( 0.8  + 1.2 / ( 1 + (5 /1) * exp(-0.4 * (P_gh - Sigma_myo_v)) ) );
 % f(88) = 1 - ( 0.9 + 1.0 / ( 1 + (9/1) * exp(-0.9 * (P_gh - Sigma_myo_v)) ) );

@@ -19,7 +19,11 @@ function f = bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,Phi_win_input,...
 % Normal          - normal conditions
 % Denerve         - cut off rsna from kidney
 % Denerve & AT2R- - cut off rsna from kidney and block AT2R
-% scenario = {'Normal', 'Denerve', 'Denerve & AT2R-'};
+% Denerve & No Myo      - cut off rsna from kidney and block myogenic response
+% Denerve & No Myo      - cut off rsna from kidney and block tubuloglomerular feedback
+% Denerve & No Myo, TGF - cut off rsna from kidney and block myogenic response and tubuloglomerular feedback
+% scenario = {'Normal', 'Denerve', 'Denerve & AT2R-', ...
+%             'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
 
 %% Retrieve drugs by name.
 
@@ -256,7 +260,8 @@ f(4 ) = R_r - ( R_aa + R_ea );
 if     t < tchange
     f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
 elseif t >= tchange
-    if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-')
+    if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-') || ... 
+         strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
 %         f(5 ) = beta_rsna - ( SSdata(5) );
         f(5 ) = beta_rsna - ( 1 );
     else
@@ -285,8 +290,15 @@ elseif t >= tchange
 end
 % VARY --------------------------------------------------------------------
 % Sigma_tgf - rat
-% f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859) / (-0.9617))) );
-f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
+if     t < tchange
+    f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
+elseif t >= tchange
+    if   strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
+        f(10) = Sigma_tgf - ( 1 );
+    else
+        f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
+    end
+end
 % Phi_filsod
 f(11) = Phi_filsod - ( Phi_gfilt * C_sod );
 % Phi_ptsodreab
@@ -319,7 +331,8 @@ f(15) = gamma_at - ( gammaat_d + gammaat_a / (1 + exp(-gammaat_b * ((AT1R/AT1R_e
 if     t < tchange
     f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
 elseif t >= tchange
-    if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-')
+    if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-') || ... 
+         strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
 %         f(16) = gamma_rsna - ( SSdata(16) );
         f(16) = gamma_rsna - ( 1 );
     else
@@ -561,7 +574,8 @@ f(66-1) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - fixed_var_pars
 if     t < tchange
     f(67-1) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8667)) );
 elseif t >= tchange
-    if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-')
+    if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-') || ... 
+         strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
 %         f(67-1) = nu_rsna - ( SSdata(66-1) );
         f(67-1) = nu_rsna - ( 1 );
     else
@@ -635,8 +649,19 @@ f(86-1) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi
 % R_ea
 f(87-1) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
-f(88-1) = Sigma_myo - ( 0.8 + 2.5 / ( 1 + (23/2) * exp(-0.6 * (P_gh - fixed_var_pars(9))) ) );
-% f(88-1) = Sigma_myo - ( 5 * (P_gh / 62 - 1) + 1 );
+sigmamyo_a = 0.75;
+sigmamyo_b = 1.2;
+sigmamyo_d = 0.6;
+sigmamyo_c = sigmamyo_b / (1-sigmamyo_a) - 1;
+if     t < tchange
+    f(88-1) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
+elseif t >= tchange
+    if   strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No Myo, TGF')
+        f(88-1) = Sigma_myo - ( 1 );
+    else
+        f(88-1) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
+    end
+end
 % Psi_AT1RAA
 f(89-1) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R_eq) );
 % Psi_AT1REA

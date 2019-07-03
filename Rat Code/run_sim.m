@@ -99,7 +99,7 @@ elseif strcmp(gender{gg}, 'female')
     eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
-    eta_ptwreab_eq = 0.86; 
+    eta_ptwreab_eq = 0.86; % layton 2016
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
@@ -467,6 +467,7 @@ hold off
 
 % savefig(f, 'all_vars_AngII_inf.fig')
 % savefig(g, 'Pma_vs_t_AngII_inf.fig')
+% savefig(f, 'COPYall_vars_AngII_inf.fig')
 % savefig(g, 'COPYPma_vs_t_AngII_inf.fig')
 
 
