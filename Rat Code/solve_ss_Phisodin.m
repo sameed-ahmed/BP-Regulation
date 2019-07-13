@@ -127,8 +127,8 @@ elseif strcmp(win, 'varied')
     X_f = zeros(num_vars,2*iteration-1,num_scen);
 end
 
-gender   = {'male',     'female'  };
-change   = {'decrease', 'increase'};
+gender = {'male'    , 'female'  };
+change = {'decrease', 'increase'};
 
 for ss = 1:1 % scenario
 for gg = 1:2        % gender
@@ -572,7 +572,7 @@ end
 
 % Plot Sodium Intake vs Mean Arterial Pressure
 
-g = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
+g = figure('DefaultAxesFontSize',20, 'pos',[100 100 650 450]);
 plot(X_m(42,:,1),xscale,'b-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
 
 % xlim([80, 120])

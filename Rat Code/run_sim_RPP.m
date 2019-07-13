@@ -655,8 +655,8 @@ yUSOD_upper = max( max(max([USOD_m(:,:);USOD_f(:,:)])) , max(max([USODdata_m(:,2
 %     end
 % end
 
-i(1) = figure('DefaultAxesFontSize',30);
-% i(1) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
+i(1) = figure('DefaultAxesFontSize',20);
+% i(1) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
 plot(RPP_m,RBF_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
 xlim([75,125]); %xticks([80,100,120]);
 ylim([0.6,1.2])
@@ -669,8 +669,8 @@ plot(RPP_f,RBFdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 
 legend('Male sim','Male data','Female sim','Female data', 'Location','Southeast')
 hold off
 
-i(2) = figure('DefaultAxesFontSize',30);
-% i(2) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
+i(2) = figure('DefaultAxesFontSize',20);
+% i(2) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
 plot(RPP_m,GFR_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
 xlim([75,125]); %xticks([80,100,120]);
 ylim([0.6,1.2])
@@ -683,8 +683,8 @@ plot(RPP_f,GFRdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 
 legend('Male sim','Male data','Female sim','Female data', 'Location','Southeast')
 hold off
 
-i(3) = figure('DefaultAxesFontSize',30);
-% i(3) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
+i(3) = figure('DefaultAxesFontSize',20);
+% i(3) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
 plot(RPP_m,UF_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
 xlim([75 ,125]); %xticks([80,100,120]);
 ylim([0.0,3.5]); %yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
@@ -697,8 +697,8 @@ plot(RPP_f,UFdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, '
 legend('Male sim','Male data','Female sim','Female data', 'Location','Northwest')
 hold off
 
-i(4) = figure('DefaultAxesFontSize',30);
-% i(4) = figure('DefaultAxesFontSize',30, 'pos',[100 450 650 450]);
+i(4) = figure('DefaultAxesFontSize',20);
+% i(4) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
 plot(RPP_m,USOD_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
 xlim([75,125]); %xticks([80,100,120]);
 ylim([0.0,3.5]); %yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});

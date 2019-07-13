@@ -187,13 +187,13 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 % drugs = [0, 0.78, 0]; % Leete 2018 ACEi
 % drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
-if     strcmp(gender{gg}, 'male')
-    drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
-elseif strcmp(gender{gg}, 'female')
-    drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
-end
+% if     strcmp(gender{gg}, 'male')
+%     drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
+% elseif strcmp(gender{gg}, 'female')
+%     drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
+% end
 
-% drugs = [0, 0, 0]; % No drug
+drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
@@ -291,16 +291,15 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 x0 = SSdata; x_p0 = zeros(num_vars,1);
 
 % Factor by which to change something.
-% fact = 2;
+% fact = 3.5;
 % fact = (1-0.625);
 % fact = (1-0.95);
 % fact = 0.5;
 fact = 1;
 
 % Time at which to keep steady state, change a parameter, etc.
-tchange = 1440;
+tchange = 1440; days = 13;
 % tchange = 10;
-days = 13;
 
 % Initial time (min); Final time (min);
 t0 = 0*1440; tend = tchange + days*1440;
@@ -438,7 +437,7 @@ MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
 MAP_m = X_m(42,:) - X_m(42,1);
 MAP_f = X_f(42,:) - X_f(42,1);
 
-g = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
+g = figure('DefaultAxesFontSize',20, 'pos',[100 100 650 450]);
 plot(t_m,MAP_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
 
 xlim([xlower, xupper])

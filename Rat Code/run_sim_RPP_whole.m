@@ -516,7 +516,7 @@ RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per;
 arr_lower = [83,83]; arr_upper = [183,183]; arr_line = [-1;5];
 
 % Plots
-g(1) = figure('DefaultAxesFontSize',30);
+g(1) = figure('DefaultAxesFontSize',20);
 plot(RPP_m,RBF_m(:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
 xlabel('RPP (mmHg)'); ylabel('RBF (relative)');
 hold on
@@ -524,7 +524,7 @@ plot(RPP_f,RBF_f(:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5);
 legend('Male','Female', 'Location','Southeast')
 hold off
 
-g(2) = figure('DefaultAxesFontSize',30);
+g(2) = figure('DefaultAxesFontSize',20);
 plot(RPP_m,GFR_m(:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
 xlim([55,210]); xticks([60:30:210]);
 ylim([0,2.5]); yticks([0:0.5:2.5]);
@@ -536,7 +536,7 @@ plot(arr_lower,arr_line,'k--', 'LineWidth',2,'HandleVisibility','off');
 plot(arr_upper,arr_line,'k--', 'LineWidth',2,'HandleVisibility','off'); 
 hold off
 
-g(3) = figure('DefaultAxesFontSize',30);
+g(3) = figure('DefaultAxesFontSize',20);
 plot(RPP_m,UF_m(:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
 xlabel('RPP (mmHg)'); ylabel('UF (relative)');
 hold on
@@ -544,7 +544,7 @@ plot(RPP_f,UF_f(:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5);
 legend('Male','Female', 'Location','Northwest')
 hold off
 
-g(4) = figure('DefaultAxesFontSize',30);
+g(4) = figure('DefaultAxesFontSize',20);
 plot(RPP_m,USOD_m(:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
 xlabel('RPP (mmHg)'); ylabel('UNa^{+} (relative)');
 hold on
@@ -553,7 +553,7 @@ legend('Male','Female', 'Location','Northwest')
 hold off
 
 % Plot all scenarios
-h = figure('DefaultAxesFontSize',30);
+h = figure('DefaultAxesFontSize',20);
 plot(RPP_m,GFR_m(:,2) ,'k-', 'LineWidth',5);
 xlim([55,210]); xticks([60:30:210]);
 ylim([-1,5]); yticks([-1:1:5]);
