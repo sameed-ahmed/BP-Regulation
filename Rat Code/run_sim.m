@@ -187,13 +187,13 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 % drugs = [0, 0.78, 0]; % Leete 2018 ACEi
 % drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
-% if     strcmp(gender{gg}, 'male')
-%     drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
-% elseif strcmp(gender{gg}, 'female')
-%     drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
-% end
+if     strcmp(gender{gg}, 'male')
+    drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
+elseif strcmp(gender{gg}, 'female')
+    drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
+end
 
-drugs = [0, 0, 0]; % No drug
+% drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
@@ -291,11 +291,13 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 x0 = SSdata; x_p0 = zeros(num_vars,1);
 
 % Factor by which to change something.
-% fact = 3.5;
+% fact = 2;
 % fact = (1-0.625);
 % fact = (1-0.95);
 % fact = 0.5;
 fact = 1;
+% fact_var = 'Phi_sodin';
+fact_var = 'N_rsna';
 
 % Time at which to keep steady state, change a parameter, etc.
 tchange = 1440; days = 13;
@@ -318,7 +320,7 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,fact), ...
+               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,fact,fact_var), ...
                tspan, x0, x_p0, options);
 
 T{gg} = t';
@@ -397,34 +399,7 @@ for i = 1:7
     end
 end
 
-% Plot Mean Arterial Pressure vs Time
-
-% % Data from Zimmerman 2015. MAP is in relative change.
-% tdata     = [0    ,1    ,2    ,3    ,4    ,5    ,6    ,7    ,...
-%              8    ,9    ,10   ,11   ,12   ,13   ,14    ];
-% MAPdata_m = [1.000,1.018,1.061,1.114,1.123,1.167,1.167,1.237,...
-%              1.316,1.333,1.333,1.368,1.404,1.430,1.430,];
-% MAPdata_f = [1.000,1.010,1.069,1.176,1.225,1.275,1.304,1.304,...
-%              1.333,1.392,1.402,1.422,1.441,1.451,1.441,];
-% % Multiply MAP relative change by baseline.
-% MAPdata_m = X_m(42,1) * MAPdata_m;
-% MAPdata_f = X_f(42,1) * MAPdata_f;
-% 
-% g = figure('pos',[100 100 675 450]);
-% plot(t_m,X_m(42,:),'b-', t_f,X_f(42,:),'r-', 'LineWidth',3)
-% xlim([xlower, xupper])
-% ylim([80, 160])
-% set(gca,'FontSize',14)
-% ax = gca;
-% ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
-% ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
-%                  '8','9','10','11','12','13','14'};
-% xlabel('t (days)', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-% ylabel(names(42) , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-% legend('Male sim','Female sim');
-% hold on
-% plot(tdata,MAPdata_m,'bx', 'DisplayName',  'Male data', 'MarkerSize',10, 'LineWidth',3)
-% plot(tdata,MAPdata_f,'rx', 'DisplayName','Female data', 'MarkerSize',10, 'LineWidth',3)
+% Plot Mean Arterial Pressure vs Time. ------------------------------------
 
 % Data from Sampson 2008. MAP is in difference from baseline.
 tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
@@ -437,52 +412,45 @@ MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
 MAP_m = X_m(42,:) - X_m(42,1);
 MAP_f = X_f(42,:) - X_f(42,1);
 
-g = figure('DefaultAxesFontSize',20, 'pos',[100 100 650 450]);
-plot(t_m,MAP_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
-
+g = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 650 450]);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
+plot(t_m,MAP_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 xlim([xlower, xupper])
-% ylim([0, 80])
+ylim([0, 60])
 ax = gca;
-ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
-ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
-                 '8','9','10','11','12','13','14'};
+ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
+% ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
+%                  '8','9','10','11','12','13','14'};
+ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
 xlabel('Time (days)')
-ylabel('Change in MAP (mmHg)')
-% 'FontSize',22, 'FontWeight','bold'
+ylabel('\DeltaMAP (mmHg)')
 hold on
-plot(t_f,MAP_f,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5)
-plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',12, 'LineWidth',5)
-plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',12, 'LineWidth',5)
-legend('Male sim','Female sim','Male data','Female data', 'Location','Northwest');
+plot(t_f,MAP_f,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
+plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6, 'LineWidth',2)
+[~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+
 hold off
 
 % Save figures.
 
-% savefig(f, 'all_vars_baseline.fig')
+% if     fact == 1
+%     save_data_name = sprintf('all_vars_baseline.fig');
+% else
+%     if     strcmp(fact_var,'Phi_sodin')
+%         save_data_name = sprintf('all_vars_%gxPhisodin.fig',fact);
+%     elseif strcmp(fact_var,'N_rsna'   )
+%         save_data_name = sprintf('all_vars_%gxNrsna.fig'   ,fact);
+%     end
+% end
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig(f, save_data_name)
 
-% savefig(f, 'all_vars_0.05xPhisodin.fig')
-
-% savefig(f, 'all_vars_2xPhisodin.fig')
-
-% savefig(f, 'all_vars_AngII_inf.fig')
-% savefig(g, 'Pma_vs_t_AngII_inf.fig')
-% savefig(f, 'COPYall_vars_AngII_inf.fig')
-% savefig(g, 'COPYPma_vs_t_AngII_inf.fig')
-
-
-
-
-
-% savefig(f, 'all_vars_stepwise_Phisodin.fig')
-% savefig(f, 'all_vars_stepwise_Phisodin_female_sodreab.fig')
-
-% savefig(f, 'all_vars_new_Phitwreab_new_Sigmamyo_AngII_inf.fig')
-% savefig(g, 'Pma_vs_t_new_Phitwreab_new_Sigmamyo_AngII_inf.fig')
-
-% savefig(f, 'all_vars_Phisodin_inc.fig')
-
-% savefig(f ,'0.06x_Phisodin_no_rsna.fig')
-
+% save_data_name = sprintf('all_vars_AngII_inf.fig');
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f;g], save_data_name)
 
 end
 

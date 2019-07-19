@@ -261,7 +261,7 @@ if     t < tchange
     f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
 elseif t >= tchange
     if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-') || ... 
-         strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
+         strcmp(scenario,'Denerve & Linear Myo') || strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
 %         f(5 ) = beta_rsna - ( SSdata(5) );
         f(5 ) = beta_rsna - ( 1 );
     else
@@ -332,7 +332,7 @@ if     t < tchange
     f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
 elseif t >= tchange
     if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-') || ... 
-         strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
+         strcmp(scenario,'Denerve & Linear Myo') || strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
 %         f(16) = gamma_rsna - ( SSdata(16) );
         f(16) = gamma_rsna - ( 1 );
     else
@@ -575,7 +575,7 @@ if     t < tchange
     f(67-1) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8667)) );
 elseif t >= tchange
     if   strcmp(scenario,'Denerve') || strcmp(scenario,'Denerve & AT2R-') || ... 
-         strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
+         strcmp(scenario,'Denerve & Linear Myo') || strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
 %         f(67-1) = nu_rsna - ( SSdata(66-1) );
         f(67-1) = nu_rsna - ( 1 );
     else
@@ -656,7 +656,9 @@ sigmamyo_c = sigmamyo_b / (1-sigmamyo_a) - 1;
 if     t < tchange
     f(88-1) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
 elseif t >= tchange
-    if   strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No Myo, TGF')
+    if   strcmp(scenario,'Denerve & Linear Myo')
+        f(88-1) = Sigma_myo - ( 5 * (P_gh / fixed_var_pars(9) - 1) + 1 );
+    elseif   strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No Myo, TGF')
         f(88-1) = Sigma_myo - ( 1 );
     else
         f(88-1) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );

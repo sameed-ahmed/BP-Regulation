@@ -11,7 +11,7 @@
 
 % Differential algebraic equation system f(t,x(t),x'(t);theta) = 0.
 
-function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,fact)
+function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,fact,fact_var)
 
 %% Retrieve drugs by name.
 
@@ -36,12 +36,15 @@ SF_R = pars(end-1);
 % Rat volume = Human volume x SF
 SF_V = pars(end  );
 
-N_rsna           = pars(1 );
-% if     t < tchange
-%     N_rsna =       pars(1 );
-% elseif t >= tchange
-%     N_rsna = fact * pars(1 );
-% end
+if     t < tchange
+        N_rsna =        pars(1 );
+elseif t >= tchange
+    if strcmp(fact_var,'N_rsna')
+        N_rsna = ( (fact-1) * tanh(1 * (t-tchange)) + 1 ) * pars(1);
+    else
+        N_rsna =        pars(1 );
+    end
+end
 
 R_aass           = pars(2 );
 % if     t < tchange
@@ -73,24 +76,15 @@ K_bar            = pars(14);
 R_bv             = pars(15);
 T_adh            = pars(16);
 
-Phi_sodin        = pars(17);
-% if     t < tchange
-%     Phi_sodin =            pars(17);
-% elseif t >= tchange && t < 3*tchange
-%     Phi_sodin = fact     * pars(17);
-% elseif t >= 3*tchange && t < 5*tchange
-%     Phi_sodin = (fact+1) * pars(17);
-% elseif t >= 5*tchange && t < 7*tchange
-%     Phi_sodin = (fact+2) * pars(17);
-% elseif t >= 7*tchange 
-%     Phi_sodin = (fact+3) * pars(17);
-% end
-
-% if     t < tchange
-%     Phi_sodin =        pars(17);
-% elseif t >= tchange
-%     Phi_sodin = fact * pars(17);
-% end
+if     t < tchange
+        Phi_sodin =        pars(17);
+elseif t >= tchange
+    if strcmp(fact_var,'Phi_sodin')
+        Phi_sodin = fact * pars(17);
+    else
+        Phi_sodin =        pars(17);
+    end
+end
 
 C_K              = pars(18);
 T_al             = pars(19);

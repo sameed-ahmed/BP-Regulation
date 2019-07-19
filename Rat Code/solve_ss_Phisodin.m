@@ -570,10 +570,11 @@ for i = 1:7
     end
 end
 
-% Plot Sodium Intake vs Mean Arterial Pressure
+% Plot Sodium Intake vs Mean Arterial Pressure. ---------------------------
 
-g = figure('DefaultAxesFontSize',20, 'pos',[100 100 650 450]);
-plot(X_m(42,:,1),xscale,'b-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
+g = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
+plot(X_m(42,:,1),xscale,'b-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 
 % xlim([80, 120])
 ylim([lower, upper])
@@ -583,11 +584,11 @@ xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 % 'FontSize',22, 'FontWeight','bold'
 hold on
-plot(X_f(42,:,1),xscale,'r-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5)
-legend('Male', 'Female')
+plot(X_f(42,:,1),xscale,'r-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+legend('Male','Female', 'Location','Northwest')
 hold off
 
-%
+% Plot with different scenarios. ------------------------------------------
 
 h = figure('pos',[100 100 675 450]);
 plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
@@ -615,32 +616,16 @@ hold all
 plot(X_f(42,:,3),xscale,'r:', 'LineWidth',3, 'DisplayName','F AngII')
 legend('-DynamicLegend');
 
-% Save figures.
+% Save figures. -----------------------------------------------------------
 
 % if     strcmp(win,  'fixed')
-%     savefig(f, 'all_vars_vs_Phisodin_fixed_Phiwin.fig' )
-%     savefig(g, 'Phisodin_vs_Pma_fixed_Phiwin.fig'      )
+%     save_data_name = sprintf('all_vars_vs_Phisodin_fixed_Phiwin.fig' );
 % elseif strcmp(win, 'varied')
-%     savefig(f, 'all_vars_vs_Phisodin_varied_Phiwin.fig')
-%     savefig(g, 'Phisodin_vs_Pma_varied_Phiwin.fig'     )
+%     save_data_name = sprintf('all_vars_vs_Phisodin_varied_Phiwin.fig');
 % end
-% if     strcmp(win,  'fixed')
-%     savefig(f, 'COPYall_vars_vs_Phisodin_fixed_Phiwin.fig' )
-%     savefig(g, 'COPYPhisodin_vs_Pma_fixed_Phiwin.fig'      )
-% elseif strcmp(win, 'varied')
-%     savefig(f, 'COPYall_vars_vs_Phisodin_varied_Phiwin.fig')
-%     savefig(g, 'COPYPhisodin_vs_Pma_varied_Phiwin.fig'     )
-% end
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f;g], save_data_name)
 
-% if     strcmp(win,  'fixed')
-%     savefig(f, 'all_vars_vs_Phisodin_fixed_Phiwin_new_Phitwreab.fig'  )
-%     savefig(g, 'Phisodin_vs_Pma_fixed_Phiwin_new_Phitwreab.fig'       )
-%     savefig(h, 'Phisodin_vs_Pma_fixed_Phiwin_new_Phitwreab_AngII.fig' )
-% elseif strcmp(win, 'varied')
-%     savefig(f, 'all_vars_vs_Phisodin_varied_Phiwin_new_Phitwreab.fig' )
-%     savefig(g, 'Phisodin_vs_Pma_varied_Phiwin_new_Phitwreab.fig'      )
-%     savefig(h, 'Phisodin_vs_Pma_varied_Phiwin_new_Phitwreab_AngII.fig')
-% end
 
 end
 

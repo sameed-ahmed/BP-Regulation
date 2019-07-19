@@ -361,6 +361,8 @@ end % gender
 end % change
 end % par
 
+%% Retrieve data and visualize
+
 % Retrieve male/female decrease/increase. 
 % X_m/f_dec/inc = (variable, parameter)
 % X_m_dec = X(:,:,1,1); X_m_inc = X(:,:,2,1);
@@ -370,8 +372,8 @@ end % par
 X_m = X(:,:,:,1);
 X_f = X(:,:,:,2);
 
-% out_ind = [7;42;63;86;87;13;19;23;52;56;60];
-% pars(in_ind(iter))
+% Plot individual. --------------------------------------------------------
+
 f = gobjects(out_num,1);
 for i = 1:out_num
     f(i) = figure('DefaultAxesFontSize',20, 'pos',[550 450 700 560]);
@@ -383,7 +385,6 @@ for i = 1:out_num
     yticklabels(in_label)
 %     ytickangle(45)
     ylim([1-0.5,par_iter+0.5])
-
 
     bdec(1).FaceColor = [0.203, 0.592, 0.835]; bdec(2).FaceColor = [0.835, 0.203, 0.576]; 
     binc(1).FaceColor = [0.203, 0.592, 0.835]; binc(2).FaceColor = [0.835, 0.203, 0.576];
@@ -397,16 +398,91 @@ for i = 1:out_num
 
 end
 
-% Save figures
-savefig(f, 'all_vars_sen_anal.fig' )
+% Plot subplot. -----------------------------------------------------------
+
+g = gobjects(2,1);
+
+g(1) = figure('DefaultAxesFontSize',10);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5.8]);
+s1(1) = subplot(1,2,1); 
+s1(2) = subplot(1,2,2); 
+s1(1).Position = s1(1).Position + [0.14, 0, 0.00, 0];
+s1(2).Position = s1(2).Position + [0.06, 0, 0.00, 0];
+
+bdec1 = barh(s1(1), [par_iter:-1:1], [X_m(out_ind(2),:,1)',X_f(out_ind(2),:,1)']);
+hold(s1(1), 'on')
+binc1 = barh(s1(1), [par_iter:-1:1], [X_m(out_ind(2),:,2)',X_f(out_ind(2),:,2)']);
+yticklabels(s1(1), in_label)
+ylim(s1(1), [1-0.5,par_iter+0.5])
+bdec1(1).FaceColor = [0.203, 0.592, 0.835]; bdec1(2).FaceColor = [0.835, 0.203, 0.576]; 
+binc1(1).FaceColor = [0.203, 0.592, 0.835]; binc1(2).FaceColor = [0.835, 0.203, 0.576];
+bdec1(1).FaceAlpha = 0.5; bdec1(2).FaceAlpha = 0.5;
+xlabel(s1(1), strcat(out_label(2),' Percent change'))
+hold(s1(1), 'off')
+title(s1(1), 'A')
+
+bdec2 = barh(s1(2), [par_iter:-1:1], [X_m(out_ind(1),:,1)',X_f(out_ind(1),:,1)']);
+hold(s1(2), 'on')
+binc2 = barh(s1(2), [par_iter:-1:1], [X_m(out_ind(1),:,2)',X_f(out_ind(1),:,2)']);
+set(gca,'YTick',[]);
+ylim(s1(2), [1-0.5,par_iter+0.5])
+bdec2(1).FaceColor = [0.203, 0.592, 0.835]; bdec2(2).FaceColor = [0.835, 0.203, 0.576]; 
+binc2(1).FaceColor = [0.203, 0.592, 0.835]; binc2(2).FaceColor = [0.835, 0.203, 0.576];
+bdec2(1).FaceAlpha = 0.5; bdec2(2).FaceAlpha = 0.5;
+xlabel(s1(2), strcat(out_label(1),' Percent change'))
+bars2 = get(gca, 'Children');
+% bars2
+legend(s1(2), bars2([4,2,3,1]), {'Male Dec','Male Inc','Female Dec','Female Inc'}, ...
+       'FontSize',7,'Location','Southeast');
+hold(s1(2), 'off')
+title(s1(2), 'B')
+
+% ---
+
+g(2) = figure('DefaultAxesFontSize',10);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5.8]);
+s2(1) = subplot(1,2,1); 
+s2(2) = subplot(1,2,2); 
+s2(1).Position = s2(1).Position + [0.14, 0, 0.00, 0];
+s2(2).Position = s2(2).Position + [0.06, 0, 0.00, 0];
+
+bdec1 = barh(s2(1), [par_iter:-1:1], [X_m(out_ind(4),:,1)',X_f(out_ind(4),:,1)']);
+hold(s2(1), 'on')
+binc1 = barh(s2(1), [par_iter:-1:1], [X_m(out_ind(4),:,2)',X_f(out_ind(4),:,2)']);
+yticklabels(s2(1), in_label)
+ylim(s2(1), [1-0.5,par_iter+0.5])
+bdec1(1).FaceColor = [0.203, 0.592, 0.835]; bdec1(2).FaceColor = [0.835, 0.203, 0.576]; 
+binc1(1).FaceColor = [0.203, 0.592, 0.835]; binc1(2).FaceColor = [0.835, 0.203, 0.576];
+bdec1(1).FaceAlpha = 0.5; bdec1(2).FaceAlpha = 0.5;
+xlabel(s2(1), strcat(out_label(4),' Percent change'))
+hold(s2(1), 'off')
+title(s2(1), 'A')
+
+bdec2 = barh(s2(2), [par_iter:-1:1], [X_m(out_ind(3),:,1)',X_f(out_ind(3),:,1)']);
+hold(s2(2), 'on')
+binc2 = barh(s2(2), [par_iter:-1:1], [X_m(out_ind(3),:,2)',X_f(out_ind(3),:,2)']);
+set(gca,'YTick',[]);
+ylim(s2(2), [1-0.5,par_iter+0.5])
+bdec2(1).FaceColor = [0.203, 0.592, 0.835]; bdec2(2).FaceColor = [0.835, 0.203, 0.576]; 
+binc2(1).FaceColor = [0.203, 0.592, 0.835]; binc2(2).FaceColor = [0.835, 0.203, 0.576];
+bdec2(1).FaceAlpha = 0.5; bdec2(2).FaceAlpha = 0.5;
+xlabel(s2(2), strcat(out_label(3),' Percent change'))
+bars2 = get(gca, 'Children');
+% bars2
+legend(s2(2), bars2([4,2,3,1]), {'Male Dec','Male Inc','Female Dec','Female Inc'}, ...
+       'FontSize',7,'Location','Southeast');
+hold(s2(2), 'off')
+title(s2(2), 'B')
+
+% Save figures ------------------------------------------------------------
+
+% save_data_name = sprintf('quant_of_int_sen_anal.fig' );
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f;g], save_data_name)
 
 end
 
-% close all
-% u = [1 2 3]; v = [1 2; 
-%                   1 2; 
-%                   1 2];
-% bar(u,v(:,1),v(:,2))
+
 
 
 

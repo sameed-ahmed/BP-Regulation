@@ -33,7 +33,7 @@ bl_per    = (0 - RPP_per(1)) / inc_per + 1;
 % Denerve & No Myo      - cut off rsna from kidney and block tubuloglomerular feedback
 % Denerve & No Myo, TGF - cut off rsna from kidney and block myogenic response and tubuloglomerular feedback
 scenario = {'Normal', 'Denerve', 'Denerve & AT2R-', ...
-            'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
+            'Denerve & Linear Myo', 'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
 num_scen = length(scenario);
 
 % Number of variables
@@ -478,6 +478,7 @@ X_f(:,:,:,:) = X(:,:,2,:,:); % X_f = X_m;
 % Time average quantity from 10-30 minutes after perturbation in RPP.
 % RPP at 80, 100, 120.
 % Phi_rb = var(6), Phi_gfilt = var(7), Phi_u = var(63), Phi_usod = var(27)
+% R_aa = var(86), P_gh = var(9)
 
 % X_m/f = (variables, points, perturbation, scenario)
 time_int    = (tchange+10)*ppm+1:(tchange+30)*ppm+1;
@@ -487,6 +488,8 @@ RBF_m  = zeros(num_per,num_scen); RBF_f  = zeros(num_per,num_scen);
 GFR_m  = zeros(num_per,num_scen); GFR_f  = zeros(num_per,num_scen); 
 UF_m   = zeros(num_per,num_scen); UF_f   = zeros(num_per,num_scen); 
 USOD_m = zeros(num_per,num_scen); USOD_f = zeros(num_per,num_scen); 
+RAA_m  = zeros(num_per,num_scen); RAA_f  = zeros(num_per,num_scen); 
+PGH_m  = zeros(num_per,num_scen); PGH_f  = zeros(num_per,num_scen); 
 for ss = 1:num_scen
     for pp = 1:num_per
         RBF_m (pp,ss) = (sum(X_m(6 , time_int, pp, ss)) / time_points) ...
@@ -497,6 +500,10 @@ for ss = 1:num_scen
                       / (sum(X_m(63, time_int, bl_per , ss)) / time_points);
         USOD_m(pp,ss) = (sum(X_m(27, time_int, pp, ss)) / time_points) ...
                       / (sum(X_m(27, time_int, bl_per , ss)) / time_points);
+        RAA_m (pp,ss) = (sum(X_m(86, time_int, pp, ss)) / time_points) ...
+                      / (sum(X_m(86, time_int, bl_per , ss)) / time_points);
+        PGH_m (pp,ss) = (sum(X_m(9 , time_int, pp, ss)) / time_points) ...
+                      / (sum(X_m(9 , time_int, bl_per , ss)) / time_points);
         
         RBF_f (pp,ss) = (sum(X_f(6 , time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(6 , time_int, bl_per , ss)) / time_points);
@@ -506,6 +513,10 @@ for ss = 1:num_scen
                       / (sum(X_f(63, time_int, bl_per , ss)) / time_points);
         USOD_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(27, time_int, bl_per , ss)) / time_points);
+        RAA_f (pp,ss) = (sum(X_m(86, time_int, pp, ss)) / time_points) ...
+                      / (sum(X_m(86, time_int, bl_per , ss)) / time_points);
+        PGH_f (pp,ss) = (sum(X_m(9 , time_int, pp, ss)) / time_points) ...
+                      / (sum(X_m(9 , time_int, bl_per , ss)) / time_points);
     end
 end
 
@@ -513,74 +524,127 @@ end
 RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per; 
 
 % Autoregulatory range lines
-arr_lower = [83,83]; arr_upper = [183,183]; arr_line = [-1;5];
+arr_lower = [93,93]; arr_upper = [173,173]; arr_line = [-1;14];
 
-% Plots
-g(1) = figure('DefaultAxesFontSize',20);
-plot(RPP_m,RBF_m(:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
-xlabel('RPP (mmHg)'); ylabel('RBF (relative)');
-hold on
-plot(RPP_f,RBF_f(:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5);
-legend('Male','Female', 'Location','Southeast')
-hold off
+% Plots -------------------------------------------------------------------
 
-g(2) = figure('DefaultAxesFontSize',20);
-plot(RPP_m,GFR_m(:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
-xlim([55,210]); xticks([60:30:210]);
-ylim([0,2.5]); yticks([0:0.5:2.5]);
-xlabel('RPP (mmHg)'); ylabel('GFR (relative)');
-hold on
-plot(RPP_f,GFR_f(:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5);
-legend('Male','Female', 'Location','Southeast')
-plot(arr_lower,arr_line,'k--', 'LineWidth',2,'HandleVisibility','off'); 
-plot(arr_upper,arr_line,'k--', 'LineWidth',2,'HandleVisibility','off'); 
-hold off
+g = gobjects(3,1);
 
-g(3) = figure('DefaultAxesFontSize',20);
-plot(RPP_m,UF_m(:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
-xlabel('RPP (mmHg)'); ylabel('UF (relative)');
-hold on
-plot(RPP_f,UF_f(:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5);
-legend('Male','Female', 'Location','Northwest')
-hold off
+g(1) = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 2.5]);
+s1(1) = subplot(1,2,1); 
+s1(2) = subplot(1,2,2); 
 
-g(4) = figure('DefaultAxesFontSize',20);
-plot(RPP_m,USOD_m(:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5);
-xlabel('RPP (mmHg)'); ylabel('UNa^{+} (relative)');
-hold on
-plot(RPP_f,USOD_f(:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5);
-legend('Male','Female', 'Location','Northwest')
-hold off
+plot(s1(1), RPP_m,RBF_m (:,2),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+xlim(s1(1), [55 ,210]); xticks(s1(1), [60:30 :210]);
+ylim(s1(1), [0  ,2.5]); yticks(s1(1), [0 :0.5:2.5]);
+xlabel(s1(1), 'RPP (mmHg)'); ylabel(s1(1), 'RBF (relative)');
+hold(s1(1), 'on')
+plot(s1(1), RPP_f,RBF_f (:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
+legend(s1(1), 'Male','Female', 'Location','Northwest')
+plot(s1(1), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(s1(1), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(s1(1), 'off')
+title(s1(1), 'A')
+
+plot(s1(2), RPP_m,GFR_m (:,2),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+xlim(s1(2), [55 ,210]); xticks(s1(2), [60:30 :210]);
+ylim(s1(2), [0  ,2.5]); yticks(s1(2), [0 :0.5:2.5]);
+xlabel(s1(2), 'RPP (mmHg)'); ylabel(s1(2), 'GFR (relative)');
+hold(s1(2), 'on')
+plot(s1(2), RPP_f,GFR_f (:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
+% legend(s1(2), 'Male','Female', 'Location','Northwest')
+plot(s1(2), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(s1(2), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(s1(2), 'off')
+title(s1(2), 'B')
+
+% ---
+
+g(2) = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 2.5]);
+s2(1) = subplot(1,2,1); 
+s2(2) = subplot(1,2,2); 
+
+plot(s2(1), RPP_m,UF_m  (:,2),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+xlim(s2(1), [55 ,210]); xticks(s2(1), [60:30:210]);
+ylim(s2(1), [0  ,13 ]); yticks(s2(1), [0 :3 :13 ]);
+xlabel(s2(1), 'RPP (mmHg)'); ylabel(s2(1), 'UF (relative)');
+hold(s2(1), 'on')
+plot(s2(1), RPP_f,UF_f  (:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
+legend(s2(1), 'Male','Female', 'Location','Northwest')
+plot(s2(1), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(s2(1), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(s2(1), 'off')
+title(s2(1), 'A')
+
+plot(s2(2), RPP_m,USOD_m(:,2),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+xlim(s2(2), [55 ,210]); xticks(s2(2), [60:30:210]);
+ylim(s2(2), [0  ,13 ]); yticks(s2(2), [0 :3 :13 ]);
+xlabel(s2(2), 'RPP (mmHg)'); ylabel(s2(2), 'USOD (relative)');
+hold(s2(2), 'on')
+plot(s2(2), RPP_f,USOD_f(:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
+% legend(s2(2), 'Male','Female', 'Location','Northwest')
+plot(s2(2), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(s2(2), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(s2(2), 'off')
+title(s2(2), 'B')
+
+% ---
+
+g(3) = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 2.5]);
+s3(1) = subplot(1,2,1); 
+s3(2) = subplot(1,2,2); 
+
+plot(s3(1), RPP_m,RAA_m (:,2),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+xlim(s3(1), [55 ,210]); xticks(s3(1), [60:30 :210]);
+ylim(s3(1), [0  ,2.5]); yticks(s3(1), [0 :0.5:2.5]);
+xlabel(s3(1), 'RPP (mmHg)'); ylabel(s3(1), 'R_{AA} (relative)');
+hold(s3(1), 'on')
+plot(s3(1), RPP_f,RAA_f (:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
+legend(s3(1), 'Male','Female', 'Location','Southeast')
+plot(s3(1), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(s3(1), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(s3(1), 'off')
+title(s3(1), 'A')
+
+plot(s3(2), RPP_m,PGH_m (:,2),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+xlim(s3(2), [55 ,210]); xticks(s3(2), [60 :30 :210]);
+ylim(s3(2), [0.7,1.4]); yticks(s3(2), [0.7:0.2:1.4]);
+xlabel(s3(2), 'RPP (mmHg)'); ylabel(s3(2), 'GHP (relative)');
+hold(s3(2), 'on')
+plot(s3(2), RPP_f,PGH_f (:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
+% legend(s3(2), 'Male','Female', 'Location','Northwest')
+plot(s3(2), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(s3(2), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(s3(2), 'off')
+title(s3(2), 'B')
 
 % Plot all scenarios
-h = figure('DefaultAxesFontSize',20);
-plot(RPP_m,GFR_m(:,2) ,'k-', 'LineWidth',5);
+h = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
+plot(RPP_m,GFR_m(:,2) ,'-', 'LineWidth',3); % k-
 xlim([55,210]); xticks([60:30:210]);
-ylim([-1,5]); yticks([-1:1:5]);
+ylim([-1,5]); yticks([-1:2:5]);
 xlabel('RPP (mmHg)'); ylabel('GFR (relative)');
 hold on
-plot(RPP_m,GFR_m(:,4) ,'k--' , 'LineWidth',5); % no myo
-plot(RPP_m,GFR_m(:,5) ,'k:'  , 'LineWidth',5); % no tgf
-plot(RPP_m,GFR_m(:,6) ,'k-.' , 'LineWidth',5); % no myo, tgf
-[~, hobj, ~, ~] = legend({'Full AR','No MR','No TGF','No MR and TGF'}, 'FontSize',15,'Location','Northwest');
+plot(RPP_m,GFR_m(:,4) ,'-' , 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % lin myo k--o
+plot(RPP_m,GFR_m(:,5) ,'-'  , 'LineWidth',3                                   ); % no  myo k--
+plot(RPP_m,GFR_m(:,6) ,'-'   , 'LineWidth',3                                   ); % no  tgf k:
+plot(RPP_m,GFR_m(:,7) ,'-' , 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % no  myo & tgf k--x
+[~, hobj, ~, ~] = legend({'Full AR','Linear MR','No MR','No TGF','No MR and TGF'}, 'FontSize',7,'Location','Northwest');
 hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',2.5);
-plot(arr_lower,arr_line,'k--', 'LineWidth',2,'HandleVisibility','off'); 
-plot(arr_upper,arr_line,'k--', 'LineWidth',2,'HandleVisibility','off'); 
+set(hl,'LineWidth',1.5);
+plot(arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 hold off
 
-% % Save figures.
-% 
-% savefig(f, 'all_vars_RPP.fig')
+% Save figures.
 
-% savefig(g, 'COPYquant_of_int_vs_RPP_whole_rel.fig')
-% savefig(g, 'COPYquant_of_int_vs_RPP_whole_act.fig')
-
-% savefig(g, 'COPYquant_of_int_vs_RPP_whole_rel_no_sigmamyo.fig')
-% savefig(g, 'COPYquant_of_int_vs_RPP_whole_rel_no_sigmatgf.fig')
-% savefig(g, 'COPYquant_of_int_vs_RPP_whole_rel_no_sigmamyo_sigmatgf.fig')
-
-% savefig(h, 'COPYquant_of_int_vs_RPP_whole_rel_all_scen.fig')
+save_data_name = sprintf('quant_of_int_vs_RPP_whole.fig' );
+save_data_name = strcat('Figures/', save_data_name);
+savefig([g;h], save_data_name)
 
 end
 

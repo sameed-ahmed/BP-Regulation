@@ -522,7 +522,7 @@ end
 % RPP
 RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per; 
 
-% Data
+% Data --------------------------------------------------------------------
 
 % Yes AT2R
 RBFdata_yes_at2r_m  = [0.8894; 1.0000; 1.0609]; RBFdata_yes_at2r_f  = [0.8562; 1.0000; 1.1045]; 
@@ -557,167 +557,132 @@ yGFR_upper  = max( max(max([GFR_m(:,:) ;GFR_f(:,:)]))  , max(max([GFRdata_m(:,2:
 yUF_upper   = max( max(max([UF_m(:,:)  ;UF_f(:,:) ]))  , max(max([UFdata_m(:,2:num_scen)  ;UFdata_f(:,2:num_scen)  ])) );
 yUSOD_upper = max( max(max([USOD_m(:,:);USOD_f(:,:)])) , max(max([USODdata_m(:,2:num_scen);USODdata_f(:,2:num_scen)])) );
 
-% h  = gobjects(num_scen,1);
-% s2 = gobjects(num_scen,4);
-% % Loop through each set of subplots.
-% for ss = 1:num_scen
-%     h(ss)    = figure('DefaultAxesFontSize',22, 'pos',[100 450 1100 700]); 
-%     s2(ss,1) = subplot(2,2,1); 
-%     s2(ss,2) = subplot(2,2,2); 
-%     s2(ss,3) = subplot(2,2,3); 
-%     s2(ss,4) = subplot(2,2,4); 
-%     
-%     % For the "Normal" secenario, there is no data.
-%     if ss == 1
-%     plot(s2(ss,1), RPP_m,RBF_m    (:,ss) ,'bx-' , ...
-%                    RPP_f,RBF_f    (:,ss) ,'rx-' ,'LineWidth',3,'MarkerSize',10);
-%     xlim(s2(ss,1), [75,125]); set(s2(ss,1),'XTick', [80,100,120]);
-% %     ylim(s2(ss,1), [yRBF_lower;yRBF_upper])
-%     ylim(s2(ss,1), [0.6,1.2])
-%     xlabel(s2(ss,1), 'RPP (mmHg)'); ylabel(s2(ss,1), 'RBF (relative)');
-%     legend(s2(ss,1), 'male sim','female sim', 'Location','Southeast')
-%     title(s2(ss,1), 'A')
-% 
-%     plot(s2(ss,2), RPP_m,GFR_m    (:,ss) ,'bx-' , ...
-%                    RPP_f,GFR_f    (:,ss) ,'rx-' ,'LineWidth',3,'MarkerSize',10);
-%     xlim(s2(ss,2), [75,125]); set(s2(ss,2),'XTick', [80,100,120]);
-% %     ylim(s2(ss,2), [yGFR_lower;yGFR_upper])
-%     ylim(s2(ss,2), [0.6,1.2])
-%     xlabel(s2(ss,2), 'RPP (mmHg)'); ylabel(s2(ss,2), 'GFR (relative)');
-%     legend(s2(ss,2), 'male sim','female sim', 'Location','Southeast')
-%     title(s2(ss,2), 'B')
-% 
-%     plot(s2(ss,3), RPP_m,UF_m    (:,ss) ,'bx-' , ...
-%                    RPP_f,UF_f    (:,ss) ,'rx-' ,'LineWidth',3,'MarkerSize',10);
-%     xlim(s2(ss,3), [75,125]); set(s2(ss,3),'XTick', [80,100,120]);
-% %     ylim(s2(ss,3), [yUF_lower;yUF_upper])
-%     ylim(s2(ss,3), [0.0,3.5])
-%     xlabel(s2(ss,3), 'RPP (mmHg)'); ylabel(s2(ss,3), 'UF (relative)');
-%     legend(s2(ss,3), 'male sim','female sim', 'Location','Northwest')
-%     title(s2(ss,3), 'C')
-% 
-%     plot(s2(ss,4), RPP_m,USOD_m    (:,ss) ,'bx-' , ...
-%                    RPP_f,USOD_f    (:,ss) ,'rx-' ,'LineWidth',3,'MarkerSize',10);
-%     xlim(s2(ss,4), [75,125]); set(s2(ss,4),'XTick', [80,100,120]);
-% %     ylim(s2(ss,4), [yUSOD_lower;yUSOD_upper])
-%     ylim(s2(ss,4), [0.0,3.5])
-%     xlabel(s2(ss,4), 'RPP (mmHg)'); ylabel(s2(ss,4), 'USOD (relative)');
-%     legend(s2(ss,4), 'male sim','female sim', 'Location','Northwest')
-%     title(s2(ss,4), 'D')
-%     
-% %     suptitle(scenario(ss))
-%     else
-%     plot(s2(ss,1), RPP_m,RBF_m    (:,ss) ,'bx-' , ...
-%                    RPP_m,RBFdata_m(:,ss) ,'bo--', ...
-%                    RPP_f,RBF_f    (:,ss) ,'rx-' , ...
-%                    RPP_f,RBFdata_f(:,ss) ,'ro--','LineWidth',3,'MarkerSize',10);
-%     xlim(s2(ss,1), [75,125]); set(s2(ss,1),'XTick', [80,100,120]);
-% %     ylim(s2(ss,1), [yRBF_lower;yRBF_upper])
-%     ylim(s2(ss,1), [0.6,1.2])
-%     xlabel(s2(ss,1), 'RPP (mmHg)'); ylabel(s2(ss,1), 'RBF (relative)');
-%     legend(s2(ss,1), 'male sim','male data','female sim','female data', 'Location','Southeast')
-%     title(s2(ss,1), 'A')
-% 
-%     plot(s2(ss,2), RPP_m,GFR_m    (:,ss) ,'bx-' , ...
-%                    RPP_m,GFRdata_m(:,ss) ,'bo--', ...
-%                    RPP_f,GFR_f    (:,ss) ,'rx-' , ...
-%                    RPP_f,GFRdata_f(:,ss) ,'ro--','LineWidth',3,'MarkerSize',10);
-%     xlim(s2(ss,2), [75,125]); set(s2(ss,2),'XTick', [80,100,120]);
-% %     ylim(s2(ss,2), [yGFR_lower;yGFR_upper])
-%     ylim(s2(ss,2), [0.6,1.2])
-%     xlabel(s2(ss,2), 'RPP (mmHg)'); ylabel(s2(ss,2), 'GFR (relative)');
-%     legend(s2(ss,2), 'male sim','male data','female sim','female data', 'Location','Southeast')
-%     title(s2(ss,2), 'B')
-% 
-%     plot(s2(ss,3), RPP_m,UF_m    (:,ss) ,'bx-' , ...
-%                    RPP_m,UFdata_m(:,ss) ,'bo--', ...
-%                    RPP_f,UF_f    (:,ss) ,'rx-' , ...
-%                    RPP_f,UFdata_f(:,ss) ,'ro--','LineWidth',3,'MarkerSize',10);
-%     xlim(s2(ss,3), [75,125]); set(s2(ss,3),'XTick', [80,100,120]);
-% %     ylim(s2(ss,3), [yUF_lower;yUF_upper])
-%     ylim(s2(ss,3), [0.0,3.5])
-%     xlabel(s2(ss,3), 'RPP (mmHg)'); ylabel(s2(ss,3), 'UF (relative)');
-%     legend(s2(ss,3), 'male sim','male data','female sim','female data', 'Location','Northwest')
-%     title(s2(ss,3), 'C')
-% 
-%     plot(s2(ss,4), RPP_m,USOD_m    (:,ss) ,'bx-' , ...
-%                    RPP_m,USODdata_m(:,ss) ,'bo--', ...
-%                    RPP_f,USOD_f    (:,ss) ,'rx-' , ...
-%                    RPP_f,USODdata_f(:,ss) ,'ro--','LineWidth',3,'MarkerSize',10);
-%     xlim(s2(ss,4), [75,125]); set(s2(ss,4),'XTick', [80,100,120]);
-% %     ylim(s2(ss,4), [yUSOD_lower;yUSOD_upper])
-%     ylim(s2(ss,4), [0.0,3.5])
-%     xlabel(s2(ss,4), 'RPP (mmHg)'); ylabel(s2(ss,4), 'USOD (relative)');
-%     legend(s2(ss,4), 'male sim','male data','female sim','female data', 'Location','Northwest')
-%     title(s2(ss,4), 'D')
-% 
-% %     suptitle(scenario(ss))
-%     end
-% end
 
-i(1) = figure('DefaultAxesFontSize',20);
-% i(1) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
-plot(RPP_m,RBF_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-xlim([75,125]); %xticks([80,100,120]);
-ylim([0.6,1.2])
-xlabel('RPP (mmHg)'); ylabel('RBF (relative)');
-title('A')
-hold on
-plot(RPP_m,RBFdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-plot(RPP_f,RBF_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',12);
-plot(RPP_f,RBFdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',12); 
-legend('Male sim','Male data','Female sim','Female data', 'Location','Southeast')
-hold off
+% Subplot -----------------------------------------------------------------
 
-i(2) = figure('DefaultAxesFontSize',20);
-% i(2) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
-plot(RPP_m,GFR_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-xlim([75,125]); %xticks([80,100,120]);
-ylim([0.6,1.2])
-xlabel('RPP (mmHg)'); ylabel('GFR (relative)');
-title('B')
-hold on
-plot(RPP_m,GFRdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-plot(RPP_f,GFR_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',12);
-plot(RPP_f,GFRdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',12); 
-legend('Male sim','Male data','Female sim','Female data', 'Location','Southeast')
-hold off
+g = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 675 450]);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
+s1(1) = subplot(2,2,1); 
+s1(2) = subplot(2,2,2); 
+s1(3) = subplot(2,2,3);
+s1(4) = subplot(2,2,4); 
 
-i(3) = figure('DefaultAxesFontSize',20);
-% i(3) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
-plot(RPP_m,UF_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-xlim([75 ,125]); %xticks([80,100,120]);
-ylim([0.0,3.5]); %yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
-xlabel('RPP (mmHg)'); ylabel('UF (relative)');
-title('C')
-hold on
-plot(RPP_m,UFdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-plot(RPP_f,UF_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',12);
-plot(RPP_f,UFdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',12); 
-legend('Male sim','Male data','Female sim','Female data', 'Location','Northwest')
-hold off
+plot(s1(1), RPP_m,RBF_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s1(1), [75,125]); set(s1(1),'XTick', [80,100,120]);
+ylim(s1(1), [0.6,1.2])
+xlabel(s1(1), 'RPP (mmHg)'); ylabel(s1(1), 'RBF (relative)');
+hold(s1(1), 'on')
+plot(s1(1), RPP_m,RBFdata_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s1(1), RPP_f,RBF_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s1(1), RPP_f,RBFdata_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s1(1), 'off')
+[~, hobj, ~, ~] = legend(s1(1), {'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+title(s1(1), 'A')
 
-i(4) = figure('DefaultAxesFontSize',20);
-% i(4) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
-plot(RPP_m,USOD_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-xlim([75,125]); %xticks([80,100,120]);
-ylim([0.0,3.5]); %yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
-xlabel('RPP (mmHg)'); ylabel('UNa^{+} (relative)');
-title('D')
-hold on
-plot(RPP_m,USODdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',5, 'MarkerSize',12);
-plot(RPP_f,USOD_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',12);
-plot(RPP_f,USODdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',12); 
-legend('Male sim','Male data','Female sim','Female data', 'Location','Northwest')
-hold off
+plot(s1(2), RPP_m,GFR_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s1(2), [75,125]); set(s1(2),'XTick', [80,100,120]);
+%     ylim(s2(2), [yGFR_lower;yGFR_upper])
+ylim(s1(2), [0.6,1.2])
+xlabel(s1(2), 'RPP (mmHg)'); ylabel(s1(2), 'GFR (relative)');
+hold(s1(2), 'on')
+plot(s1(2), RPP_m,GFRdata_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s1(2), RPP_f,GFR_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s1(2), RPP_f,GFRdata_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s1(2), 'off')
+% legend(s2(2), 'male sim','male data','female sim','female data', 'Location','Southeast')
+title(s1(2), 'B')
 
-% % Save figures.
+plot(s1(3), RPP_m,UF_m      (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s1(3), [75,125]); set(s1(3),'XTick', [80,100,120]);
+%     ylim(s2(3), [yUF_lower;yUF_upper])
+ylim(s1(3), [0.0,3.5])
+xlabel(s1(3), 'RPP (mmHg)'); ylabel(s1(3), 'UF (relative)');
+hold(s1(3), 'on')
+plot(s1(3), RPP_m,UFdata_m  (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s1(3), RPP_f,UF_f      (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s1(3), RPP_f,UFdata_f  (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s1(3), 'off')
+% legend(s2(3), 'male sim','male data','female sim','female data', 'Location','Northwest')
+title(s1(3), 'C')
+
+plot(s1(4), RPP_m,USOD_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s1(4), [75,125]); set(s1(4),'XTick', [80,100,120]);
+%     ylim(s2(4), [yUSOD_lower;yUSOD_upper])
+ylim(s1(4), [0.0,3.5])
+xlabel(s1(4), 'RPP (mmHg)'); ylabel(s1(4), 'USOD (relative)');
+hold(s1(4), 'on')
+plot(s1(4), RPP_m,USODdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s1(4), RPP_f,USOD_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s1(4), RPP_f,USODdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s1(4), 'off')
+% legend(s2(4), 'male sim','male data','female sim','female data', 'Location','Northwest')
+title(s1(4), 'D')
+
+% % Individual plot --------------------------------------------------------
+
+% i(1) = figure('DefaultAxesFontSize',14);
+% % i(1) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
+% plot(RPP_m,RBF_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([75,125]); xticks([80,100,120]);
+% ylim([0.6,1.2])
+% xlabel('RPP (mmHg)'); ylabel('RBF (relative)');
+% title('A')
+% hold on
+% plot(RPP_m,RBFdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% plot(RPP_f,RBF_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+% plot(RPP_f,RBFdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+% legend('Male sim','Male data','Female sim','Female data', 'Location','Southeast')
+% hold off
 % 
-% savefig(f, 'all_vars_RPP.fig')
-% savefig(i, 'quant_of_int_vs_RPP.fig')
-% savefig(i, 'COPYquant_of_int_vs_RPP.fig')
+% i(2) = figure('DefaultAxesFontSize',14);
+% % i(2) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
+% plot(RPP_m,GFR_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([75,125]); xticks([80,100,120]);
+% ylim([0.6,1.2])
+% xlabel('RPP (mmHg)'); ylabel('GFR (relative)');
+% title('B')
+% hold on
+% plot(RPP_m,GFRdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% plot(RPP_f,GFR_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+% plot(RPP_f,GFRdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+% legend('Male sim','Male data','Female sim','Female data', 'Location','Southeast')
+% hold off
+% 
+% i(3) = figure('DefaultAxesFontSize',14);
+% % i(3) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
+% plot(RPP_m,UF_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([75 ,125]); xticks([80,100,120]);
+% ylim([0.0,3.5]); %yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
+% xlabel('RPP (mmHg)'); ylabel('UF (relative)');
+% title('C')
+% hold on
+% plot(RPP_m,UFdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% plot(RPP_f,UF_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+% plot(RPP_f,UFdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+% legend('Male sim','Male data','Female sim','Female data', 'Location','Northwest')
+% hold off
+% 
+% i(4) = figure('DefaultAxesFontSize',14);
+% % i(4) = figure('DefaultAxesFontSize',20, 'pos',[100 450 650 450]);
+% plot(RPP_m,USOD_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([75,125]); xticks([80,100,120]);
+% ylim([0.0,3.5]); %yticks([0,1,2,3]); yticklabels({'0.0','1.0','2.0','3.0'});
+% xlabel('RPP (mmHg)'); ylabel('UNa^{+} (relative)');
+% title('D')
+% hold on
+% plot(RPP_m,USODdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% plot(RPP_f,USOD_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+% plot(RPP_f,USODdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+% legend('Male sim','Male data','Female sim','Female data', 'Location','Northwest')
+% hold off
 
-% savefig(i, 'COPYquant_of_int_vs_RPP_no_osmotic.fig')
+% Save figures. -----------------------------------------------------------
+
+% save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig(g, save_data_name)
 
 end
 
