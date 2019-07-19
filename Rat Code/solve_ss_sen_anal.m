@@ -403,7 +403,7 @@ end
 g = gobjects(2,1);
 
 g(1) = figure('DefaultAxesFontSize',10);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5.8]);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 4.5]);
 s1(1) = subplot(1,2,1); 
 s1(2) = subplot(1,2,2); 
 s1(1).Position = s1(1).Position + [0.14, 0, 0.00, 0];
@@ -440,7 +440,7 @@ title(s1(2), 'B')
 % ---
 
 g(2) = figure('DefaultAxesFontSize',10);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5.8]);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 4.5]);
 s2(1) = subplot(1,2,1); 
 s2(2) = subplot(1,2,2); 
 s2(1).Position = s2(1).Position + [0.14, 0, 0.00, 0];
