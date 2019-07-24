@@ -617,6 +617,7 @@ f(13) = eta_ptsodreab - ( eta_ptsodreab_eq * gamma_filsod * gamma_at * gamma_rsn
 % gamma_filsod - rat
 % f(14) = gamma_filsod - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - 18)/138)) );
 f(14) = gamma_filsod - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - fixed_var_pars(3))/(138 * SF_S) )) );
+% f(14) = gamma_filsod - ( 1 );
 
 % gammafilsod_a = 0.31;
 % % gammafilsod_d = 1 - 0.5*gammafilsod_a;
@@ -634,9 +635,11 @@ gammaat_d = 0.92;
 gammaat_a = 0.136;
 gammaat_b = -1/(1-gammaat_c) * log(gammaat_a/(1-gammaat_d) - 1);
 f(15) = gamma_at - ( gammaat_d + gammaat_a / (1 + exp(-gammaat_b * ((AT1R/AT1R_eq) - gammaat_c)) ) );
+% f(15) = gamma_at - ( 1 );
 
 % gamma_rsna
 f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
+% f(16) = gamma_rsna - ( 1 );
 % Phi_mdsod
 f(17) = Phi_mdsod - ( Phi_filsod - Phi_ptsodreab );
 % Phi_dtsodreab
@@ -744,8 +747,10 @@ lambdadt_c = 2.86; % 96%
 f(24) = lambda_dt - ( 0.8 + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - fixed_var_pars(4))) ) );
 % -----------------------------------------------------------------------
 end
+% f(24) = lambda_dt - ( 1 );
 % lambda_anp
 f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
+% f(25) = lambda_anp - ( 1 );
 % lambda_al
 if     strcmp(gender,  'male')
     f(26) = lambda_al - ( 1/(395^0.06) * C_al^0.06 );
