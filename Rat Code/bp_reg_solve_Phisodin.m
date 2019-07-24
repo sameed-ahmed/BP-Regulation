@@ -682,6 +682,7 @@ elseif strcmp(gender,'female')
     cc = -1/379 * log((aa / (1 + dd) - 1) / bb);
     f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
     % ------------------------------------------------------
+%     f(20) = psi_al - 1;
 end
 % Phi_dtsod
 f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
@@ -751,6 +752,7 @@ if     strcmp(gender,  'male')
 elseif strcmp(gender,'female')
     f(26) = lambda_al - ( 1/(379^0.06) * C_al^0.06 );
 end
+% f(26) = lambda_al - ( 1 );
 % Phi_usod
 f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
 % Phi_win - rat
