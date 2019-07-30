@@ -79,20 +79,26 @@ elseif strcmp(gender{gg}, 'female')
 % eta_dtwreab = 0.60;
 % eta_cdwreab = 0.78;
 
-% Set pt, dt and compute cd
-Phi_u      = Phi_u; % same as male
-eta_ptwreab = 0.5 % calibrate
-Phi_ptwreab = Phi_gfilt * eta_ptwreab;
-Phi_mdu = Phi_gfilt - Phi_ptwreab;
-eta_dtwreab = 0.6 % calibrate
-Phi_dtwreab = Phi_mdu * eta_dtwreab;
-Phi_dtu     = Phi_mdu - Phi_dtwreab;
-Phi_cdwreab = Phi_dtu - Phi_u;
-eta_cdwreab = Phi_cdwreab / Phi_dtu
+% % Set pt, dt and compute cd
+% Phi_u      = Phi_u; % same as male
+% eta_ptwreab = 0.5 % calibrate
+% Phi_ptwreab = Phi_gfilt * eta_ptwreab;
+% Phi_mdu = Phi_gfilt - Phi_ptwreab;
+% eta_dtwreab = 0.6 % calibrate
+% Phi_dtwreab = Phi_mdu * eta_dtwreab;
+% Phi_dtu     = Phi_mdu - Phi_dtwreab;
+% Phi_cdwreab = Phi_dtu - Phi_u;
+% eta_cdwreab = Phi_cdwreab / Phi_dtu
 
-vars(:,2) = [eta_ptwreab; eta_dtwreab; eta_cdwreab; ...
-             Phi_ptwreab; Phi_dtwreab; Phi_cdwreab; ...
-             Phi_gfilt  ; Phi_mdu    ; Phi_dtu    ; Phi_u];
+% Set dt, cd and compute pt
+Phi_u      = Phi_u; % same as male
+eta_dtwreab = 0.6 % calibrate
+eta_cdwreab = 0.78 % calibrate 
+eta_ptwreab = 1 - Phi_u / ( Phi_gfilt * (1 - eta_dtwreab) * (1 - eta_cdwreab) )
+
+% vars(:,2) = [eta_ptwreab; eta_dtwreab; eta_cdwreab; ...
+%              Phi_ptwreab; Phi_dtwreab; Phi_cdwreab; ...
+%              Phi_gfilt  ; Phi_mdu    ; Phi_dtu    ; Phi_u];
 
 % % Save quantities.
 % save_data_name = sprintf('%s_seg_wreab_vars.mat', gender{gg});

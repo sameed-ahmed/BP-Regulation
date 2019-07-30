@@ -80,24 +80,24 @@ elseif strcmp(gender{gg}, 'female')
 % eta_dtsodreab = 0.5; 
 % eta_cdsodreab = 0.93;
 
-% Set pt, dt and compute cd
-Phi_filsod    = Phi_gfilt * C_sod;
-Phi_usod      = Phi_usod; % same as male
-eta_ptsodreab = 0.5 % calibrate
-Phi_ptsodreab = Phi_filsod * eta_ptsodreab;
-Phi_mdsod = Phi_filsod - Phi_ptsodreab;
-eta_dtsodreab = 0.5 % calibrate
-Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
-Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
-Phi_cdsodreab = Phi_dtsod - Phi_usod;
-eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
-
-% % Set dt, cd and compute pt
+% % Set pt, dt and compute cd
 % Phi_filsod    = Phi_gfilt * C_sod;
 % Phi_usod      = Phi_usod; % same as male
-% eta_dtsodreab = 0.65 % calibrate
-% eta_cdsodreab = 0.95 % calibrate 
-% eta_ptsodreab = 1 - Phi_usod / ( Phi_filsod * (1 - eta_dtsodreab) * (1 - eta_cdsodreab) )
+% eta_ptsodreab = 0.5 % calibrate
+% Phi_ptsodreab = Phi_filsod * eta_ptsodreab;
+% Phi_mdsod = Phi_filsod - Phi_ptsodreab;
+% eta_dtsodreab = 0.5 % calibrate
+% Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
+% Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
+% Phi_cdsodreab = Phi_dtsod - Phi_usod;
+% eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
+
+% Set dt, cd and compute pt
+Phi_filsod    = Phi_gfilt * C_sod;
+Phi_usod      = Phi_usod; % same as male
+eta_dtsodreab = 0.5 % calibrate
+eta_cdsodreab = 0.93 % calibrate 
+eta_ptsodreab = 1 - Phi_usod / ( Phi_filsod * (1 - eta_dtsodreab) * (1 - eta_cdsodreab) )
 
 % vars(:,2) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
 %              Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
