@@ -600,7 +600,7 @@ s3(2) = subplot(1,2,2);
 plot(s3(1), RPP_m,RAA_m (:,2),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 xlim(s3(1), [55 ,210]); xticks(s3(1), [60:30 :210]);
 ylim(s3(1), [0  ,2.5]); yticks(s3(1), [0 :0.5:2.5]);
-xlabel(s3(1), 'RPP (mmHg)'); ylabel(s3(1), 'R_{AA} (relative)');
+xlabel(s3(1), 'RPP (mmHg)'); ylabel(s3(1), 'AAR (relative)');
 hold(s3(1), 'on')
 plot(s3(1), RPP_f,RAA_f (:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
 legend(s3(1), 'Male','Female', 'Location','Southeast')
@@ -621,8 +621,64 @@ plot(s3(2), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off');
 hold(s3(2), 'off')
 title(s3(2), 'B')
 
+% ---
+
+h = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 675 450]);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
+ss1(1) = subplot(2,2,1); 
+ss1(2) = subplot(2,2,2); 
+ss1(3) = subplot(2,2,3);
+ss1(4) = subplot(2,2,4); 
+
+plot(ss1(1), RPP_m,RAA_m     (:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(ss1(1), [55,210]); xticks(ss1(1), [60 :30 :210]);
+ylim(ss1(1), [0,2.5]); yticks(ss1(1), [0 :0.5:2.5]);
+xlabel(ss1(1), 'RPP (mmHg)'); ylabel(ss1(1), 'AAR (relative)');
+hold(ss1(1), 'on')
+plot(ss1(1), RPP_f,RAA_f     (:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(ss1(1), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(ss1(1), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(ss1(1), 'off')
+legend(ss1(1), 'Male','Female', 'Location','Southeast');
+title(ss1(1), 'A')
+
+plot(ss1(2), RPP_m,PGH_m     (:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(ss1(2), [55,210]); xticks(ss1(2), [60 :30 :210]);
+ylim(ss1(2), [0.7,1.4]); yticks(ss1(2), [0.7:0.2:1.4]);
+xlabel(ss1(2), 'RPP (mmHg)'); ylabel(ss1(2), 'GHP (relative)');
+hold(ss1(2), 'on')
+plot(ss1(2), RPP_f,PGH_f     (:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(ss1(2), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(ss1(2), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(ss1(2), 'off')
+title(ss1(2), 'B')
+
+plot(ss1(3), RPP_m,RBF_m      (:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(ss1(3), [55,210]); xticks(ss1(3), [60 :30 :210]);
+ylim(ss1(3), [0.7,1.4]); yticks(ss1(3), [0.7:0.2:1.4]);
+xlabel(ss1(3), 'RPP (mmHg)'); ylabel(ss1(3), 'RBF (relative)');
+hold(ss1(3), 'on')
+plot(ss1(3), RPP_f,RBF_f      (:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(ss1(3), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(ss1(3), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(ss1(3), 'off')
+title(ss1(3), 'C')
+
+plot(ss1(4), RPP_m,GFR_m    (:,2) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(ss1(4), [55,210]); xticks(ss1(4), [60 :30 :210]);
+ylim(ss1(4), [0.0,2.5]); yticks(ss1(4), [0 :0.5:2.5]);
+xlabel(ss1(4), 'RPP (mmHg)'); ylabel(ss1(4), 'GFR (relative)');
+hold(ss1(4), 'on')
+plot(ss1(4), RPP_f,GFR_f    (:,2) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(ss1(4), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+plot(ss1(4), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
+hold(ss1(4), 'off')
+title(ss1(4), 'D')
+
+% ---
+
 % Plot all scenarios
-h = figure('DefaultAxesFontSize',14);
+i = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(RPP_m,GFR_m(:,2) ,'-', 'LineWidth',3); % k-
 xlim([55,210]); xticks([60:30:210]);
@@ -644,7 +700,7 @@ hold off
 
 save_data_name = sprintf('quant_of_int_vs_RPP_whole.fig' );
 save_data_name = strcat('Figures/', save_data_name);
-savefig([g;h], save_data_name)
+savefig([g;h;i], save_data_name)
 
 end
 
