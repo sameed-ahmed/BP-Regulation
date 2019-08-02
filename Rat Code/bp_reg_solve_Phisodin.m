@@ -11,7 +11,20 @@
 
 % Differential algebraic equation system f(t,x(t),x'(t);theta) = 0.
 
-function f = bp_reg_solve_Phisodin(t,x,x_p,pars,fixed_var_pars,drugs,win,Phi_win_input)
+function f = bp_reg_solve_Phisodin(t,x,x_p,pars,fixed_var_pars,drugs,...
+                                   win,Phi_win_input,scenario)
+
+%% Scenarios
+
+% Normal - Normal conditions
+% m_RSNA - male RSNA
+% m_AT2R - male AT2R
+% m_RAS  - male RAS pars
+% m_Reab - male fractional sodium and water reabsorption
+% ACEi   - Angiotensin convernting enzyme inhibitor
+% AngII  - Ang II infusion
+% scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'ACEi', 'AngII'};
+
 
 %% Retrieve drugs by name.
 
@@ -249,8 +262,11 @@ rsna0 = N_rsna * alpha_map * alpha_rap;
 if     strcmp(gender,'male')
     f(1 ) = rsna - rsna0;
 elseif strcmp(gender,'female')
-    f(1 ) = rsna - rsna0^(1/rsna0);
-%     f(1 ) = rsna - rsna0; % male
+    if     strcmp(scenario, 'm_RSNA')
+        f(1 ) = rsna - rsna0;
+    else
+        f(1 ) = rsna - rsna0^(1/rsna0);
+    end
 end
 % alpha_map
 f(2 ) = alpha_map - ( 0.5 + 1 / (1 + exp((P_ma - fixed_var_pars(1)) / 15)) );
@@ -569,15 +585,21 @@ f(90-1) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT
 if     strcmp(gender,'male')
     f(91-1) = Psi_AT2RAA - ( 1 );
 elseif strcmp(gender,'female')
-    f(91-1) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
-%     f(91-1) = Psi_AT2RAA - ( 1 );
+    if     strcmp(scenario, 'm_AT2R')
+        f(91-1) = Psi_AT2RAA - ( 1 );
+    else
+        f(91-1) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
+    end
 end
 % Psi_AT2REA
 if     strcmp(gender,'male')
     f(92-1) = Psi_AT2REA - ( 1 );
 elseif strcmp(gender,'female')
-    f(92-1) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
-%     f(92-1) = Psi_AT2REA - ( 1 );
+    if     strcmp(scenario, 'm_AT2R')
+        f(92-1) = Psi_AT2REA - ( 1 );
+    else
+        f(92-1) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
+    end
 end
 elseif strcmp(win, 'varied') %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % rsna
@@ -585,8 +607,11 @@ rsna0 = N_rsna * alpha_map * alpha_rap;
 if     strcmp(gender,'male')
     f(1 ) = rsna - rsna0;
 elseif strcmp(gender,'female')
-    f(1 ) = rsna - rsna0^(1/rsna0);
-%     f(1 ) = rsna - rsna0; % male
+    if     strcmp(scenario, 'm_RSNA')
+        f(1 ) = rsna - rsna0;
+    else
+        f(1 ) = rsna - rsna0^(1/rsna0);
+    end
 end
 % alpha_map
 f(2 ) = alpha_map - ( 0.5 + 1 / (1 + exp((P_ma - fixed_var_pars(1)) / 15)) );
@@ -963,15 +988,21 @@ f(90) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT1R
 if     strcmp(gender,'male')
     f(91) = Psi_AT2RAA - ( 1 );
 elseif strcmp(gender,'female')
-    f(91) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
-%     f(91) = Psi_AT2RAA - ( 1 );
+    if     strcmp(scenario, 'm_AT2R')
+        f(91) = Psi_AT2RAA - ( 1 );
+    else
+        f(91) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
+    end
 end
 % Psi_AT2REA
 if     strcmp(gender,'male')
     f(92) = Psi_AT2REA - ( 1 );
 elseif strcmp(gender,'female')
-    f(92) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
-%     f(92) = Psi_AT2REA - ( 1 );
+    if     strcmp(scenario, 'm_AT2R')
+        f(92) = Psi_AT2REA - ( 1 );
+    else
+        f(92) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
+    end
 end
 end
 

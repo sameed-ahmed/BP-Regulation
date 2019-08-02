@@ -11,7 +11,8 @@
 
 % Differential algebraic equation system f(t,x(t),x'(t);theta) = 0.
 
-function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,fact,fact_var)
+function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,...
+                        fact,fact_var,scenario)
 
 %% Retrieve drugs by name.
 
@@ -218,19 +219,12 @@ f = zeros(length(x),1);
 rsna0 = N_rsna * alpha_map * alpha_rap;
 if     strcmp(gender,'male')
     f(1 ) = rsna - rsna0;
-%     if     t < tchange
-%         f(1 ) = rsna - rsna0;
-%     elseif t >= tchange
-%         f(1 ) = rsna - 1.4*SSdata(1);
-%     end
 elseif strcmp(gender,'female')
-    f(1 ) = rsna - rsna0^(1/rsna0);
-%     f(1 ) = rsna - rsna0; % male
-%     if     t < tchange
-%         f(1 ) = rsna - rsna0^(1/rsna0);
-%     elseif t >= tchange
-%         f(1 ) = rsna - 1.4*SSdata(1);
-%     end
+    if     strcmp(scenario, 'm_RSNA') || strcmp(scenario, 'm_RSNA_&_m_Reab')
+        f(1 ) = rsna - rsna0;
+    else
+        f(1 ) = rsna - rsna0^(1/rsna0);
+    end
 end
 % alpha_map
 f(2 ) = alpha_map - ( 0.5 + 1 / (1 + exp((P_ma - fixed_var_pars(1)) / 15)) );
@@ -603,21 +597,21 @@ f(90) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT1R
 if     strcmp(gender,'male')
     f(91) = Psi_AT2RAA - ( 1 );
 elseif strcmp(gender,'female')
-%     f(91) = Psi_AT2RAA - ( 0.025 * (AT2R_eq - AT2R) + 1 );
-    f(91) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
-%     f(91) = Psi_AT2RAA - ( 0.7 + 0.3 * exp(-1.3 * (AT2R/AT2R_eq - 1)) );
-%     f(91) = Psi_AT2REA - ( 0.93 + 0.07 * exp(-0.9 * (AT2R/AT2R_eq - 1)) );
-%     f(91) = Psi_AT2RAA - ( 1 );
+    if     strcmp(scenario, 'm_AT2R')
+        f(91) = Psi_AT2RAA - ( 1 );
+    else
+        f(91) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
+    end
 end
 % Psi_AT2REA
 if     strcmp(gender,'male')
     f(92) = Psi_AT2REA - ( 1 );
 elseif strcmp(gender,'female')
-%     f(92) = Psi_AT2REA - ( 0.01  * (AT2R_eq - AT2R) + 1 );
-    f(92) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
-%     f(92) = Psi_AT2REA - ( 0.8 + 0.2 * exp(-1.4 * (AT2R/AT2R_eq - 1)) );
-%     f(92) = Psi_AT2RAA - ( 0.85 + 0.15 * exp(-0.85 * (AT2R/AT2R_eq - 1)) );
-%     f(92) = Psi_AT2REA - ( 1 );
+    if     strcmp(scenario, 'm_AT2R')
+        f(92) = Psi_AT2REA - ( 1 );
+    else
+        f(92) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
+    end
 end
 
 end

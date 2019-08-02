@@ -7,13 +7,13 @@
 function solve_ss_scenario
 
 % Scenarios
-% AngII - Ang II infusion
-% ACEi  - Angiotensin convernting enzyme inhibitor
-% ARB   - Angiotensin receptor blocker
-% AT2R- - Block AT2R through decay
-% RHyp  - Renal hypertension due to increased afferent arteriolar resistance
+% AngII  - Ang II infusion
+% ACEi   - Angiotensin convernting enzyme inhibitor
+% ARB    - Angiotensin receptor blocker
+% AT2R-  - Block AT2R through decay
+% RHyp   - Renal hypertension due to increased afferent arteriolar resistance
 scenario = {'AngII', 'ACEi', 'ARB', 'AT2R-', 'RHyp'};
-ss = 4;
+ss = 7;
 
 num_vars = 92;
 
@@ -80,39 +80,36 @@ C_gcf     = 0.068;
 elseif strcmp(gender{gg}, 'female')
 C_gcf     = 0.047;
 end
+
+% Male and female different parameters for fractional reabsorption
 if     strcmp(gender{gg}, 'male')
 %     eta_ptsodreab_eq = 0.93;  % layton 2016
 %     eta_dtsodreab_eq = 0.77; 
 %     eta_cdsodreab_eq = 0.15;
-    eta_ptsodreab_eq = 0.8; % karaaslan
+    eta_ptsodreab_eq = 0.80; % karaaslan
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptsodreab_eq = 0.90; % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.71; % karaaslan
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.93;
-%     eta_ptsodreab_eq = 0.5; % anita suggested
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.96;
     eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
+%     eta_ptsodreab_eq = 0.90; % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptwreab_eq = 0.80;
-%     eta_dtwreab_eq = 0.60; 
-%     eta_cdwreab_eq = 0.78;
     eta_ptwreab_eq = 0.5; % calibrated
     eta_dtwreab_eq = 0.6; 
     eta_cdwreab_eq = 0.91;
 end
+
 % K_vd      = 0.00001;
 K_vd      = 0.01;
 % K_bar     = 16.6 / SF;    % mmHg min / ml
@@ -328,7 +325,6 @@ end
 
 save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 % save_data_name = sprintf('NEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
-% save_data_name = sprintf('COPYNEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 

@@ -18,21 +18,26 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Scenarios
+% Normal - Normal conditions
+% m_RSNA - male RSNA
+% m_AT2R - male AT2R
+% m_RAS  - male RAS pars
+% m_Reab - male fractional sodium and water reabsorption
+% ACEi   - Angiotensin convernting enzyme inhibitor
+% AngII  - Ang II infusion
+scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'ACEi', 'AngII'};
+num_scen = length(scenario);
+fixed_ss = 1;
+
 % Boolean to fix/vary water intake.
 % win =  'fixed';
 win = 'varied';
 
 % Number of iterations below/above baseline.
-iteration = 51;
+iteration = 51; % must be odd number for symmetry
 % Fold decrease/increase.
 lower = 1/5; upper = 5;
-
-% Scenarios
-% Normal - normal conditions
-% ACEi   - Angiotensin convernting enzyme inhibitor
-% AngII  - Ang II infusion
-scenario = {'Normal', 'ACEi', 'AngII'};
-num_scen = length(scenario);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -47,64 +52,7 @@ elseif strcmp(win, 'varied')
 end
 
 % Baseline of water intake for each scenario if it is fixed.
-Phi_win_bl_m = zeros(num_scen,2*iteration-1);
-Phi_win_bl_f = zeros(num_scen,2*iteration-1);
-% Load data for baseline water intake and renal perfusion pressure for each
-% scenario.
-load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-Phi_win_bl_m(1,1) = SSdata(28);
-clear SSdata;
-load('female_ss_data_scenario_Normal.mat', 'SSdata');
-Phi_win_bl_f(1,1) = SSdata(28);
-clear SSdata;
-load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
-Phi_win_bl_m(2,1) = SSdata(28);
-clear SSdata;
-load('female_ss_data_scenario_ACEi.mat', 'SSdata');
-Phi_win_bl_f(2,1) = SSdata(28);
-clear SSdata;
-load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
-Phi_win_bl_m(3,1) = SSdata(28);
-clear SSdata;
-load('female_ss_data_scenario_AngII.mat', 'SSdata');
-Phi_win_bl_f(3,1) = SSdata(28);
-clear SSdata;
-% load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% Phi_win_bl_m(1,1) = SSdata(28);
-% clear SSdata;
-% load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% Phi_win_bl_f(1,1) = SSdata(28);
-% clear SSdata;
-% load(  'NEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
-% Phi_win_bl_m(2,1) = SSdata(28);
-% clear SSdata;
-% load('NEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
-% Phi_win_bl_f(2,1) = SSdata(28);
-% clear SSdata;
-% load(  'NEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-% Phi_win_bl_m(3,1) = SSdata(28);
-% clear SSdata;
-% load('NEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-% Phi_win_bl_f(3,1) = SSdata(28);
-% clear SSdata;
-% load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% Phi_win_bl_m(1,1) = SSdata(28);
-% clear SSdata;
-% load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% Phi_win_bl_f(1,1) = SSdata(28);
-% clear SSdata;
-% load(  'COPYNEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
-% Phi_win_bl_m(2,1) = SSdata(28);
-% clear SSdata;
-% load('COPYNEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
-% Phi_win_bl_f(2,1) = SSdata(28);
-% clear SSdata;
-% load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-% Phi_win_bl_m(3,1) = SSdata(28);
-% clear SSdata;
-% load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-% Phi_win_bl_f(3,1) = SSdata(28);
-% clear SSdata;
+Phi_win_bl = zeros(2,num_scen,2*iteration-1);
 
 % Range for fold decrease/increase.
 iter_range_l = linspace(lower, 1, iteration);
@@ -130,95 +78,45 @@ end
 gender = {'male'    , 'female'  };
 change = {'decrease', 'increase'};
 
-for ss = 1:1 % scenario
+for ss = 1:num_scen % scenario
 for gg = 1:2        % gender
 for cc = 1:2        % change
 
-% Add directory containing data.
-mypath = pwd;
-mypath = strcat(mypath, '/Data');
-addpath(genpath(mypath))
+% Set name for data file to be loaded based upon gender and scenario.    
+load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 
 % Retrieve and replace parameters in fixed variable equations.
-if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_Normal.mat', 'SSdata');
-end
-% if     strcmp(gender{gg}, 'male')
-%     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% end
-% if     strcmp(gender{gg}, 'male')
-%     load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% end
-fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-fixed_var_pars = SSdata(fixed_ind);
-phicophico = SSdata(33);
-cadhcadh   = SSdata(47);
-fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
-
 % Load data for steady state initial value. 
-if strcmp(scenario{ss}, 'Normal')
+% Fixed variable parameters are only retrieved and replaced for scenarios
+% which are solved for in the solve_ss_baseline because the parameter has
+% changed for the fixed variable to remain 1.
+% Otherwise scenarios which are solved for in solve_ss_scenario do not 
+% require this because they load the fixed variable parameter from the
+% baseline scenario, and they are perturbed scenarios in which the fixed
+% variable is no longer 1.
+fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
+if   strcmp(scenario{ss}, 'ACEi') || strcmp(scenario{ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
         load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
     elseif strcmp(gender{gg}, 'female')
         load('female_ss_data_scenario_Normal.mat', 'SSdata');
     end
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-%     end
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-%     end
-    fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
+    fixed_var_pars = SSdata(fixed_ind);
+    phicophico = SSdata(33); cadhcadh = SSdata(47);
+    fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
+    load(load_data_name, 'SSdata');
+else
+    load(load_data_name, 'SSdata');
+    fixed_var_pars = SSdata(fixed_ind);
+    phicophico = SSdata(33); cadhcadh = SSdata(47);
+    fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
     SSdata(fixed_ind) = 1;
-    SSdataIG = SSdata;
-    clear SSdata
-elseif strcmp(scenario{ss}, 'ACEi')
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_ACEi.mat', 'SSdata');
-    end
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'NEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('NEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
-%     end
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'COPYNEWmale_ss_data_scenario_ACEi.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('COPYNEWfemale_ss_data_scenario_ACEi.mat', 'SSdata');
-%     end
-    SSdataIG = SSdata;
-    clear SSdata
-elseif strcmp(scenario{ss}, 'AngII')
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_AngII.mat', 'SSdata');
-    end
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'NEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('NEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-%     end
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-%     end
-    SSdataIG = SSdata;
-    clear SSdata
 end
+SSdataIG = SSdata;
+clear SSdata;
+
+% Load data for baseline water intake if it is fixed.
+Phi_win_bl(gg,ss,1) = SSdataIG(28);
 
 % Delete Phi_win if it is fixed.
 if     strcmp(win,  'fixed')
@@ -279,39 +177,48 @@ if     strcmp(gender{gg}, 'male')
 elseif strcmp(gender{gg}, 'female')
     C_gcf     = 0.047;
 end
+
+% Male and female different parameters for fractional reabsorption
 if     strcmp(gender{gg}, 'male')
 %     eta_ptsodreab_eq = 0.93;  % layton 2016
 %     eta_dtsodreab_eq = 0.77; 
 %     eta_cdsodreab_eq = 0.15;
-    eta_ptsodreab_eq = 0.8; % karaaslan
+    eta_ptsodreab_eq = 0.80; % karaaslan
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptsodreab_eq = 0.90;  % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.71; % karaaslan
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.93;
-%     eta_ptsodreab_eq = 0.5; % anita suggested
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.96;
+    if     strcmp(scenario{ss}, 'm_Reab')
+    eta_ptsodreab_eq = 0.71; % male
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.93;
+    else
     eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
+    end
+%     eta_ptsodreab_eq = 0.90; % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptwreab_eq = 0.80;
-%     eta_dtwreab_eq = 0.60; 
-%     eta_cdwreab_eq = 0.78;
+    if     strcmp(scenario{ss}, 'm_Reab')
+    eta_ptwreab_eq = 0.80; % male 
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
+    else
     eta_ptwreab_eq = 0.5; % calibrated
     eta_dtwreab_eq = 0.6; 
     eta_cdwreab_eq = 0.91;
+    end
 end
+
 % K_vd      = 0.00001;
 K_vd      = 0.01;
 % K_bar     = 16.6 / SF;    % mmHg min / ml
@@ -371,6 +278,19 @@ if     strcmp(gender{gg}, 'male')
     AT1R_eq  = 20.4807902818665;
     AT2R_eq  = 6.82696474842298;
 elseif strcmp(gender{gg}, 'female')
+    if     strcmp(scenario{ss}, 'm_RAS')
+    X_PRCPRA = 135.59/17.312; % male
+    k_AGT    = 801.02;
+    c_ACE    = 0.096833;
+    c_Chym   = 0.010833;
+    c_NEP    = 0.012667;
+    c_ACE2   = 0.0026667;
+    c_IIIV   = 0.29800;
+    c_AT1R   = 0.19700;
+    c_AT2R   = 0.065667;
+    AT1R_eq  = 20.4807902818665;
+    AT2R_eq  = 6.82696474842298;
+    else
     X_PRCPRA = 114.22/17.312;
     k_AGT    = 779.63;
     c_ACE    = 0.11600;
@@ -382,14 +302,11 @@ elseif strcmp(gender{gg}, 'female')
     c_AT2R   = 0.065667;
     AT1R_eq  = 20.4538920068419;
     AT2R_eq  = 6.81799861123497;
+    end
 end
 
 % Input Phi_win if it is fixed.
-if     strcmp(gender{gg}, 'male')
-    Phi_win_input = Phi_win_bl_m(ss,1);
-elseif strcmp(gender{gg}, 'female')
-    Phi_win_input = Phi_win_bl_f(ss,1);
-end
+Phi_win_input = Phi_win_bl(gg,ss,1);
 
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
@@ -402,16 +319,16 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level]
-if     strcmp(scenario{ss}, 'Normal')
-    drugs = [0   , 0];
-elseif strcmp(scenario{ss}, 'ACEi')
-    drugs = [0   , 1]; % Hall 2018
-elseif strcmp(scenario{ss}, 'AngII')
-    if     strcmp(gender{gg}, 'male')
+if     strcmp(scenario{ss}, 'ACEi'  )
+        drugs = [0   , 1]; % Hall 2018
+elseif strcmp(scenario{ss}, 'AngII' )
+    if     strcmp(gender{gg}, 'male'  )
         drugs = [2022, 0]; % Sampson 2008
     elseif strcmp(gender{gg}, 'female')
         drugs = [2060, 0]; % Sampson 2008
     end
+else
+        drugs = [0   , 0];
 end
 
 %% Variables initial guess
@@ -458,7 +375,8 @@ options = optimset('Display','off');
 exitflag, output] = fsolve(@(x) bp_reg_solve_Phisodin(t,x,x_p0,pars, ...
                                                       fixed_var_pars, ...
                                                       drugs,win, ...
-                                                      Phi_win_input), ...
+                                                      Phi_win_input, ...
+                                                      scenario{ss}), ...
                            x0, options);
 
 % Check for solver convergence.
@@ -504,10 +422,9 @@ end % gender
 
 % Add in Phi_win where it originally was if it is fixed.
 if     strcmp(win,  'fixed')
-    Phi_win_bl_m(ss,:) = Phi_win_bl_m(ss,1) * ones(1,2*iteration-1);
-    Phi_win_bl_f(ss,:) = Phi_win_bl_f(ss,1) * ones(1,2*iteration-1);
-    X_m(:,:,ss) = [X(1:27,:,1,ss); Phi_win_bl_m(ss,:); X(28:end,:,1,ss)];
-    X_f(:,:,ss) = [X(1:27,:,2,ss); Phi_win_bl_f(ss,:); X(28:end,:,2,ss)];
+    Phi_win_bl(:,ss,:) = Phi_win_bl(:,ss,1) .* ones(1,1,2*iteration-1);
+    X_m(:,:,ss) = [X(1:27,:,1,ss); Phi_win_bl(1,ss,:); X(28:end,:,1,ss)];
+    X_f(:,:,ss) = [X(1:27,:,2,ss); Phi_win_bl(2,ss,:); X(28:end,:,2,ss)];
 elseif strcmp(win, 'varied')
     X_m(:,:,ss) = X(:,:,1,ss); X_f(:,:,ss) = X(:,:,2,ss);
 end
@@ -558,8 +475,8 @@ for i = 1:7
     for j = 1:last_plot
         s(i,j) = subplot(3,5,j);
 
-        plot(s(i,j), xscale,X_m((i-1)*15 + j,:,1),'b', ...
-                     xscale,X_f((i-1)*15 + j,:,1),'r');
+        plot(s(i,j), xscale,X_m((i-1)*15 + j,:,fixed_ss),'b', ...
+                     xscale,X_f((i-1)*15 + j,:,fixed_ss),'r');
         
         xlim([lower, upper])
         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
@@ -574,8 +491,7 @@ end
 
 g = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
-plot(X_m(42,:,1),xscale,'b-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-
+plot(X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 % xlim([80, 120])
 ylim([lower, upper])
 ax = gca;
@@ -584,7 +500,7 @@ xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 % 'FontSize',22, 'FontWeight','bold'
 hold on
-plot(X_f(42,:,1),xscale,'r-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+plot(X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 legend('Male','Female', 'Location','Northwest')
 hold off
 
@@ -602,19 +518,87 @@ hold all
 plot(X_f(42,:,1),xscale,'r-', 'LineWidth',3, 'DisplayName','F Normal')
 legend('-DynamicLegend');
 
+scen_linestyle_m = {'b-x', 'b-o', 'b-+', 'b-*',};
+scen_linestyle_f = {'r-x', 'r-o', 'r-+', 'r-*',};
+scen_legend = {'RSNA', 'AT2R', 'RAS', 'Reab'};
+for ss = 2:num_scen-2
 hold all
-plot(X_m(42,:,2),xscale,'b--' , 'LineWidth',3, 'DisplayName','M ACEi')
+plot(X_m(42,:,ss),xscale,scen_linestyle_m{ss-1}, 'LineWidth',3, 'DisplayName',scen_legend{ss-1})
 legend('-DynamicLegend');
 hold all
-plot(X_f(42,:,2),xscale,'r--', 'LineWidth',3, 'DisplayName','F ACEi')
+plot(X_f(42,:,ss),xscale,scen_linestyle_f{ss-1}, 'LineWidth',3, 'DisplayName',scen_legend{ss-1})
+legend('-DynamicLegend');
+end
+
+i = figure('pos',[100 100 675 450]);
+plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
+% xlim([80, 160])
+ylim([lower, upper])
+set(gca,'FontSize',14)
+xlabel(names(42)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+ylabel('$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+legend('-DynamicLegend');
+hold all
+plot(X_f(42,:,1),xscale,'r-', 'LineWidth',3, 'DisplayName','F Normal')
 legend('-DynamicLegend');
 
+scen_linestyle_m = {'b--', 'b:'};
+scen_linestyle_f = {'r--', 'r:'};
+scen_legend = {'ACEi', 'Ang II'};
+for ss = num_scen-1:num_scen
 hold all
-plot(X_m(42,:,3),xscale,'b:' , 'LineWidth',3, 'DisplayName','M AngII')
+plot(X_m(42,:,ss),xscale,scen_linestyle_m{ss-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{ss-(num_scen-2)})
 legend('-DynamicLegend');
 hold all
-plot(X_f(42,:,3),xscale,'r:', 'LineWidth',3, 'DisplayName','F AngII')
+plot(X_f(42,:,ss),xscale,scen_linestyle_f{ss-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{ss-(num_scen-2)})
 legend('-DynamicLegend');
+end
+
+% Plot male - female bar graph for each scenario --------------------------
+
+% X_m/f = (variable, iteration, scenario)
+deltaMAP_m = reshape(X_m(42,end,1:end-2) - X_m(42,iteration,1:end-2), [1,num_scen-2]);
+deltaMAP_f = reshape(X_f(42,end,1:end-2) - X_f(42,iteration,1:end-2), [1,num_scen-2]);
+MAP_comp = deltaMAP_m(1) - [deltaMAP_m(1), deltaMAP_f];
+% scen_comp = categorical({'M - M'              , 'M - F'              , ...
+%                          'M - F\newlineM RSNA', 'M - F\newlineM AT2R', ...
+%                          'M - F\newlineM RAS' , 'M - F\newlineM Reab'});
+% scen_comp = reordercats(scen_comp,{'M - M'              , 'M - F'              , ...
+%                                    'M - F\newlineM RSNA', 'M - F\newlineM AT2R', ...
+%                                    'M - F\newlineM RAS' , 'M - F\newlineM Reab'});
+scen_comp = categorical({'M - M'              , 'M - F'              , ...
+                         'M - F M RSNA', 'M - F M AT2R', ...
+                         'M - F M RAS' , 'M - F M Reab'});
+scen_comp = reordercats(scen_comp,{'M - M'              , 'M - F'              , ...
+                                   'M - F M RSNA', 'M - F M AT2R', ...
+                                   'M - F M RAS' , 'M - F M Reab'});
+
+j = figure('DefaultAxesFontSize',10);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 3.5]);
+s1(1) = subplot(1,2,1); 
+s1(2) = subplot(1,2,2); 
+% s1(2).Position = s1(2).Position + [0.0, 0.0, 0.0, -0.01];
+
+plot(s1(1), X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+% xlim(s1(1), [80, 120]); set(s1(1),'XTick', [80,100,120]);
+ylim(s1(1), [lower, upper])
+xlabel(s1(1), 'MAP (mmHg)', 'FontSize',14*1.1); ylabel(s1(1), {'Fold change in'; 'sodium excretion'}, 'FontSize',14);
+hold(s1(1), 'on')
+plot(s1(1), X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+legend(s1(1), {'Male','Female'}, 'Location','Northwest', 'FontSize',14)
+hold(s1(1), 'off')
+title(s1(1), 'A', 'FontSize',14)
+
+bar(s1(2), scen_comp,MAP_comp,'k');
+% set(gca,'xticklabel',scen_comp_text);
+% xtickget = get(gca,'xticklabel');  
+% set(gca,'xticklabel',xtickget,'fontsize',6)
+% xtickangle(s1(2),90)
+% xlim(s1(2), [1-1,6+1])
+ylim(s1(2), [-1,7])
+xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
+% hAxes.XAxis.FontSize = 6;
+title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
@@ -624,8 +608,7 @@ legend('-DynamicLegend');
 %     save_data_name = sprintf('all_vars_vs_Phisodin_varied_Phiwin.fig');
 % end
 % save_data_name = strcat('Figures/', save_data_name);
-% savefig([f;g], save_data_name)
-
+% savefig([f;g;h;i;j], save_data_name)
 
 end
 

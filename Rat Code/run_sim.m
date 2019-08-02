@@ -13,6 +13,14 @@ function run_sim
 
 close all
 
+% Scenarios
+% Normal - Normal conditions
+% m_RAS  - male RAS pars
+% m_Reab - male fractional sodium and water reabsorption
+% m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
+scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_&_m_Reab'};
+ss = 4;
+
 num_vars = 92;
 
 gender   = {'male', 'female'};
@@ -77,39 +85,48 @@ if     strcmp(gender{gg}, 'male')
 elseif strcmp(gender{gg}, 'female')
     C_gcf     = 0.047;
 end
+
+% Male and female different parameters for fractional reabsorption
 if     strcmp(gender{gg}, 'male')
 %     eta_ptsodreab_eq = 0.93;  % layton 2016
 %     eta_dtsodreab_eq = 0.77; 
 %     eta_cdsodreab_eq = 0.15;
-    eta_ptsodreab_eq = 0.8; % karaaslan
-    eta_dtsodreab_eq = 0.5; 
+    eta_ptsodreab_eq = 0.80; % karaaslan
+    eta_dtsodreab_eq = 0.50; 
     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptsodreab_eq = 0.90;  % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.71; % karaaslan
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.93;
-%     eta_ptsodreab_eq = 0.5; % anita suggested
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.96;
+    if     strcmp(scenario{ss}, 'm_Reab') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    eta_ptsodreab_eq = 0.71; % male
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.93;
+    else
     eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
+    end
+%     eta_ptsodreab_eq = 0.90; % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
-    eta_ptwreab_eq = 0.86; % layton 2016
+    eta_ptwreab_eq = 0.86; 
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptwreab_eq = 0.80;
-%     eta_dtwreab_eq = 0.60; 
-%     eta_cdwreab_eq = 0.78;
+    if     strcmp(scenario{ss}, 'm_Reab') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    eta_ptwreab_eq = 0.80; % male 
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
+    else
     eta_ptwreab_eq = 0.5; % calibrated
     eta_dtwreab_eq = 0.6; 
     eta_cdwreab_eq = 0.91;
+    end
 end
+
 % K_vd      = 0.00001;
 K_vd      = 0.01;
 % K_bar     = 16.6 / SF;    % mmHg min / ml
@@ -148,6 +165,19 @@ if     strcmp(gender{gg}, 'male')
     AT1R_eq  = 20.4807902818665;
     AT2R_eq  = 6.82696474842298;
 elseif strcmp(gender{gg}, 'female')
+    if     strcmp(scenario{ss}, 'm_RAS') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    X_PRCPRA = 135.59/17.312; % male
+    k_AGT    = 801.02;
+    c_ACE    = 0.096833;
+    c_Chym   = 0.010833;
+    c_NEP    = 0.012667;
+    c_ACE2   = 0.0026667;
+    c_IIIV   = 0.29800;
+    c_AT1R   = 0.19700;
+    c_AT2R   = 0.065667;
+    AT1R_eq  = 20.4807902818665;
+    AT2R_eq  = 6.82696474842298;
+    else
     X_PRCPRA = 114.22/17.312;
     k_AGT    = 779.63;
     c_ACE    = 0.11600;
@@ -159,6 +189,7 @@ elseif strcmp(gender{gg}, 'female')
     c_AT2R   = 0.065667;
     AT1R_eq  = 20.4538920068419;
     AT2R_eq  = 6.81799861123497;
+    end
 end
 
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
@@ -172,28 +203,13 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
-% drugs = [Ang II infusion rate fmol/(ml min)]
-% drugs = [13625, 0, 0]; % Rajagopalan 1996 male; 5 days
-% drugs = [13625, 0, 0] * (10/7); % Mollnau 2002 male
-% drugs = [13625, 0, 0] / 5; % Ran 2006 male - ?
-% drugs = [13625, 0, 0] / 25; % Brown 1981 female; 7 days
-% if     strcmp(gender{gg}, 'male')
-%     drugs = [(3/3)*5492, 0, 0]; % Zimmerman 2015 male + female; 14 days
-% elseif strcmp(gender{gg}, 'female')
-%     drugs = [(2/3)*5492, 0, 0]; % Zimmerman 2015 male + female; 14 days
-% end
-% drugs = [0, 1]; % Total ACEi
 
+% drugs = [0, 1, 0]; % Total ACEi
+% drugs = [0, 0, 1]; % Total ARB
 % drugs = [0, 0.78, 0]; % Leete 2018 ACEi
 % drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
-if     strcmp(gender{gg}, 'male')
-    drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
-elseif strcmp(gender{gg}, 'female')
-    drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
-end
-
-% drugs = [0, 0, 0]; % No drug
+drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
 
@@ -208,48 +224,35 @@ mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
 % Load data for steady state initial value. 
-% Need to first run transform_data.m on Jessica's data files.
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data.mat', 'SSdata');
-% %     load('male_ss_data_female_sodreab.mat', 'SSdata'); % female
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data.mat', 'SSdata');
-% %     load('female_ss_data_male_sodreab.mat', 'SSdata'); % male
-% %     load('female_ss_dtata_male_raas.mat', 'SSdata'); % male
-% end
-
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_new_sigmamyo.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_new_sigmamyo.mat', 'SSdata');
-% end
-
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_new_Psi.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_new_Psi.mat', 'SSdata');
-% end
-
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data_scenario_AT2R-.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data_scenario_AT2R-.mat', 'SSdata');
-% end
-
-if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_Normal.mat', 'SSdata');
+if     strcmp(scenario{ss}, 'Normal')
+    if     strcmp(gender{gg}, 'male'  )
+        load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_Normal.mat', 'SSdata');
+    end
+elseif strcmp(scenario{ss}, 'm_RAS' )
+    if     strcmp(gender{gg}, 'male'  )
+        load(  'male_ss_data_scenario_m_RAS.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_m_RAS.mat', 'SSdata');
+    end
+elseif strcmp(scenario{ss}, 'm_Reab')
+    if     strcmp(gender{gg}, 'male'  )
+        load(  'male_ss_data_scenario_m_Reab.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_m_Reab.mat', 'SSdata');
+    end
+elseif strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    if     strcmp(gender{gg}, 'male'  )
+        load(  'male_ss_data_scenario_m_RAS_&_m_Reab.mat', 'SSdata');
+    elseif strcmp(gender{gg}, 'female')
+        load('female_ss_data_scenario_m_RAS_&_m_Reab.mat', 'SSdata');
+    end
 end
 % if     strcmp(gender{gg}, 'male')
 %     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
 % elseif strcmp(gender{gg}, 'female')
 %     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% end
-% if     strcmp(gender{gg}, 'male')
-%     load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
 % end
 
 % Retrieve and replace parameters in fixed variable equations.
@@ -320,7 +323,8 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,fact,fact_var), ...
+               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,...
+                          tchange,fact,fact_var,scenario{ss}), ...
                tspan, x0, x_p0, options);
 
 T{gg} = t';
@@ -399,41 +403,6 @@ for i = 1:7
     end
 end
 
-% Plot Mean Arterial Pressure vs Time. ------------------------------------
-
-% Data from Sampson 2008. MAP is in difference from baseline.
-tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
-             7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
-MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
-             26.18,28.87,29.54,31.26,34.71,36.53,42.18];
-MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
-             13.91,17.31,17.04,18.37,19.63,23.23,24.42];
-% Substract MAP by baseline.
-MAP_m = X_m(42,:) - X_m(42,1);
-MAP_f = X_f(42,:) - X_f(42,1);
-
-g = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 650 450]);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
-plot(t_m,MAP_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim([xlower, xupper])
-ylim([0, 60])
-ax = gca;
-ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
-% ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
-%                  '8','9','10','11','12','13','14'};
-ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
-xlabel('Time (days)')
-ylabel('\DeltaMAP (mmHg)')
-hold on
-plot(t_f,MAP_f,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
-plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6, 'LineWidth',2)
-[~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');
-hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
-
-hold off
-
 % Save figures.
 
 % if     fact == 1
@@ -447,10 +416,6 @@ hold off
 % end
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig(f, save_data_name)
-
-% save_data_name = sprintf('all_vars_AngII_inf.fig');
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f;g], save_data_name)
 
 end
 

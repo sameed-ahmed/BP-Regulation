@@ -8,8 +8,10 @@ function solve_ss_baseline
 
 % Scenarios
 % Normal - Normal conditions
-scenario = {'Normal'};
-ss = 1;
+% m_RAS  - male RAS pars
+% m_Reab - male fractional sodium and water reabsorption
+scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_&_m_Reab'};
+ss = 4;
 
 num_vars = 92;
 
@@ -73,39 +75,48 @@ C_gcf     = 0.068;
 elseif strcmp(gender{gg}, 'female')
 C_gcf     = 0.047;
 end
+
+% Male and female different parameters for fractional reabsorption
 if     strcmp(gender{gg}, 'male')
-%     eta_ptsodreab_eq = 0.93; % layton 2016
+%     eta_ptsodreab_eq = 0.93;  % layton 2016
 %     eta_dtsodreab_eq = 0.77; 
 %     eta_cdsodreab_eq = 0.15;
-    eta_ptsodreab_eq = 0.8; % karaaslan
+    eta_ptsodreab_eq = 0.80; % karaaslan
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptsodreab_eq = 0.90; % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.71; % karaaslan
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.93;
-%     eta_ptsodreab_eq = 0.5; % anita suggested
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.96;
+    if     strcmp(scenario{ss}, 'm_Reab') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    eta_ptsodreab_eq = 0.71; % male
+    eta_dtsodreab_eq = 0.5; 
+    eta_cdsodreab_eq = 0.93;
+    else
     eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
+    end
+%     eta_ptsodreab_eq = 0.90; % layton 2016
+%     eta_dtsodreab_eq = 0.77; 
+%     eta_cdsodreab_eq = 0.15;
+%     eta_ptsodreab_eq = 0.5; % anita suggested
+%     eta_dtsodreab_eq = 0.5; 
+%     eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptwreab_eq = 0.80;
-%     eta_dtwreab_eq = 0.60; 
-%     eta_cdwreab_eq = 0.78;
+    if     strcmp(scenario{ss}, 'm_Reab') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    eta_ptwreab_eq = 0.80; % male 
+    eta_dtwreab_eq = 0.60; 
+    eta_cdwreab_eq = 0.78;
+    else
     eta_ptwreab_eq = 0.5; % calibrated
     eta_dtwreab_eq = 0.6; 
     eta_cdwreab_eq = 0.91;
+    end
 end
+
 % K_vd      = 0.00001;
 K_vd      = 0.01;
 % K_bar     = 16.6 / SF;    % mmHg min / ml
@@ -144,6 +155,19 @@ if     strcmp(gender{gg}, 'male')
     AT1R_eq  = 20.4807902818665;
     AT2R_eq  = 6.82696474842298;
 elseif strcmp(gender{gg}, 'female')
+    if     strcmp(scenario{ss}, 'm_RAS') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    X_PRCPRA = 135.59/17.312; % male
+    k_AGT    = 801.02;
+    c_ACE    = 0.096833;
+    c_Chym   = 0.010833;
+    c_NEP    = 0.012667;
+    c_ACE2   = 0.0026667;
+    c_IIIV   = 0.29800;
+    c_AT1R   = 0.19700;
+    c_AT2R   = 0.065667;
+    AT1R_eq  = 20.4807902818665;
+    AT2R_eq  = 6.82696474842298;
+    else
     X_PRCPRA = 114.22/17.312;
     k_AGT    = 779.63;
     c_ACE    = 0.11600;
@@ -155,6 +179,7 @@ elseif strcmp(gender{gg}, 'female')
     c_AT2R   = 0.065667;
     AT1R_eq  = 20.4538920068419;
     AT2R_eq  = 6.81799861123497;
+    end
 end
 
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
@@ -168,7 +193,9 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario{ss}, 'Normal') || strcmp(scenario{ss}, 'RHyp')
+if     strcmp(scenario{ss}, 'Normal') || strcmp(scenario{ss}, 'RHyp') || ...
+       strcmp(scenario{ss}, 'm_RAS') || strcmp(scenario{ss}, 'm_Reab') || ...
+       strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
     drugs = [0, 0, 0, 0];
 elseif strcmp(scenario{ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
