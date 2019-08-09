@@ -88,7 +88,8 @@ cd_sod_reab_EQ = pars(43);
 amount = pars(44);
 slope = pars(45);
 baseline = pars(46);
-human          = pars(47);
+%E = pars(47);
+human          = pars(end-1);
 
 deltat = 30;
 if t < tchange
@@ -265,7 +266,7 @@ f(3 ) = alpha_rap - ( 1 - 0.008 * P_ra );
 f(4 ) = R_r - ( R_aa + R_ea );
 % beta_rsna
 f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
-%f(5 ) = beta_rsna - ( 1.5 * (rsna - 1) + 1 );
+%f(5 ) = beta_rsna - ( 1.5 * (rsna - 1) + 1 ); %Sameed change
 % Phi_rb
 f(6 ) = Phi_rb - ( P_ma / R_r );
 % Phi_gfilt
@@ -316,13 +317,14 @@ f(19) = eta_dtsodreab - ( eta_epsdt * psi_al );
 % psi_al
 % f(20) = psi_al - ( 0.17 + 0.94 / (1 + exp((0.48 - 1.2 * log10(C_al)) / 0.88)) );
 %f(20) = psi_al - ( 0.17 + 0.94 / (1 + exp((0.48 - 0.87 * log10(C_al)) / 0.88)) );
-f(20) = psi_al - 0.27*C_al^0.3;
+%f(20) = psi_al - 0.27*C_al^0.3; %Hallow
+f(20) = psi_al - (0.17 + 0.94/(1+exp((0.48 - 1.2*log(C_al))/0.88))); %Sameed
 % Phi_dtsod
 f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
 % Phi_cdsodreab
 f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
 % eta_cdsodreab
-lambda_al = 0.76*C_al^0.06;
+lambda_al = 0.76*C_al^0.06; %Jessica Change
 f(23) = eta_cdsodreab - ( eta_etacd * lambda_dt * lambda_anp * lambda_al);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAT
 % lambda_dt
@@ -333,12 +335,13 @@ f(24) = lambda_dt - ( 0.82 + 0.39 / (1 + exp((Phi_dtsod - 1.7625 * SF) / (0.375 
 f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
 % f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1199 );
 % Phi_usod
-f(26) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
+f(26) = Phi_usod - max(0,( Phi_dtsod - Phi_cdsodreab ));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAT
 % Phi_win
 % f(27) = Phi_win - ( max( 0, 0.008 / (1 + 86.1*1.822*(C_adh^(3*-1.607))) - 0.005 ) );
 % % f(27) = Phi_win - ( 0.008 / (1 + 1.822*(C_adh^(-1.607))) - 0.0053 );
-f(27) = Phi_win - ( max( 0, 0.008 * SF / (1 + 86.1*1.822*(C_adh^(3*-1.607))) - 0.005 * SF ) );
+%f(27) = Phi_win - ( max( 0, 0.008 * SF / (1 + 86.1*1.822*(C_adh^(3*-1.607))) - 0.005 * SF ) );
+f(27) = Phi_win - (max(0, 0.0078541*SF / (0.65451 + 18.22*C_adh^-1.607) - 0.002));
 % V_ecf
 f(28) = V_ecf_p - ( Phi_win - Phi_u );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAT
@@ -402,7 +405,7 @@ f(49) = delta_ra_p - ( 0.2 * P_ra_p - 0.0007 * delta_ra );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAT
 % Phi_twreab
 % f(50) = Phi_twreab - ( 0.025 - 0.001 / (mu_al * mu_adh) + 0.8 * Phi_gfilt );
-%f(50) = Phi_twreab - ( 0.025 * SF - 0.001 * SF / (mu_al * mu_adh) + 0.8 * Phi_gfilt );
+%f(50) = Phi_twreab - ( 0.025 * SF - 0.001 * SF / (mu_al * mu_adh) + 0.8 * Phi_gfilt ); %jessica change
 f(50) = Phi_twreab - ( baseline * SF - 0.001 * SF/(mu_al*mu_adh) + (0.8+amount*tanh(slope*(mu_Na-1)))*Phi_gfilt ); %+amount*tanh(slope*(mu_Na-1))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAT
 % mu_al
@@ -444,7 +447,7 @@ if     strcmp(gender,'male')
         f(57) = nu_mdsod - ( A + B./(C+exp(((1-kappa_d_renin)*Phi_mdsod - 1.731*SF)/0.6056*SF)));
         %f(57) = nu_mdsod - (A + B./(C+exp(4*((1-kappa_d_renin)* Phi_mdsod - 3.1328)/0.6056)));
         %end
-        %f(57) = nu_mdsod - min(1.3,( 0.2262 + 28.04 / (11.56 + exp(((1-kappa_d_renin)*Phi_mdsod - 1.731 * SF) / (0.6056 * SF) )) ));
+        %f(57) = nu_mdsod - max(0.8,min(1.3,( 0.2262 + 28.04 / (11.56 + exp(((1-kappa_d_renin)*Phi_mdsod - 1.731 * SF) / (0.6056 * SF) )) )));
     else 
         f(57) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp(((1-kappa_d_renin)*Phi_mdsod - 1.731 * SF) / (0.6056 * SF) )) );
     end
@@ -488,7 +491,7 @@ else
 end
 % xi_at
 f(64) = xi_at - ( 0.47 + 2.4 / (1 + exp((2.82 - 1.5 * 1.301/20 * (AT1R*20/AT1R_eq)) / 0.8)) );
-% f(63) = xi_at - ( 0.4 + 2.4 / (1 + exp((2.82 - 1.5 * log10(AT1R + (20-AT1R_eq))) / 0.8)) );
+% f(64) = xi_at - ( 0.4 + 2.4 / (1 + exp((2.82 - 1.5 * log10(AT1R + (20-AT1R_eq))) / 0.8)) ); %Jessica change
 
 % hatC_anp
 f(65) = hatC_anp - ( 7.4052 - 6.554 / (1 + exp(P_ra - 3.762)) ); 
@@ -496,7 +499,7 @@ f(65) = hatC_anp - ( 7.4052 - 6.554 / (1 + exp(P_ra - 3.762)) );
 % AGT
 f(66) = AGT_p - ( k_AGT - PRA - log(2)/h_AGT * AGT );
 % nu_AT1
-f(67) = nu_AT1 - ( 10^(0.0102 - 3 * log10(AT1R / AT1R_eq)) ); %0.95
+f(67) = nu_AT1 - ( 10^(0.0102 - 0.95 * log10(AT1R / AT1R_eq)) ); %0.95
 % R_sec
 f(68) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 );
 % PRC
@@ -521,9 +524,13 @@ f(77) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_A
 f(78) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
 %normal
-f(79) = Sigma_myo - ( 0.9 + 1.0 / ( 1 + (9/1) * exp(-0.9 * (P_gh - 62)) ) );
+%f(79) = Sigma_myo - ( 5*(P_gh/62-1) +1 );
+f(79) = Sigma_myo - ( 0.9 + 1.0 / ( 1 + (9/1) * exp(-0.9 * (P_gh - 62)) ));
+%);
 %impaired
 %f(79) = Sigma_myo - ( 1.1 + 0.5 / ( 1 + (9/1) * exp(-0.9 * (P_gh - 62)) ) );
+% very impaired
+%f(79) = Sigma_myo - ( 1.2 + 0.3 / ( 1 + (9/1) * exp(-0.9 * (P_gh - 62)) ) );
 
 %From Hallow
 f(80) = Psi_AT1RAA - ( 0.8   + 0.1902*0.055 * (AT1R*20 / AT1R_eq) - 0.185 / (AT1R*20 / AT1R_eq) );
@@ -546,9 +553,25 @@ elseif strcmp(gender,'female')
     f(83) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
 end
 if strcmp(gender,'male')
-    f(84) = Phi_sodin - (-0.93/(4.76 + 0.14*C_al^0.765) + 0.230);
+    %f(84) = Phi_sodin - max(0,(-0.93/(4.76 + 0.14*C_al^0.765) + 0.230));
+    %f(84) = Phi_sodin - 0.126;%max(0,0.001*(C_al-85) + 0.126);
+    E = 0.14;
+    C = 0.14;
+    D = 0.765;
+    L = 0.1;
+    B = (L*C - E*C +(E - 0.126)*C*85^D)/(0.126-L);
+    A = (0.126-E)*(B+C*85^D);
+     f(84) = Phi_sodin - max(0,A/(B+0.14*C_al^0.765)+E);
 elseif strcmp(gender,'female')
-    f(84) = Phi_sodin - (-0.93/(4.76 + 0.14*(C_al+15)^0.765) + 0.230);
+    %f(84) = Phi_sodin - max(0,(-0.93/(4.76 + 0.14*(C_al+15)^0.765) + 0.230));
+    %f(84) = Phi_sodin - 0.126;%max(0,0.001*(C_al-69) + 0.126);
+    E = 0.14;
+    C = 0.14;
+    D = 0.765;
+    L = 0.1;
+    B = (L*C - E*C +(E - 0.126)*C*69^D)/(0.126-L);
+    A = (0.126-E)*(B+C*69^D);
+     f(84) = Phi_sodin - max(0,A/(B+0.14*C_al^0.765)+E);
 end
 
 
