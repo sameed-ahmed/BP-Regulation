@@ -28,8 +28,8 @@ alpha     = drugs(4);
 % Scaling factor
 % Rat value = Human value x SF
 SF_S = pars(end-2); % sodium flow
-SF_R = pars(end-1);   % resistance
-SF_V = pars(end  );   % volume
+SF_R = pars(end-1); % resistance
+SF_V = pars(end  ); % volume
 
 N_rsna           = pars(1 );
 R_aass           = pars(2 );
