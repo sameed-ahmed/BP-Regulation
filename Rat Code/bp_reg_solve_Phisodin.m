@@ -1,15 +1,21 @@
-% This is a long-term model of the cardiovascular system accounting for the
-% effects of renal sympathetic nervous activity (rsna) on kidney functions.
-% It is adopted from:
-% "Long-Term Mathematical Model Involving Renal Sympathetic Nerve Activity,
-% Arterial Pressure, and Sodium Excretion" - 2005 - Karaaslan, et. al.
-% 
-% A sex-specific submodel for the renin angiotension system is
-% incorporated. It is adopted from:
-% "Sex-specific Long-term Blood Pressure Regulation: Modeling and Analysis"
-% - 2018 - Leete, Layton.
+% This is a model of long-term model blood pressure regulation.
+% It is adopted with modifications from Karaaslan 2005 and Leete 2018.
 
-% Differential algebraic equation system f(t,x(t),x'(t);theta) = 0.
+% This function file is to solve for the steady state solution for varying sodium intake.
+
+% Input
+% t              - time
+% x              - variables
+% x_p            - variable derivatives
+% pars           - parameters
+% fixed_var_pars - shift parameters which ensure that effect variables are 1
+% drugs          - drug blocking percentage, infusion rate, etc.
+% win            - boolean for whether water intake is fixed
+% Phi_win_input  - fixed water intake value
+% scenario       - scenario, e.g., female with male RSNA
+
+% Output
+% f     - left hand side of f(t,x(t),x'(t);theta) = 0.
 
 function f = bp_reg_solve_Phisodin(t,x,x_p,pars,fixed_var_pars,drugs,...
                                    win,Phi_win_input,scenario)
@@ -35,12 +41,10 @@ gamma_ace = drugs(2);
 %% Retrieve parameters by name.
 
 % Scaling factor
-% Rat flow = Human flow x SF
-SF_S   = pars(end-2);
-% Rat resistance = Human resistance x SF
-SF_R = pars(end-1);
-% Rat volume = Human volume x SF
-SF_V = pars(end  );
+% Rat value = Human value x SF
+SF_S = pars(end-2); % sodium flow
+SF_R = pars(end-1);   % resistance
+SF_V = pars(end  );   % volume
 
 N_rsna           = pars(1 );
 R_aass           = pars(2 );
@@ -90,6 +94,9 @@ end
 
 %% Retrieve variables by name.
 
+% If water intake is fixed, then it becomes an input, and all subsequent
+% variables get indexed one less.
+
 rsna          = x(1 ); rsna_p          = x_p(1 ); 
 alpha_map     = x(2 ); alpha_map_p     = x_p(2 ); 
 alpha_rap     = x(3 ); alpha_rap_p     = x_p(3 ); 
@@ -117,491 +124,81 @@ lambda_dt     = x(24); lambda_dt_p     = x_p(24);
 lambda_anp    = x(25); lambda_anp_p    = x_p(25); 
 lambda_al     = x(26); lambda_al_p     = x_p(26); 
 Phi_usod      = x(27); Phi_usod_p      = x_p(27); 
-
 if     strcmp(win,  'fixed')
-% Phi_win       = x(28); Phi_win_p       = x_p(28); 
-V_ecf         = x(29-1); V_ecf_p         = x_p(29-1); 
-V_b           = x(30-1); V_b_p           = x_p(30-1); 
-P_mf          = x(31-1); P_mf_p          = x_p(31-1); 
-Phi_vr        = x(32-1); Phi_vr_p        = x_p(32-1); 
-Phi_co        = x(33-1); Phi_co_p        = x_p(33-1); 
-P_ra          = x(34-1); P_ra_p          = x_p(34-1); 
-vas           = x(35-1); vas_p           = x_p(35-1); 
-vas_f         = x(36-1); vas_f_p         = x_p(36-1); 
-vas_d         = x(37-1); vas_d_p         = x_p(37-1); 
-R_a           = x(38-1); R_a_p           = x_p(38-1); 
-R_ba          = x(39-1); R_ba_p          = x_p(39-1); 
-R_vr          = x(40-1); R_vr_p          = x_p(40-1); 
-R_tp          = x(41-1); R_tp_p          = x_p(41-1); 
-P_ma          = x(42-1); P_ma_p          = x_p(42-1); 
-epsilon_aum   = x(43-1); epsilon_aum_p   = x_p(43-1); 
-a_auto        = x(44-1); a_auto_p        = x_p(44-1); 
-a_chemo       = x(45-1); a_chemo_p       = x_p(45-1); 
-a_baro        = x(46-1); a_baro_p        = x_p(46-1); 
-C_adh         = x(47-1); C_adh_p         = x_p(47-1); 
-N_adh         = x(48-1); N_adh_p         = x_p(48-1); 
-N_adhs        = x(49-1); N_adhs_p        = x_p(49-1); 
-delta_ra      = x(50-1); delta_ra_p      = x_p(50-1); 
-Phi_ptwreab   = x(51-1); Phi_ptwreab_p   = x_p(51-1); 
-eta_ptwreab   = x(52-1); eta_ptwreab_p   = x_p(52-1); 
-mu_ptsodreab  = x(53-1); mu_ptsodreab_p  = x_p(53-1); 
-Phi_mdu       = x(54-1); Phi_mdu_p       = x_p(54-1); 
-Phi_dtwreab   = x(55-1); Phi_dtwreab_p   = x_p(55-1); 
-eta_dtwreab   = x(56-1); eta_dtwreab_p   = x_p(56-1); 
-mu_dtsodreab  = x(57-1); mu_dtsodreab_p  = x_p(57-1); 
-Phi_dtu       = x(58-1); Phi_dtu_p       = x_p(58-1); 
-Phi_cdwreab   = x(59-1); Phi_cdwreab_p   = x_p(59-1); 
-eta_cdwreab   = x(60-1); eta_cdwreab_p   = x_p(60-1); 
-mu_cdsodreab  = x(61-1); mu_cdsodreab_p  = x_p(61-1); 
-mu_adh        = x(62-1); mu_adh_p        = x_p(62-1); 
-Phi_u         = x(63-1); Phi_u_p         = x_p(63-1); 
-M_sod         = x(64-1); M_sod_p         = x_p(64-1); 
-C_sod         = x(65-1); C_sod_p         = x_p(65-1); 
-nu_mdsod      = x(66-1); nu_mdsod_p      = x_p(66-1); 
-nu_rsna       = x(67-1); nu_rsna_p       = x_p(67-1); 
-C_al          = x(68-1); C_al_p          = x_p(68-1); 
-N_al          = x(69-1); N_al_p          = x_p(69-1); 
-N_als         = x(70-1); N_als_p         = x_p(70-1); 
-xi_ksod       = x(71-1); xi_ksod_p       = x_p(71-1); 
-xi_map        = x(72-1); xi_map_p        = x_p(72-1); 
-xi_at         = x(73-1); xi_at_p         = x_p(73-1); 
-hatC_anp      = x(74-1); hatC_anp_p      = x_p(74-1); 
-AGT           = x(75-1); AGT_p           = x_p(75-1); 
-nu_AT1        = x(76-1); nu_AT1_p        = x_p(76-1); 
-R_sec         = x(77-1); R_sec_p         = x_p(77-1); 
-PRC           = x(78-1); PRC_p           = x_p(78-1); 
-PRA           = x(79-1); PRA_p           = x_p(79-1); 
-AngI          = x(80-1); AngI_p          = x_p(80-1); 
-AngII         = x(81-1); AngII_p         = x_p(81-1); 
-AT1R          = x(82-1); AT1R_p          = x_p(82-1); 
-AT2R          = x(83-1); AT2R_p          = x_p(83-1); 
-Ang17         = x(84-1); Ang17_p         = x_p(84-1); 
-AngIV         = x(85-1); AngIV_p         = x_p(85-1); 
-R_aa          = x(86-1); R_aa_p          = x_p(86-1); 
-R_ea          = x(87-1); R_ea_p          = x_p(87-1); 
-Sigma_myo     = x(88-1); Sigma_myo_p     = x_p(88-1); 
-Psi_AT1RAA    = x(89-1); Psi_AT1RAA_p    = x_p(89-1); 
-Psi_AT1REA    = x(90-1); Psi_AT1REA_p    = x_p(90-1); 
-Psi_AT2RAA    = x(91-1); Psi_AT2RAA_p    = x_p(91-1); 
-Psi_AT2REA    = x(92-1); Psi_AT2REA_p    = x_p(92-1); 
+    var_adj = 1;
 elseif strcmp(win, 'varied')
-Phi_win       = x(28); Phi_win_p       = x_p(28); 
-V_ecf         = x(29); V_ecf_p         = x_p(29); 
-V_b           = x(30); V_b_p           = x_p(30); 
-P_mf          = x(31); P_mf_p          = x_p(31); 
-Phi_vr        = x(32); Phi_vr_p        = x_p(32); 
-Phi_co        = x(33); Phi_co_p        = x_p(33); 
-P_ra          = x(34); P_ra_p          = x_p(34); 
-vas           = x(35); vas_p           = x_p(35); 
-vas_f         = x(36); vas_f_p         = x_p(36); 
-vas_d         = x(37); vas_d_p         = x_p(37); 
-R_a           = x(38); R_a_p           = x_p(38); 
-R_ba          = x(39); R_ba_p          = x_p(39); 
-R_vr          = x(40); R_vr_p          = x_p(40); 
-R_tp          = x(41); R_tp_p          = x_p(41); 
-P_ma          = x(42); P_ma_p          = x_p(42); 
-epsilon_aum   = x(43); epsilon_aum_p   = x_p(43); 
-a_auto        = x(44); a_auto_p        = x_p(44); 
-a_chemo       = x(45); a_chemo_p       = x_p(45); 
-a_baro        = x(46); a_baro_p        = x_p(46); 
-C_adh         = x(47); C_adh_p         = x_p(47); 
-N_adh         = x(48); N_adh_p         = x_p(48); 
-N_adhs        = x(49); N_adhs_p        = x_p(49); 
-delta_ra      = x(50); delta_ra_p      = x_p(50); 
-Phi_ptwreab   = x(51); Phi_ptwreab_p   = x_p(51); 
-eta_ptwreab   = x(52); eta_ptwreab_p   = x_p(52); 
-mu_ptsodreab  = x(53); mu_ptsodreab_p  = x_p(53); 
-Phi_mdu       = x(54); Phi_mdu_p       = x_p(54); 
-Phi_dtwreab   = x(55); Phi_dtwreab_p   = x_p(55); 
-eta_dtwreab   = x(56); eta_dtwreab_p   = x_p(56); 
-mu_dtsodreab  = x(57); mu_dtsodreab_p  = x_p(57); 
-Phi_dtu       = x(58); Phi_dtu_p       = x_p(58); 
-Phi_cdwreab   = x(59); Phi_cdwreab_p   = x_p(59); 
-eta_cdwreab   = x(60); eta_cdwreab_p   = x_p(60); 
-mu_cdsodreab  = x(61); mu_cdsodreab_p  = x_p(61); 
-mu_adh        = x(62); mu_adh_p        = x_p(62); 
-Phi_u         = x(63); Phi_u_p         = x_p(63); 
-M_sod         = x(64); M_sod_p         = x_p(64); 
-C_sod         = x(65); C_sod_p         = x_p(65); 
-nu_mdsod      = x(66); nu_mdsod_p      = x_p(66); 
-nu_rsna       = x(67); nu_rsna_p       = x_p(67); 
-C_al          = x(68); C_al_p          = x_p(68); 
-N_al          = x(69); N_al_p          = x_p(69); 
-N_als         = x(70); N_als_p         = x_p(70); 
-xi_ksod       = x(71); xi_ksod_p       = x_p(71); 
-xi_map        = x(72); xi_map_p        = x_p(72); 
-xi_at         = x(73); xi_at_p         = x_p(73); 
-hatC_anp      = x(74); hatC_anp_p      = x_p(74); 
-AGT           = x(75); AGT_p           = x_p(75); 
-nu_AT1        = x(76); nu_AT1_p        = x_p(76); 
-R_sec         = x(77); R_sec_p         = x_p(77); 
-PRC           = x(78); PRC_p           = x_p(78); 
-PRA           = x(79); PRA_p           = x_p(79); 
-AngI          = x(80); AngI_p          = x_p(80); 
-AngII         = x(81); AngII_p         = x_p(81); 
-AT1R          = x(82); AT1R_p          = x_p(82); 
-AT2R          = x(83); AT2R_p          = x_p(83); 
-Ang17         = x(84); Ang17_p         = x_p(84); 
-AngIV         = x(85); AngIV_p         = x_p(85); 
-R_aa          = x(86); R_aa_p          = x_p(86); 
-R_ea          = x(87); R_ea_p          = x_p(87); 
-Sigma_myo     = x(88); Sigma_myo_p     = x_p(88); 
-Psi_AT1RAA    = x(89); Psi_AT1RAA_p    = x_p(89); 
-Psi_AT1REA    = x(90); Psi_AT1REA_p    = x_p(90); 
-Psi_AT2RAA    = x(91); Psi_AT2RAA_p    = x_p(91); 
-Psi_AT2REA    = x(92); Psi_AT2REA_p    = x_p(92); 
+    var_adj = 0;
+    Phi_win   = x(28); Phi_win_p       = x_p(28); 
 end
+V_ecf         = x(29-var_adj); V_ecf_p         = x_p(29-var_adj); 
+V_b           = x(30-var_adj); V_b_p           = x_p(30-var_adj); 
+P_mf          = x(31-var_adj); P_mf_p          = x_p(31-var_adj); 
+Phi_vr        = x(32-var_adj); Phi_vr_p        = x_p(32-var_adj); 
+Phi_co        = x(33-var_adj); Phi_co_p        = x_p(33-var_adj); 
+P_ra          = x(34-var_adj); P_ra_p          = x_p(34-var_adj); 
+vas           = x(35-var_adj); vas_p           = x_p(35-var_adj); 
+vas_f         = x(36-var_adj); vas_f_p         = x_p(36-var_adj); 
+vas_d         = x(37-var_adj); vas_d_p         = x_p(37-var_adj); 
+R_a           = x(38-var_adj); R_a_p           = x_p(38-var_adj); 
+R_ba          = x(39-var_adj); R_ba_p          = x_p(39-var_adj); 
+R_vr          = x(40-var_adj); R_vr_p          = x_p(40-var_adj); 
+R_tp          = x(41-var_adj); R_tp_p          = x_p(41-var_adj); 
+P_ma          = x(42-var_adj); P_ma_p          = x_p(42-var_adj); 
+epsilon_aum   = x(43-var_adj); epsilon_aum_p   = x_p(43-var_adj); 
+a_auto        = x(44-var_adj); a_auto_p        = x_p(44-var_adj); 
+a_chemo       = x(45-var_adj); a_chemo_p       = x_p(45-var_adj); 
+a_baro        = x(46-var_adj); a_baro_p        = x_p(46-var_adj); 
+C_adh         = x(47-var_adj); C_adh_p         = x_p(47-var_adj); 
+N_adh         = x(48-var_adj); N_adh_p         = x_p(48-var_adj); 
+N_adhs        = x(49-var_adj); N_adhs_p        = x_p(49-var_adj); 
+delta_ra      = x(50-var_adj); delta_ra_p      = x_p(50-var_adj); 
+Phi_ptwreab   = x(51-var_adj); Phi_ptwreab_p   = x_p(51-var_adj); 
+eta_ptwreab   = x(52-var_adj); eta_ptwreab_p   = x_p(52-var_adj); 
+mu_ptsodreab  = x(53-var_adj); mu_ptsodreab_p  = x_p(53-var_adj); 
+Phi_mdu       = x(54-var_adj); Phi_mdu_p       = x_p(54-var_adj); 
+Phi_dtwreab   = x(55-var_adj); Phi_dtwreab_p   = x_p(55-var_adj); 
+eta_dtwreab   = x(56-var_adj); eta_dtwreab_p   = x_p(56-var_adj); 
+mu_dtsodreab  = x(57-var_adj); mu_dtsodreab_p  = x_p(57-var_adj); 
+Phi_dtu       = x(58-var_adj); Phi_dtu_p       = x_p(58-var_adj); 
+Phi_cdwreab   = x(59-var_adj); Phi_cdwreab_p   = x_p(59-var_adj); 
+eta_cdwreab   = x(60-var_adj); eta_cdwreab_p   = x_p(60-var_adj); 
+mu_cdsodreab  = x(61-var_adj); mu_cdsodreab_p  = x_p(61-var_adj); 
+mu_adh        = x(62-var_adj); mu_adh_p        = x_p(62-var_adj); 
+Phi_u         = x(63-var_adj); Phi_u_p         = x_p(63-var_adj); 
+M_sod         = x(64-var_adj); M_sod_p         = x_p(64-var_adj); 
+C_sod         = x(65-var_adj); C_sod_p         = x_p(65-var_adj); 
+nu_mdsod      = x(66-var_adj); nu_mdsod_p      = x_p(66-var_adj); 
+nu_rsna       = x(67-var_adj); nu_rsna_p       = x_p(67-var_adj); 
+C_al          = x(68-var_adj); C_al_p          = x_p(68-var_adj); 
+N_al          = x(69-var_adj); N_al_p          = x_p(69-var_adj); 
+N_als         = x(70-var_adj); N_als_p         = x_p(70-var_adj); 
+xi_ksod       = x(71-var_adj); xi_ksod_p       = x_p(71-var_adj); 
+xi_map        = x(72-var_adj); xi_map_p        = x_p(72-var_adj); 
+xi_at         = x(73-var_adj); xi_at_p         = x_p(73-var_adj); 
+hatC_anp      = x(74-var_adj); hatC_anp_p      = x_p(74-var_adj); 
+AGT           = x(75-var_adj); AGT_p           = x_p(75-var_adj); 
+nu_AT1        = x(76-var_adj); nu_AT1_p        = x_p(76-var_adj); 
+R_sec         = x(77-var_adj); R_sec_p         = x_p(77-var_adj); 
+PRC           = x(78-var_adj); PRC_p           = x_p(78-var_adj); 
+PRA           = x(79-var_adj); PRA_p           = x_p(79-var_adj); 
+AngI          = x(80-var_adj); AngI_p          = x_p(80-var_adj); 
+AngII         = x(81-var_adj); AngII_p         = x_p(81-var_adj); 
+AT1R          = x(82-var_adj); AT1R_p          = x_p(82-var_adj); 
+AT2R          = x(83-var_adj); AT2R_p          = x_p(83-var_adj); 
+Ang17         = x(84-var_adj); Ang17_p         = x_p(84-var_adj); 
+AngIV         = x(85-var_adj); AngIV_p         = x_p(85-var_adj); 
+R_aa          = x(86-var_adj); R_aa_p          = x_p(86-var_adj); 
+R_ea          = x(87-var_adj); R_ea_p          = x_p(87-var_adj); 
+Sigma_myo     = x(88-var_adj); Sigma_myo_p     = x_p(88-var_adj); 
+Psi_AT1RAA    = x(89-var_adj); Psi_AT1RAA_p    = x_p(89-var_adj); 
+Psi_AT1REA    = x(90-var_adj); Psi_AT1REA_p    = x_p(90-var_adj); 
+Psi_AT2RAA    = x(91-var_adj); Psi_AT2RAA_p    = x_p(91-var_adj); 
+Psi_AT2REA    = x(92-var_adj); Psi_AT2REA_p    = x_p(92-var_adj); 
 
 %% Differential algebraic equation system f(t,x,x') = 0.
 
 f = zeros(length(x),1);
 
-if     strcmp(win,  'fixed')
-% rsna
-rsna0 = N_rsna * alpha_map * alpha_rap;
-if     strcmp(gender,'male')
-    f(1 ) = rsna - rsna0;
-elseif strcmp(gender,'female')
-    if     strcmp(scenario, 'm_RSNA')
-        f(1 ) = rsna - rsna0;
-    else
-        f(1 ) = rsna - rsna0^(1/rsna0);
-    end
-end
-% alpha_map
-f(2 ) = alpha_map - ( 0.5 + 1 / (1 + exp((P_ma - fixed_var_pars(1)) / 15)) );
-% alpha_rap
-f(3 ) = alpha_rap - ( 1 - 0.008 * P_ra );
-% R_r
-f(4 ) = R_r - ( R_aa + R_ea );
-% beta_rsna
-f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
-% f(5 ) = beta_rsna - ( 1.5 * (rsna - 1) + 1 );
-% Phi_rb
-f(6 ) = Phi_rb - ( P_ma / R_r );
-% Phi_gfilt
-f(7 ) = Phi_gfilt - ( P_f * C_gcf );
-% P_f
-f(8 ) = P_f - ( P_gh - (P_B + P_go) );
-% P_gh
-f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );
-% Sigma_tgf - rat
-% f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859) / (-0.9617))) );
-f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
-% Phi_filsod
-f(11) = Phi_filsod - ( Phi_gfilt * C_sod );
-% Phi_ptsodreab
-f(12) = Phi_ptsodreab - ( Phi_filsod * eta_ptsodreab );
-% eta_ptsodreab
-f(13) = eta_ptsodreab - ( eta_ptsodreab_eq * gamma_filsod * gamma_at * gamma_rsna );
-% gamma_filsod - rat
-% f(14) = gamma_filsod - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - 18)/138)) );
-f(14) = gamma_filsod - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - fixed_var_pars(3))/(138 * SF_S) )) );
-% gamma_at
-gammaat_a = log(0.12 / (1 - 0.95) - 1) + 2.342;
-f(15) = gamma_at - ( 0.95 + 0.12 / (1 + exp(gammaat_a - 2.342 * (AT1R/AT1R_eq))) );
-% gamma_rsna
-f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
-% Phi_mdsod
-f(17) = Phi_mdsod - ( Phi_filsod - Phi_ptsodreab );
-% Phi_dtsodreab
-f(18) = Phi_dtsodreab - ( Phi_mdsod * eta_dtsodreab );
-% eta_dtsodreab
-f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al );
-% psi_al - rat
-% f(20) = psi_al - ( 0.17 + 0.94 / (1 + exp((0.48 - 1.2 * log10(C_al)) / 0.88)) );
-if     strcmp(gender,  'male')
-%     f(20) = psi_al - ( 1/(395^0.3) * C_al^0.3 );
-    % ------------------------------------------------------
-%     dd = 0.5;
-    dd = 0.0;
-    aa = 1 / eta_dtsodreab_eq - dd;
-%     bb = 0.92;
-    bb = 0.1;
-    cc = (aa * 395^bb) / (1 - dd) - 395^bb;
-    f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
-    % ------------------------------------------------------
-%     % ------------------------------------------------------
-%     bb = 0.1;
-%     dd = 1.05 / bb;
-%     aa = (1 + bb) * dd;
-%     cc = -1/395 * log((aa / (1 + dd) - 1) / bb);
-%     f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
-%     % ------------------------------------------------------
-%     f(20) = psi_al - 1;
-elseif strcmp(gender,'female')
-%     f(20) = psi_al - ( 1/(379^0.3) * C_al^0.3 );
-    % ------------------------------------------------------
-%     dd = 0.5;
-    dd = 0.0;
-    aa = 1 / eta_dtsodreab_eq - dd;
-%     bb = 0.92;
-    bb = 0.1;
-    cc = (aa * 379^bb) / (1 - dd) - 379^bb;
-    f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
-    % ------------------------------------------------------
-%     % ------------------------------------------------------
-%     bb = 0.1;
-%     dd = 1.05 / bb;
-%     aa = (1 + bb) * dd;
-%     cc = -1/379 * log((aa / (1 + dd) - 1) / bb);
-%     f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
-%     % ------------------------------------------------------
-end
-% Phi_dtsod
-f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
-% Phi_cdsodreab
-f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
-% eta_cdsodreab
-f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * lambda_dt * lambda_anp );
-% lambda_dt - rat
-% -----------------------------------------------------------------------
-if     strcmp(gender,  'male')
-lambdadt_b = 0.2555; % new
-% lambdadt_b = 0.352; % old
-lambdadt_c = -17 / SF_S / (log(lambdadt_b / (1 / eta_cdsodreab_eq - 0.82) - 1) - log(lambdadt_b / (1 - 0.82) - 1));
-elseif strcmp(gender,'female')
-% lambdadt_b = 0.3855  ; % 83%
-% lambdadt_b = 0.357   ; % 85%
-% lambdadt_b = 0.3296  ; % 87%
-% lambdadt_b = 0.3165  ; % 88%
-% lambdadt_b = 0.3037  ; % 89%
-% lambdadt_b = 0.2912  ; % 90%
-% lambdadt_b = 0.27895 ; % 91%
-% lambdadt_b = 0.267   ; % 92%
-% lambdadt_b = 0.2553  ; % 93%
-% lambdadt_b = 0.24384 ; % 94%
-% lambdadt_b = 0.232635; % 95%
-lambdadt_b = 0.221668; % 96%
-% lambdadt_b = 0.210928; % 97%
-% % % lambdadt_b = 0.390; % <= 90%
-% % % lambdadt_b = 0.349; % 91%
-% % % lambdadt_b = 0.316; % 92%
-% % % lambdadt_b = 0.287; % 93%
-% % % lambdadt_b = 0.265; % 94%
-% % % lambdadt_b = 0.244; % 95%
-% % % lambdadt_b = 0.228; % 96%
-% % % lambdadt_b = 0.214; % 97%
-% % % lambdadt_b = 0.202; % 98%
-% ---
-% lambdadt_c = 2; % <= 90%
-lambdadt_c = -24 / SF_S / (log(lambdadt_b / (1 / eta_cdsodreab_eq - 0.82) - 1) - log(lambdadt_b / (1 - 0.82) - 1));
-end
-f(24) = lambda_dt - ( 0.82 + lambdadt_b/ (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (lambdadt_c * SF_S) )) );
-% -----------------------------------------------------------------------
-% % -----------------------------------------------------------------------
-% lambdadt_b = 0.296;
-% lambdadt_c = 1.5;
-% f(24) = lambda_dt - ( 0.82 + lambdadt_b/ (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (lambdadt_c * SF_S) )) );
-% % -----------------------------------------------------------------------
-% lambda_anp
-f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
-% lambda_al
-if     strcmp(gender,  'male')
-    f(26) = lambda_al - ( 1/(395^0.06) * C_al^0.06 );
-elseif strcmp(gender,'female')
-    f(26) = lambda_al - ( 1/(379^0.06) * C_al^0.06 );
-end
-% Phi_usod
-f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
-% VARY --------------------------------------------------------------------
-% Phi_win - rat
-% f(28) = Phi_win - ( 0.003 / (1 + exp(-2.25 * (C_adh - 3.87))) );
-% f(28) = Phi_win - ( 0.003 * SF / (1 + exp(-2.25 * (C_adh - 3.87))) );
-% VARY --------------------------------------------------------------------
-% V_ecf
-f(29-1) = V_ecf_p - ( Phi_win_input - Phi_u );
-% V_b - rat
-% f(30-1) = V_b - ( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128) * 0.4744)) );
-f(30-1) = V_b - ( SF_V*( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128*SF_V) * (0.4744/SF_V) )) ) );
-% P_mf - rat
-% f(31-1) = P_mf - ( (7.436 * V_b - 30.18) * epsilon_aum );
-pmfpmf = (7.4360/SF_V);
-f(31-1) = P_mf - ( ( pmfpmf * V_b - 30.18) * epsilon_aum );
-% Phi_vr
-f(32-1) = Phi_vr - ( (P_mf - P_ra) / R_vr );
-% Phi_co
-f(33-1) = Phi_co - ( Phi_vr );
-% P_ra - rat
-% f(34-1) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281) - 0.8256 ) );
-prapra = 0.2787 * exp(fixed_var_pars(end) * 0.2281 * SF_R);
-prapra = prapra + 0.01 * prapra;
-f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - prapra ) );
-% f(34-1) = P_ra - ( 0.2787 * exp(Phi_co * 0.2281 / SF) - a );
-% vas
-f(35-1) = vas_p - ( 1 / 1000 * (vas_f - vas_d) );
-% vas_f - rat
-% f(36-1) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799)) / 100000 );
-vvv = -1/fixed_var_pars(end) * log(1/11.312);
-f(36-1) = vas_f - ( (11.312 * exp(-Phi_co * vvv)) / 100 );
-% vas_d
-f(37-1) = vas_d - ( vas * K_vd );
-% R_a
-f(38-1) = R_a - ( R_ba * epsilon_aum );
-% R_ba
-f(39-1) = R_ba - ( K_bar / vas );
-% R_vr
-f(40-1) = R_vr - ( (8 * R_bv + R_a) / 31 );
-% R_tp
-f(41-1) = R_tp - ( R_a + R_bv );
-% P_ma
-f(42-1) = P_ma - ( Phi_co * R_tp );
-% epsilon_aum
-f(43-1) = epsilon_aum - ( 4/5 * (a_chemo + a_baro) );
-% a_auto
-f(44-1) = a_auto - ( 3.0042 * exp(-fixed_var_pars(5) * P_ma) );
-% a_chemo
-f(45-1) = a_chemo - ( 1/4 * a_auto );
-% a_baro
-f(46-1) = a_baro_p - ( 3/4 * (a_auto_p - 0.0000667 * (a_baro - 1)) );
-% C_adh
-f(47-1) = C_adh - ( 4 * N_adh );
-% N_adh
-f(48-1) = N_adh_p - ( 1/T_adh * (N_adhs - N_adh) );
-% N_adhs
-% f(49-1) = N_adhs - ( (C_sod - 141 + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
-f(49-1) = N_adhs - ( (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
-% delta_ra
-f(50-1) = delta_ra_p - ( 0.2 * P_ra_p - 0.0007 * delta_ra );
-
-% Phi_ptwreab
-f(51-1) = Phi_ptwreab - ( Phi_gfilt * eta_ptwreab );
-% eta_ptwreab
-f(52-1) = eta_ptwreab - ( eta_ptwreab_eq * mu_ptsodreab );
-
-musodreab_a = 0.12;
-musodreab_b = 10;
-% mu_ptsodreab
-% f(53-1) = mu_ptsodreab - ( 0.5 * 7/43 * tanh(13 * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
-f(53-1) = mu_ptsodreab - ( musodreab_a * tanh(musodreab_b * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
-% f(53-1) = mu_ptsodreab - ( 1 );
-% Phi_mdu
-f(54-1) = Phi_mdu - ( Phi_gfilt - Phi_ptwreab );
-% Phi_dtwreab
-f(55-1) = Phi_dtwreab - ( Phi_mdu * eta_dtwreab );
-% eta_dtwreab
-f(56-1) = eta_dtwreab - ( eta_dtwreab_eq * mu_dtsodreab );
-% mu_dtsodreab
-% f(57-1) = mu_dtsodreab - ( 0.5 * 2/3 * tanh(3.2 * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
-f(57-1) = mu_dtsodreab - ( musodreab_a * tanh(musodreab_b * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
-% f(57-1) = mu_dtsodreab - ( 1 );
-% Phi_dtu
-f(58-1) = Phi_dtu - ( Phi_mdu - Phi_dtwreab );
-% Phi_cdwreab
-f(59-1) = Phi_cdwreab - ( Phi_dtu * eta_cdwreab );
-% eta_cdwreab
-f(60-1) = eta_cdwreab - ( eta_cdwreab_eq * mu_cdsodreab * mu_adh );
-% mu_cdsodreab
-% f(61-1) = mu_cdsodreab - ( 0.5 * 11/39 * tanh(9.7 * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
-f(61-1) = mu_cdsodreab - ( musodreab_a * tanh(musodreab_b * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
-% f(61-1) = mu_cdsodreab - ( 1 );
-
-% mu_adh
-aaa = 1.0328;
-bbb = 0.1938;
-ccc = -1/4 * log((aaa - 1) / bbb);
-f(62-1) = mu_adh - ( aaa - bbb * exp(-ccc * C_adh) );
-% Phi_u - rat
-% f(63-1) = Phi_u - ( max( 0.0003, Phi_gfilt - Phi_twreab ) );
-f(63-1) = Phi_u - ( Phi_dtu - Phi_cdwreab );
-
-% M_sod
-f(64-1) = M_sod_p - ( Phi_sodin - Phi_usod );
-% C_sod
-f(65-1) = C_sod - ( M_sod / V_ecf );
-% nu_mdsod - rat
-% if     strcmp(gender,'male')
-%     f(66-1) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.731) / 0.6056)) );
-% elseif strcmp(gender,'female')
-%     f(66-1) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.637) / 0.6056)) );
-% end
-% % f(66-1) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.667) / 0.6056)) );
-f(66-1) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - fixed_var_pars(7)) / (0.6056 * SF_S) )) );
-% nu_rsna
-f(67-1) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
-% C_al - rat
-% if     strcmp(gender,  'male')
-%     f(68-1) = C_al - ( N_al * 85      );
-% elseif strcmp(gender,'female')
-%     f(68-1) = C_al - ( N_al * 69.1775 );
-% end
-if     strcmp(gender,  'male')
-    f(68-1) = C_al - ( N_al * 395 );
-elseif strcmp(gender,'female')
-    f(68-1) = C_al - ( N_al * 379 );
-%     f(68-1) = C_al - ( N_al * 395 ); % male
-end
-% N_al
-f(69-1) = N_al_p - ( 1/T_al * (N_als - N_al) );
-% N_als
-f(70-1) = N_als - ( xi_ksod * xi_map * xi_at );
-% xi_ksod
-f(71-1) = xi_ksod - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - fixed_var_pars(8))) ) ); 
-% xi_map
-if P_ma <= 100
-    f(72-1) = xi_map - ( (1/exp(-0.0425 * 100)) * exp(-0.0425 * P_ma) );
-else
-    f(72-1) = xi_map - ( 1 );
-end
-% xi_at
-xiat_a = log(2.4 / (1 - 0.47) - 1) + 2.2642;
-f(73-1) = xi_at - ( 0.47 + 2.4 / (1 + exp(xiat_a - 2.2642 * (AT1R/AT1R_eq))) );
-% hatC_anp
-f(74-1) = hatC_anp - ( 7.4052 - 6.554 / (1 + exp(P_ra - 3.762)) ); 
-% AGT
-f(75-1) = AGT_p - ( k_AGT - PRA - log(2)/h_AGT * AGT );
-% nu_AT1
-f(76-1) = nu_AT1 - ( (AT1R / AT1R_eq)^(-0.95) );
-% R_sec
-f(77-1) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 );
-% PRC
-f(78-1) = PRC_p - ( R_sec - log(2)/h_renin * PRC );
-% PRA
-f(79-1) = PRA - ( PRC * X_PRCPRA );
-% AngI
-f(80-1) = AngI_p - ( PRA - (c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI );
-% AngII
-f(81-1) = AngII_p - ( k_AngII + (c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII );
-% AT1R
-f(82-1) = AT1R_p - ( c_AT1R * AngII - log(2)/h_AT1R * AT1R );
-% AT2R
-f(83-1) = AT2R_p - ( c_AT2R * AngII - log(2)/h_AT2R * AT2R );
-% Ang17
-f(84-1) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
-% AngIV
-f(85-1) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
-% R_aa
-f(86-1) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA);
-% R_ea
-f(87-1) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
-% Sigma_myo
-f(88-1) = Sigma_myo - ( 0.8 + 2.5 / ( 1 + (23/2) * exp(-0.6 * (P_gh - fixed_var_pars(9))) ) );
-% f(88-1) = Sigma_myo - ( 5 * (P_gh / 62 - 1) + 1 );
-% Psi_AT1RAA
-f(89-1) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R_eq) );
-% Psi_AT1REA
-f(90-1) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT1R_eq) );
-% Psi_AT2RAA
-if     strcmp(gender,'male')
-    f(91-1) = Psi_AT2RAA - ( 1 );
-elseif strcmp(gender,'female')
-    if     strcmp(scenario, 'm_AT2R')
-        f(91-1) = Psi_AT2RAA - ( 1 );
-    else
-        f(91-1) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
-    end
-end
-% Psi_AT2REA
-if     strcmp(gender,'male')
-    f(92-1) = Psi_AT2REA - ( 1 );
-elseif strcmp(gender,'female')
-    if     strcmp(scenario, 'm_AT2R')
-        f(92-1) = Psi_AT2REA - ( 1 );
-    else
-        f(92-1) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
-    end
-end
-elseif strcmp(win, 'varied') %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % rsna
 rsna0 = N_rsna * alpha_map * alpha_rap;
 if     strcmp(gender,'male')
@@ -801,209 +398,212 @@ f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
 % -------------------------------------------------------------------------
 % f(28) = Phi_win - ( 0.0150 );
 % -------------------------------------------------------------------------
+if     strcmp(win,  'fixed')
+Phi_win = Phi_win_input;
+elseif strcmp(win, 'varied')
 phiwin_a = 0.8;
 phiwin_c = 0.002313;
 phiwin_b = fixed_var_pars(end-1) + 1 / phiwin_a * log(phiwin_c*15 / 0.0150 - 1);
 f(28) = Phi_win - ( phiwin_c * 15 / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
+end
 % -------------------------------------------------------------------------
 % V_ecf
-f(29) = V_ecf_p - ( Phi_win - Phi_u );
+f(29-var_adj) = V_ecf_p - ( Phi_win - Phi_u );
 % V_b - rat
-% f(30) = V_b - ( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128) * 0.4744)) );
-f(30) = V_b - ( SF_V*( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128*SF_V) * (0.4744/SF_V) )) ) );
+% f(30-var_adj) = V_b - ( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128) * 0.4744)) );
+f(30-var_adj) = V_b - ( SF_V*( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128*SF_V) * (0.4744/SF_V) )) ) );
 % P_mf - rat
-% f(31) = P_mf - ( (7.436 * V_b - 30.18) * epsilon_aum );
+% f(31-var_adj) = P_mf - ( (7.436 * V_b - 30.18) * epsilon_aum );
 pmfpmf = (7.4360/SF_V);
-f(31) = P_mf - ( ( pmfpmf * V_b - 30.18) * epsilon_aum );
+f(31-var_adj) = P_mf - ( ( pmfpmf * V_b - 30.18) * epsilon_aum );
 % Phi_vr
-f(32) = Phi_vr - ( (P_mf - P_ra) / R_vr );
+f(32-var_adj) = Phi_vr - ( (P_mf - P_ra) / R_vr );
 % Phi_co
-f(33) = Phi_co - ( Phi_vr );
+f(33-var_adj) = Phi_co - ( Phi_vr );
 % P_ra - rat
-% f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281) - 0.8256 ) );
+% f(34-var_adj) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281) - 0.8256 ) );
 prapra = 0.2787 * exp(fixed_var_pars(end) * 0.2281 * SF_R);
 prapra = prapra + 0.01 * prapra;
-f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - prapra ) );
+f(34-var_adj) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - prapra ) );
 % vas
-f(35) = vas_p - ( 1 / 1000 * (vas_f - vas_d) );
+f(35-var_adj) = vas_p - ( 1 / 1000 * (vas_f - vas_d) );
 % vas_f - rat
-% f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799)) / 100000 );
+% f(36-var_adj) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799)) / 100000 );
 vvv = -1/fixed_var_pars(end) * log(1/11.312);
-f(36) = vas_f - ( (11.312 * exp(-Phi_co * vvv)) / 100 );
+f(36-var_adj) = vas_f - ( (11.312 * exp(-Phi_co * vvv)) / 100 );
 % vas_d
-f(37) = vas_d - ( vas * K_vd );
+f(37-var_adj) = vas_d - ( vas * K_vd );
 % R_a
-f(38) = R_a - ( R_ba * epsilon_aum );
+f(38-var_adj) = R_a - ( R_ba * epsilon_aum );
 % R_ba
-f(39) = R_ba - ( K_bar / vas );
+f(39-var_adj) = R_ba - ( K_bar / vas );
 % R_vr
-f(40) = R_vr - ( (8 * R_bv + R_a) / 31 );
+f(40-var_adj) = R_vr - ( (8 * R_bv + R_a) / 31 );
 % R_tp
-f(41) = R_tp - ( R_a + R_bv );
+f(41-var_adj) = R_tp - ( R_a + R_bv );
 % P_ma
-f(42) = P_ma - ( Phi_co * R_tp );
+f(42-var_adj) = P_ma - ( Phi_co * R_tp );
 % epsilon_aum
-f(43) = epsilon_aum - ( 4/5 * (a_chemo + a_baro) );
+f(43-var_adj) = epsilon_aum - ( 4/5 * (a_chemo + a_baro) );
 % a_auto
-f(44) = a_auto - ( 3.0042 * exp(-fixed_var_pars(5) * P_ma) );
+f(44-var_adj) = a_auto - ( 3.0042 * exp(-fixed_var_pars(5) * P_ma) );
 % a_chemo
-f(45) = a_chemo - ( 1/4 * a_auto );
+f(45-var_adj) = a_chemo - ( 1/4 * a_auto );
 % a_baro
-f(46) = a_baro_p - ( 3/4 * (a_auto_p - 0.0000667 * (a_baro - 1)) );
+f(46-var_adj) = a_baro_p - ( 3/4 * (a_auto_p - 0.0000667 * (a_baro - 1)) );
 % C_adh
-f(47) = C_adh - ( 4 * N_adh );
+f(47-var_adj) = C_adh - ( 4 * N_adh );
 % N_adh
-f(48) = N_adh_p - ( 1/T_adh * (N_adhs - N_adh) );
+f(48-var_adj) = N_adh_p - ( 1/T_adh * (N_adhs - N_adh) );
 % N_adhs
-% f(49) = N_adhs - ( (C_sod - 141 + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
-f(49) = N_adhs - ( (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
+% f(49-var_adj) = N_adhs - ( (C_sod - 141 + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
+f(49-var_adj) = N_adhs - ( (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
 % delta_ra
-f(50) = delta_ra_p - ( 0.2 * P_ra_p - 0.0007 * delta_ra );
+f(50-var_adj) = delta_ra_p - ( 0.2 * P_ra_p - 0.0007 * delta_ra );
 
 % Phi_ptwreab
-f(51) = Phi_ptwreab - ( Phi_gfilt * eta_ptwreab );
+f(51-var_adj) = Phi_ptwreab - ( Phi_gfilt * eta_ptwreab );
 % eta_ptwreab
-f(52) = eta_ptwreab - ( eta_ptwreab_eq * mu_ptsodreab );
+f(52-var_adj) = eta_ptwreab - ( eta_ptwreab_eq * mu_ptsodreab );
 
 musodreab_a = 0.12;
 musodreab_b = 10;
 % mu_ptsodreab
-% f(53) = mu_ptsodreab - ( 0.5 * 7/43 * tanh(13 * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
-f(53) = mu_ptsodreab - ( musodreab_a * tanh(musodreab_b * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
-% f(53) = mu_ptsodreab - ( 1 );
+% f(53-var_adj) = mu_ptsodreab - ( 0.5 * 7/43 * tanh(13 * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
+f(53-var_adj) = mu_ptsodreab - ( musodreab_a * tanh(musodreab_b * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
+% f(53-var_adj) = mu_ptsodreab - ( 1 );
 % Phi_mdu
-f(54) = Phi_mdu - ( Phi_gfilt - Phi_ptwreab );
+f(54-var_adj) = Phi_mdu - ( Phi_gfilt - Phi_ptwreab );
 % Phi_dtwreab
-f(55) = Phi_dtwreab - ( Phi_mdu * eta_dtwreab );
+f(55-var_adj) = Phi_dtwreab - ( Phi_mdu * eta_dtwreab );
 % eta_dtwreab
-f(56) = eta_dtwreab - ( eta_dtwreab_eq * mu_dtsodreab );
+f(56-var_adj) = eta_dtwreab - ( eta_dtwreab_eq * mu_dtsodreab );
 % mu_dtsodreab
-% f(57) = mu_dtsodreab - ( 0.5 * 2/3 * tanh(3.2 * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
-f(57) = mu_dtsodreab - ( musodreab_a * tanh(musodreab_b * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
-% f(57) = mu_dtsodreab - ( 1 );
+% f(57-var_adj) = mu_dtsodreab - ( 0.5 * 2/3 * tanh(3.2 * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
+f(57-var_adj) = mu_dtsodreab - ( musodreab_a * tanh(musodreab_b * (eta_dtsodreab/eta_dtsodreab_eq - 1)) + 1 );
+% f(57-var_adj) = mu_dtsodreab - ( 1 );
 % Phi_dtu
-f(58) = Phi_dtu - ( Phi_mdu - Phi_dtwreab );
+f(58-var_adj) = Phi_dtu - ( Phi_mdu - Phi_dtwreab );
 % Phi_cdwreab
-f(59) = Phi_cdwreab - ( Phi_dtu * eta_cdwreab );
+f(59-var_adj) = Phi_cdwreab - ( Phi_dtu * eta_cdwreab );
 % eta_cdwreab
-f(60) = eta_cdwreab - ( eta_cdwreab_eq * mu_cdsodreab * mu_adh );
+f(60-var_adj) = eta_cdwreab - ( eta_cdwreab_eq * mu_cdsodreab * mu_adh );
 % mu_cdsodreab
-% f(61) = mu_cdsodreab - ( 0.5 * 11/39 * tanh(9.7 * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
-f(61) = mu_cdsodreab - ( musodreab_a * tanh(musodreab_b * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
-% f(61) = mu_cdsodreab - ( 1 );
+% f(61-var_adj) = mu_cdsodreab - ( 0.5 * 11/39 * tanh(9.7 * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
+f(61-var_adj) = mu_cdsodreab - ( musodreab_a * tanh(musodreab_b * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
+% f(61-var_adj) = mu_cdsodreab - ( 1 );
 
 % mu_adh
 aaa = 1.0328;
 bbb = 0.1938;
 ccc = -1/4 * log((aaa - 1) / bbb);
-f(62) = mu_adh - ( aaa - bbb * exp(-ccc * C_adh) );
+f(62-var_adj) = mu_adh - ( aaa - bbb * exp(-ccc * C_adh) );
 % Phi_u - rat
-% f(63) = Phi_u - ( max( 0.0003, Phi_gfilt - Phi_twreab ) );
-f(63) = Phi_u - ( Phi_dtu - Phi_cdwreab );
+% f(63-var_adj) = Phi_u - ( max( 0.0003, Phi_gfilt - Phi_twreab ) );
+f(63-var_adj) = Phi_u - ( Phi_dtu - Phi_cdwreab );
 
 % M_sod
-f(64) = M_sod_p - ( Phi_sodin - Phi_usod );
+f(64-var_adj) = M_sod_p - ( Phi_sodin - Phi_usod );
 % C_sod
-f(65) = C_sod - ( M_sod / V_ecf );
+f(65-var_adj) = C_sod - ( M_sod / V_ecf );
 % nu_mdsod - rat
 % if     strcmp(gender,'male')
-%     f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.731) / 0.6056)) );
+%     f(66-var_adj) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.731) / 0.6056)) );
 % elseif strcmp(gender,'female')
-%     f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.637) / 0.6056)) );
+%     f(66-var_adj) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.637) / 0.6056)) );
 % end
-% % f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.667) / 0.6056)) );
-f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - fixed_var_pars(7)) / (0.6056 * SF_S) )) );
+% % f(66-var_adj) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.667) / 0.6056)) );
+f(66-var_adj) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - fixed_var_pars(7)) / (0.6056 * SF_S) )) );
 % nu_rsna
-f(67) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
+f(67-var_adj) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
 % C_al - rat
 % if     strcmp(gender,  'male')
-%     f(68) = C_al - ( N_al * 85      );
+%     f(68-var_adj) = C_al - ( N_al * 85      );
 % elseif strcmp(gender,'female')
-%     f(68) = C_al - ( N_al * 69.1775 );
+%     f(68-var_adj) = C_al - ( N_al * 69.1775 );
 % end
 if     strcmp(gender,  'male')
-    f(68) = C_al - ( N_al * 395 );
+    f(68-var_adj) = C_al - ( N_al * 395 );
 elseif strcmp(gender,'female')
-    f(68) = C_al - ( N_al * 379 );
-%     f(68) = C_al - ( N_al * 395 ); % male
+    f(68-var_adj) = C_al - ( N_al * 379 );
+%     f(68-var_adj) = C_al - ( N_al * 395 ); % male
 end
 % N_al
-f(69) = N_al_p - ( 1/T_al * (N_als - N_al) );
+f(69-var_adj) = N_al_p - ( 1/T_al * (N_als - N_al) );
 % N_als
-f(70) = N_als - ( xi_ksod * xi_map * xi_at );
+f(70-var_adj) = N_als - ( xi_ksod * xi_map * xi_at );
 % xi_ksod
-f(71) = xi_ksod - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - fixed_var_pars(8))) ) ); 
+f(71-var_adj) = xi_ksod - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - fixed_var_pars(8))) ) ); 
 % xi_map
 if P_ma <= 100
-    f(72) = xi_map - ( (1/exp(-0.0425 * 100)) * exp(-0.0425 * P_ma) );
+    f(72-var_adj) = xi_map - ( (1/exp(-0.0425 * 100)) * exp(-0.0425 * P_ma) );
 else
-    f(72) = xi_map - ( 1 );
+    f(72-var_adj) = xi_map - ( 1 );
 end
 % xi_at
 xiat_a = 0.1;
 xiat_b = 2.9;
 xiat_c = 2.0;
 xiat_d = 1 + 1/xiat_c * log(xiat_b/(1-xiat_a) - 1);
-f(73) = xi_at - ( xiat_a + xiat_b / (1 + exp(-xiat_c * ((AT1R/AT1R_eq) - xiat_d)) ) );
+f(73-var_adj) = xi_at - ( xiat_a + xiat_b / (1 + exp(-xiat_c * ((AT1R/AT1R_eq) - xiat_d)) ) );
 % hatC_anp
-f(74) = hatC_anp - ( 7.4052 - 6.554 / (1 + exp(P_ra - 3.762)) ); 
+f(74-var_adj) = hatC_anp - ( 7.4052 - 6.554 / (1 + exp(P_ra - 3.762)) ); 
 % AGT
-f(75) = AGT_p - ( k_AGT - PRA - log(2)/h_AGT * AGT );
+f(75-var_adj) = AGT_p - ( k_AGT - PRA - log(2)/h_AGT * AGT );
 % nu_AT1
-f(76) = nu_AT1 - ( (AT1R / AT1R_eq)^(-0.95) );
+f(76-var_adj) = nu_AT1 - ( (AT1R / AT1R_eq)^(-0.95) );
 % R_sec
-f(77) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 );
+f(77-var_adj) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 );
 % PRC
-f(78) = PRC_p - ( R_sec - log(2)/h_renin * PRC );
+f(78-var_adj) = PRC_p - ( R_sec - log(2)/h_renin * PRC );
 % PRA
-f(79) = PRA - ( PRC * X_PRCPRA );
+f(79-var_adj) = PRA - ( PRC * X_PRCPRA );
 % AngI
-f(80) = AngI_p - ( PRA - (c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI );
+f(80-var_adj) = AngI_p - ( PRA - (c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI );
 % AngII
-f(81) = AngII_p - ( k_AngII + (c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII );
+f(81-var_adj) = AngII_p - ( k_AngII + (c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII );
 % AT1R
-f(82) = AT1R_p - ( c_AT1R * AngII - log(2)/h_AT1R * AT1R );
+f(82-var_adj) = AT1R_p - ( c_AT1R * AngII - log(2)/h_AT1R * AT1R );
 % AT2R
-f(83) = AT2R_p - ( c_AT2R * AngII - log(2)/h_AT2R * AT2R );
+f(83-var_adj) = AT2R_p - ( c_AT2R * AngII - log(2)/h_AT2R * AT2R );
 % Ang17
-f(84) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
+f(84-var_adj) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
 % AngIV
-f(85) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
+f(85-var_adj) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
 % R_aa
-f(86) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA);
+f(86-var_adj) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA);
 % R_ea
-f(87) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
+f(87-var_adj) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
 sigmamyo_a = 0.75;
 sigmamyo_b = 1.2;
 sigmamyo_d = 0.6;
 sigmamyo_c = sigmamyo_b / (1-sigmamyo_a) - 1;
-f(88) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
-% f(88) = Sigma_myo - ( 5 * (P_gh / 62 - 1) + 1 );
+f(88-var_adj) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
+% f(88-var_adj) = Sigma_myo - ( 5 * (P_gh / 62 - 1) + 1 );
 % Psi_AT1RAA
-f(89) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R_eq) );
+f(89-var_adj) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R_eq) );
 % Psi_AT1REA
-f(90) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT1R_eq) );
+f(90-var_adj) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT1R_eq) );
 % Psi_AT2RAA
 if     strcmp(gender,'male')
-    f(91) = Psi_AT2RAA - ( 1 );
+    f(91-var_adj) = Psi_AT2RAA - ( 1 );
 elseif strcmp(gender,'female')
     if     strcmp(scenario, 'm_AT2R')
-        f(91) = Psi_AT2RAA - ( 1 );
+        f(91-var_adj) = Psi_AT2RAA - ( 1 );
     else
-        f(91) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
+        f(91-var_adj) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
     end
 end
 % Psi_AT2REA
 if     strcmp(gender,'male')
-    f(92) = Psi_AT2REA - ( 1 );
+    f(92-var_adj) = Psi_AT2REA - ( 1 );
 elseif strcmp(gender,'female')
     if     strcmp(scenario, 'm_AT2R')
-        f(92) = Psi_AT2REA - ( 1 );
+        f(92-var_adj) = Psi_AT2REA - ( 1 );
     else
-        f(92) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
+        f(92-var_adj) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1)) );
     end
-end
 end
 
 end

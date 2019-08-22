@@ -1,10 +1,18 @@
-% This script calculates the steady state solution to the system using
-% fsolve. Some previous values are used as an initial guess. These are
-% taken from Jessica, which are taken in part from some paper (Karaaslan
-% 2005?).
+% This script calculates the steady state values of the blood pressure 
+% regulation model bp_reg_solve_baseline.m for some alternative scenarios.
+% 
+% Steady state data for the intial guess is calculated by solve_ss_baseline.m.
 
-% function SSdata = solve_ss
 function solve_ss_scenario
+
+% Add directory containing data.
+mypath = pwd;
+mypath = strcat(mypath, '/Data');
+addpath(genpath(mypath))
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Begin user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Scenarios
 % AngII  - Ang II infusion
@@ -13,8 +21,14 @@ function solve_ss_scenario
 % AT2R-  - Block AT2R through decay
 % RHyp   - Renal hypertension due to increased afferent arteriolar resistance
 scenario = {'AngII', 'ACEi', 'ARB', 'AT2R-', 'RHyp'};
-ss = 7;
+% Index of scenario to fix.
+fixed_ss = 1;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           End user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Number of variables.
 num_vars = 92;
 
 gender = {'male', 'female'};
@@ -34,34 +48,20 @@ elseif strcmp(gender{gg}, 'female')
     gen = 0;
 end
 
-% Scaling factor
-% Rat sodium flow = Human sodium flow x SF
-% Note: This includes conversion from mEq to microEq.
+% Scaling factors
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
 if     strcmp(gender{gg}, 'male')
-%     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.343; % resistance
+    SF_V = 3;     % volume
 elseif strcmp(gender{gg}, 'female')
-%     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
-end
-% Rat resistance = Human resistance x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_R = 0.343;
-elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.537;
-end
-% Rat volume = Human volume x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_V = 3;
-elseif strcmp(gender{gg}, 'female')
-    SF_V = 2.4;
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.537; % resistance
+    SF_V = 2.4;   % volume
 end
 
-N_rsna    = 1.00;
-% R_aass    = 31.67 / SF;   % mmHg min / ml
-% R_eass    = 51.66 / SF;   % mmHg min / ml
+N_rsna    = 1;
 if     strcmp(gender{gg}, 'male')
 R_aass    = 10.87;   % mmHg min / ml
 R_eass    = 17.74;   % mmHg min / ml
@@ -69,39 +69,26 @@ elseif strcmp(gender{gg}, 'female')
 R_aass    = 17.02;   % mmHg min / ml
 R_eass    = 27.76;   % mmHg min / ml
 end
-if     strcmp(scenario{ss}, 'RHyp') %|| strcmp(scenario{ss}, 'ACEi') || strcmp(scenario{ss}, 'ARB')
-    R_aass = R_aass*3.5;
-end
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
-% C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
-C_gcf     = 0.068;
+    C_gcf     = 0.068;
 elseif strcmp(gender{gg}, 'female')
-C_gcf     = 0.047;
+    C_gcf     = 0.047;
 end
 
 % Male and female different parameters for fractional reabsorption
 if     strcmp(gender{gg}, 'male')
-%     eta_ptsodreab_eq = 0.93;  % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
-    eta_ptsodreab_eq = 0.80; % karaaslan
+    eta_ptsodreab_eq = 0.8; % karaaslan
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
     eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
-%     eta_ptsodreab_eq = 0.90; % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.5; % anita suggested
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
-    eta_ptwreab_eq = 0.86; 
+    eta_ptwreab_eq = 0.86; % layton 2016
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
@@ -110,19 +97,15 @@ elseif strcmp(gender{gg}, 'female')
     eta_cdwreab_eq = 0.91;
 end
 
-% K_vd      = 0.00001;
 K_vd      = 0.01;
-% K_bar     = 16.6 / SF;    % mmHg min / ml
-K_bar     = 16.6 * SF_R;    % mmHg min / ml
-% R_bv      = 3.4 / SF;     % mmHg min / ml
-R_bv      = 3.4 * SF_R;     % mmHg min / ml
-T_adh     = 6;            % min
-% Phi_sodin = 1.2278;       % microEq / min % old
-% Phi_sodin = 2.3875;       % microEq / min % layton 2016
-Phi_sodin = 1.2212;       % microEq / min % karaaslan
-C_K       = 5;            % microEq / ml 
-T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
-N_rs      = 1;            % ng / ml / min
+K_bar     = 16.6 * SF_R; % mmHg min / ml
+R_bv      = 3.4 * SF_R;  % mmHg min / ml
+T_adh     = 6;           % min
+Phi_sodin = 1.2212;      % microEq / min % karaaslan
+N_als_eq  = 1;
+C_K       = 5;           % microEq / ml 
+T_al      = 30;          % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
+N_rs      = 1;           % ng / ml / min
 
 % RAS
 h_renin   = 12;      % min
@@ -161,6 +144,7 @@ elseif strcmp(gender{gg}, 'female')
     AT2R_eq  = 6.81799861123497;
 end
 
+% Parameter input.
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
         eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
@@ -172,52 +156,32 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario{ss}, 'Normal') || strcmp(scenario{ss}, 'RHyp')
+if     strcmp(scenario{fixed_ss}, 'Normal') || strcmp(scenario{fixed_ss}, 'RHyp')
     drugs = [0, 0, 0, 0];
-elseif strcmp(scenario{ss}, 'AngII')
+elseif strcmp(scenario{fixed_ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
         drugs = [2022, 0, 0, 0]; % Sampson 2008
     elseif strcmp(gender{gg}, 'female')
         drugs = [2060, 0, 0, 0]; % Sampson 2008
     end
-elseif strcmp(scenario{ss}, 'ACEi')
-%     drugs = [0, 1, 0, 0 ]; % Hall 1980
+elseif strcmp(scenario{fixed_ss}, 'ACEi')
     drugs = [0, 0.78, 0, 0]; % Leete 2018
-elseif strcmp(scenario{ss}, 'ARB')
+elseif strcmp(scenario{fixed_ss}, 'ARB')
     drugs = [0, 0, 0.67, 0]; % Leete 2018
-elseif strcmp(scenario{ss}, 'AT2R-')
+elseif strcmp(scenario{fixed_ss}, 'AT2R-')
     drugs = [0, 0, 0, 10];
 end
 
 %% Variables initial guess
 
-% Add directory containing data.
-mypath = pwd;
-mypath = strcat(mypath, '/Data');
-addpath(genpath(mypath))
-
-% Load data for steady state initial value. 
-if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_Normal.mat', 'SSdata');
-end
-% if     strcmp(gender{gg}, 'male')
-%     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% end
-% if     strcmp(gender{gg}, 'male')
-%     load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% end
-
+% Load data for steady state initial guess. 
+% Set name for data file to be loaded based upon gender.    
+load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
+load(load_data_name, 'SSdata');
 % Retrieve and replace parameters in fixed variable equations.
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
-phicophico = SSdata(33);
-cadhcadh   = SSdata(47);
+phicophico = SSdata(33); cadhcadh = SSdata(47);
 fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
 SSdata(fixed_ind) = 1;
 SSdataIG = SSdata;
@@ -225,20 +189,11 @@ clear SSdata
 
 % Ang II infusion steady state value is sensitive to such a huge change.
 % Thus it is done incrementally and iteratively.
-if     strcmp(scenario{ss}, 'AngII')
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_AngII.mat', 'SSdata');
-%         load(  'NEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-%         load(  'COPYNEWmale_ss_data_scenario_AngII.mat', 'SSdata');
-        SSdataIG = SSdata;
-        clear SSdata;
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_AngII.mat', 'SSdata');
-%         load('NEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-%         load('COPYNEWfemale_ss_data_scenario_AngII.mat', 'SSdata');
-        SSdataIG = SSdata;
-        clear SSdata;
-    end
+if strcmp(scenario{fixed_ss}, 'AngII')
+    load_data_name = sprintf('%s_ss_data_scenario_AngII.mat', gender{gg});
+    load(load_data_name, 'SSdata');
+    SSdataIG = SSdata;
+    clear SSdata;
 end
 
 % Order
@@ -266,9 +221,9 @@ x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
 options = optimset(); %options = optimset('MaxFunEvals',num_vars*100+10000);
 [SSdata, residual, ...
- exitflag, output] = fsolve(@(x) bp_reg_solve_scenario(t,x,x_p0,pars, ...
-                                                       fixed_var_pars, ...
-                                                       drugs), ...
+ exitflag, output] = fsolve(@(x) bp_reg_solve_scenario(t,x,x_p0,pars ,...
+                                                       fixed_var_pars,...
+                                                       drugs)        ,...
                             x0, options);
 
 % Check for solver convergence.
@@ -289,42 +244,8 @@ for i = 1:length(SSdata)
     end
 end
 
-% save_data_name = sprintf('%s_ss_data.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-% save_data_name = sprintf('%s_ss_data_male_sodreab.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-% save_data_name = sprintf('%s_ss_data_female_sodreab.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-% save_data_name = sprintf('%s_ss_data_male_raas.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-% save_data_name = sprintf('%s_ss_data_new_sigmamyo.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-% save_data_name = sprintf('%s_ss_data_new_Nadhs.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-% save_data_name = sprintf('%s_ss_data_new_Phitwreab.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-% save_data_name = sprintf('%s_ss_data_new_Psi.mat', gender{gg});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-%
-
-save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
-% save_data_name = sprintf('NEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+% Save values.
+save_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{fixed_ss});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 

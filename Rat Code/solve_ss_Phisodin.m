@@ -1,7 +1,9 @@
- % This script varies the sodium intake and then calculates the steady state
-% solution of the system for each inputted value. To avoid the solver not
-% converging, the initial guess for solution to the system is taken as the
-% previous solution value. That is, IG_i = SOL_i-1.
+% This script vairies the sodium intake and then solves for the steady 
+% state values of the blood pressure regulation model 
+% bp_reg_solve_Phisodin.m for each inputted value. 
+% 
+% Steady state data for the intial guess is calculated by 
+% solve_ss_baseline.m or solve_ss_scenario.m.
 % 
 % All variables are then plotted versus the relative change in input.
 
@@ -28,6 +30,7 @@ addpath(genpath(mypath))
 % AngII  - Ang II infusion
 scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'ACEi', 'AngII'};
 num_scen = length(scenario);
+% Index of scenario to plot for all variables
 fixed_ss = 1;
 
 % Boolean to fix/vary water intake.
@@ -59,7 +62,7 @@ iter_range_l = linspace(lower, 1, iteration);
 iter_range_u = linspace(1, upper, iteration);
 % Delete overlapping baseline value.
 iter_range_l(end) = '';
-% Combine decrease/increase ranges.
+% Combine decrease/increase ranges into single vector.
 iter_range   = [iter_range_l, iter_range_u];
 
 % Initialize variables.
@@ -86,7 +89,7 @@ for cc = 1:2        % change
 load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 
 % Retrieve and replace parameters in fixed variable equations.
-% Load data for steady state initial value. 
+% Load data for steady state initial guess. 
 % Fixed variable parameters are only retrieved and replaced for scenarios
 % which are solved for in the solve_ss_baseline because the parameter has
 % changed for the fixed variable to remain 1.
@@ -134,34 +137,20 @@ elseif strcmp(gender{gg}, 'female')
     gen = 0;
 end
 
-% Scaling factor
-% Rat sodium flow = Human sodium flow x SF
-% Note: This includes conversion from mEq to microEq.
+% Scaling factors
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
 if     strcmp(gender{gg}, 'male')
-%     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.343; % resistance
+    SF_V = 3;     % volume
 elseif strcmp(gender{gg}, 'female')
-%     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
-end
-% Rat resistance = Human resistance x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_R = 0.343;
-elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.537;
-end
-% Rat volume = Human volume x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_V = 3;
-elseif strcmp(gender{gg}, 'female')
-    SF_V = 2.4;
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.537; % resistance
+    SF_V = 2.4;   % volume
 end
 
 N_rsna    = 1;
-% R_aass    = 31.67 / SF;   % mmHg min / ml
-% R_eass    = 51.66 / SF;   % mmHg min / ml
 if     strcmp(gender{gg}, 'male')
 R_aass    = 10.87;   % mmHg min / ml
 R_eass    = 17.74;   % mmHg min / ml
@@ -171,7 +160,6 @@ R_eass    = 27.76;   % mmHg min / ml
 end
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
-% C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
     C_gcf     = 0.068;
 elseif strcmp(gender{gg}, 'female')
@@ -180,9 +168,6 @@ end
 
 % Male and female different parameters for fractional reabsorption
 if     strcmp(gender{gg}, 'male')
-%     eta_ptsodreab_eq = 0.93;  % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
     eta_ptsodreab_eq = 0.80; % karaaslan
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.93;
@@ -196,12 +181,6 @@ elseif strcmp(gender{gg}, 'female')
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
     end
-%     eta_ptsodreab_eq = 0.90; % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.5; % anita suggested
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.96;
 end
 if     strcmp(gender{gg}, 'male')
     eta_ptwreab_eq = 0.86; 
@@ -219,15 +198,10 @@ elseif strcmp(gender{gg}, 'female')
     end
 end
 
-% K_vd      = 0.00001;
 K_vd      = 0.01;
-% K_bar     = 16.6 / SF;    % mmHg min / ml
-K_bar     = 16.6 * SF_R;    % mmHg min / ml
-% R_bv      = 3.4 / SF;     % mmHg min / ml
-R_bv      = 3.4 * SF_R;     % mmHg min / ml
+K_bar     = 16.6 * SF_R;  % mmHg min / ml
+R_bv      = 3.4 * SF_R;   % mmHg min / ml
 T_adh     = 6;            % min
-% % Phi_sodin = 1.2278;       % microEq / min % old
-% % Phi_sodin = 2.3875;       % microEq / min % layton 2016
 % Phi_sodin = 1.2212;       % microEq / min % karaaslan
 C_K       = 5;            % microEq / ml 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
@@ -308,6 +282,7 @@ end
 % Input Phi_win if it is fixed.
 Phi_win_input = Phi_win_bl(gg,ss,1);
 
+% Parameter input.
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
         eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
@@ -333,6 +308,7 @@ end
 
 %% Variables initial guess
 
+% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -372,11 +348,11 @@ x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 % options = optimset(); %options = optimset('MaxFunEvals',8100+10000);
 options = optimset('Display','off');
 [SSdata, ~, ...
-exitflag, output] = fsolve(@(x) bp_reg_solve_Phisodin(t,x,x_p0,pars, ...
-                                                      fixed_var_pars, ...
-                                                      drugs,win, ...
-                                                      Phi_win_input, ...
-                                                      scenario{ss}), ...
+exitflag, output] = fsolve(@(x) bp_reg_solve_Phisodin(t,x,x_p0,pars ,...
+                                                      fixed_var_pars,...
+                                                      drugs,win     ,...
+                                                      Phi_win_input ,...
+                                                      scenario{ss}) ,...
                            x0, options);
 
 % Check for solver convergence.
@@ -403,7 +379,10 @@ if     strcmp(change{cc}, 'decrease')
 elseif strcmp(change{cc}, 'increase')
     X(:,iteration+iter-1,gg,ss) = SSdata;
 end
-% Update next initial guess as current solution
+
+% To avoid the solver not converging, the initial guess for solution to the
+% system is taken as the previous solution value. That is, IG_i = SOL_i-1.
+% Update next initial guess as current solution.
 SSdataIG = SSdata;
 
 % Sanity check to see script's progress. Also a check for where to
@@ -459,6 +438,8 @@ end
 % X_f = zeros(size(X_f));
 % X_m = zeros(size(X_m));
 
+% Plot all variables vs sodium intake. ------------------------------------
+
 f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
@@ -498,7 +479,6 @@ ax = gca;
 % ax.XTick = (80 : 10 : 120);
 xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
-% 'FontSize',22, 'FontWeight','bold'
 hold on
 plot(X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 legend('Male','Female', 'Location','Northwest')
@@ -522,12 +502,12 @@ scen_linestyle_m = {'b-x', 'b-o', 'b-+', 'b-*',};
 scen_linestyle_f = {'r-x', 'r-o', 'r-+', 'r-*',};
 scen_legend = {'RSNA', 'AT2R', 'RAS', 'Reab'};
 for ss = 2:num_scen-2
-hold all
-plot(X_m(42,:,ss),xscale,scen_linestyle_m{ss-1}, 'LineWidth',3, 'DisplayName',scen_legend{ss-1})
-legend('-DynamicLegend');
-hold all
-plot(X_f(42,:,ss),xscale,scen_linestyle_f{ss-1}, 'LineWidth',3, 'DisplayName',scen_legend{ss-1})
-legend('-DynamicLegend');
+    hold all
+    plot(X_m(42,:,ss),xscale,scen_linestyle_m{ss-1}, 'LineWidth',3, 'DisplayName',scen_legend{ss-1})
+    legend('-DynamicLegend');
+    hold all
+    plot(X_f(42,:,ss),xscale,scen_linestyle_f{ss-1}, 'LineWidth',3, 'DisplayName',scen_legend{ss-1})
+    legend('-DynamicLegend');
 end
 
 i = figure('pos',[100 100 675 450]);
@@ -546,30 +526,24 @@ scen_linestyle_m = {'b--', 'b:'};
 scen_linestyle_f = {'r--', 'r:'};
 scen_legend = {'ACEi', 'Ang II'};
 for ss = num_scen-1:num_scen
-hold all
-plot(X_m(42,:,ss),xscale,scen_linestyle_m{ss-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{ss-(num_scen-2)})
-legend('-DynamicLegend');
-hold all
-plot(X_f(42,:,ss),xscale,scen_linestyle_f{ss-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{ss-(num_scen-2)})
-legend('-DynamicLegend');
+    hold all
+    plot(X_m(42,:,ss),xscale,scen_linestyle_m{ss-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{ss-(num_scen-2)})
+    legend('-DynamicLegend');
+    hold all
+    plot(X_f(42,:,ss),xscale,scen_linestyle_f{ss-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{ss-(num_scen-2)})
+    legend('-DynamicLegend');
 end
 
-% Plot male - female bar graph for each scenario --------------------------
+% Plot male - female bar graph for each scenario. -------------------------
 
 % X_m/f = (variable, iteration, scenario)
 deltaMAP_m = reshape(X_m(42,end,1:end-2) - X_m(42,iteration,1:end-2), [1,num_scen-2]);
 deltaMAP_f = reshape(X_f(42,end,1:end-2) - X_f(42,iteration,1:end-2), [1,num_scen-2]);
 MAP_comp = deltaMAP_m(1) - [deltaMAP_m(1), deltaMAP_f];
-% scen_comp = categorical({'M - M'              , 'M - F'              , ...
-%                          'M - F\newlineM RSNA', 'M - F\newlineM AT2R', ...
-%                          'M - F\newlineM RAS' , 'M - F\newlineM Reab'});
-% scen_comp = reordercats(scen_comp,{'M - M'              , 'M - F'              , ...
-%                                    'M - F\newlineM RSNA', 'M - F\newlineM AT2R', ...
-%                                    'M - F\newlineM RAS' , 'M - F\newlineM Reab'});
-scen_comp = categorical({'M - M'              , 'M - F'              , ...
+scen_comp = categorical({'M - M'       , 'M - F'       , ...
                          'M - F M RSNA', 'M - F M AT2R', ...
                          'M - F M RAS' , 'M - F M Reab'});
-scen_comp = reordercats(scen_comp,{'M - M'              , 'M - F'              , ...
+scen_comp = reordercats(scen_comp,{'M - M'       , 'M - F'       , ...
                                    'M - F M RSNA', 'M - F M AT2R', ...
                                    'M - F M RAS' , 'M - F M Reab'});
 
@@ -577,7 +551,6 @@ j = figure('DefaultAxesFontSize',10);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 3.5]);
 s1(1) = subplot(1,2,1); 
 s1(2) = subplot(1,2,2); 
-% s1(2).Position = s1(2).Position + [0.0, 0.0, 0.0, -0.01];
 
 plot(s1(1), X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 % xlim(s1(1), [80, 120]); set(s1(1),'XTick', [80,100,120]);

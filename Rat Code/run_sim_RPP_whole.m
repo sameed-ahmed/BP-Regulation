@@ -1,28 +1,29 @@
-% This simulates the blood pressure regulation model bp_reg.m.
+% This simulates the blood pressure regulation model bp_reg_RPP.m for
+% perturbations in renal perfusion pressure over the entire physiological range.
 % 
-% Parameters are given by:
-% "Long-Term Mathematical Model Involving Renal Sympathetic Nerve Activity,
-% Arterial Pressure, and Sodium Excretion" - 2005 - Karaaslan, et. al.
-% "Sex-specific Long-term Blood Pressure Regulation: Modeling and Analysis"
-% - 2018 - Leete, Layton.
-% 
-% Steady state data is calculated by solve_ss_numerical.m.
+% Steady state data is calculated by solve_ss_baseline.m or solve_ss_scenario.m.
 
 function run_sim_RPP_whole
 
 close all
+
+% Add directory containing data.
+mypath = pwd;
+mypath = strcat(mypath, '/Data');
+addpath(genpath(mypath))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Renal perfusion pressure perturbation
-% Enter postive for increase, negative for decrease.
-lower_per = -40;
-upper_per = 100;
+% Enter postive for increase or negative for decrease.
+lower_per = -40; upper_per = 100;
+% Perturbation increment
 inc_per   = 5;
 RPP_per   = [lower_per : inc_per : upper_per]';
 num_per   = length(RPP_per);
+% Index for baseline perturbation
 bl_per    = (0 - RPP_per(1)) / inc_per + 1;
 
 % Scenarios
@@ -36,24 +37,23 @@ scenario = {'Normal', 'Denerve', 'Denerve & AT2R-', ...
             'Denerve & Linear Myo', 'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
 num_scen = length(scenario);
 
-% Number of variables
-num_vars   = 92-1;
 % Number of points for plotting resolution
 num_points = 121;
 
-% Temporary single perfusion pressure at a time until I figure out a good 
-% way to plot all three.
-exact_per = 2;
+% Index of RPP to plot for all variables
+exact_per = 3;
 
-% Temporary single scenario at a time until I figure out a good way to plot
-% all three.
+% Index of scenario to plot for all variables
+% Scenario 'Denerve' is the one from Hilliard 2011.
 exact_scen = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-gender = {'male', 'female'};
+% Number of variables
+% 1 less due to fixed water intake.
+num_vars = 92-1;
 
 % Initialize variables.
 % X = (variables, points, gender, perturbation, scenario)
@@ -67,35 +67,19 @@ X_f = zeros(num_vars+1,num_points,num_per,num_scen);
 % RPP = (gender, scenario)
 RPP = zeros(2,num_scen);
 
+gender = {'male', 'female'};
+
 for pp = 1:num_per  % perturbation
 for ss = 1:num_scen % scenario
 for gg = 1:2        % gender
 
-% Add directory containing data.
-mypath = pwd;
-mypath = strcat(mypath, '/Data');
-addpath(genpath(mypath))
-
 % Retrieve and replace parameters in fixed variable equations.
-if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_Normal.mat', 'SSdata');
-end
-% if     strcmp(gender{gg}, 'male')
-%     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% end
-% if     strcmp(gender{gg}, 'male')
-%     load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% end
+% Set name for data file to be loaded based upon gender.    
+load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
+load(load_data_name, 'SSdata');
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
-phicophico = SSdata(33);
-cadhcadh   = SSdata(47);
+phicophico = SSdata(33); cadhcadh = SSdata(47);
 fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
 
 %% Parameters
@@ -106,34 +90,20 @@ elseif strcmp(gender{gg}, 'female')
     gen = 0;
 end
 
-% Scaling factor
-% Rat sodium flow = Human sodium flow x SF
-% Note: This includes conversion from mEq to microEq.
+% Scaling factors
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
 if     strcmp(gender{gg}, 'male')
-%     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.343; % resistance
+    SF_V = 3;     % volume
 elseif strcmp(gender{gg}, 'female')
-%     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
-end
-% Rat resistance = Human resistance x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_R = 0.343;
-elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.537;
-end
-% Rat volume = Human volume x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_V = 3;
-elseif strcmp(gender{gg}, 'female')
-    SF_V = 2.4;
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.537; % resistance
+    SF_V = 2.4;   % volume
 end
 
 N_rsna    = 1;
-% R_aass    = 31.67 / SF;   % mmHg min / ml
-% R_eass    = 51.66 / SF;   % mmHg min / ml
 if     strcmp(gender{gg}, 'male')
 R_aass    = 10.87;   % mmHg min / ml
 R_eass    = 17.74;   % mmHg min / ml
@@ -143,29 +113,16 @@ R_eass    = 27.76;   % mmHg min / ml
 end
 P_B       = 18;           % mmHg
 P_go      = 28;           % mmHg
-% C_gcf     = 0.00781 * SF;
 if     strcmp(gender{gg}, 'male')
     C_gcf     = 0.068;
 elseif strcmp(gender{gg}, 'female')
     C_gcf     = 0.047;
 end
 if     strcmp(gender{gg}, 'male')
-%     eta_ptsodreab_eq = 0.93;  % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
     eta_ptsodreab_eq = 0.8; % karaaslan
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptsodreab_eq = 0.90;  % layton 2016
-%     eta_dtsodreab_eq = 0.77; 
-%     eta_cdsodreab_eq = 0.15;
-%     eta_ptsodreab_eq = 0.71; % karaaslan
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.93;
-%     eta_ptsodreab_eq = 0.5; % anita suggested
-%     eta_dtsodreab_eq = 0.5; 
-%     eta_cdsodreab_eq = 0.96;
     eta_ptsodreab_eq = 0.5; % calibrated
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.96;
@@ -175,22 +132,14 @@ if     strcmp(gender{gg}, 'male')
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-%     eta_ptwreab_eq = 0.80;
-%     eta_dtwreab_eq = 0.60; 
-%     eta_cdwreab_eq = 0.78;
     eta_ptwreab_eq = 0.5; % calibrated
     eta_dtwreab_eq = 0.6; 
     eta_cdwreab_eq = 0.91;
 end
-% K_vd      = 0.00001;
 K_vd      = 0.01;
-% K_bar     = 16.6 / SF;    % mmHg min / ml
 K_bar     = 16.6 * SF_R;    % mmHg min / ml
-% R_bv      = 3.4 / SF;     % mmHg min / ml
 R_bv      = 3.4 * SF_R;     % mmHg min / ml
 T_adh     = 6;            % min
-% Phi_sodin = 1.2278;       % microEq / min % old
-% Phi_sodin = 2.3875;       % microEq / min % layton 2016
 Phi_sodin = 1.2212;       % microEq / min % karaaslan
 C_K       = 5;            % microEq / ml 
 T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
@@ -233,6 +182,7 @@ elseif strcmp(gender{gg}, 'female')
     AT2R_eq  = 6.81799861123497;
 end
 
+% Parameter input.
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
         eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
@@ -250,70 +200,24 @@ drugs = [0, 0, 0]; % No drug
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% experiments (CITE). Therefore, the initial condition of the derivative is
-% 0.
-
-% Add directory containing data.
-mypath = pwd;
-mypath = strcat(mypath, '/Data');
-addpath(genpath(mypath))
+% Karaaslan 2005 and Leete 2018. 
 
 % Load data for steady state initial value. 
-% Need to first run transform_data.m on Jessica's data files.
-% if     strcmp(gender{gg}, 'male')
-%     load(  'male_ss_data.mat', 'SSdata');
-% %     load('male_ss_data_female_sodreab.mat', 'SSdata'); % female
-% elseif strcmp(gender{gg}, 'female')
-%     load('female_ss_data.mat', 'SSdata');
-% %     load('female_ss_data_male_sodreab.mat', 'SSdata'); % male
-% %     load('female_ss_dtata_male_raas.mat', 'SSdata'); % male
-% end
-
+% Fixed variable parameters are only retrieved and replaced for scenarios
+% which are solved for in the solve_ss_baseline because the parameter has
+% changed for the fixed variable to remain 1.
+% Otherwise scenarios which are solved for in solve_ss_scenario do not 
+% require this because they load the fixed variable parameter from the
+% baseline scenario, and they are perturbed scenarios in which the fixed
+% variable is no longer 1.
 if   strcmp(scenario{ss},'Denerve & AT2R-')
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_AT2R-.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_AT2R-.mat', 'SSdata');
-    end
+    load_data_name = sprintf('%s_ss_data_scenario_AT2R-.mat', gender{gg});
+    load(load_data_name, 'SSdata');
 else
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_Normal.mat', 'SSdata');
-    end
-    fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
+    load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
+    load(load_data_name, 'SSdata');
     SSdata(fixed_ind) = 1;
 end
-% if   strcmp(scenario{ss},'Denerve & AT2R-')
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'NEWmale_ss_data_scenario_AT2R-.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('NEWfemale_ss_data_scenario_AT2R-.mat', 'SSdata');
-%     end
-% else
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-%     end
-%     fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-%     SSdata(fixed_ind) = 1;
-% end
-% if   strcmp(scenario{ss},'Denerve & AT2R-')
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'COPYNEWmale_ss_data_scenario_AT2R-.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('COPYNEWfemale_ss_data_scenario_AT2R-.mat', 'SSdata');
-%     end
-% else
-%     if     strcmp(gender{gg}, 'male')
-%         load(  'COPYNEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-%     elseif strcmp(gender{gg}, 'female')
-%         load('COPYNEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-%     end
-%     fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-%     SSdata(fixed_ind) = 1;
-% end
 
 % Store water intake as an input and delete it as a variable.
 Phi_win_input = SSdata(28);
@@ -322,6 +226,7 @@ SSdata(28) = '';
 % Input Renal Perfusion Pressure.
 RPP(gg,ss) = SSdata(42-1);
 
+% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -372,8 +277,10 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-                bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,Phi_win_input,...
-                               tchange,drugs,RPP(gg,ss),RPP_per(pp),SSdata,scenario{ss}), ...
+                bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,...
+                               Phi_win_input,tchange,drugs,...
+                               RPP(gg,ss),RPP_per(pp)     ,...
+                               SSdata,scenario{ss})       ,...
                 tspan, x0, x_p0, options);
 t = t'; x = x';
 
@@ -397,10 +304,6 @@ X_f(:,:,:,:) = X(:,:,2,:,:); % X_f = X_m;
 % % x-axis limits
 % xlower = t0; xupper = tend; 
 % 
-% % % Convert minutes to days for longer simulations.
-% % t = t/1440; tchange = tchange/1440; 
-% % xlower = xlower/1440; xupper = xupper/1440; 
-% 
 % % y-axis limits
 % ylower = zeros(num_vars+1); yupper = ylower; 
 % for i = 1:num_vars+1
@@ -412,6 +315,7 @@ X_f(:,:,:,:) = X(:,:,2,:,:); % X_f = X_m;
 % end
 % 
 % % Plot all variables vs time. ---------------------------------------------
+% 
 % f  = gobjects(7,1);
 % s1 = gobjects(7,15);
 % % Loop through each set of subplots.
@@ -443,28 +347,14 @@ X_f(:,:,:,:) = X(:,:,2,:,:); % X_f = X_m;
 % %                          '280','300','320','340','360','380','400',...
 % %                          '420','440','460','480','500','520'};
 % %         xlabel('$t$ (min)', 'Interpreter','latex')
-% % %         Days
-% %         ax = gca;
-% % %         ax.XTick = (tchange+0*(1*1440) : 1440 : tchange+days*(1*1440));
-% %         ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
-% %         ax.XTickLabel = {'0' ,'1' ,'2' ,'3' ,'4' ,'5' ,'6' ,...
-% %                          '7' ,'8' ,'9' ,'10','11','12','13',...
-% %                          '14','15','16','17','18','19','20',...
-% %                          '21','22','23','24','25','26'};
-% %         xlabel('Time (days)')
-% % %         Weeks
-% %         ax = gca;
-% %         ax.XTick = [tchange+0*(7*1440); tchange+1*(7*1440); ...
-% %                     tchange+2*(7*1440); tchange+3*(7*1440)];
-% %         ax.XTickLabel = {'0','1','2','3'};
-% %         xlabel('Time (weeks)')
 %         
 % %         legend('Male', 'Female')
 %         title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
 %     end
 % end
-
+% 
 % % Plot renal perfusion pressure input vs time. ----------------------------
+% 
 % tplot   = [t0:1:tend];
 % RPPplot = zeros(1,length(tplot));
 % RPPplot(1        :tchange) = RPP(1,2);
@@ -475,8 +365,8 @@ X_f(:,:,:,:) = X(:,:,2,:,:); % X_f = X_m;
 % ylabel('$RPP$'    , 'Interpreter','latex')
 
 % Plot data as in Hilliard 2011. ------------------------------------------
+
 % Time average quantity from 10-30 minutes after perturbation in RPP.
-% RPP at 80, 100, 120.
 % Phi_rb = var(6), Phi_gfilt = var(7), Phi_u = var(63), Phi_usod = var(27)
 % R_aa = var(86), P_gh = var(9)
 
@@ -523,7 +413,7 @@ end
 % RPP
 RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per; 
 
-% Autoregulatory range lines
+% Autoregulatory range vertical lines
 arr_lower = [93,93]; arr_upper = [173,173]; arr_line = [-1;14];
 
 % Plots -------------------------------------------------------------------
@@ -553,7 +443,6 @@ ylim(s1(2), [0  ,2.5]); yticks(s1(2), [0 :0.5:2.5]);
 xlabel(s1(2), 'RPP (mmHg)'); ylabel(s1(2), 'GFR (relative)');
 hold(s1(2), 'on')
 plot(s1(2), RPP_f,GFR_f (:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
-% legend(s1(2), 'Male','Female', 'Location','Northwest')
 plot(s1(2), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 plot(s1(2), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 hold(s1(2), 'off')
@@ -584,7 +473,6 @@ ylim(s2(2), [0  ,13 ]); yticks(s2(2), [0 :3 :13 ]);
 xlabel(s2(2), 'RPP (mmHg)'); ylabel(s2(2), 'USOD (relative)');
 hold(s2(2), 'on')
 plot(s2(2), RPP_f,USOD_f(:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
-% legend(s2(2), 'Male','Female', 'Location','Northwest')
 plot(s2(2), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 plot(s2(2), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 hold(s2(2), 'off')
@@ -615,7 +503,6 @@ ylim(s3(2), [0.7,1.4]); yticks(s3(2), [0.7:0.2:1.4]);
 xlabel(s3(2), 'RPP (mmHg)'); ylabel(s3(2), 'GHP (relative)');
 hold(s3(2), 'on')
 plot(s3(2), RPP_f,PGH_f (:,2),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
-% legend(s3(2), 'Male','Female', 'Location','Northwest')
 plot(s3(2), arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 plot(s3(2), arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 hold(s3(2), 'off')
@@ -685,10 +572,10 @@ xlim([55,210]); xticks([60:30:210]);
 ylim([-1,5]); yticks([-1:2:5]);
 xlabel('RPP (mmHg)'); ylabel('GFR (relative)');
 hold on
-plot(RPP_m,GFR_m(:,4) ,'-' , 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % lin myo k--o
-plot(RPP_m,GFR_m(:,5) ,'-'  , 'LineWidth',3                                   ); % no  myo k--
-plot(RPP_m,GFR_m(:,6) ,'-'   , 'LineWidth',3                                   ); % no  tgf k:
-plot(RPP_m,GFR_m(:,7) ,'-' , 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % no  myo & tgf k--x
+plot(RPP_m,GFR_m(:,4) ,'-', 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % lin myo k--o
+plot(RPP_m,GFR_m(:,5) ,'-', 'LineWidth',3                                   ); % no  myo k--
+plot(RPP_m,GFR_m(:,6) ,'-', 'LineWidth',3                                   ); % no  tgf k:
+plot(RPP_m,GFR_m(:,7) ,'-', 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % no  myo & tgf k--x
 [~, hobj, ~, ~] = legend({'Full AR','Linear MR','No MR','No TGF','No MR and TGF'}, 'FontSize',7,'Location','Northwest');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);

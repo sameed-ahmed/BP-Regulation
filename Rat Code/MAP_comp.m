@@ -1,77 +1,74 @@
 % This script is a post processing script. It loads the data from some
 % different drug administration scenarios to compute the change in mean 
-% arterial pressure.
+% arterial pressure and plot.
 
 function MAP_comp
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Begin user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Scenarios
+% Normal - Normal conditions
+% m_RSNA - male RSNA
+% m_AT2R - male AT2R
+% m_RAS  - male RAS pars
+% m_Reab - male fractional sodium and water reabsorption
+% ACEi   - Angiotensin convernting enzyme inhibitor
+% AngII  - Ang II infusion
+scenario = {'Normal', 'ACEi', 'ARB'};
+num_scen = length(scenario);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           End user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 close all
-
-gender   = {'male', 'female'};
-
-% MAP = [drug, gender];
-%      Male    Female
-% ACEi
-% ARB
-deltaMAP = zeros(2,2);
-
-for gg = 1:1 % gender
 
 % Add directory containing data.
 mypath = pwd;
 mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
-if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
+gender   = {'male', 'female'};
+
+% MAP = [scenario, gender];
+deltaMAP = zeros(num_scen,2);
+
+for ss = 1:num_scen % scenario
+for gg = 1:2 % gender
+
+% Set name for data file to be loaded based upon gender and scenario.    
+load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
+
+% Load and retrieve data.
+load(load_data_name, 'SSdata');
+if     strcmp(scenario{ss}, 'Normal')
     SSdata_Normal = SSdata;
-    clear SSdata;
-elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_Normal.mat', 'SSdata');
-    SSdata_Normal = SSdata;
-    clear SSdata;
 end
-
-if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_ACEi.mat', 'SSdata');
-    SSdata_ACEi = SSdata;
-    clear SSdata;
-elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_ACEi.mat', 'SSdata');
-    SSdata_ACEi = SSdata;
-    clear SSdata;
-end
-
-if     strcmp(gender{gg}, 'male')
-    load(  'male_ss_data_scenario_ARB.mat', 'SSdata');
-    SSdata_ARB = SSdata;
-    clear SSdata;
-elseif strcmp(gender{gg}, 'female')
-    load('female_ss_data_scenario_ARB.mat', 'SSdata');
-    SSdata_ARB = SSdata;
-    clear SSdata;
-end
-
-% MAP = [drug, gender];
-%      Male    Female
-% ACEi
-% ARB
-deltaMAP(1,gg) = SSdata_ACEi(42) - SSdata_Normal(42);
-deltaMAP(2,gg) = SSdata_ARB (42) - SSdata_Normal(42);
+deltaMAP(ss,gg) = SSdata(42) - SSdata_Normal(42);
+clear SSdata;
 
 end % gender
+end % scenario
 
-deltaMAP;
-
+% Plot 
 % male ACEi; female ACEi; male ARB; female ARB;
-f = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
-c = categorical({'ACEi','ARB'});
-b = bar(c,deltaMAP);
+f1 = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
+c1 = categorical({'Normal','ACEi','ARB'});
+b1 = bar(c1,deltaMAP);
 ylabel('Change in MAP (mmHg)')
 legend('Male','Female', 'Location','Southeast')
+b1(1).FaceColor = [0.203, 0.592, 0.835];
+b1(2).FaceColor = [0.835, 0.203, 0.576];
 
-b(1).FaceColor = [0.203, 0.592, 0.835];
-b(2).FaceColor = [0.835, 0.203, 0.576];
-
+f2 = figure('DefaultAxesFontSize',30, 'pos',[100 100 650 450]);
+c2 = categorical({'ACEi','ARB'});
+b2 = bar(c2,deltaMAP(2:end,:));
+ylabel('Change in MAP (mmHg)')
+legend('Male','Female', 'Location','Southeast')
+b2(1).FaceColor = [0.203, 0.592, 0.835];
+b2(2).FaceColor = [0.835, 0.203, 0.576];
 
 % % Save figure.
 % savefig(f, 'Pma_change_ACEi_ARB.fig')

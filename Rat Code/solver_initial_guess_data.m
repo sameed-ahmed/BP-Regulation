@@ -1,10 +1,7 @@
-% Baseline steady state data for the variables is given by Jessica's code
-% in folder 01_ang_inf. Copy those data files to the folder Data in this 
-% directory. Then run this script.
+% This sets an initial guess for all of the variables that is close to the
+% steady state value and then saves it as a data file.
 % 
-% This script reodrders the variables in the data to fit the order of the
-% variables in the code in this directory. It then saves it with a suitable
-% name.
+% Values are from Karaaslan 2005, Leete 2018, and Munger 1988.
 
 function solver_initial_guess_data
 
@@ -14,33 +11,22 @@ for gg = 1:2 % gender
 
 %% Scaling factors
 
-% Rat sodium flow = Human sodium flow x SF
-% Note: This includes conversion from mEq to microEq.
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
 if     strcmp(gender{gg}, 'male')
 %     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.343; % resistance
+    SF_V = 3;     % volume
 elseif strcmp(gender{gg}, 'female')
 %     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
-end
-
-% Rat resistance = Human resistance x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_R = 0.343;
-elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.537;
-end
-
-% Rat volume = Human volume x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_V = 3;
-elseif strcmp(gender{gg}, 'female')
-    SF_V = 2.4;
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.537; % resistance
+    SF_V = 2.4;   % volume
 end
 
 %% Manual entry of values
+
 rsna          = 1; 
 alpha_map     = 100; 
 alpha_rap     = 1; 
@@ -50,7 +36,6 @@ R_r           = 28;
 elseif strcmp(gender{gg}, 'female')
 R_r           = 44; 
 end
-
 beta_rsna     = 1; 
 % Phi_rb        = 5.495; 
 if     strcmp(gender{gg}, 'male')
@@ -67,7 +52,6 @@ end
 P_f           = 16; 
 P_gh          = 62; 
 Sigma_tgf     = 3.859 * SF_S; 
-
 Phi_filsod    = Phi_gfilt * 143; 
 if     strcmp(gender{gg}, 'male')
 % eta_ptsodreab = 0.93; % layton 2016
@@ -90,7 +74,6 @@ eta_ptsodreab = 0.5; % calibrated
 eta_dtsodreab = 0.5; 
 eta_cdsodreab = 0.96;
 end
-
 Phi_ptsodreab = Phi_filsod * eta_ptsodreab; 
 gamma_filsod  = 14 * SF_S; 
 gamma_at      = 1; 
@@ -106,7 +89,6 @@ lambda_al     = 1;
 % Phi_usod      = 1.2278; 
 % Phi_usod      = 2.3875; 
 Phi_usod      = Phi_dtsod - Phi_cdsodreab; 
-
 % V_ecf         = 61; 
 % V_b           = 21; 
 if     strcmp(gender{gg}, 'male')
@@ -143,7 +125,6 @@ C_adh         = 4.2;
 N_adh         = 1; 
 N_adhs        = 141; 
 delta_ra      = 0; 
-
 if     strcmp(gender{gg}, 'male')
 eta_ptwreab   = 0.86; 
 eta_dtwreab   = 0.60; 
@@ -156,7 +137,6 @@ elseif strcmp(gender{gg}, 'female')
     eta_dtwreab = 0.6; 
     eta_cdwreab = 0.91;
 end
-
 Phi_ptwreab   = Phi_gfilt * eta_ptwreab; 
 mu_ptsodreab  = 1; 
 Phi_mdu       = Phi_gfilt - Phi_ptwreab; 
@@ -170,7 +150,6 @@ mu_adh        = 1;
 % Phi_u         = 0.0150;
 Phi_u         = Phi_dtu - Phi_cdwreab;
 Phi_win       = Phi_u;
-
 M_sod         = 2160 * SF_V; 
 C_sod         = 143; 
 nu_mdsod      = 1.731 * SF_S; 
@@ -231,9 +210,8 @@ x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
 
 SSdataIG = x;
 
+% Save values.
 save_data_name = sprintf('%s_ss_data_IG.mat', gender{gg});
-% save_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
-% save_data_name = sprintf('COPYNEW%s_ss_data_IG.mat', gender{gg});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdataIG')
 

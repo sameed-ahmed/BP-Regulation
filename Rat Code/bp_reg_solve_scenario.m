@@ -1,15 +1,18 @@
-% % This is a long-term model of the cardiovascular system accounting for the
-% effects of renal sympathetic nervous activity (rsna) on kidney functions.
-% It is adopted from:
-% "Long-Term Mathematical Model Involving Renal Sympathetic Nerve Activity,
-% Arterial Pressure, and Sodium Excretion" - 2005 - Karaaslan, et. al.
-% 
-% A sex-specific submodel for the renin angiotension system is
-% incorporated. It is adopted from:
-% "Sex-specific Long-term Blood Pressure Regulation: Modeling and Analysis"
-% - 2018 - Leete, Layton.
+% This is a model of long-term model blood pressure regulation.
+% It is adopted with modifications from Karaaslan 2005 and Leete 2018.
 
-% Differential algebraic equation system f(t,x(t),x'(t);theta) = 0.
+% This function file is to solve for the steady state solution in different scenarios.
+
+% Input
+% t              - time
+% x              - variables
+% x_p            - variable derivatives
+% pars           - parameters
+% fixed_var_pars - shift parameters which ensure that effect variables are 1
+% drugs          - drug blocking percentage, infusion rate, etc.
+
+% Output
+% f              - left hand side of f(t,x(t),x'(t);theta) = 0.
 
 function f = bp_reg_solve_scenario(t,x,x_p,pars,fixed_var_pars,drugs)
 
@@ -24,12 +27,10 @@ alpha     = drugs(4);
 %% Retrieve parameters by name.
 
 % Scaling factor
-% Rat flow = Human flow x SF
-SF_S   = pars(end-2);
-% Rat resistance = Human resistance x SF
-SF_R = pars(end-1);
-% Rat volume = Human volume x SF
-SF_V = pars(end  );
+% Rat value = Human value x SF
+SF_S = pars(end-2); % sodium flow
+SF_R = pars(end-1);   % resistance
+SF_V = pars(end  );   % volume
 
 N_rsna           = pars(1 );
 R_aass           = pars(2 );

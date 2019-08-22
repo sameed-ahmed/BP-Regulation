@@ -1,13 +1,11 @@
 % This is the nephron submodel sodium handling. This script is used to 
 % adjust different fractional sodium reabsorption in the proximal tubule, 
-% while keeping the urine sodium excretion the same. As a result, the rest 
-% of the quantities related to the nephron change.
+% and distal tubule while keeping the urine sodium excretion the same. As a 
+% result, the rest of the quantities related to the nephron change.
 
 % This script also calculates the factor by which the quanities change.
 % This is needed to reparametrize any multiplicative factors that involve
 % these variables so that they are still 1 at baseline.
-
-
 
 function adjust_frac_sodreab
 

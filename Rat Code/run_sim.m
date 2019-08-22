@@ -1,22 +1,22 @@
 % This simulates the blood pressure regulation model bp_reg.m.
+% It is adopted with modifications from Karaaslan 2005 and Leete 2018.
 % 
-% Parameters are given by:
-% "Long-Term Mathematical Model Involving Renal Sympathetic Nerve Activity,
-% Arterial Pressure, and Sodium Excretion" - 2005 - Karaaslan, et. al.
-% "Sex-specific Long-term Blood Pressure Regulation: Modeling and Analysis"
-% - 2018 - Leete, Layton.
-% 
-% Steady state data is calculated by solve_ss_numerical.m.
+% Steady state data is calculated by solve_ss_baseline.m or solve_ss_scenario.m.
 
 % function [SSdata, f] = run_sim
 function run_sim
 
 close all
 
+% Add directory containing data.
+mypath = pwd;
+mypath = strcat(mypath, '/Data');
+addpath(genpath(mypath))
+
 % Scenarios
-% Normal - Normal conditions
-% m_RAS  - male RAS pars
-% m_Reab - male fractional sodium and water reabsorption
+% Normal         - Normal conditions
+% m_RAS          - male RAS pars
+% m_Reab         - male fractional sodium and water reabsorption
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
 scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_&_m_Reab'};
 ss = 4;
@@ -24,6 +24,8 @@ ss = 4;
 num_vars = 92;
 
 gender   = {'male', 'female'};
+
+% Initialize variables and time.
 SSDATA   = zeros(num_vars,2);
 residual = zeros(num_vars,2);
 X        = cell(1,2);
@@ -42,29 +44,19 @@ elseif strcmp(gender{gg}, 'female')
     gen = 0;
 end
 
-% Scaling factor
-% Rat sodium flow = Human sodium flow x SF
-% Note: This includes conversion from mEq to microEq.
+% Scaling factors
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
 if     strcmp(gender{gg}, 'male')
 %     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.343; % resistance
+    SF_V = 3;     % volume
 elseif strcmp(gender{gg}, 'female')
 %     SF_S = 18.9; % layton 2016
-    SF_S = 9.69; % karaaslan
-end
-% Rat resistance = Human resistance x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_R = 0.343;
-elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.537;
-end
-% Rat volume = Human volume x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_V = 3;
-elseif strcmp(gender{gg}, 'female')
-    SF_V = 2.4;
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.537; % resistance
+    SF_V = 2.4;   % volume
 end
 
 N_rsna      = 1;
@@ -95,7 +87,8 @@ if     strcmp(gender{gg}, 'male')
     eta_dtsodreab_eq = 0.50; 
     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-    if     strcmp(scenario{ss}, 'm_Reab') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    if     strcmp(scenario{ss}, 'm_Reab'        ) || ...
+           strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
     eta_ptsodreab_eq = 0.71; % male
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.93;
@@ -116,7 +109,8 @@ if     strcmp(gender{gg}, 'male')
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-    if     strcmp(scenario{ss}, 'm_Reab') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    if     strcmp(scenario{ss}, 'm_Reab'        ) || ...
+           strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
     eta_ptwreab_eq = 0.80; % male 
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
@@ -165,7 +159,8 @@ if     strcmp(gender{gg}, 'male')
     AT1R_eq  = 20.4807902818665;
     AT2R_eq  = 6.82696474842298;
 elseif strcmp(gender{gg}, 'female')
-    if     strcmp(scenario{ss}, 'm_RAS') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
+    if     strcmp(scenario{ss}, 'm_RAS'         ) || ...
+           strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
     X_PRCPRA = 135.59/17.312; % male
     k_AGT    = 801.02;
     c_ACE    = 0.096833;
@@ -192,6 +187,7 @@ elseif strcmp(gender{gg}, 'female')
     end
 end
 
+% Parameter input.
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
         eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
@@ -215,51 +211,21 @@ drugs = [0, 0, 0]; % No drug
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% experiments (CITE). Therefore, the initial condition of the derivative is
-% 0.
+% Karaaslan 2005 and Leete 2018. 
 
-% Add directory containing data.
-mypath = pwd;
-mypath = strcat(mypath, '/Data');
-addpath(genpath(mypath))
+% Set name for data file to be loaded based upon gender and scenario.    
+load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 
 % Load data for steady state initial value. 
-if     strcmp(scenario{ss}, 'Normal')
-    if     strcmp(gender{gg}, 'male'  )
-        load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_Normal.mat', 'SSdata');
-    end
-elseif strcmp(scenario{ss}, 'm_RAS' )
-    if     strcmp(gender{gg}, 'male'  )
-        load(  'male_ss_data_scenario_m_RAS.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_m_RAS.mat', 'SSdata');
-    end
-elseif strcmp(scenario{ss}, 'm_Reab')
-    if     strcmp(gender{gg}, 'male'  )
-        load(  'male_ss_data_scenario_m_Reab.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_m_Reab.mat', 'SSdata');
-    end
-elseif strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
-    if     strcmp(gender{gg}, 'male'  )
-        load(  'male_ss_data_scenario_m_RAS_&_m_Reab.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_m_RAS_&_m_Reab.mat', 'SSdata');
-    end
-end
-% if     strcmp(gender{gg}, 'male')
-%     load(  'NEWmale_ss_data_scenario_Normal.mat', 'SSdata');
-% elseif strcmp(gender{gg}, 'female')
-%     load('NEWfemale_ss_data_scenario_Normal.mat', 'SSdata');
-% end
+load(load_data_name, 'SSdata');
 
 % Retrieve and replace parameters in fixed variable equations.
+% These are the shift parameters which ensure that effect variables are 1.
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 SSdata(fixed_ind) = 1;
 
+% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...

@@ -1,24 +1,33 @@
-% This is a long-term model of the cardiovascular system accounting for the
-% effects of renal sympathetic nervous activity (rsna) on kidney functions.
-% It is adopted from:
-% "Long-Term Mathematical Model Involving Renal Sympathetic Nerve Activity,
-% Arterial Pressure, and Sodium Excretion" - 2005 - Karaaslan, et. al.
-% 
-% A sex-specific submodel for the renin angiotension system is
-% incorporated. It is adopted from:
-% "Sex-specific Long-term Blood Pressure Regulation: Modeling and Analysis"
-% - 2018 - Leete, Layton.
+% This is a model of long-term model blood pressure regulation.
+% It is adopted with modifications from Karaaslan 2005 and Leete 2018.
 
-% Differential algebraic equation system f(t,x(t),x'(t);theta) = 0.
+% This function file is to run the dynamic simulation for manipulating renal perfusion pressure.
+
+% Input
+% t              - time
+% x              - variables
+% x_p            - variable derivatives
+% pars           - parameters
+% fixed_var_pars - shift parameters which ensure that effect variables are 1
+% Phi_win_input  - fixed water intake as per experimental protocol
+% tchange        - time at which to change RPP in simulation
+% drugs          - drug blocking percentage, infusion rate, etc.
+% RPP            - renal perfusion pressure
+% RPP_per        - perturbation in RPP
+% SSdata         - steady state variable values
+% scenario       - scenario, e.g., female with male RSNA
+
+% Output
+% f     - left hand side of f(t,x(t),x'(t);theta) = 0.
 
 function f = bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,Phi_win_input,...
                             tchange,drugs,RPP,RPP_per,SSdata,scenario)
 
 %% Scenarios
 
-% Normal          - normal conditions
-% Denerve         - cut off rsna from kidney
-% Denerve & AT2R- - cut off rsna from kidney and block AT2R
+% Normal                - normal conditions
+% Denerve               - cut off rsna from kidney
+% Denerve & AT2R-       - cut off rsna from kidney and block AT2R
 % Denerve & No Myo      - cut off rsna from kidney and block myogenic response
 % Denerve & No Myo      - cut off rsna from kidney and block tubuloglomerular feedback
 % Denerve & No Myo, TGF - cut off rsna from kidney and block myogenic response and tubuloglomerular feedback
@@ -40,44 +49,6 @@ end
 
 %% Renal perfusion pressure.
 
-% if     t < tchange
-%     RPP = RPP;
-% elseif t >= 1 *tchange && t < 2 *tchange
-%     RPP = RPP + 1 *0.1;
-% elseif t >= 2 *tchange && t < 3 *tchange
-%     RPP = RPP + 2 *0.1;
-% elseif t >= 3 *tchange && t < 4 *tchange
-%     RPP = RPP + 3 *0.1;
-% elseif t >= 4 *tchange && t < 5 *tchange
-%     RPP = RPP + 4 *0.1;
-% elseif t >= 5 *tchange && t < 6 *tchange
-%     RPP = RPP + 5 *0.1;
-% elseif t >= 6 *tchange && t < 7 *tchange
-%     RPP = RPP + 6 *0.1;
-% elseif t >= 7 *tchange && t < 8 *tchange
-%     RPP = RPP + 7 *0.1;
-% elseif t >= 8 *tchange && t < 9 *tchange
-%     RPP = RPP + 8 *0.1;
-% elseif t >= 9 *tchange && t < 10*tchange
-%     RPP = RPP + 9 *0.1;
-% elseif t >= 10*tchange 
-%     RPP = RPP + 10*0.1;
-% end
-
-% if     t < tchange
-%     RPP = RPP;
-% elseif t >= 1 *tchange && t < 2 *tchange
-%     RPP = RPP + 1 *10;
-% elseif t >= 2 *tchange && t < 3 *tchange
-%     RPP = RPP + 2 *10;
-% elseif t >= 3 *tchange && t < 4 *tchange
-%     RPP = RPP + 3 *10;
-% elseif t >= 4 *tchange && t < 5 *tchange
-%     RPP = RPP + 4 *10;
-% elseif t >= 5 *tchange
-%     RPP = RPP + 5 *10;
-% end
-
 if     t < tchange
     RPP = RPP;
 elseif t >= 1 *tchange 
@@ -89,12 +60,10 @@ end
 %% Retrieve parameters by name.
 
 % Scaling factor
-% Rat flow = Human flow x SF
-SF_S   = pars(end-2);
-% Rat resistance = Human resistance x SF
-SF_R = pars(end-1);
-% Rat volume = Human volume x SF
-SF_V = pars(end  );
+% Rat value = Human value x SF
+SF_S = pars(end-2); % sodium flow
+SF_R = pars(end-1);   % resistance
+SF_V = pars(end  );   % volume
 
 N_rsna           = pars(1 );
 R_aass           = pars(2 );
@@ -268,7 +237,7 @@ elseif t >= tchange
         f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
     end
 end
-% MODIFY ------------------------------------------------------------------ - 1) + 1 );
+% MODIFY ------------------------------------------------------------------
 % VARY --------------------------------------------------------------------
 % Phi_rb
 if     t < tchange

@@ -97,7 +97,6 @@ Psi_AT2RAA    = x(91); Psi_AT2RAA_p    = x_p(91);
 Psi_AT2REA    = x(92); Psi_AT2REA_p    = x_p(92); 
 
 
-
 % fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 
 % Order in which they appear in the manuscript.

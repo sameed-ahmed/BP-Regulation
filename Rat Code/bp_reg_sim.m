@@ -1,15 +1,23 @@
-% This is a long-term model of the cardiovascular system accounting for the
-% effects of renal sympathetic nervous activity (rsna) on kidney functions.
-% It is adopted from:
-% "Long-Term Mathematical Model Involving Renal Sympathetic Nerve Activity,
-% Arterial Pressure, and Sodium Excretion" - 2005 - Karaaslan, et. al.
-% 
-% A sex-specific submodel for the renin angiotension system is
-% incorporated. It is adopted from:
-% "Sex-specific Long-term Blood Pressure Regulation: Modeling and Analysis"
-% - 2018 - Leete, Layton.
+% This is a model of long-term model blood pressure regulation.
+% It is adopted with modifications from Karaaslan 2005 and Leete 2018.
 
-% Differential algebraic equation system f(t,x(t),x'(t);theta) = 0.
+% This function file is to run the dynamic simulation.
+
+% Input
+% t              - time
+% x              - variables
+% x_p            - variable derivatives
+% pars           - parameters
+% fixed_var_pars - shift parameters which ensure that effect variables are 1
+% SSdata         - steady state variable values
+% drugs          - drug blocking percentage, infusion rate, etc.
+% tchange        - time at which to change something in simulation
+% fact           - factor by which to change something
+% fact_var       - variable in which to effect factor change
+% scenario       - scenario, e.g., female with male RSNA
+
+% Output
+% f     - left hand side of f(t,x(t),x'(t);theta) = 0.
 
 function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,...
                         fact,fact_var,scenario)
@@ -30,86 +38,69 @@ end
 %% Retrieve parameters by name.
 
 % Scaling factor
-% Rat flow = Human flow x SF
-SF_S   = pars(end-2);
-% Rat resistance = Human resistance x SF
-SF_R = pars(end-1);
-% Rat volume = Human volume x SF
-SF_V = pars(end  );
+% Rat value = Human value x SF
+SF_S = pars(end-2); % sodium flow
+SF_R = pars(end-1); % resistance
+SF_V = pars(end  ); % volume
 
 if     t < tchange
-        N_rsna =        pars(1 );
+        N_rsna    = pars(1 );
 elseif t >= tchange
     if strcmp(fact_var,'N_rsna')
-        N_rsna = ( (fact-1) * tanh(1 * (t-tchange)) + 1 ) * pars(1);
+        N_rsna    = ( (fact-1) * tanh(1 * (t-tchange)) + 1 ) ...
+                  * pars(1 );
     else
-        N_rsna =        pars(1 );
+        N_rsna    = pars(1 );
     end
 end
-
-R_aass           = pars(2 );
-% if     t < tchange
-%     R_aass  =      pars(2 );
-% elseif t >= tchange && t < 20
-%     R_aass  = (t-tchange+1)*pars(2 );
-% elseif t >= 20
-%     R_aass  = (20-tchange+1)*pars(2 );
-% end
-R_eass           = pars(3 );
-% if     t < tchange
-%     R_eass =        pars(3);
-% elseif t >= tchange
-% %     R_eass =        fact * pars(3);
-%     R_eass = ( (fact-1) * tanh(1 * (t-tchange)) + 1 ) * pars(3);
-% end
-
-P_B              = pars(4 );
-P_go             = pars(5 );
-C_gcf            = pars(6 );
-eta_ptsodreab_eq = pars(7 );
-eta_dtsodreab_eq = pars(8 );
-eta_cdsodreab_eq = pars(9 );
-eta_ptwreab_eq   = pars(10);
-eta_dtwreab_eq   = pars(11);
-eta_cdwreab_eq   = pars(12);
-K_vd             = pars(13);
-K_bar            = pars(14);
-R_bv             = pars(15);
-T_adh            = pars(16);
-
+R_aass            = pars(2 );
+R_eass            = pars(3 );
+P_B               = pars(4 );
+P_go              = pars(5 );
+C_gcf             = pars(6 );
+eta_ptsodreab_eq  = pars(7 );
+eta_dtsodreab_eq  = pars(8 );
+eta_cdsodreab_eq  = pars(9 );
+eta_ptwreab_eq    = pars(10);
+eta_dtwreab_eq    = pars(11);
+eta_cdwreab_eq    = pars(12);
+K_vd              = pars(13);
+K_bar             = pars(14);
+R_bv              = pars(15);
+T_adh             = pars(16);
 if     t < tchange
-        Phi_sodin =        pars(17);
+        Phi_sodin = pars(17);
 elseif t >= tchange
     if strcmp(fact_var,'Phi_sodin')
-        Phi_sodin = fact * pars(17);
+        Phi_sodin = fact ...
+                  * pars(17);
     else
-        Phi_sodin =        pars(17);
+        Phi_sodin = pars(17);
     end
 end
-
-C_K              = pars(18);
-T_al             = pars(19);
-N_rs             = pars(20);
-X_PRCPRA         = pars(21);
-h_renin          = pars(22);
-h_AGT            = pars(23);
-h_AngI           = pars(24);
-h_AngII          = pars(25);
-h_Ang17          = pars(26);
-h_AngIV          = pars(27);
-h_AT1R           = pars(28);
-h_AT2R           = pars(29);
-k_AGT            = pars(30);
-c_ACE            = pars(31)*(1-gamma_ace);
-c_Chym           = pars(32);
-c_NEP            = pars(33);
-c_ACE2           = pars(34);
-c_IIIV           = pars(35);
-c_AT1R           = pars(36)*(1-gamma_arb);
-c_AT2R           = pars(37);
-AT1R_eq          = pars(38);
-AT2R_eq          = pars(39);
-gen              = pars(40);
+C_K               = pars(18);
+T_al              = pars(19);
+N_rs              = pars(20);
+X_PRCPRA          = pars(21);
+h_renin           = pars(22);
+h_AGT             = pars(23);
+h_AngI            = pars(24);
+h_AngII           = pars(25);
+h_Ang17           = pars(26);
+h_AngIV           = pars(27);
+h_AT1R            = pars(28);
+h_AT2R            = pars(29);
+k_AGT             = pars(30);
+c_ACE             = pars(31)*(1-gamma_ace);
+c_Chym            = pars(32);
+c_NEP             = pars(33);
+c_ACE2            = pars(34);
+c_IIIV            = pars(35);
+c_AT1R            = pars(36)*(1-gamma_arb);
+c_AT2R            = pars(37);
+AT1R_eq           = pars(38);
+AT2R_eq           = pars(39);
+gen               = pars(40);
 if     gen == 1
     gender = 'male';
 elseif gen == 0
@@ -234,7 +225,6 @@ f(3 ) = alpha_rap - ( 1 - 0.008 * P_ra );
 f(4 ) = R_r - ( R_aa + R_ea );
 % beta_rsna
 f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
-% f(5 ) = beta_rsna - ( 1.5 * (rsna - 1) + 1 );
 % Phi_rb
 f(6 ) = Phi_rb - ( P_ma / R_r );
 % Phi_gfilt

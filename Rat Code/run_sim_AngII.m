@@ -1,12 +1,6 @@
-% This simulates the blood pressure regulation model bp_reg.m.
+% This simulates the blood pressure regulation model bp_reg.m for Ang II infusion.
 % 
-% Parameters are given by:
-% "Long-Term Mathematical Model Involving Renal Sympathetic Nerve Activity,
-% Arterial Pressure, and Sodium Excretion" - 2005 - Karaaslan, et. al.
-% "Sex-specific Long-term Blood Pressure Regulation: Modeling and Analysis"
-% - 2018 - Leete, Layton.
-% 
-% Steady state data is calculated by solve_ss_numerical.m.
+% Steady state data is calculated by solve_ss_baseline.m or solve_ss_scenario.m.
 
 % function [SSdata, f] = run_sim
 function run_sim_AngII
@@ -63,27 +57,17 @@ elseif strcmp(gender{gg}, 'female')
     gen = 0;
 end
 
-% Scaling factor
-% Rat sodium flow = Human sodium flow x SF
-% Note: This includes conversion from mEq to microEq.
+% Scaling factors
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
 if     strcmp(gender{gg}, 'male')
-    SF_S = 9.69; % karaaslan
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.343; % resistance
+    SF_V = 3;     % volume
 elseif strcmp(gender{gg}, 'female')
-    SF_S = 9.69; % karaaslan
-end
-% Rat resistance = Human resistance x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_R = 0.343;
-elseif strcmp(gender{gg}, 'female')
-    SF_R = 0.537;
-end
-% Rat volume = Human volume x SF
-% Note: This includes conversion from l to ml.
-if     strcmp(gender{gg}, 'male')
-    SF_V = 3;
-elseif strcmp(gender{gg}, 'female')
-    SF_V = 2.4;
+    SF_S = 9.69;  % sodium flow % karaaslan
+    SF_R = 0.537; % resistance
+    SF_V = 2.4;   % volume
 end
 
 N_rsna      = 1;
@@ -108,8 +92,8 @@ if     strcmp(gender{gg}, 'male')
     eta_dtsodreab_eq = 0.5; 
     eta_cdsodreab_eq = 0.93;
 elseif strcmp(gender{gg}, 'female')
-    if   strcmp(scenario{ss}, 'm_Reab'        ) || ...
-         strcmp(scenario{ss}, 'm_RAS_&_m_Reab') || ...
+    if   strcmp(scenario{ss}, 'm_Reab'         ) || ...
+         strcmp(scenario{ss}, 'm_RAS_&_m_Reab' ) || ...
          strcmp(scenario{ss}, 'm_RSNA_&_m_Reab')
     eta_ptsodreab_eq = 0.71; % male
     eta_dtsodreab_eq = 0.5; 
@@ -125,8 +109,8 @@ if     strcmp(gender{gg}, 'male')
     eta_dtwreab_eq = 0.60; 
     eta_cdwreab_eq = 0.78;
 elseif strcmp(gender{gg}, 'female')
-    if   strcmp(scenario{ss}, 'm_Reab'        ) || ...
-         strcmp(scenario{ss}, 'm_RAS_&_m_Reab') || ...
+    if   strcmp(scenario{ss}, 'm_Reab'         ) || ...
+         strcmp(scenario{ss}, 'm_RAS_&_m_Reab' ) || ...
          strcmp(scenario{ss}, 'm_RSNA_&_m_Reab')
     eta_ptwreab_eq = 0.80; % male 
     eta_dtwreab_eq = 0.60; 
@@ -198,6 +182,7 @@ elseif strcmp(gender{gg}, 'female')
     end
 end
 
+% Parameter input.
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
         eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
@@ -220,6 +205,10 @@ end
 
 %% Solve DAE
 
+% Initial value
+% This initial condition is the steady state data value taken from
+% Karaaslan 2005 and Leete 2018. 
+
 % Set name for data file to be loaded based upon gender and scenario.    
 load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 
@@ -227,10 +216,12 @@ load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
 load(load_data_name, 'SSdata');
 
 % Retrieve and replace parameters in fixed variable equations.
+% These are the shift parameters which ensure that effect variables are 1.
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 SSdata(fixed_ind) = 1;
 
+% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -287,7 +278,7 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
                bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,...
-                          tchange,fact,fact_var,scenario{ss}), ...
+                          tchange,fact,fact_var,scenario{ss})     ,...
                tspan, x0, x_p0, options);
 
 % X = (variables, points, gender, scenario)
@@ -345,24 +336,10 @@ for i = 1:7
         xlim([xlower, xupper])
         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
         
-% %         Minutes
-%         xlabel('Time (min)')
-%         Days
-        ax = gca;
-%         ax.XTick = (tchange+0*(1*1440) : 1440 : tchange+days*(1*1440));
-        ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
-        ax.XTickLabel = {'0' ,'1' ,'2' ,'3' ,'4' ,'5' ,'6' ,...
-                         '7' ,'8' ,'9' ,'10','11','12','13',...
-                         '14','15','16','17','18','19','20',...
-                         '21','22','23','24','25','26'};
-%         xlabel('Time (days)')
-% %         Weeks
-%         ax = gca;
-%         ax.XTick = [tchange+0*(7*1440); tchange+1*(7*1440); ...
-%                     tchange+2*(7*1440); tchange+3*(7*1440)];
-%         ax.XTickLabel = {'0','1','2','3'};
-%         xlabel('Time (weeks)')
-        
+        ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
+        ax.XTickLabel = {'0' ,'2' ,'4' ,'6' ,'8' ,'10','12',...
+                         '14','16','18','20','22','24','26'};
+
 %         legend('Male', 'Female')
         title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
     end

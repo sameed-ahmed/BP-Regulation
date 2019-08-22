@@ -1,14 +1,13 @@
 % This is the nephron submodel for segmented sodium reabsorption. This 
 % script is used to adjust different fractional sodium reabsorption in the 
 % proximal tubule, distal tubule, and collecting duct, after inputting the
-% glomerular filtration rate and sodium concentration. Baseline fractional 
-% sodium reabsorption in each segment for males is given by 
-% Karaaslan - 2005. Females is given by adjust_frac_sodreab.m.
+% glomerular filtration rate and sodium concentration.
 
 % Fixed quantities
-% GFR, [Sod], Frac-PT-Sodreab, Frac-DT-Sodreab, Frac-CD-Sodreab
+% GFR, [Sod], Frac-PT-Sodreab, Frac-DT-Sodreab
 
 % Computed quantities
+% Frac-CD-Sodreab
 % PT-Sodreab, DT-Sodreab, CD-Sodreab
 % MD-SodF, DT-SodF; U-SodF
 
@@ -21,7 +20,7 @@ vars = zeros(11,2);
 
 for gg = 1:2 % gender
 
-% Input GFR ml/min. Data from Munger - 1988.
+% Input GFR ml/min. Data from Munger 1988.
 if     strcmp(gender{gg},   'male')
     Phi_gfilt = 1.22;
 elseif strcmp(gender{gg}, 'female')
@@ -32,11 +31,11 @@ C_sod = 143;
 
 if     strcmp(gender{gg},   'male')
 
-% Fractional sodium reabsorption in each segment. Values from Layton - 2016.
-% eta_ptsodreab = 0.93;  % layton 2016
+% Fractional sodium reabsorption in each segment.
+% eta_ptsodreab = 0.93;  % Layton 2016
 % eta_dtsodreab = 0.77; 
 % eta_cdsodreab = 0.15;
-eta_ptsodreab = 0.8; % karaaslan
+eta_ptsodreab = 0.8; % Karaaslan 2005
 eta_dtsodreab = 0.5; 
 eta_cdsodreab = 0.93;
 
@@ -47,7 +46,7 @@ Phi_mdsod     = Phi_filsod - Phi_ptsodreab;
 Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
 Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
 Phi_cdsodreab = Phi_dtsod * eta_cdsodreab;
-Phi_usod      = Phi_dtsod - Phi_cdsodreab
+Phi_usod      = Phi_dtsod - Phi_cdsodreab;
 
 vars(:,1) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
              Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
@@ -60,7 +59,8 @@ vars(:,1) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
 
 elseif strcmp(gender{gg}, 'female')
 
-% % Compute quantities.
+% % Option 1 --------------------------------------------------------------
+% % Compute quantities. Fix Phi_usod, Phi_mdsod, dt and compute pt, cd.
 % Phi_filsod    = Phi_gfilt * C_sod;
 % Phi_usod      = Phi_usod; % same as male
 % Phi_mdsod     = Phi_mdsod; % same as male
@@ -73,14 +73,13 @@ elseif strcmp(gender{gg}, 'female')
 % Phi_cdsodreab = Phi_dtsod - Phi_usod;
 % eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
 
-% Compute quantities with calibratiion.
-
-% % male values
+% % Male values for reference.
 % eta_ptsodreab = 0.8; % karaaslan
 % eta_dtsodreab = 0.5; 
 % eta_cdsodreab = 0.93;
 
-% % Set pt, dt and compute cd
+% % Option 2 --------------------------------------------------------------
+% % Set pt, dt, Phi_usod and compute cd.
 % Phi_filsod    = Phi_gfilt * C_sod;
 % Phi_usod      = Phi_usod; % same as male
 % eta_ptsodreab = 0.5 % calibrate
@@ -92,12 +91,13 @@ elseif strcmp(gender{gg}, 'female')
 % Phi_cdsodreab = Phi_dtsod - Phi_usod;
 % eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
 
-% Set dt, cd and compute pt
-Phi_filsod    = Phi_gfilt * C_sod;
-Phi_usod      = Phi_usod; % same as male
-eta_dtsodreab = 0.5 % calibrate
-eta_cdsodreab = 0.93 % calibrate 
-eta_ptsodreab = 1 - Phi_usod / ( Phi_filsod * (1 - eta_dtsodreab) * (1 - eta_cdsodreab) )
+% % Option 3 --------------------------------------------------------------
+% % Set dt, cd and compute pt.
+% Phi_filsod    = Phi_gfilt * C_sod;
+% Phi_usod      = Phi_usod; % same as male
+% eta_dtsodreab = 0.5 % calibrate
+% eta_cdsodreab = 0.93 % calibrate 
+% eta_ptsodreab = 1 - Phi_usod / ( Phi_filsod * (1 - eta_dtsodreab) * (1 - eta_cdsodreab) )
 
 % vars(:,2) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
 %              Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
