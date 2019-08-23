@@ -222,7 +222,7 @@ end
 % Load data for steady state initial guess. 
 % Set name for data file to be loaded based upon gender.    
 load_data_name = sprintf('%s_ss_data_IG.mat', gender{gg});
-load(load_data_name, 'SSdata');
+load(load_data_name, 'SSdataIG');
 
 % Order
 % x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
