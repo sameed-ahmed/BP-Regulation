@@ -120,6 +120,8 @@ clear SSdata;
 
 % Load data for baseline water intake if it is fixed.
 Phi_win_bl(gg,ss,1) = SSdataIG(28);
+% Input Phi_win if it is fixed.
+Phi_win_input = Phi_win_bl(gg,ss,1);
 
 % Delete Phi_win if it is fixed.
 if     strcmp(win,  'fixed')
@@ -130,82 +132,6 @@ end
 for iter = 1:iteration % range
 
 %% Parameters
-
-if     strcmp(gender{gg}, 'male')
-    gen = 1;
-elseif strcmp(gender{gg}, 'female')
-    gen = 0;
-end
-
-% Scaling factors
-% Rat value = Human value x SF
-% Note: This includes conversion of units.
-if     strcmp(gender{gg}, 'male')
-    SF_S = 9.69;  % sodium flow % karaaslan
-    SF_R = 0.343; % resistance
-    SF_V = 3;     % volume
-elseif strcmp(gender{gg}, 'female')
-    SF_S = 9.69;  % sodium flow % karaaslan
-    SF_R = 0.537; % resistance
-    SF_V = 2.4;   % volume
-end
-
-N_rsna    = 1;
-if     strcmp(gender{gg}, 'male')
-R_aass    = 10.87;   % mmHg min / ml
-R_eass    = 17.74;   % mmHg min / ml
-elseif strcmp(gender{gg}, 'female')
-R_aass    = 17.02;   % mmHg min / ml
-R_eass    = 27.76;   % mmHg min / ml
-end
-P_B       = 18;           % mmHg
-P_go      = 28;           % mmHg
-if     strcmp(gender{gg}, 'male')
-    C_gcf     = 0.068;
-elseif strcmp(gender{gg}, 'female')
-    C_gcf     = 0.047;
-end
-
-% Male and female different parameters for fractional reabsorption
-if     strcmp(gender{gg}, 'male')
-    eta_ptsodreab_eq = 0.80; % karaaslan
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.93;
-elseif strcmp(gender{gg}, 'female')
-    if     strcmp(scenario{ss}, 'm_Reab')
-    eta_ptsodreab_eq = 0.71; % male
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.93;
-    else
-    eta_ptsodreab_eq = 0.5; % calibrated
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.96;
-    end
-end
-if     strcmp(gender{gg}, 'male')
-    eta_ptwreab_eq = 0.86; 
-    eta_dtwreab_eq = 0.60; 
-    eta_cdwreab_eq = 0.78;
-elseif strcmp(gender{gg}, 'female')
-    if     strcmp(scenario{ss}, 'm_Reab')
-    eta_ptwreab_eq = 0.80; % male 
-    eta_dtwreab_eq = 0.60; 
-    eta_cdwreab_eq = 0.78;
-    else
-    eta_ptwreab_eq = 0.5; % calibrated
-    eta_dtwreab_eq = 0.6; 
-    eta_cdwreab_eq = 0.91;
-    end
-end
-
-K_vd      = 0.01;
-K_bar     = 16.6 * SF_R;  % mmHg min / ml
-R_bv      = 3.4 * SF_R;   % mmHg min / ml
-T_adh     = 6;            % min
-% Phi_sodin = 1.2212;       % microEq / min % karaaslan
-C_K       = 5;            % microEq / ml 
-T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
-N_rs      = 1;            % ng / ml / min
 
 % Baseline/range of sodium intake.
 Phi_sodin_bl_m = 1.2212;
@@ -228,82 +154,23 @@ elseif strcmp(gender{gg}, 'female')
     end
 end
 
-% RAS
-h_renin   = 12;      % min
-h_AGT     = 10*60;   % min
-h_AngI    = 0.5;     % min
-h_AngII   = 0.66;    % min
-h_Ang17   = 30;      % min
-h_AngIV   = 0.5;     % min
-h_AT1R    = 12;      % min
-h_AT2R    = 12;      % min
-
-% Male and female different parameters for RAS
-if     strcmp(gender{gg}, 'male')
-    X_PRCPRA = 135.59/17.312;
-    k_AGT    = 801.02;
-    c_ACE    = 0.096833;
-    c_Chym   = 0.010833;
-    c_NEP    = 0.012667;
-    c_ACE2   = 0.0026667;
-    c_IIIV   = 0.29800;
-    c_AT1R   = 0.19700;
-    c_AT2R   = 0.065667;
-    AT1R_eq  = 20.4807902818665;
-    AT2R_eq  = 6.82696474842298;
-elseif strcmp(gender{gg}, 'female')
-    if     strcmp(scenario{ss}, 'm_RAS')
-    X_PRCPRA = 135.59/17.312; % male
-    k_AGT    = 801.02;
-    c_ACE    = 0.096833;
-    c_Chym   = 0.010833;
-    c_NEP    = 0.012667;
-    c_ACE2   = 0.0026667;
-    c_IIIV   = 0.29800;
-    c_AT1R   = 0.19700;
-    c_AT2R   = 0.065667;
-    AT1R_eq  = 20.4807902818665;
-    AT2R_eq  = 6.82696474842298;
-    else
-    X_PRCPRA = 114.22/17.312;
-    k_AGT    = 779.63;
-    c_ACE    = 0.11600;
-    c_Chym   = 0.012833;
-    c_NEP    = 0.0076667;
-    c_ACE2   = 0.00043333;
-    c_IIIV   = 0.29800;
-    c_AT1R   = 0.19700;
-    c_AT2R   = 0.065667;
-    AT1R_eq  = 20.4538920068419;
-    AT2R_eq  = 6.81799861123497;
-    end
-end
-
-% Input Phi_win if it is fixed.
-Phi_win_input = Phi_win_bl(gg,ss,1);
-
-% Parameter input.
-pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
-        eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
-        eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
-        Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
-        h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
-        c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
-        AT2R_eq; gen; SF_S; SF_R; SF_V];
+% Parameter input
+pars     = get_pars(gender{gg}, scenario{ss});
+pars(18) = Phi_sodin;
 
 %% Drugs
 
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level]
+% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
 if     strcmp(scenario{ss}, 'ACEi'  )
-        drugs = [0   , 1]; % Hall 2018
+        drugs = [0   , 1, 0]; % Hall 2018
 elseif strcmp(scenario{ss}, 'AngII' )
     if     strcmp(gender{gg}, 'male'  )
-        drugs = [2022, 0]; % Sampson 2008
+        drugs = [2022, 0, 0]; % Sampson 2008
     elseif strcmp(gender{gg}, 'female')
-        drugs = [2060, 0]; % Sampson 2008
+        drugs = [2060, 0, 0]; % Sampson 2008
     end
 else
-        drugs = [0   , 0];
+        drugs = [0   , 0, 0];
 end
 
 %% Variables initial guess

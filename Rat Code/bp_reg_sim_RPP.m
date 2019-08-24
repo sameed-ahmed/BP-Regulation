@@ -80,31 +80,35 @@ eta_cdwreab_eq   = pars(12);
 K_vd             = pars(13);
 K_bar            = pars(14);
 R_bv             = pars(15);
-T_adh            = pars(16);
-Phi_sodin        = pars(17);
-C_K              = pars(18);
-T_al             = pars(19);
-N_rs             = pars(20);
-X_PRCPRA         = pars(21);
-h_renin          = pars(22);
-h_AGT            = pars(23);
-h_AngI           = pars(24);
-h_AngII          = pars(25);
-h_Ang17          = pars(26);
-h_AngIV          = pars(27);
-h_AT1R           = pars(28);
-h_AT2R           = pars(29);
-k_AGT            = pars(30);
-c_ACE            = pars(31)*(1-gamma_ace);
-c_Chym           = pars(32);
-c_NEP            = pars(33);
-c_ACE2           = pars(34);
-c_IIIV           = pars(35);
-c_AT1R           = pars(36)*(1-gamma_arb);
-c_AT2R           = pars(37);
-AT1R_eq          = pars(38);
-AT2R_eq          = pars(39);
-gen              = pars(40);
+N_adhs_eq        = pars(16);
+T_adh            = pars(17);
+Phi_sodin        = pars(18);
+N_als_eq         = pars(19);
+C_K              = pars(20);
+T_al             = pars(21);
+N_rs             = pars(22);
+X_PRCPRA         = pars(23);
+h_renin          = pars(24);
+h_AGT            = pars(25);
+h_AngI           = pars(26);
+h_AngII          = pars(27);
+h_Ang17          = pars(28);
+h_AngIV          = pars(29);
+h_AT1R           = pars(30);
+h_AT2R           = pars(31);
+k_AGT            = pars(32);
+c_ACE            = pars(33)*(1-gamma_ace);
+c_Chym           = pars(34);
+c_NEP            = pars(35);
+c_ACE2           = pars(36);
+c_IIIV           = pars(37);
+c_AT1R           = pars(38)*(1-gamma_arb);
+c_AT2R           = pars(39);
+AT1R_eq          = pars(40);
+AT2R_eq          = pars(41);
+Psi_AT2RAA_eq    = pars(42);
+Psi_AT2REA_eq    = pars(43);
+gen              = pars(44);
 if     gen == 1
     gender = 'male';
 elseif gen == 0
@@ -481,7 +485,7 @@ f(47-1) = C_adh - ( 4 * N_adh );
 f(48-1) = N_adh_p - ( 1/T_adh * (N_adhs - N_adh) );
 % N_adhs
 % f(49-1) = N_adhs - ( (C_sod - 141 + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
-f(49-1) = N_adhs - ( (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
+f(49-1) = N_adhs - ( N_adhs_eq * (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
 % delta_ra
 f(50-1) = delta_ra_p - ( 0.2 * P_ra_p - 0.0007 * delta_ra );
 
@@ -567,7 +571,7 @@ end
 % N_al
 f(69-1) = N_al_p - ( 1/T_al * (N_als - N_al) );
 % N_als
-f(70-1) = N_als - ( xi_ksod * xi_map * xi_at );
+f(70-1) = N_als - ( N_als_eq * xi_ksod * xi_map * xi_at );
 % xi_ksod
 f(71-1) = xi_ksod - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - fixed_var_pars(8))) ) ); 
 % xi_map
@@ -642,7 +646,7 @@ if     strcmp(gender,'male')
     f(91-1) = Psi_AT2RAA - ( 1 );
 elseif strcmp(gender,'female')
 %     f(91-1) = Psi_AT2RAA - ( 0.025 * (AT2R_eq - AT2R) + 1 );
-    f(91-1) = Psi_AT2RAA - ( 0.9 + 0.1 * exp(-1.0 * (AT2R/AT2R_eq - 1)) );
+    f(91-1) = Psi_AT2RAA - ( Psi_AT2RAA_eq * (0.9 + 0.1 * exp(-1.0 * (AT2R/AT2R_eq - 1))) );
 %     f(91-1) = Psi_AT2RAA - ( 0.7 + 0.3 * exp(-1.3 * (AT2R/AT2R_eq - 1)) );
 %     f(91-1) = Psi_AT2REA - ( 0.93 + 0.07 * exp(-0.9 * (AT2R/AT2R_eq - 1)) );
 %     f(91-1) = Psi_AT2RAA - ( 1 );
@@ -652,7 +656,7 @@ if     strcmp(gender,'male')
     f(92-1) = Psi_AT2REA - ( 1 );
 elseif strcmp(gender,'female')
 %     f(92-1) = Psi_AT2REA - ( 0.01  * (AT2R_eq - AT2R) + 1 );
-    f(92-1) = Psi_AT2REA - ( 0.9 + 0.1 * exp(-1.0 * (AT2R/AT2R_eq - 1)) );
+    f(92-1) = Psi_AT2REA - ( Psi_AT2REA_eq * (0.9 + 0.1 * exp(-1.0 * (AT2R/AT2R_eq - 1))) );
 %     f(92-1) = Psi_AT2REA - ( 0.8 + 0.2 * exp(-1.4 * (AT2R/AT2R_eq - 1)) );
 %     f(92-1) = Psi_AT2RAA - ( 0.85 + 0.15 * exp(-0.85 * (AT2R/AT2R_eq - 1)) );
 %     f(92-1) = Psi_AT2REA - ( 1 );
