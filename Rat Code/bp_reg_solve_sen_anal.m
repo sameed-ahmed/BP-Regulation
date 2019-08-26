@@ -24,13 +24,21 @@ gamma_ace = drugs(2);
 gamma_arb = drugs(3);
 alpha     = drugs(4);
 
-%% Retrieve parameters by name.
+%% Formulate scaling factors.
 
-% Scaling factor
+% Physiological variables which determine scaling factors.
+Phi_usod_new = pars(18)         ; % Munger 1988, Karaaslan 2005
+R_r_new      = pars(2) + pars(3); % Munger 1988
+W_b          = pars(end)        ; % Munger 1988
+V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
+
 % Rat value = Human value x SF
-SF_S = pars(end-2); % sodium flow
-SF_R = pars(end-1); % resistance
-SF_V = pars(end  ); % volume
+% Note: This includes conversion of units.
+SF_S = Phi_usod_new / 0.126; % sodium flow
+SF_R = R_r_new      / 83.3 ; % resistance
+SF_V = V_b_new      / 5    ; % volume
+
+%% Retrieve parameters by name.
 
 N_rsna           = pars(1 );
 R_aass           = pars(2 );
@@ -45,8 +53,8 @@ eta_ptwreab_eq   = pars(10);
 eta_dtwreab_eq   = pars(11);
 eta_cdwreab_eq   = pars(12);
 K_vd             = pars(13);
-K_bar            = pars(14);
-R_bv             = pars(15);
+K_bar            = pars(14) * SF_R;
+R_bv             = pars(15) * SF_R;
 N_adhs_eq        = pars(16);
 T_adh            = pars(17);
 Phi_sodin        = pars(18);
