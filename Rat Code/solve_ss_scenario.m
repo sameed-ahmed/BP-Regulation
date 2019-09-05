@@ -47,7 +47,7 @@ pars = get_pars(gender{gg}, scenario{fixed_ss});
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario{fixed_ss}, 'Normal') || strcmp(scenario{fixed_ss}, 'RHyp')
+if     strcmp(scenario{fixed_ss}, 'Normal')
     drugs = [0, 0, 0, 0];
 elseif strcmp(scenario{fixed_ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
