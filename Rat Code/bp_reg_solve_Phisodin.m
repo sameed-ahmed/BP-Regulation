@@ -42,9 +42,9 @@ gamma_arb = drugs(3);
 %% Formulate scaling factors.
 
 % Physiological variables which determine scaling factors.
-Phi_usod_new = pars(18)         ; % Munger 1988, Karaaslan 2005
-R_r_new      = pars(2) + pars(3); % Munger 1988
-W_b          = pars(end)        ; % Munger 1988
+Phi_usod_new = pars(end-2); % Munger 1988, Karaaslan 2005
+R_r_new      = pars(end-1); % Munger 1988
+W_b          = pars(end  ); % Munger 1988
 V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
 
 % Rat value = Human value x SF

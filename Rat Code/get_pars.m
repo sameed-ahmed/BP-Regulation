@@ -5,12 +5,20 @@ function pars = get_pars(gender, scenario)
 %% Parameters
 
 % Gender boolean
+% Sodium intake
+% Renal vascular resistance
 % Body weight (~blood volume)
+% Original values are added as separate parameters because these may be
+% modified by another script.
 if     strcmp(gender, 'male')
     gen = 1;
+    Phi_sodin_orig = 1.2212;
+    R_r_orig = 10.87 + 17.74;
     W_b = 238;
 elseif strcmp(gender, 'female')
     gen = 0;
+    Phi_sodin_orig = 1.2212;
+    R_r_orig = 17.02 + 27.76;
     W_b = 194;
 end
 
@@ -155,7 +163,7 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
         h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
         c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; Psi_AT2RAA_eq; Psi_AT2REA_eq; ...
-        gen; W_b];
+        gen; Phi_sodin_orig; R_r_orig; W_b];
     
 end
 

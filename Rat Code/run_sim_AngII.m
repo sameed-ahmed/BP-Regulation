@@ -25,7 +25,7 @@ addpath(genpath(mypath))
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
 scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'm_RSNA_&_m_Reab'};
 num_scen = length(scenario);
-fixed_ss = 1;
+fixed_ss = 6;
 
 % Number of days to run simulation after change; Day at which to induce change;
 days = 13; day_change = 1;
@@ -42,7 +42,6 @@ num_vars = 92;
 % Initialize variables.
 % X = (variables, points, gender, scenario)
 X = zeros(num_vars,N,2,num_scen);
-T = zeros(N,2,num_scen);
 
 gender = {'male', 'female'};
 
@@ -51,145 +50,8 @@ for gg = 1:2        % gender
 
 %% Parameters
 
-if     strcmp(gender{gg}, 'male')
-    gen = 1;
-elseif strcmp(gender{gg}, 'female')
-    gen = 0;
-end
-
-% Scaling factors
-% Rat value = Human value x SF
-% Note: This includes conversion of units.
-if     strcmp(gender{gg}, 'male')
-    SF_S = 9.69;  % sodium flow % karaaslan
-    SF_R = 0.343; % resistance
-    SF_V = 3;     % volume
-elseif strcmp(gender{gg}, 'female')
-    SF_S = 9.69;  % sodium flow % karaaslan
-    SF_R = 0.537; % resistance
-    SF_V = 2.4;   % volume
-end
-
-N_rsna      = 1;
-if     strcmp(gender{gg}, 'male')
-R_aass    = 10.87;   % mmHg min / ml
-R_eass    = 17.74;   % mmHg min / ml
-elseif strcmp(gender{gg}, 'female')
-R_aass    = 17.02;   % mmHg min / ml
-R_eass    = 27.76;   % mmHg min / ml
-end
-P_B         = 18;           % mmHg
-P_go        = 28;           % mmHg
-if     strcmp(gender{gg}, 'male')
-    C_gcf     = 0.068;
-elseif strcmp(gender{gg}, 'female')
-    C_gcf     = 0.047;
-end
-
-% Male and female different parameters for fractional reabsorption
-if     strcmp(gender{gg}, 'male')
-    eta_ptsodreab_eq = 0.80; % karaaslan
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.93;
-elseif strcmp(gender{gg}, 'female')
-    if   strcmp(scenario{ss}, 'm_Reab'         ) || ...
-         strcmp(scenario{ss}, 'm_RAS_&_m_Reab' ) || ...
-         strcmp(scenario{ss}, 'm_RSNA_&_m_Reab')
-    eta_ptsodreab_eq = 0.71; % male
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.93;
-    else
-    eta_ptsodreab_eq = 0.5; % calibrated
-    eta_dtsodreab_eq = 0.5; 
-    eta_cdsodreab_eq = 0.96;
-    end
-end
-if     strcmp(gender{gg}, 'male')
-    eta_ptwreab_eq = 0.86; 
-    eta_dtwreab_eq = 0.60; 
-    eta_cdwreab_eq = 0.78;
-elseif strcmp(gender{gg}, 'female')
-    if   strcmp(scenario{ss}, 'm_Reab'         ) || ...
-         strcmp(scenario{ss}, 'm_RAS_&_m_Reab' ) || ...
-         strcmp(scenario{ss}, 'm_RSNA_&_m_Reab')
-    eta_ptwreab_eq = 0.80; % male 
-    eta_dtwreab_eq = 0.60; 
-    eta_cdwreab_eq = 0.78;
-    else
-    eta_ptwreab_eq = 0.5; % calibrated
-    eta_dtwreab_eq = 0.6; 
-    eta_cdwreab_eq = 0.91;
-    end
-end
-
-K_vd      = 0.01;
-K_bar     = 16.6 * SF_R;  % mmHg min / ml
-R_bv      = 3.4 * SF_R;   % mmHg min / ml
-T_adh     = 6;            % min
-Phi_sodin = 1.2212;       % microEq / min
-C_K       = 5;            % microEq / ml 
-T_al      = 30;           % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
-N_rs      = 1;            % ng / ml / min
-
-% RAS
-h_renin     = 12;      % min
-h_AGT       = 10*60;   % min
-h_AngI      = 0.5;     % min
-h_AngII     = 0.66;    % min
-h_Ang17     = 30;      % min
-h_AngIV     = 0.5;     % min
-h_AT1R      = 12;      % min
-h_AT2R      = 12;      % min
-
-% Male and female different parameters for RAS
-if     strcmp(gender{gg}, 'male')
-    X_PRCPRA = 135.59/17.312;
-    k_AGT    = 801.02;
-    c_ACE    = 0.096833;
-    c_Chym   = 0.010833;
-    c_NEP    = 0.012667;
-    c_ACE2   = 0.0026667;
-    c_IIIV   = 0.29800;
-    c_AT1R   = 0.19700;
-    c_AT2R   = 0.065667;
-    AT1R_eq  = 20.4807902818665;
-    AT2R_eq  = 6.82696474842298;
-elseif strcmp(gender{gg}, 'female')
-    if     strcmp(scenario{ss}, 'm_RAS') || strcmp(scenario{ss}, 'm_RAS_&_m_Reab')
-    X_PRCPRA = 135.59/17.312; % male
-    k_AGT    = 801.02;
-    c_ACE    = 0.096833;
-    c_Chym   = 0.010833;
-    c_NEP    = 0.012667;
-    c_ACE2   = 0.0026667;
-    c_IIIV   = 0.29800;
-    c_AT1R   = 0.19700;
-    c_AT2R   = 0.065667;
-    AT1R_eq  = 20.4807902818665;
-    AT2R_eq  = 6.82696474842298;
-    else
-    X_PRCPRA = 114.22/17.312;
-    k_AGT    = 779.63;
-    c_ACE    = 0.11600;
-    c_Chym   = 0.012833;
-    c_NEP    = 0.0076667;
-    c_ACE2   = 0.00043333;
-    c_IIIV   = 0.29800;
-    c_AT1R   = 0.19700;
-    c_AT2R   = 0.065667;
-    AT1R_eq  = 20.4538920068419;
-    AT2R_eq  = 6.81799861123497;
-    end
-end
-
-% Parameter input.
-pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
-        eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
-        eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; T_adh; ...
-        Phi_sodin; C_K; T_al; N_rs; X_PRCPRA; h_renin; h_AGT; h_AngI; ...
-        h_AngII; h_Ang17; h_AngIV; h_AT1R; h_AT2R; k_AGT; c_ACE; ...
-        c_Chym; c_NEP; c_ACE2; c_IIIV; c_AT1R; c_AT2R; AT1R_eq; ...
-        AT2R_eq; gen; SF_S; SF_R; SF_V];
+% Parameter input
+pars = get_pars(gender{gg}, scenario{ss});
 
 %% Drugs
 
@@ -282,7 +144,6 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
                tspan, x0, x_p0, options);
 
 % X = (variables, points, gender, scenario)
-T(  :,gg,ss) = t';
 X(:,:,gg,ss) = x';
 
 end % gender
@@ -292,7 +153,7 @@ end % scenario
 
 % Retrieve male and female.
 % X_m/f = (variables, points, scenario)
-t_m = T(  :,1,1); t_f = T(  :,2,1);
+t = t';
 X_m = reshape(X(:,:,1,:), [num_vars,N,num_scen]);
 X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]);
 
@@ -300,7 +161,7 @@ X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]);
 xlower = t0; xupper = tend; 
 
 % Convert minutes to days for longer simulations.
-t_m = t_m/1440; t_f = t_f/1440; tchange = tchange/1440; 
+t = t/1440; tchange = tchange/1440; 
 xlower = xlower/1440; xupper = xupper/1440; 
 
 % y-axis limits
@@ -330,8 +191,8 @@ for i = 1:7
         s(i,j) = subplot(3,5,j);
         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
         
-        plot(s(i,j), t_m,X_m((i-1)*15 + j,:,fixed_ss),'b', ...
-                     t_f,X_f((i-1)*15 + j,:,fixed_ss),'r');
+        plot(s(i,j), t,X_m((i-1)*15 + j,:,fixed_ss),'b', ...
+                     t,X_f((i-1)*15 + j,:,fixed_ss),'r');
         
         xlim([xlower, xupper])
         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
@@ -360,7 +221,7 @@ MAP_f = reshape(X_f(42,:,:) - X_f(42,1,:), [N,num_scen]);
 
 g = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 650 450]);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
-plot(t_m,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 xlim([xlower, xupper]); ylim([0, 60]);
 ax = gca;
 ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
@@ -370,7 +231,7 @@ ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
 xlabel('Time (days)')
 ylabel('\DeltaMAP (mmHg)')
 hold on
-plot(t_f,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+plot(t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
 plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6, 'LineWidth',2)
 [~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');
@@ -398,12 +259,12 @@ s1(1) = subplot(1,2,1);
 s1(2) = subplot(1,2,2); 
 % s1(2).Position = s1(2).Position + [0.0, 0.0, 0.0, -0.01];
 
-plot(s1(1), t_m,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+plot(s1(1), t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 xlim(s1(1), [xlower, xupper]); ylim(s1(1), [0, 60]);
 xticks(s1(1), (tchange+0*(1) : 2 : tchange+days*(1))); xticklabels(s1(1), {'0','2','4','6','8','10','12','14'});
 xlabel(s1(1), 'Time (days)', 'FontSize',14*1.1); ylabel(s1(1), '\DeltaMAP (mmHg)', 'FontSize',14*1.1);
 hold(s1(1), 'on')
-plot(s1(1), t_f,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+plot(s1(1), t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 plot(s1(1), tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
 plot(s1(1), tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6, 'LineWidth',2)
 [~, hobj, ~, ~] = legend(s1(1), {'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');

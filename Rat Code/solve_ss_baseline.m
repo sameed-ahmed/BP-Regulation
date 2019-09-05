@@ -19,9 +19,10 @@ addpath(genpath(mypath))
 % Normal - Normal conditions
 % m_RAS  - male RAS pars
 % m_Reab - male fractional sodium and water reabsorption
-scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_&_m_Reab'};
+scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+            'm_RAS_&_m_Reab', 'm_RSNA_&_m_Reab'};
 % Index of scenario to fix.
-fixed_ss = 1;
+fixed_ss = 7;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -47,8 +48,10 @@ pars = get_pars(gender{gg}, scenario{fixed_ss});
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario{fixed_ss}, 'Normal') || strcmp(scenario{fixed_ss}, 'm_RAS'         ) || ...
-       strcmp(scenario{fixed_ss}, 'm_Reab') || strcmp(scenario{fixed_ss}, 'm_RAS_&_m_Reab')
+if     strcmp(scenario{fixed_ss}, 'Normal'         ) || strcmp(scenario{fixed_ss}, 'm_RSNA'        ) || ...
+       strcmp(scenario{fixed_ss}, 'm_AT2R'         ) || strcmp(scenario{fixed_ss}, 'm_RAS'         ) || ...
+       strcmp(scenario{fixed_ss}, 'm_Reab'         ) || strcmp(scenario{fixed_ss}, 'm_RAS_&_m_Reab') || ...
+       strcmp(scenario{fixed_ss}, 'm_RSNA_&_m_Reab')
     drugs = [0, 0, 0, 0];
 elseif strcmp(scenario{fixed_ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')

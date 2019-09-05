@@ -19,8 +19,7 @@ addpath(genpath(mypath))
 % ACEi   - Angiotensin convernting enzyme inhibitor
 % ARB    - Angiotensin receptor blocker
 % AT2R-  - Block AT2R through decay
-% RHyp   - Renal hypertension due to increased afferent arteriolar resistance
-scenario = {'AngII', 'ACEi', 'ARB', 'AT2R-', 'RHyp'};
+scenario = {'AngII', 'ACEi', 'ARB', 'AT2R-'};
 % Index of scenario to fix.
 fixed_ss = 1;
 
