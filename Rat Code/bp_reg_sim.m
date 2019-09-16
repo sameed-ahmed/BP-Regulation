@@ -38,7 +38,8 @@ end
 %% Formulate scaling factors.
 
 % Physiological variables which determine scaling factors.
-Phi_usod_new = pars(end-2); % Munger 1988, Karaaslan 2005
+Phi_usod_new = pars(end-3); % Munger 1988, Karaaslan 2005
+Phi_u_new    = pars(end-2); % Munger 1988, Layton 2016
 R_r_new      = pars(end-1); % Munger 1988
 W_b          = pars(end  ); % Munger 1988
 V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
@@ -46,6 +47,7 @@ V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
 % Rat value = Human value x SF
 % Note: This includes conversion of units.
 SF_S = Phi_usod_new / 0.126; % sodium flow
+SF_U = Phi_u_new    / 0.001; % urine flow
 SF_R = R_r_new      / 83.3 ; % resistance
 SF_V = V_b_new      / 5    ; % volume
 
@@ -73,8 +75,8 @@ eta_ptwreab_eq    = pars(10);
 eta_dtwreab_eq    = pars(11);
 eta_cdwreab_eq    = pars(12);
 K_vd              = pars(13);
-K_bar            = pars(14) * SF_R;
-R_bv             = pars(15) * SF_R;
+K_bar             = pars(14) * SF_R;
+R_bv              = pars(15) * SF_R;
 N_adhs_eq         = pars(16);
 T_adh             = pars(17);
 if     t < tchange
@@ -411,8 +413,8 @@ f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
 % -------------------------------------------------------------------------
 phiwin_a = 0.8;
 phiwin_c = 0.002313;
-phiwin_b = SSdata(47) + 1 / phiwin_a * log(phiwin_c*15 / 0.0150 - 1);
-f(28) = Phi_win - ( phiwin_c * 15 / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
+phiwin_b = SSdata(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.0150 - 1);
+f(28) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
 % -------------------------------------------------------------------------
 % V_ecf
 f(29) = V_ecf_p - ( Phi_win - Phi_u );
