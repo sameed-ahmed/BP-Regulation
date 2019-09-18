@@ -322,7 +322,7 @@ s1(1) = subplot(1,2,1);
 s1(2) = subplot(1,2,2); 
 
 plot(s1(1), RPP_m,RBF_m (:,2),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s1(1), [55 ,210]); xticks(s1(1), [60:30 :210]);
+xlim(s1(1), [55 ,210]); xticks(s1(1), [60:30 :210]); %#ok<*NBRAK>
 ylim(s1(1), [0  ,2.5]); yticks(s1(1), [0 :0.5:2.5]);
 xlabel(s1(1), 'RPP (mmHg)'); ylabel(s1(1), 'RBF (relative)');
 hold(s1(1), 'on')
@@ -479,8 +479,8 @@ plot(arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off');
 plot(arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 hold off
 
-% % Save figures.
-% 
+% Save figures.
+
 % save_data_name = sprintf('quant_of_int_vs_RPP_whole.fig' );
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([g;h;i], save_data_name)

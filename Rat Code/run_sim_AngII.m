@@ -25,7 +25,7 @@ addpath(genpath(mypath))
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
 scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'm_RSNA_&_m_Reab'};
 num_scen = length(scenario);
-fixed_ss = 6;
+fixed_ss = 1;
 
 % Number of days to run simulation after change; Day at which to induce change;
 days = 13; day_change = 1;

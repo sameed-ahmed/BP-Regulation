@@ -285,45 +285,24 @@ f(18) = Phi_dtsodreab - ( Phi_mdsod * eta_dtsodreab );
 f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al );
 % psi_al - rat
 % f(20) = psi_al - ( 0.17 + 0.94 / (1 + exp((0.48 - 1.2 * log10(C_al)) / 0.88)) );
-if     strcmp(gender,  'male')
-%     f(20) = psi_al - ( 1/(395^0.3) * C_al^0.3 );
-%     % ------------------------------------------------------
-% %     dd = 0.5;
-%     dd = 0.0;
-%     aa = 1 / eta_dtsodreab_eq - dd;
-% %     bb = 0.92;
-%     bb = 0.1;
-%     cc = (aa * 395^bb) / (1 - dd) - 395^bb;
-%     f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
-%     % ------------------------------------------------------
-    % ------------------------------------------------------
-    bb = 0.1;
-    dd = 1.05 / bb;
-    aa = (1 + bb) * dd;
-    cc = -1/395 * log((aa / (1 + dd) - 1) / bb);
-    f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
-    % ------------------------------------------------------
-%     f(20) = psi_al - 1;
-elseif strcmp(gender,'female')
-%     f(20) = psi_al - ( 1/(379^0.3) * C_al^0.3 );
-%     % ------------------------------------------------------
-% %     dd = 0.5;
-%     dd = 0.0;
-%     aa = 1 / eta_dtsodreab_eq - dd;
-% %     bb = 0.92;
-%     bb = 0.1;
-%     cc = (aa * 379^bb) / (1 - dd) - 379^bb;
-%     f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
-%     % ------------------------------------------------------
-    % ------------------------------------------------------
-    bb = 0.1;
-    dd = 1.05 / bb;
-    aa = (1 + bb) * dd;
-    cc = -1/379 * log((aa / (1 + dd) - 1) / bb);
-    f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
-    % ------------------------------------------------------
-%     f(20) = psi_al - 1;
-end
+% f(20) = psi_al - ( 1/(387^0.3) * C_al^0.3 );
+% ------------------------------------------------------
+% % dd = 0.5;
+% dd = 0.0;
+% aa = 1 / eta_dtsodreab_eq - dd;
+% bb = 0.92;
+% bb = 0.1;
+% cc = (aa * 387^bb) / (1 - dd) - 387^bb;
+% f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
+% ------------------------------------------------------
+% ------------------------------------------------------
+bb = 0.1;
+dd = 1.05 / bb;
+aa = (1 + bb) * dd;
+cc = -1/387 * log((aa / (1 + dd) - 1) / bb);
+f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
+% ------------------------------------------------------
+% f(20) = psi_al - 1;
 % Phi_dtsod
 f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
 % Phi_cdsodreab
@@ -389,11 +368,7 @@ end
 f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
 % f(25) = lambda_anp - ( 1 );
 % lambda_al
-if     strcmp(gender,  'male')
-    f(26) = lambda_al - ( 1/(395^0.06) * C_al^0.06 );
-elseif strcmp(gender,'female')
-    f(26) = lambda_al - ( 1/(379^0.06) * C_al^0.06 );
-end
+f(26) = lambda_al - ( 1/(387^0.06) * C_al^0.06 );
 % f(26) = lambda_al - ( 1 );
 % Phi_usod
 f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
@@ -537,12 +512,7 @@ f(67-var_adj) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
 % elseif strcmp(gender,'female')
 %     f(68-var_adj) = C_al - ( N_al * 69.1775 );
 % end
-if     strcmp(gender,  'male')
-    f(68-var_adj) = C_al - ( N_al * 395 );
-elseif strcmp(gender,'female')
-    f(68-var_adj) = C_al - ( N_al * 379 );
-%     f(68-var_adj) = C_al - ( N_al * 395 ); % male
-end
+f(68-var_adj) = C_al - ( N_al * 387 );
 % N_al
 f(69-var_adj) = N_al_p - ( 1/T_al * (N_als - N_al) );
 % N_als

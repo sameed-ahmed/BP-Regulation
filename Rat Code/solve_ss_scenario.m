@@ -21,7 +21,7 @@ addpath(genpath(mypath))
 % AT2R-  - Block AT2R through decay
 scenario = {'AngII', 'ACEi', 'ARB', 'AT2R-'};
 % Index of scenario to fix.
-fixed_ss = 1;
+fixed_ss = 4;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.

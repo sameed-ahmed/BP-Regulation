@@ -11,19 +11,26 @@ for gg = 1:2 % gender
 
 %% Scaling factors
 
+% Physiological variables which determine scaling factors.
+if     strcmp(gender{gg}, 'male')
+    Phi_usod_new = 1.2212; % Munger 1988, Karaaslan 2005
+    Phi_u_new    = 0.0150; % Munger 1988, Layton 2016
+    R_r_new      = 28    ; % Munger 1988
+    W_b          = 238   ; % Munger 1988
+elseif strcmp(gender{gg}, 'female')
+    Phi_usod_new = 1.2212; % Munger 1988, Karaaslan 2005
+    Phi_u_new    = 0.0150; % Munger 1988, Layton 2016
+    R_r_new      = 44    ; % Munger 1988
+    W_b          = 194   ; % Munger 1988
+end
+V_b_new = 0.06 * W_b + 0.77; % Lee 1985
+
 % Rat value = Human value x SF
 % Note: This includes conversion of units.
-if     strcmp(gender{gg}, 'male')
-%     SF_S = 18.9; % layton 2016
-    SF_S = 9.69;  % sodium flow % karaaslan
-    SF_R = 0.343; % resistance
-    SF_V = 3;     % volume
-elseif strcmp(gender{gg}, 'female')
-%     SF_S = 18.9; % layton 2016
-    SF_S = 9.69;  % sodium flow % karaaslan
-    SF_R = 0.537; % resistance
-    SF_V = 2.4;   % volume
-end
+SF_S = Phi_usod_new / 0.126; % sodium flow
+SF_U = Phi_u_new    / 0.001; % urine flow
+SF_R = R_r_new      / 83.3 ; % resistance
+SF_V = V_b_new      / 5    ; % volume
 
 %% Manual entry of values
 
@@ -91,11 +98,7 @@ lambda_al     = 1;
 Phi_usod      = Phi_dtsod - Phi_cdsodreab; 
 % V_ecf         = 61; 
 % V_b           = 21; 
-if     strcmp(gender{gg}, 'male')
-V_b           = 15;
-elseif strcmp(gender{gg}, 'female')
-V_b           = 12;
-end
+V_b           = 0.06 * W_b + 0.77; % Lee 1985
 V_ecf         = (1/ (-0.4744) * log((2.4312*SF_V / (V_b - 4.5479*SF_V)) - 1) + 18.1128)*SF_V; 
 P_mf          = 7;
 % Phi_vr        = 14; 
@@ -154,11 +157,7 @@ M_sod         = 2160 * SF_V;
 C_sod         = 143; 
 nu_mdsod      = 1.731 * SF_S; 
 nu_rsna       = 1; 
-if     strcmp(gender{gg},  'male')
-C_al = 395;
-elseif strcmp(gender{gg},'female')
-C_al = 379;
-end
+C_al          = 387; % Pendergrass 2008
 N_al          = 1; 
 N_als         = 1; 
 xi_ksod       = 23.6; 
