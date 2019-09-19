@@ -110,8 +110,8 @@ x0 = SSdata; x_p0 = zeros(num_vars,1);
 % fact = (1-0.95);
 % fact = 0.5;
 fact = 1;
-% fact_var = 'Phi_sodin';
-fact_var = 'N_rsna';
+fact_var = 'Phi_sodin';
+% fact_var = 'N_rsna';
 
 % Time at which to keep steady state, change a parameter, etc.
 tchange = 1440; days = 13;

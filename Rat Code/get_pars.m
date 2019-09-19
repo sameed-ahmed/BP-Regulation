@@ -14,13 +14,13 @@ if     strcmp(gender, 'male')
     gen = 1;
     Phi_sodin_orig = 1.2212;
     Phi_u_orig = 0.0150;
-    R_r_orig = 10.87 + 17.74;
+    R_r_orig = 5.981 + 9.756;
     W_b = 238;
 elseif strcmp(gender, 'female')
     gen = 0;
     Phi_sodin_orig = 1.2212;
     Phi_u_orig = 0.0150;
-    R_r_orig = 17.02 + 27.76;
+    R_r_orig = 9.361 + 15.27;
     W_b = 194;
 end
 
@@ -28,11 +28,11 @@ N_rsna     = 1.00 ;
 % R_aass    = 31.67; % mmHg min / ml
 % R_eass    = 51.66; % mmHg min / ml
 if     strcmp(gender, 'male')
-    R_aass = 10.87; % mmHg min / ml
-    R_eass = 17.74; % mmHg min / ml
+    R_aass = 5.981; % mmHg min / ml
+    R_eass = 9.756; % mmHg min / ml
 elseif strcmp(gender, 'female')
-    R_aass = 17.02; % mmHg min / ml
-    R_eass = 27.76; % mmHg min / ml
+    R_aass = 9.361; % mmHg min / ml
+    R_eass = 15.27; % mmHg min / ml
 end
 P_B        = 18   ; % mmHg
 P_go       = 28   ; % mmHg

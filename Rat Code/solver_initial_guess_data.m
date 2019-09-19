@@ -15,12 +15,12 @@ for gg = 1:2 % gender
 if     strcmp(gender{gg}, 'male')
     Phi_usod_new = 1.2212; % Munger 1988, Karaaslan 2005
     Phi_u_new    = 0.0150; % Munger 1988, Layton 2016
-    R_r_new      = 28    ; % Munger 1988
+    R_r_new      = 15    ; % Munger 1988
     W_b          = 238   ; % Munger 1988
 elseif strcmp(gender{gg}, 'female')
     Phi_usod_new = 1.2212; % Munger 1988, Karaaslan 2005
     Phi_u_new    = 0.0150; % Munger 1988, Layton 2016
-    R_r_new      = 44    ; % Munger 1988
+    R_r_new      = 24    ; % Munger 1988
     W_b          = 194   ; % Munger 1988
 end
 V_b_new = 0.06 * W_b + 0.77; % Lee 1985
@@ -39,16 +39,16 @@ alpha_map     = 100;
 alpha_rap     = 1; 
 % R_r           = 18.58; 
 if     strcmp(gender{gg}, 'male')
-R_r           = 28; 
+R_r           = 15; 
 elseif strcmp(gender{gg}, 'female')
-R_r           = 44; 
+R_r           = 24; 
 end
 beta_rsna     = 1; 
 % Phi_rb        = 5.495; 
 if     strcmp(gender{gg}, 'male')
-Phi_rb        = 3.6; 
+Phi_rb        = 6.5; 
 elseif strcmp(gender{gg}, 'female')
-Phi_rb        = 2.3; 
+Phi_rb        = 4.2; 
 end
 % Phi_gfilt     = 0.6274;
 if     strcmp(gender{gg}, 'male')
@@ -178,11 +178,11 @@ AngIV         = 1.3;
 % R_aa          = 7;
 % R_ea          = 11;
 if     strcmp(gender{gg},  'male')
-R_aa          = 10; 
-R_ea          = 17;
+R_aa          = 6.0; 
+R_ea          = 9.8;
 elseif strcmp(gender{gg},'female')
-R_aa          = 17; 
-R_ea          = 27;
+R_aa          = 9.4; 
+R_ea          = 15.;
 end
 Sigma_myo     = 62; 
 Psi_AT1RAA    = 1; 
