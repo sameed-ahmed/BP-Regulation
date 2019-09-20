@@ -204,7 +204,7 @@ end
 % Plot all variables vs time. ---------------------------------------------
 
 f  = gobjects(7,1);
-s1 = gobjects(7,15);
+ss1 = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
 %     f(i) = figure; 
@@ -217,10 +217,10 @@ for i = 1:7
     end
     % Loop through each subplot within a set of subplots.
     for j = 1:last_plot
-        s1(i,j) = subplot(3,5,j);
-        s1(i,j).Position = s1(i,j).Position + [0 0 0.01 0];
+        ss1(i,j) = subplot(3,5,j);
+        ss1(i,j).Position = ss1(i,j).Position + [0 0 0.01 0];
         
-        plot(s1(i,j), t,X_m((i-1)*15+j,:,exact_per,exact_scen),'b' , ...
+        plot(ss1(i,j), t,X_m((i-1)*15+j,:,exact_per,exact_scen),'b' , ...
                       t,X_f((i-1)*15+j,:,exact_per,exact_scen),'r');
         
 %         xlim([xlower, xupper])
@@ -256,34 +256,51 @@ ylabel('$RPP$'    , 'Interpreter','latex')
 % Time average quantity from 10-30 minutes after perturbation in RPP.
 % RPP at 80, 100, 120.
 % Phi_rb = var(6), Phi_gfilt = var(7), Phi_u = var(53), Phi_usod = var(26)
+% rel = value divided by baseline value; act = actual value
 
 % X_m/f = (variables, points, perturbation, scenario)
 time_int    = (tchange+10)*ppm+1:(tchange+30)*ppm+1;
 time_points = length(time_int);
 time_value  = (tchange+150)*ppm+1;
-RBF_m  = zeros(num_per,num_scen); RBF_f  = zeros(num_per,num_scen);  
-GFR_m  = zeros(num_per,num_scen); GFR_f  = zeros(num_per,num_scen); 
-UF_m   = zeros(num_per,num_scen); UF_f   = zeros(num_per,num_scen); 
-USOD_m = zeros(num_per,num_scen); USOD_f = zeros(num_per,num_scen); 
+RBF_rel_m  = zeros(num_per,num_scen); RBF_rel_f  = zeros(num_per,num_scen);  
+GFR_rel_m  = zeros(num_per,num_scen); GFR_rel_f  = zeros(num_per,num_scen); 
+UF_rel_m   = zeros(num_per,num_scen); UF_rel_f   = zeros(num_per,num_scen); 
+USOD_rel_m = zeros(num_per,num_scen); USOD_rel_f = zeros(num_per,num_scen); 
+% ---
+RBF_act_m  = zeros(num_per,num_scen); RBF_act_f  = zeros(num_per,num_scen);  
+GFR_act_m  = zeros(num_per,num_scen); GFR_act_f  = zeros(num_per,num_scen); 
+UF_act_m   = zeros(num_per,num_scen); UF_act_f   = zeros(num_per,num_scen); 
+USOD_act_m = zeros(num_per,num_scen); USOD_act_f = zeros(num_per,num_scen); 
 for ss = 1:num_scen
     for pp = 1:num_per
-        RBF_m (pp,ss) = (sum(X_m(6 , time_int, pp, ss)) / time_points) ...
+        RBF_rel_m (pp,ss) = (sum(X_m(6 , time_int, pp, ss)) / time_points) ...
                       / (sum(X_m(6 , time_int, 2 , ss)) / time_points);
-        GFR_m (pp,ss) = (sum(X_m(7 , time_int, pp, ss)) / time_points) ...
+        GFR_rel_m (pp,ss) = (sum(X_m(7 , time_int, pp, ss)) / time_points) ...
                       / (sum(X_m(7 , time_int, 2 , ss)) / time_points);
-        UF_m  (pp,ss) = (sum(X_m(63, time_int, pp, ss)) / time_points) ...
+        UF_rel_m  (pp,ss) = (sum(X_m(63, time_int, pp, ss)) / time_points) ...
                       / (sum(X_m(63, time_int, 2 , ss)) / time_points);
-        USOD_m(pp,ss) = (sum(X_m(27, time_int, pp, ss)) / time_points) ...
+        USOD_rel_m(pp,ss) = (sum(X_m(27, time_int, pp, ss)) / time_points) ...
                       / (sum(X_m(27, time_int, 2 , ss)) / time_points);
         
-        RBF_f (pp,ss) = (sum(X_f(6 , time_int, pp, ss)) / time_points) ...
+        RBF_rel_f (pp,ss) = (sum(X_f(6 , time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(6 , time_int, 2 , ss)) / time_points);
-        GFR_f (pp,ss) = (sum(X_f(7 , time_int, pp, ss)) / time_points) ...
+        GFR_rel_f (pp,ss) = (sum(X_f(7 , time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(7 , time_int, 2 , ss)) / time_points);
-        UF_f  (pp,ss) = (sum(X_f(63, time_int, pp, ss)) / time_points) ...
+        UF_rel_f  (pp,ss) = (sum(X_f(63, time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(63, time_int, 2 , ss)) / time_points);
-        USOD_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points) ...
+        USOD_rel_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points) ...
                       / (sum(X_f(27, time_int, 2 , ss)) / time_points);
+% ---
+        RBF_act_m (pp,ss) = (sum(X_m(6 , time_int, pp, ss)) / time_points);
+        GFR_act_m (pp,ss) = (sum(X_m(7 , time_int, pp, ss)) / time_points);
+        UF_act_m  (pp,ss) = (sum(X_m(63, time_int, pp, ss)) / time_points);
+        USOD_act_m(pp,ss) = (sum(X_m(27, time_int, pp, ss)) / time_points);
+        
+        RBF_act_f (pp,ss) = (sum(X_f(6 , time_int, pp, ss)) / time_points);
+        GFR_act_f (pp,ss) = (sum(X_f(7 , time_int, pp, ss)) / time_points);
+        UF_act_f  (pp,ss) = (sum(X_f(63, time_int, pp, ss)) / time_points);
+        USOD_act_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points);
+
 % % Psuedo steady state value at time_value mintues
 %         RBF_m (pp,ss) = X_m(6 , time_value, pp, ss) ...
 %                       / X_m(6 , time_value, 2 , ss);
@@ -311,94 +328,167 @@ RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per;
 % Data --------------------------------------------------------------------
 
 % Yes AT2R
-RBFdata_yes_at2r_m  = [0.8894; 1.0000; 1.0609]; RBFdata_yes_at2r_f  = [0.8562; 1.0000; 1.1045]; 
-GFRdata_yes_at2r_m  = [0.7816; 1.0000; 1.0083]; GFRdata_yes_at2r_f  = [0.7395; 1.0000; 1.1357]; 
-UFdata_yes_at2r_m   = [0.6163; 1.0000; 1.4535]; UFdata_yes_at2r_f   = [0.8097; 1.0000; 2.2327]; 
-USODdata_yes_at2r_m = [0.4000; 1.0000; 1.8744]; USODdata_yes_at2r_f = [0.5979; 1.0000; 3.0815]; 
+RBFdata_yes_at2r_rel_m  = [0.8894; 1.0000; 1.0609]; RBFdata_yes_at2r_rel_f  = [0.8562; 1.0000; 1.1045]; 
+GFRdata_yes_at2r_rel_m  = [0.7816; 1.0000; 1.0083]; GFRdata_yes_at2r_rel_f  = [0.7395; 1.0000; 1.1357]; 
+UFdata_yes_at2r_rel_m   = [0.6163; 1.0000; 1.4535]; UFdata_yes_at2r_rel_f   = [0.8097; 1.0000; 2.2327]; 
+USODdata_yes_at2r_rel_m = [0.4000; 1.0000; 1.8744]; USODdata_yes_at2r_rel_f = [0.5979; 1.0000; 3.0815]; 
+% ---
+RBFdata_yes_at2r_act_m  = [4.7605; 5.3525; 5.6785]; RBFdata_yes_at2r_act_f  = [3.1620; 3.6930; 4.0790]; 
+GFRdata_yes_at2r_act_m  = [1.2161; 1.5558; 1.5687]; GFRdata_yes_at2r_act_f  = [0.7909; 1.0695; 1.2146]; 
+UFdata_yes_at2r_act_m   = [0.0070; 0.0114; 0.0166]; UFdata_yes_at2r_act_f   = [0.0096; 0.0118; 0.0264]; 
+USODdata_yes_at2r_act_m = [0.4327; 1.0818; 2.0277]; USODdata_yes_at2r_act_f = [0.9147; 1.5299; 4.7142]; 
 % Block AT2R
-RBFdata_blk_at2r_m  = [0.8652; 1.0000; 1.2381]; RBFdata_blk_at2r_f  = [0.5404; 1.0000; 1.0961]; 
-GFRdata_blk_at2r_m  = [0.7476; 1.0000; 1.2907]; GFRdata_blk_at2r_f  = [0.2642; 1.0000; 1.3678]; 
-UFdata_blk_at2r_m   = [0.7106; 1.0000; 1.7368]; UFdata_blk_at2r_f   = [0.4597; 1.0000; 2.7119]; 
-USODdata_blk_at2r_m = [0.0000; 1.0000; 3.5712]; USODdata_blk_at2r_f = [0.5161; 1.0000; 4.2295]; 
+RBFdata_blk_at2r_rel_m  = [0.8652; 1.0000; 1.2381]; RBFdata_blk_at2r_rel_f  = [0.5404; 1.0000; 1.0961]; 
+GFRdata_blk_at2r_rel_m  = [0.7476; 1.0000; 1.2907]; GFRdata_blk_at2r_rel_f  = [0.2642; 1.0000; 1.3678]; 
+UFdata_blk_at2r_rel_m   = [0.7106; 1.0000; 1.7368]; UFdata_blk_at2r_rel_f   = [0.4597; 1.0000; 2.7119]; 
+USODdata_blk_at2r_rel_m = [0.0000; 1.0000; 3.5712]; USODdata_blk_at2r_rel_f = [0.5161; 1.0000; 4.2295]; 
+% ---
+RBFdata_blk_at2r_act_m  = [4.3215; 4.9950; 6.1845]; RBFdata_blk_at2r_act_f  = [1.9823; 3.6679; 4.0205]; 
+GFRdata_blk_at2r_act_m  = [1.0443; 1.3970; 1.8030]; GFRdata_blk_at2r_act_f  = [0.2093; 0.7922; 1.0836]; 
+UFdata_blk_at2r_act_m   = [0.0036; 0.0051; 0.0088]; UFdata_blk_at2r_act_f   = [0.0031; 0.0067; 0.0181]; 
+USODdata_blk_at2r_act_m = [0.0000; 0.1875; 0.6696]; USODdata_blk_at2r_act_f = [0.3203; 0.6206; 2.6247]; 
 
 % Male combined array for ease of plotting
-RBFdata_m  = [zeros(3,1), RBFdata_yes_at2r_m , RBFdata_blk_at2r_m ];
-GFRdata_m  = [zeros(3,1), GFRdata_yes_at2r_m , GFRdata_blk_at2r_m ];
-UFdata_m   = [zeros(3,1), UFdata_yes_at2r_m  , UFdata_blk_at2r_m  ];
-USODdata_m = [zeros(3,1), USODdata_yes_at2r_m, USODdata_blk_at2r_m];
+RBFdata_rel_m  = [zeros(3,1), RBFdata_yes_at2r_rel_m , RBFdata_blk_at2r_rel_m ];
+GFRdata_rel_m  = [zeros(3,1), GFRdata_yes_at2r_rel_m , GFRdata_blk_at2r_rel_m ];
+UFdata_rel_m   = [zeros(3,1), UFdata_yes_at2r_rel_m  , UFdata_blk_at2r_rel_m  ];
+USODdata_rel_m = [zeros(3,1), USODdata_yes_at2r_rel_m, USODdata_blk_at2r_rel_m];
+% ---
+RBFdata_act_m  = [zeros(3,1), RBFdata_yes_at2r_act_m , RBFdata_blk_at2r_act_m ];
+GFRdata_act_m  = [zeros(3,1), GFRdata_yes_at2r_act_m , GFRdata_blk_at2r_act_m ];
+UFdata_act_m   = [zeros(3,1), UFdata_yes_at2r_act_m  , UFdata_blk_at2r_act_m  ];
+USODdata_act_m = [zeros(3,1), USODdata_yes_at2r_act_m, USODdata_blk_at2r_act_m];
 % Female combined array for ease of plotting
-RBFdata_f  = [zeros(3,1), RBFdata_yes_at2r_f , RBFdata_blk_at2r_f ];
-GFRdata_f  = [zeros(3,1), GFRdata_yes_at2r_f , GFRdata_blk_at2r_f ];
-UFdata_f   = [zeros(3,1), UFdata_yes_at2r_f  , UFdata_blk_at2r_f  ];
-USODdata_f = [zeros(3,1), USODdata_yes_at2r_f, USODdata_blk_at2r_f];
+RBFdata_rel_f  = [zeros(3,1), RBFdata_yes_at2r_rel_f , RBFdata_blk_at2r_rel_f ];
+GFRdata_rel_f  = [zeros(3,1), GFRdata_yes_at2r_rel_f , GFRdata_blk_at2r_rel_f ];
+UFdata_rel_f   = [zeros(3,1), UFdata_yes_at2r_rel_f  , UFdata_blk_at2r_rel_f  ];
+USODdata_rel_f = [zeros(3,1), USODdata_yes_at2r_rel_f, USODdata_blk_at2r_rel_f];
+% ---
+RBFdata_act_f  = [zeros(3,1), RBFdata_yes_at2r_act_f , RBFdata_blk_at2r_act_f ];
+GFRdata_act_f  = [zeros(3,1), GFRdata_yes_at2r_act_f , GFRdata_blk_at2r_act_f ];
+UFdata_act_f   = [zeros(3,1), UFdata_yes_at2r_act_f  , UFdata_blk_at2r_act_f  ];
+USODdata_act_f = [zeros(3,1), USODdata_yes_at2r_act_f, USODdata_blk_at2r_act_f];
 
-% y-axis lower limits for uniformity accross scenarios
-yRBF_lower  = min( min(min([RBF_m(:,:) ;RBF_f(:,:)]))  , min(min([RBFdata_m(:,2:num_scen) ;RBFdata_f(:,2:num_scen) ])) );
-yGFR_lower  = min( min(min([GFR_m(:,:) ;GFR_f(:,:)]))  , min(min([GFRdata_m(:,2:num_scen) ;GFRdata_f(:,2:num_scen) ])) );
-yUF_lower   = min( min(min([UF_m(:,:)  ;UF_f(:,:) ]))  , min(min([UFdata_m(:,2:num_scen)  ;UFdata_f(:,2:num_scen)  ])) );
-yUSOD_lower = min( min(min([USOD_m(:,:);USOD_f(:,:)])) , min(min([USODdata_m(:,2:num_scen);USODdata_f(:,2:num_scen)])) );
-% y-axis upper limits for uniformity accross scenarios
-yRBF_upper  = max( max(max([RBF_m(:,:) ;RBF_f(:,:)]))  , max(max([RBFdata_m(:,2:num_scen) ;RBFdata_f(:,2:num_scen) ])) );
-yGFR_upper  = max( max(max([GFR_m(:,:) ;GFR_f(:,:)]))  , max(max([GFRdata_m(:,2:num_scen) ;GFRdata_f(:,2:num_scen) ])) );
-yUF_upper   = max( max(max([UF_m(:,:)  ;UF_f(:,:) ]))  , max(max([UFdata_m(:,2:num_scen)  ;UFdata_f(:,2:num_scen)  ])) );
-yUSOD_upper = max( max(max([USOD_m(:,:);USOD_f(:,:)])) , max(max([USODdata_m(:,2:num_scen);USODdata_f(:,2:num_scen)])) );
-
+% % y-axis lower limits for uniformity accross scenarios
+% yRBF_lower  = min( min(min([RBF_rel_m(:,:) ;RBF_rel_f(:,:)]))  , min(min([RBFdata_rel_m(:,2:num_scen) ;RBFdata_rel_f(:,2:num_scen) ])) );
+% yGFR_lower  = min( min(min([GFR_rel_m(:,:) ;GFR_rel_f(:,:)]))  , min(min([GFRdata_rel_m(:,2:num_scen) ;GFRdata_rel_f(:,2:num_scen) ])) );
+% yUF_lower   = min( min(min([UF_rel_m(:,:)  ;UF_rel_f(:,:) ]))  , min(min([UFdata_rel_m(:,2:num_scen)  ;UFdata_rel_f(:,2:num_scen)  ])) );
+% yUSOD_lower = min( min(min([USOD_rel_m(:,:);USOD_rel_f(:,:)])) , min(min([USODdata_rel_m(:,2:num_scen);USODdata_rel_f(:,2:num_scen)])) );
+% % y-axis upper limits for uniformity accross scenarios
+% yRBF_upper  = max( max(max([RBF_rel_m(:,:) ;RBF_rel_f(:,:)]))  , max(max([RBFdata_rel_m(:,2:num_scen) ;RBFdata_rel_f(:,2:num_scen) ])) );
+% yGFR_upper  = max( max(max([GFR_rel_m(:,:) ;GFR_rel_f(:,:)]))  , max(max([GFRdata_rel_m(:,2:num_scen) ;GFRdata_rel_f(:,2:num_scen) ])) );
+% yUF_upper   = max( max(max([UF_rel_m(:,:)  ;UF_rel_f(:,:) ]))  , max(max([UFdata_rel_m(:,2:num_scen)  ;UFdata_rel_f(:,2:num_scen)  ])) );
+% yUSOD_upper = max( max(max([USOD_rel_m(:,:);USOD_rel_f(:,:)])) , max(max([USODdata_rel_m(:,2:num_scen);USODdata_rel_f(:,2:num_scen)])) );
 
 % Subplot -----------------------------------------------------------------
 
-g = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 675 450]);
+h(1) = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 675 450]);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
-s1(1) = subplot(2,2,1); 
-s1(2) = subplot(2,2,2); 
-s1(3) = subplot(2,2,3);
-s1(4) = subplot(2,2,4); 
+s_rel1(1) = subplot(2,2,1); 
+s_rel1(2) = subplot(2,2,2); 
+s_rel1(3) = subplot(2,2,3);
+s_rel1(4) = subplot(2,2,4); 
 
-plot(s1(1), RPP_m,RBF_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s1(1), [75,125]); set(s1(1),'XTick', [80,100,120]);
-ylim(s1(1), [0.6,1.2])
-xlabel(s1(1), 'RPP (mmHg)'); ylabel(s1(1), 'RBF (relative)');
-hold(s1(1), 'on')
-plot(s1(1), RPP_m,RBFdata_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s1(1), RPP_f,RBF_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s1(1), RPP_f,RBFdata_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
-hold(s1(1), 'off')
-[~, hobj, ~, ~] = legend(s1(1), {'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
+plot(s_rel1(1), RPP_m,RBF_rel_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_rel1(1), [75,125]); set(s_rel1(1),'XTick', [80,100,120]);
+ylim(s_rel1(1), [0.6,1.2])
+xlabel(s_rel1(1), 'RPP (mmHg)'); ylabel(s_rel1(1), 'RBF (relative)');
+hold(s_rel1(1), 'on')
+plot(s_rel1(1), RPP_m,RBFdata_rel_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(1), RPP_f,RBF_rel_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(1), RPP_f,RBFdata_rel_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s_rel1(1), 'off')
+[~, hobj, ~, ~] = legend(s_rel1(1), {'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
-title(s1(1), 'A')
+title(s_rel1(1), 'A')
 
-plot(s1(2), RPP_m,GFR_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s1(2), [75,125]); set(s1(2),'XTick', [80,100,120]);
-ylim(s1(2), [0.6,1.2])
-xlabel(s1(2), 'RPP (mmHg)'); ylabel(s1(2), 'GFR (relative)');
-hold(s1(2), 'on')
-plot(s1(2), RPP_m,GFRdata_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s1(2), RPP_f,GFR_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s1(2), RPP_f,GFRdata_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
-hold(s1(2), 'off')
-title(s1(2), 'B')
+plot(s_rel1(2), RPP_m,GFR_rel_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_rel1(2), [75,125]); set(s_rel1(2),'XTick', [80,100,120]);
+ylim(s_rel1(2), [0.6,1.2])
+xlabel(s_rel1(2), 'RPP (mmHg)'); ylabel(s_rel1(2), 'GFR (relative)');
+hold(s_rel1(2), 'on')
+plot(s_rel1(2), RPP_m,GFRdata_rel_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(2), RPP_f,GFR_rel_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(2), RPP_f,GFRdata_rel_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s_rel1(2), 'off')
+title(s_rel1(2), 'B')
 
-plot(s1(3), RPP_m,UF_m      (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s1(3), [75,125]); set(s1(3),'XTick', [80,100,120]);
-ylim(s1(3), [0.0,3.5])
-xlabel(s1(3), 'RPP (mmHg)'); ylabel(s1(3), 'UF (relative)');
-hold(s1(3), 'on')
-plot(s1(3), RPP_m,UFdata_m  (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s1(3), RPP_f,UF_f      (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s1(3), RPP_f,UFdata_f  (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
-hold(s1(3), 'off')
-title(s1(3), 'C')
+plot(s_rel1(3), RPP_m,UF_rel_m      (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_rel1(3), [75,125]); set(s_rel1(3),'XTick', [80,100,120]);
+ylim(s_rel1(3), [0.0,3.5])
+xlabel(s_rel1(3), 'RPP (mmHg)'); ylabel(s_rel1(3), 'UF (relative)');
+hold(s_rel1(3), 'on')
+plot(s_rel1(3), RPP_m,UFdata_rel_m  (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(3), RPP_f,UF_rel_f      (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(3), RPP_f,UFdata_rel_f  (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s_rel1(3), 'off')
+title(s_rel1(3), 'C')
 
-plot(s1(4), RPP_m,USOD_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s1(4), [75,125]); set(s1(4),'XTick', [80,100,120]);
-ylim(s1(4), [0.0,3.5])
-xlabel(s1(4), 'RPP (mmHg)'); ylabel(s1(4), 'USOD (relative)');
-hold(s1(4), 'on')
-plot(s1(4), RPP_m,USODdata_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s1(4), RPP_f,USOD_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s1(4), RPP_f,USODdata_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
-hold(s1(4), 'off')
-title(s1(4), 'D')
+plot(s_rel1(4), RPP_m,USOD_rel_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_rel1(4), [75,125]); set(s_rel1(4),'XTick', [80,100,120]);
+ylim(s_rel1(4), [0.0,3.5])
+xlabel(s_rel1(4), 'RPP (mmHg)'); ylabel(s_rel1(4), 'USOD (relative)');
+hold(s_rel1(4), 'on')
+plot(s_rel1(4), RPP_m,USODdata_rel_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(4), RPP_f,USOD_rel_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(4), RPP_f,USODdata_rel_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s_rel1(4), 'off')
+title(s_rel1(4), 'D')
+% ---
+h(2) = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 675 450]);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
+s_act1(1) = subplot(2,2,1); 
+s_act1(2) = subplot(2,2,2); 
+s_act1(3) = subplot(2,2,3);
+s_act1(4) = subplot(2,2,4); 
+
+plot(s_act1(1), RPP_m,RBF_act_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_act1(1), [75,125]); set(s_act1(1),'XTick', [80,100,120]);
+% ylim(s_act1(1), [0.6,1.2])
+xlabel(s_act1(1), 'RPP (mmHg)'); ylabel(s_act1(1), 'RBF (ml/min)');
+hold(s_act1(1), 'on')
+plot(s_act1(1), RPP_m,RBFdata_act_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_act1(1), RPP_f,RBF_act_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_act1(1), RPP_f,RBFdata_act_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s_act1(1), 'off')
+[~, hobj, ~, ~] = legend(s_act1(1), {'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+title(s_act1(1), 'A')
+
+plot(s_act1(2), RPP_m,GFR_act_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_act1(2), [75,125]); set(s_act1(2),'XTick', [80,100,120]);
+% ylim(s_act1(2), [0.6,1.2])
+xlabel(s_act1(2), 'RPP (mmHg)'); ylabel(s_act1(2), 'GFR (ml/min)');
+hold(s_act1(2), 'on')
+plot(s_act1(2), RPP_m,GFRdata_act_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_act1(2), RPP_f,GFR_act_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_act1(2), RPP_f,GFRdata_act_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s_act1(2), 'off')
+title(s_act1(2), 'B')
+
+plot(s_act1(3), RPP_m,UF_act_m      (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_act1(3), [75,125]); set(s_act1(3),'XTick', [80,100,120]);
+% ylim(s_act1(3), [0.0,3.5])
+xlabel(s_act1(3), 'RPP (mmHg)'); ylabel(s_act1(3), 'UF (ml/min)');
+hold(s_act1(3), 'on')
+plot(s_act1(3), RPP_m,UFdata_act_m  (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_act1(3), RPP_f,UF_act_f      (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_act1(3), RPP_f,UFdata_act_f  (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s_act1(3), 'off')
+title(s_act1(3), 'C')
+
+plot(s_act1(4), RPP_m,USOD_act_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_act1(4), [75,125]); set(s_act1(4),'XTick', [80,100,120]);
+% ylim(s_act1(4), [0.0,3.5])
+xlabel(s_act1(4), 'RPP (mmHg)'); ylabel(s_act1(4), 'USOD (\mu eq/min)');
+hold(s_act1(4), 'on')
+plot(s_act1(4), RPP_m,USODdata_act_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_act1(4), RPP_f,USOD_act_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_act1(4), RPP_f,USODdata_act_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+hold(s_act1(4), 'off')
+title(s_act1(4), 'D')
 
 % % Individual plot --------------------------------------------------------
 
@@ -460,9 +550,9 @@ title(s1(4), 'D')
 
 % Save figures. -----------------------------------------------------------
 
-% save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig(g, save_data_name)
+save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
+save_data_name = strcat('Figures/', save_data_name);
+savefig(h, save_data_name)
 
 end
 

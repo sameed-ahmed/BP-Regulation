@@ -337,7 +337,7 @@ end
 
 % Plot Sodium Intake vs Mean Arterial Pressure. ---------------------------
 
-g = figure('DefaultAxesFontSize',14);
+g1 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
 plot(X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 % xlim([80, 120])
@@ -348,6 +348,23 @@ xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 hold on
 plot(X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+legend('Male','Female', 'Location','Northwest')
+hold off
+% ---
+% Convert from micro eq/min to m eq/day
+Phi_sodin_range_m = Phi_sodin_range_m * (1/1000) * (60*24/1);
+
+g2 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
+plot(X_m(42,:,fixed_ss),Phi_sodin_range_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+% xlim([80, 120])
+% ylim([lower, upper])
+ax = gca;
+% ax.XTick = (80 : 10 : 120);
+xlabel('MAP (mmHg)')
+ylabel({'Sodium excretion (\mu eq/min)'})
+hold on
+plot(X_f(42,:,fixed_ss),Phi_sodin_range_m,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 legend('Male','Female', 'Location','Northwest')
 hold off
 
@@ -448,7 +465,7 @@ title(s1(2), 'B', 'FontSize',14)
 %     save_data_name = sprintf('all_vars_vs_Phisodin_varied_Phiwin.fig');
 % end
 % save_data_name = strcat('Figures/', save_data_name);
-% savefig([f;g;h;i;j], save_data_name)
+% savefig([f;g1;g2;h;i;j], save_data_name)
 
 end
 
