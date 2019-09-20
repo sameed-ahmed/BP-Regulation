@@ -270,7 +270,7 @@ bdec2(1).FaceAlpha = 0.5; bdec2(2).FaceAlpha = 0.5;
 xlabel(s1(2), strcat(out_label(1),' Percent change'))
 bars2 = get(gca, 'Children');
 legend(s1(2), bars2([4,2,3,1]), {'Male Dec','Male Inc','Female Dec','Female Inc'}, ...
-       'FontSize',7,'Location','Southeast');
+       'FontSize',7,'Position',[0.52 0.845 0.0 0.0]);
 hold(s1(2), 'off')
 title(s1(2), 'B')
 
@@ -306,7 +306,7 @@ bdec2(1).FaceAlpha = 0.5; bdec2(2).FaceAlpha = 0.5;
 xlabel(s2(2), strcat(out_label(3),' Percent change'))
 bars2 = get(gca, 'Children');
 legend(s2(2), bars2([4,2,3,1]), {'Male Dec','Male Inc','Female Dec','Female Inc'}, ...
-       'FontSize',7,'Location','Southeast');
+       'FontSize',7,'Position',[0.52 0.845 0.0 0.0]);
 hold(s2(2), 'off')
 title(s2(2), 'B')
 
