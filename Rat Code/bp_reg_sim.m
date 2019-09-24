@@ -554,8 +554,10 @@ f(84) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
 f(85) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
 % R_aa
 f(86) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA);
+% f(86) = R_aa - ( R_aass * 1);
 % R_ea
 f(87) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
+% f(87) = R_ea - ( R_eass * 1 );
 % Sigma_myo
 sigmamyo_a = 0.75;
 sigmamyo_b = 1.2;
