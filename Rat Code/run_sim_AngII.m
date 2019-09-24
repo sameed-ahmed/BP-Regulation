@@ -215,21 +215,19 @@ MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
              26.18,28.87,29.54,31.26,34.71,36.53,42.18];
 MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
              13.91,17.31,17.04,18.37,19.63,23.23,24.42];
-% Substract MAP by baseline.
+% Substract MAP by baseline for each gender and all scenarios.
+% X_m/f = (variable, points, scenario)
 MAP_m = reshape(X_m(42,:,:) - X_m(42,1,:), [N,num_scen]);
 MAP_f = reshape(X_f(42,:,:) - X_f(42,1,:), [N,num_scen]);
 
-g = figure('DefaultAxesFontSize',14);%, 'pos',[100 100 650 450]);
+g(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 xlim([xlower, xupper]); ylim([0, 60]);
 ax = gca;
 ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
-% ax.XTickLabel = {'0','1','2' ,'3' ,'4' ,'5' ,'6' ,'7', ...
-%                  '8','9','10','11','12','13','14'};
 ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
-xlabel('Time (days)')
-ylabel('\DeltaMAP (mmHg)')
+xlabel('Time (days)'); ylabel('\DeltaMAP (mmHg)');
 hold on
 plot(t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
@@ -238,12 +236,107 @@ plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 
+% Plot all other quantities of interest. ----------------------------------
+
+% GFR; BV; RSNA; REA/RR for each gender and all scenarios.
+% X_m/f = (variable, points, scenario)
+GFR_m  = reshape(X_m( 7,:,:), [N,num_scen]);
+GFR_f  = reshape(X_f( 7,:,:), [N,num_scen]);
+BV_m   = reshape(X_m(30,:,:), [N,num_scen]);
+BV_f   = reshape(X_f(30,:,:), [N,num_scen]);
+RSNA_m = reshape(X_m( 1,:,:), [N,num_scen]);
+RSNA_f = reshape(X_f( 1,:,:), [N,num_scen]);
+R_m    = reshape(X_m(87,:,:) ./ X_m( 4,:,:), [N,num_scen]);
+R_f    = reshape(X_f(87,:,:) ./ X_f( 4,:,:), [N,num_scen]);
+
+% Filtration fraction for sodium and urine for each gender and all scenarios.
+FFNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [N,num_scen]) * 100;
+FFNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [N,num_scen]) * 100;
+FFU_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [N,num_scen]) * 100;
+FFU_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [N,num_scen]) * 100;
+
+h(1) = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
+plot(t,RSNA_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+xlim([xlower, xupper]); ylim([0.55,1.05]);
+ax = gca;
+ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
+ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
+xlabel('Time (days)'); ylabel('RSNA');
+hold on
+plot(t,RSNA_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+[~, hobj, ~, ~] = legend({'Male','Female'}, 'FontSize',7,'Location','Northeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+% ---
+h(2) = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
+s_main(1) = subplot(2,2,1); 
+s_main(2) = subplot(2,2,2); 
+s_main(3) = subplot(2,2,3);
+s_main(4) = subplot(2,2,4); 
+
+plot(s_main(1), t,R_m   (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_main(1), [xlower, xupper]);
+set(s_main(1), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
+set(s_main(1), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+xlabel(s_main(1), 'Time (days)'); ylabel(s_main(1), 'R_EA/R_R');
+hold(s_main(1), 'on')
+plot(s_main(1), t,R_f   (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_main(1), 'off')
+[~, hobj, ~, ~] = legend(s_main(1), {'Male','Female'}, 'FontSize',7,'Location','Northeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+title(s_main(1), 'A')
+
+plot(s_main(2), t,FFNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_main(2), [xlower, xupper]);
+set(s_main(2), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
+set(s_main(2), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+ylim(s_main(2), [97,100])
+xlabel(s_main(2), 'Time (days)'); ylabel(s_main(2), 'FF (%)');
+hold(s_main(2), 'on')
+plot(s_main(2), t,FFU_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(2), t,FFNA_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(2), t,FFU_f (:,fixed_ss), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+fakeplot = zeros(2, 1);
+fakeplot(1) = plot(s_main(2), NaN,NaN, 'k-' );
+fakeplot(2) = plot(s_main(2), NaN,NaN, 'k--');
+[~, hobj, ~, ~] = legend(fakeplot, {'FF_{Na^+}','FF_{U}'}, 'FontSize',7,'Location','Southeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+hold(s_main(2), 'off')
+title(s_main(2), 'B')
+
+plot(s_main(3), t,GFR_m (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_main(3), [xlower, xupper]);
+set(s_main(3), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
+set(s_main(3), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+xlabel(s_main(3), 'Time (days)'); ylabel(s_main(3), 'GFR (ml/min)');
+hold(s_main(3), 'on')
+plot(s_main(3), t,GFR_f (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_main(3), 'off')
+title(s_main(3), 'C')
+
+plot(s_main(4), t,BV_m  (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_main(4), [xlower, xupper]);
+set(s_main(4), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
+set(s_main(4), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+xlabel(s_main(4), 'Time (days)'); ylabel(s_main(4), 'BV (ml)');
+hold(s_main(4), 'on')
+plot(s_main(4), t,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_main(4), 'off')
+title(s_main(4), 'D')
+
 % Plot male - female bar graph for each scenario --------------------------
 
+% Retrieve last MAP value for each gender and all scenarios.
 % X_m/f = (variable, points, scenario)
 deltaMAP_m = reshape(X_m(42,end,1:end) - X_m(42,1,1:end), [1,num_scen]);
 deltaMAP_f = reshape(X_f(42,end,1:end) - X_f(42,1,1:end), [1,num_scen]);
+% Substract all MAP values from all scenarios from normal male MAP.
 MAP_comp = deltaMAP_m(1) - [deltaMAP_m(1), deltaMAP_f];
+% String for bar graph labels.
 scen_comp = categorical({'M - M'              , 'M - F', ...
                          'M - F M RSNA', 'M - F M AT2R', ...
                          'M - F M RAS' , 'M - F M Reab', ...
@@ -253,7 +346,7 @@ scen_comp = reordercats(scen_comp,{'M - M'              , 'M - F', ...
                                    'M - F M RAS' , 'M - F M Reab', ...
                                    'M - FM RSNA\newline& Reab'});
 
-h = figure('DefaultAxesFontSize',10);
+k = figure('DefaultAxesFontSize',10);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 3.5]);
 s1(1) = subplot(1,2,1); 
 s1(2) = subplot(1,2,2); 
@@ -287,7 +380,7 @@ title(s1(2), 'B', 'FontSize',14)
 
 % save_data_name = sprintf('all_vars_AngII_inf.fig');
 % save_data_name = strcat('Figures/', save_data_name);
-% savefig([f;g;h], save_data_name)
+% savefig([f;g;h';k], save_data_name)
 
 end
 
