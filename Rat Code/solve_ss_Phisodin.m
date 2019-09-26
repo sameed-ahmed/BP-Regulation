@@ -336,7 +336,7 @@ end
 
 % Plot Sodium Intake vs Mean Arterial Pressure. ---------------------------
 
-g1 = figure('DefaultAxesFontSize',14);
+g(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
 plot(X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 % xlim([80, 120])
@@ -353,7 +353,7 @@ hold off
 % Convert from micro eq/min to m eq/day
 Phi_sodin_range_m = Phi_sodin_range_m * (1/1000) * (60*24/1);
 
-g2 = figure('DefaultAxesFontSize',14);
+g(2) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
 plot(X_m(42,:,fixed_ss),Phi_sodin_range_m,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 % xlim([80, 120])
@@ -367,9 +367,84 @@ plot(X_f(42,:,fixed_ss),Phi_sodin_range_m,'-', 'Color',[0.835, 0.203, 0.576], 'L
 legend('Male','Female', 'Location','Northwest')
 hold off
 
+% Plot all other quantities of interest. ----------------------------------
+
+% CSOD; CADH; BV; for each gender and all scenarios.
+% X_m/f = (variable, iteration, scenario)
+CSOD_m = reshape(X_m(65,:,:), [2*iteration-1,num_scen]);
+CSOD_f = reshape(X_f(65,:,:), [2*iteration-1,num_scen]);
+CADH_m = reshape(X_m(47,:,:), [2*iteration-1,num_scen]);
+CADH_f = reshape(X_f(47,:,:), [2*iteration-1,num_scen]);
+BV_m   = reshape(X_m(30,:,:), [2*iteration-1,num_scen]);
+BV_f   = reshape(X_f(30,:,:), [2*iteration-1,num_scen]);
+
+% Filtration fraction for sodium and urine for each gender and all scenarios.
+FFNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [2*iteration-1,num_scen]) * 100;
+FFNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [2*iteration-1,num_scen]) * 100;
+FFU_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [2*iteration-1,num_scen]) * 100;
+FFU_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [2*iteration-1,num_scen]) * 100;
+
+g(3) = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
+s_main(1) = subplot(2,2,1); 
+s_main(2) = subplot(2,2,2); 
+s_main(3) = subplot(2,2,3);
+s_main(4) = subplot(2,2,4); 
+
+plot(s_main(1), xscale,CSOD_m(:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_main(1), [lower, upper]);
+set(s_main(1), 'XTick', [1/5, 1, 2, 3, 4, 5]);
+set(s_main(1), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
+xlabel(s_main(1), 'Na^+ Intake (relative)'); ylabel(s_main(1), 'C_{Na^+} (\mu Eq/ml)');
+hold(s_main(1), 'on')
+plot(s_main(1), xscale,CSOD_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_main(1), 'off')
+[~, hobj, ~, ~] = legend(s_main(1), {'Male','Female'}, 'FontSize',7,'Location','Southeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+title(s_main(1), 'A')
+
+plot(s_main(2), xscale,CADH_m(:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_main(2), [lower, upper]);
+set(s_main(2), 'XTick', [1/5, 1, 2, 3, 4, 5]);
+set(s_main(2), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
+xlabel(s_main(2), 'Na^+ Intake (relative)'); ylabel(s_main(2), 'C_{ADH} (\mu units/ml)');
+hold(s_main(2), 'on')
+plot(s_main(2), xscale,CADH_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_main(2), 'off')
+title(s_main(2), 'B')
+
+plot(s_main(3), xscale,BV_m  (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_main(3), [lower, upper]);
+set(s_main(3), 'XTick', [1/5, 1, 2, 3, 4, 5]);
+set(s_main(3), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
+xlabel(s_main(3), 'Na^+ Intake (relative)'); ylabel(s_main(3), 'BV (ml)');
+hold(s_main(3), 'on')
+plot(s_main(3), xscale,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_main(3), 'off')
+title(s_main(3), 'C')
+
+plot(s_main(4), xscale,FFNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_main(4), [lower, upper]);
+set(s_main(4), 'XTick', [1/5, 1, 2, 3, 4, 5]);
+set(s_main(4), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
+xlabel(s_main(4), 'Na^+ Intake (relative)'); ylabel(s_main(4), 'FF (%)');
+hold(s_main(4), 'on')
+plot(s_main(4), xscale,FFU_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(4), xscale,FFNA_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(4), xscale,FFU_f (:,fixed_ss), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+fakeplot = zeros(2, 1);
+fakeplot(1) = plot(s_main(4), NaN,NaN, 'k-' );
+fakeplot(2) = plot(s_main(4), NaN,NaN, 'k--');
+[~, hobj, ~, ~] = legend(fakeplot, {'FF_{Na^+}','FF_{U}'}, 'FontSize',7,'Location','Southwest');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+hold(s_main(4), 'off')
+title(s_main(4), 'D')
+
 % Plot with different scenarios. ------------------------------------------
 
-h = figure('pos',[100 100 675 450]);
+h(1) = figure('pos',[100 100 675 450]);
 plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
 % xlim([80, 160])
 ylim([lower, upper])
@@ -393,7 +468,7 @@ for ss = 2:num_scen-2
     legend('-DynamicLegend');
 end
 
-i = figure('pos',[100 100 675 450]);
+h(2) = figure('pos',[100 100 675 450]);
 plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
 % xlim([80, 160])
 ylim([lower, upper])
@@ -430,7 +505,7 @@ scen_comp = reordercats(scen_comp,{'M - M'       , 'M - F'       , ...
                                    'M - F M RSNA', 'M - F M AT2R', ...
                                    'M - F M RAS' , 'M - F M Reab'});
 
-j = figure('DefaultAxesFontSize',10);
+k = figure('DefaultAxesFontSize',10);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 3.5]);
 s1(1) = subplot(1,2,1); 
 s1(2) = subplot(1,2,2); 
@@ -458,13 +533,13 @@ title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
-% if     strcmp(win,  'fixed')
-%     save_data_name = sprintf('all_vars_vs_Phisodin_fixed_Phiwin.fig' );
-% elseif strcmp(win, 'varied')
-%     save_data_name = sprintf('all_vars_vs_Phisodin_varied_Phiwin.fig');
-% end
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f;g1;g2;h;i;j], save_data_name)
+if     strcmp(win,  'fixed')
+    save_data_name = sprintf('all_vars_vs_Phisodin_fixed_Phiwin.fig' );
+elseif strcmp(win, 'varied')
+    save_data_name = sprintf('all_vars_vs_Phisodin_varied_Phiwin.fig');
+end
+save_data_name = strcat('Figures/', save_data_name);
+savefig([f,g,h,k], save_data_name)
 
 end
 
