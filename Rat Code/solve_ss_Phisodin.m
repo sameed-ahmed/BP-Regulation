@@ -55,7 +55,7 @@ elseif strcmp(win, 'varied')
 end
 
 % Baseline of water intake for each scenario if it is fixed.
-Phi_win_bl = zeros(2,num_scen,2*iteration-1);
+Phi_win_bl = zeros(2*iteration-1,2,num_scen);
 
 % Range for fold decrease/increase.
 iter_range_l = linspace(lower, 1, iteration);
@@ -119,9 +119,9 @@ SSdataIG = SSdata;
 clear SSdata;
 
 % Load data for baseline water intake if it is fixed.
-Phi_win_bl(gg,ss,1) = SSdataIG(28);
+Phi_win_bl(1,gg,ss) = SSdataIG(28);
 % Input Phi_win if it is fixed.
-Phi_win_input = Phi_win_bl(gg,ss,1);
+Phi_win_input = Phi_win_bl(1,gg,ss);
 
 % Delete Phi_win if it is fixed.
 if     strcmp(win,  'fixed')
@@ -265,12 +265,11 @@ end % gender
 
 % X = (variable, iteration, gender, scenario)
 % Phi_win_range = [scenario, iteration]
-
 % Add in Phi_win where it originally was if it is fixed.
 if     strcmp(win,  'fixed')
-    Phi_win_bl(:,ss,:) = Phi_win_bl(:,ss,1) .* ones(1,1,2*iteration-1);
-    X_m(:,:,ss) = [X(1:27,:,1,ss); Phi_win_bl(1,ss,:); X(28:end,:,1,ss)];
-    X_f(:,:,ss) = [X(1:27,:,2,ss); Phi_win_bl(2,ss,:); X(28:end,:,2,ss)];
+    Phi_win_bl(:,:,ss) = Phi_win_bl(1,:,ss) .* ones(2*iteration-1,1,1);
+    X_m(:,:,ss) = [X(1:27,:,1,ss); Phi_win_bl(:,1,ss)'; X(28:end,:,1,ss)];
+    X_f(:,:,ss) = [X(1:27,:,2,ss); Phi_win_bl(:,2,ss)'; X(28:end,:,2,ss)];
 elseif strcmp(win, 'varied')
     X_m(:,:,ss) = X(:,:,1,ss); X_f(:,:,ss) = X(:,:,2,ss);
 end
