@@ -250,10 +250,10 @@ R_m    = reshape(X_m(87,:,:) ./ X_m( 4,:,:), [N,num_scen]);
 R_f    = reshape(X_f(87,:,:) ./ X_f( 4,:,:), [N,num_scen]);
 
 % Filtration fraction for sodium and urine for each gender and all scenarios.
-FFNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [N,num_scen]) * 100;
-FFNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [N,num_scen]) * 100;
-FFU_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [N,num_scen]) * 100;
-FFU_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [N,num_scen]) * 100;
+FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [N,num_scen]) * 100;
+FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [N,num_scen]) * 100;
+FRW_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [N,num_scen]) * 100;
+FRW_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [N,num_scen]) * 100;
 
 h(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
@@ -289,20 +289,20 @@ hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 title(s_main(1), 'A')
 
-plot(s_main(2), t,FFNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+plot(s_main(2), t,FRNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
 xlim(s_main(2), [xlower, xupper]);
 set(s_main(2), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(2), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
 ylim(s_main(2), [97,100])
-xlabel(s_main(2), 'Time (days)'); ylabel(s_main(2), 'FF (%)');
+xlabel(s_main(2), 'Time (days)'); ylabel(s_main(2), 'FR (%)');
 hold(s_main(2), 'on')
-plot(s_main(2), t,FFU_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_main(2), t,FFNA_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_main(2), t,FFU_f (:,fixed_ss), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(2), t,FRW_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(2), t,FRNA_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(2), t,FRW_f (:,fixed_ss), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 fakeplot = zeros(2, 1);
 fakeplot(1) = plot(s_main(2), NaN,NaN, 'k-' );
 fakeplot(2) = plot(s_main(2), NaN,NaN, 'k--');
-[~, hobj, ~, ~] = legend(fakeplot, {'FF_{Na^+}','FF_{U}'}, 'FontSize',7,'Location','Southeast');
+[~, hobj, ~, ~] = legend(fakeplot, {'FR_{Na^+}','FR_{U}'}, 'FontSize',7,'Location','Southeast');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 hold(s_main(2), 'off')

@@ -379,10 +379,10 @@ BV_m   = reshape(X_m(30,:,:), [2*iteration-1,num_scen]);
 BV_f   = reshape(X_f(30,:,:), [2*iteration-1,num_scen]);
 
 % Filtration fraction for sodium and urine for each gender and all scenarios.
-FFNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [2*iteration-1,num_scen]) * 100;
-FFNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [2*iteration-1,num_scen]) * 100;
-FFU_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [2*iteration-1,num_scen]) * 100;
-FFU_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [2*iteration-1,num_scen]) * 100;
+FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [2*iteration-1,num_scen]) * 100;
+FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [2*iteration-1,num_scen]) * 100;
+FRW_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [2*iteration-1,num_scen]) * 100;
+FRW_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [2*iteration-1,num_scen]) * 100;
 
 g(3) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
@@ -395,7 +395,7 @@ plot(s_main(1), xscale,CSOD_m(:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(1), [lower, upper]);
 set(s_main(1), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(1), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-xlabel(s_main(1), 'Na^+ Intake (relative)'); ylabel(s_main(1), 'C_{Na^+} (\mu Eq/ml)');
+xlabel(s_main(1), 'Na^+ Intake (relative)'); ylabel(s_main(1), 'C_{Na^+} ({\mu}Eq/ml)');
 hold(s_main(1), 'on')
 plot(s_main(1), xscale,CSOD_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(1), 'off')
@@ -408,7 +408,7 @@ plot(s_main(2), xscale,CADH_m(:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(2), [lower, upper]);
 set(s_main(2), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(2), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-xlabel(s_main(2), 'Na^+ Intake (relative)'); ylabel(s_main(2), 'C_{ADH} (\mu units/ml)');
+xlabel(s_main(2), 'Na^+ Intake (relative)'); ylabel(s_main(2), 'C_{ADH} ({\mu}units/ml)');
 hold(s_main(2), 'on')
 plot(s_main(2), xscale,CADH_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(2), 'off')
@@ -424,19 +424,19 @@ plot(s_main(3), xscale,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 
 hold(s_main(3), 'off')
 title(s_main(3), 'C')
 
-plot(s_main(4), xscale,FFNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+plot(s_main(4), xscale,FRNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
 xlim(s_main(4), [lower, upper]);
 set(s_main(4), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(4), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-xlabel(s_main(4), 'Na^+ Intake (relative)'); ylabel(s_main(4), 'FF (%)');
+xlabel(s_main(4), 'Na^+ Intake (relative)'); ylabel(s_main(4), 'FR (%)');
 hold(s_main(4), 'on')
-plot(s_main(4), xscale,FFU_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_main(4), xscale,FFNA_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_main(4), xscale,FFU_f (:,fixed_ss), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(4), xscale,FRW_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(4), xscale,FRNA_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_main(4), xscale,FRW_f (:,fixed_ss), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 fakeplot = zeros(2, 1);
 fakeplot(1) = plot(s_main(4), NaN,NaN, 'k-' );
 fakeplot(2) = plot(s_main(4), NaN,NaN, 'k--');
-[~, hobj, ~, ~] = legend(fakeplot, {'FF_{Na^+}','FF_{U}'}, 'FontSize',7,'Location','Southwest');
+[~, hobj, ~, ~] = legend(fakeplot, {'FR_{Na^+}','FR_{U}'}, 'FontSize',7,'Location','Southwest');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 hold(s_main(4), 'off')
@@ -539,7 +539,7 @@ elseif strcmp(win, 'varied')
     save_data_name = sprintf('all_vars_vs_Phisodin_varied_Phiwin.fig');
 end
 save_data_name = strcat('Figures/', save_data_name);
-savefig([f,g,h,k], save_data_name)
+savefig([f',g,h,k], save_data_name)
 
 end
 
