@@ -13,6 +13,10 @@ mypath = pwd;
 mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Begin user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Scenarios
 % Normal         - Normal conditions
 % m_RAS          - male RAS pars
@@ -20,6 +24,31 @@ addpath(genpath(mypath))
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
 scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_&_m_Reab'};
 fixed_ss = 1;
+
+% Factor by which to change something.
+% fact = 2.0;
+% fact = (1-0.625);
+% fact = (1-0.95);
+% fact = 0.8;
+fact = 1;
+% Parameter to change
+fact_ind = 18      ; % 'Phi_sodin';
+% fact_ind = 1      ; % 'N_rsna';
+% fact_ind = 6      ; % 'C_gcf'; 
+% fact_ind = 2      ; % 'R_aass'; 
+% fact_ind = [14,15]; % 'K_bar & R_bv'; 
+% fact_ind = 22     ; % 'N_rs'; 
+% fact_ind = 19     ; % 'N_als_eq'; 
+% fact_ind = 7      ; % 'eta_ptsodreab_eq'; 
+% fact_ind = 8      ; % 'eta_dtsodreab_eq'; 
+% fact_ind = 9      ; % 'eta_cdsodreab_eq'; 
+
+% Number of days to run simulation after change; Day at which to induce change;
+days = 13; day_change = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           End user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 num_vars = 92;
 
@@ -104,17 +133,8 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % System is initially at steady state, so the derivative is 0.
 x0 = SSdata; x_p0 = zeros(num_vars,1);
 
-% Factor by which to change something.
-% fact = 2;
-% fact = (1-0.625);
-% fact = (1-0.95);
-% fact = 0.5;
-fact = 1;
-fact_var = 'Phi_sodin';
-% fact_var = 'N_rsna';
-
 % Time at which to keep steady state, change a parameter, etc.
-tchange = 1440; days = 13;
+tchange = day_change*1440;
 % tchange = 10;
 
 % Initial time (min); Final time (min);
@@ -135,7 +155,7 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
                bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,...
-                          tchange,fact,fact_var,scenario{fixed_ss}), ...
+                          tchange,fact,fact_ind,scenario{fixed_ss}), ...
                tspan, x0, x_p0, options);
 
 T{gg} = t';

@@ -20,7 +20,7 @@
 % f     - left hand side of f(t,x(t),x'(t);theta) = 0.
 
 function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,...
-                        fact,fact_var,scenario)
+                        fact,fact_ind,scenario)
 
 %% Retrieve drugs by name.
 
@@ -53,68 +53,57 @@ SF_V = V_b_new      / 5    ; % volume
 
 %% Retrieve parameters by name.
 
+% Perturb parameter.
 if     t < tchange
-        N_rsna    = pars(1 );
+    pars = 1 * pars;
 elseif t >= tchange
-    if strcmp(fact_var,'N_rsna')
-        N_rsna    = ( (fact-1) * tanh(1 * (t-tchange)) + 1 ) ...
-                  * pars(1 );
-    else
-        N_rsna    = pars(1 );
-    end
+    pars(fact_ind) = ( (fact-1) * tanh(1 * (t-tchange)) + 1 ) * pars(fact_ind);
 end
-R_aass            = pars(2 );
-R_eass            = pars(3 );
-P_B               = pars(4 );
-P_go              = pars(5 );
-C_gcf             = pars(6 );
-eta_ptsodreab_eq  = pars(7 );
-eta_dtsodreab_eq  = pars(8 );
-eta_cdsodreab_eq  = pars(9 );
-eta_ptwreab_eq    = pars(10);
-eta_dtwreab_eq    = pars(11);
-eta_cdwreab_eq    = pars(12);
-K_vd              = pars(13);
-K_bar             = pars(14) * SF_R;
-R_bv              = pars(15) * SF_R;
-N_adhs_eq         = pars(16);
-T_adh             = pars(17);
-if     t < tchange
-        Phi_sodin = pars(18);
-elseif t >= tchange
-    if strcmp(fact_var,'Phi_sodin')
-        Phi_sodin = fact ...
-                  * pars(18);
-    else
-        Phi_sodin = pars(18);
-    end
-end
-N_als_eq          = pars(19);
-C_K               = pars(20);
-T_al              = pars(21);
-N_rs              = pars(22);
-X_PRCPRA          = pars(23);
-h_renin           = pars(24);
-h_AGT             = pars(25);
-h_AngI            = pars(26);
-h_AngII           = pars(27);
-h_Ang17           = pars(28);
-h_AngIV           = pars(29);
-h_AT1R            = pars(30);
-h_AT2R            = pars(31);
-k_AGT             = pars(32);
-c_ACE             = pars(33)*(1-gamma_ace);
-c_Chym            = pars(34);
-c_NEP             = pars(35);
-c_ACE2            = pars(36);
-c_IIIV            = pars(37);
-c_AT1R            = pars(38)*(1-gamma_arb);
-c_AT2R            = pars(39);
-AT1R_eq           = pars(40);
-AT2R_eq           = pars(41);
-Psi_AT2RAA_eq     = pars(42);
-Psi_AT2REA_eq     = pars(43);
-gen               = pars(44);
+
+N_rsna           = pars(1 );
+R_aass           = pars(2 );
+R_eass           = pars(3 );
+P_B              = pars(4 );
+P_go             = pars(5 );
+C_gcf            = pars(6 );
+eta_ptsodreab_eq = pars(7 );
+eta_dtsodreab_eq = pars(8 );
+eta_cdsodreab_eq = pars(9 );
+eta_ptwreab_eq   = pars(10);
+eta_dtwreab_eq   = pars(11);
+eta_cdwreab_eq   = pars(12);
+K_vd             = pars(13);
+K_bar            = pars(14) * SF_R;
+R_bv             = pars(15) * SF_R;
+N_adhs_eq        = pars(16);
+T_adh            = pars(17);
+Phi_sodin        = pars(18);
+N_als_eq         = pars(19);
+C_K              = pars(20);
+T_al             = pars(21);
+N_rs             = pars(22);
+X_PRCPRA         = pars(23);
+h_renin          = pars(24);
+h_AGT            = pars(25);
+h_AngI           = pars(26);
+h_AngII          = pars(27);
+h_Ang17          = pars(28);
+h_AngIV          = pars(29);
+h_AT1R           = pars(30);
+h_AT2R           = pars(31);
+k_AGT            = pars(32);
+c_ACE            = pars(33)*(1-gamma_ace);
+c_Chym           = pars(34);
+c_NEP            = pars(35);
+c_ACE2           = pars(36);
+c_IIIV           = pars(37);
+c_AT1R           = pars(38)*(1-gamma_arb);
+c_AT2R           = pars(39);
+AT1R_eq          = pars(40);
+AT2R_eq          = pars(41);
+Psi_AT2RAA_eq    = pars(42);
+Psi_AT2REA_eq    = pars(43);
+gen              = pars(44);
 if     gen == 1
     gender = 'male';
 elseif gen == 0
