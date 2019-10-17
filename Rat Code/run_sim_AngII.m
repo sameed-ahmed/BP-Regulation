@@ -248,6 +248,13 @@ RSNA_m = reshape(X_m( 1,:,:), [N,num_scen]);
 RSNA_f = reshape(X_f( 1,:,:), [N,num_scen]);
 R_m    = reshape(X_m(87,:,:) ./ X_m( 4,:,:), [N,num_scen]);
 R_f    = reshape(X_f(87,:,:) ./ X_f( 4,:,:), [N,num_scen]);
+% Plot as relative change in order to compare male and female.
+GFR_m = GFR_m ./ GFR_m(1,:);
+GFR_f = GFR_f ./ GFR_f(1,:);
+BV_m  = BV_m  ./ BV_m (1,:);
+BV_f  = BV_f  ./ BV_f (1,:);
+R_m   = R_m   ./ R_m  (1,:);
+R_f   = R_f   ./ R_f  (1,:);
 
 % Filtration fraction for sodium and urine for each gender and all scenarios.
 FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [N,num_scen]) * 100;
@@ -280,7 +287,8 @@ plot(s_main(1), t,R_m   (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'Line
 xlim(s_main(1), [xlower, xupper]);
 set(s_main(1), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(1), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
-xlabel(s_main(1), 'Time (days)'); ylabel(s_main(1), 'R_EA/R_R');
+ylim(s_main(1), [0.75,1.05])
+xlabel(s_main(1), 'Time (days)'); ylabel(s_main(1), 'R_{EA}/R_R (relative)');
 hold(s_main(1), 'on')
 plot(s_main(1), t,R_f   (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(1), 'off')
@@ -312,7 +320,8 @@ plot(s_main(3), t,GFR_m (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'Line
 xlim(s_main(3), [xlower, xupper]);
 set(s_main(3), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(3), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
-xlabel(s_main(3), 'Time (days)'); ylabel(s_main(3), 'GFR (ml/min)');
+ylim(s_main(3), [0.7,1.25])
+xlabel(s_main(3), 'Time (days)'); ylabel(s_main(3), 'GFR (relative)');
 hold(s_main(3), 'on')
 plot(s_main(3), t,GFR_f (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(3), 'off')
@@ -322,7 +331,7 @@ plot(s_main(4), t,BV_m  (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'Line
 xlim(s_main(4), [xlower, xupper]);
 set(s_main(4), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(4), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
-xlabel(s_main(4), 'Time (days)'); ylabel(s_main(4), 'BV (ml)');
+xlabel(s_main(4), 'Time (days)'); ylabel(s_main(4), 'BV (relative)');
 hold(s_main(4), 'on')
 plot(s_main(4), t,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(4), 'off')
@@ -378,9 +387,9 @@ title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
-% save_data_name = sprintf('all_vars_AngII_inf.fig');
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f;g;h';k], save_data_name)
+save_data_name = sprintf('all_vars_AngII_inf.fig');
+save_data_name = strcat('Figures/', save_data_name);
+savefig([f;g;h';k], save_data_name)
 
 end
 

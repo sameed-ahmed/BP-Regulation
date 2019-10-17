@@ -273,7 +273,7 @@ aa = (1 + bb) * dd;
 cc = -1/387 * log((aa / (1 + dd) - 1) / bb);
 f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
 % ------------------------------------------------------
-f(20) = psi_al - 1;
+% f(20) = psi_al - 1;
 % Phi_dtsod
 f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
 % Phi_cdsodreab
