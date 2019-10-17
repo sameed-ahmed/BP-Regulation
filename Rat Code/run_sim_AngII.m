@@ -262,6 +262,11 @@ FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [N,num_scen]) * 100
 FRW_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [N,num_scen]) * 100;
 FRW_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [N,num_scen]) * 100;
 
+FRNA_m = FRNA_m ./ FRNA_m(1,:);
+FRNA_f = FRNA_f ./ FRNA_f(1,:);
+FRW_m  = FRW_m  ./ FRW_m (1,:);
+FRW_f  = FRW_f  ./ FRW_f (1,:);
+
 h(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(t,RSNA_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
@@ -301,8 +306,8 @@ plot(s_main(2), t,FRNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 'Line
 xlim(s_main(2), [xlower, xupper]);
 set(s_main(2), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(2), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
-ylim(s_main(2), [97,100])
-xlabel(s_main(2), 'Time (days)'); ylabel(s_main(2), 'FR (%)');
+% ylim(s_main(2), [97,100])
+xlabel(s_main(2), 'Time (days)'); ylabel(s_main(2), 'FR (relative)');
 hold(s_main(2), 'on')
 plot(s_main(2), t,FRW_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
 plot(s_main(2), t,FRNA_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -310,7 +315,7 @@ plot(s_main(2), t,FRW_f (:,fixed_ss), '--', 'Color',[0.835, 0.203, 0.576], 'Line
 fakeplot = zeros(2, 1);
 fakeplot(1) = plot(s_main(2), NaN,NaN, 'k-' );
 fakeplot(2) = plot(s_main(2), NaN,NaN, 'k--');
-[~, hobj, ~, ~] = legend(fakeplot, {'FR_{Na^+}','FR_{U}'}, 'FontSize',7,'Location','Southeast');
+[~, hobj, ~, ~] = legend(fakeplot, {'FR_{Na^+}','FR_{U}'}, 'FontSize',7,'Location','Northeast');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 hold(s_main(2), 'off')
