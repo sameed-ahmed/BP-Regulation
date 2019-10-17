@@ -392,9 +392,9 @@ title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
-save_data_name = sprintf('all_vars_AngII_inf.fig');
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f;g;h';k], save_data_name)
+% save_data_name = sprintf('all_vars_AngII_inf.fig');
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f;g;h';k], save_data_name)
 
 end
 
