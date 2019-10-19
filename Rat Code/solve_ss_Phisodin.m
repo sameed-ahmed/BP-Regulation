@@ -377,12 +377,24 @@ CADH_m = reshape(X_m(47,:,:), [2*iteration-1,num_scen]);
 CADH_f = reshape(X_f(47,:,:), [2*iteration-1,num_scen]);
 BV_m   = reshape(X_m(30,:,:), [2*iteration-1,num_scen]);
 BV_f   = reshape(X_f(30,:,:), [2*iteration-1,num_scen]);
+% Plot as relative change in order to compare male and female.
+CSOD_m = CSOD_m ./ CSOD_m(iteration,:);
+CSOD_f = CSOD_f ./ CSOD_f(iteration,:);
+CADH_m = CADH_m ./ CADH_m(iteration,:);
+CADH_f = CADH_f ./ CADH_f(iteration,:);
+BV_m   = BV_m   ./ BV_m  (iteration,:);
+BV_f   = BV_f   ./ BV_f  (iteration,:);
 
 % Filtration fraction for sodium and urine for each gender and all scenarios.
 FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [2*iteration-1,num_scen]) * 100;
 FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [2*iteration-1,num_scen]) * 100;
 FRW_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [2*iteration-1,num_scen]) * 100;
 FRW_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [2*iteration-1,num_scen]) * 100;
+% Plot as relative change in order to compare male and female.
+FRNA_m = FRNA_m ./ FRNA_m(iteration,:);
+FRNA_f = FRNA_f ./ FRNA_f(iteration,:);
+FRW_m  = FRW_m  ./ FRW_m (iteration,:);
+FRW_f  = FRW_f  ./ FRW_f (iteration,:);
 
 g(3) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
@@ -395,7 +407,8 @@ plot(s_main(1), xscale,CSOD_m(:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(1), [lower, upper]);
 set(s_main(1), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(1), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-xlabel(s_main(1), 'Na^+ Intake (relative)'); ylabel(s_main(1), 'C_{Na^+} ({\mu}Eq/ml)');
+ylim(s_main(1), [0.99,1.03])
+xlabel(s_main(1), 'Na^+ Intake (relative)'); ylabel(s_main(1), 'C_{Na^+} (relative)');
 hold(s_main(1), 'on')
 plot(s_main(1), xscale,CSOD_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(1), 'off')
@@ -408,7 +421,8 @@ plot(s_main(2), xscale,CADH_m(:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(2), [lower, upper]);
 set(s_main(2), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(2), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-xlabel(s_main(2), 'Na^+ Intake (relative)'); ylabel(s_main(2), 'C_{ADH} ({\mu}units/ml)');
+ylim(s_main(2), [0.6,2.2])
+xlabel(s_main(2), 'Na^+ Intake (relative)'); ylabel(s_main(2), 'C_{ADH} (relative)');
 hold(s_main(2), 'on')
 plot(s_main(2), xscale,CADH_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(2), 'off')
@@ -418,7 +432,8 @@ plot(s_main(3), xscale,BV_m  (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(3), [lower, upper]);
 set(s_main(3), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(3), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-xlabel(s_main(3), 'Na^+ Intake (relative)'); ylabel(s_main(3), 'BV (ml)');
+ylim(s_main(3), [0.97,1.03])
+xlabel(s_main(3), 'Na^+ Intake (relative)'); ylabel(s_main(3), 'BV (relative)');
 hold(s_main(3), 'on')
 plot(s_main(3), xscale,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(3), 'off')
@@ -428,7 +443,8 @@ plot(s_main(4), xscale,FRNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(4), [lower, upper]);
 set(s_main(4), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(4), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-xlabel(s_main(4), 'Na^+ Intake (relative)'); ylabel(s_main(4), 'FR (%)');
+ylim(s_main(4), [0.95,1.02])
+xlabel(s_main(4), 'Na^+ Intake (relative)'); ylabel(s_main(4), 'FR (relative)');
 hold(s_main(4), 'on')
 plot(s_main(4), xscale,FRW_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
 plot(s_main(4), xscale,FRNA_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);

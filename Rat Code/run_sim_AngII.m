@@ -261,7 +261,7 @@ FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [N,num_scen]) * 100
 FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [N,num_scen]) * 100;
 FRW_m  = reshape((X_m( 7,:,:) - X_m(63,:,:)) ./ X_m( 7,:,:), [N,num_scen]) * 100;
 FRW_f  = reshape((X_f( 7,:,:) - X_f(63,:,:)) ./ X_f( 7,:,:), [N,num_scen]) * 100;
-
+% Plot as relative change in order to compare male and female.
 FRNA_m = FRNA_m ./ FRNA_m(1,:);
 FRNA_f = FRNA_f ./ FRNA_f(1,:);
 FRW_m  = FRW_m  ./ FRW_m (1,:);
