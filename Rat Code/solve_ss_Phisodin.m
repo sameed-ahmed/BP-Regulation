@@ -549,13 +549,13 @@ title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
-if     strcmp(win,  'fixed')
-    save_data_name = sprintf('all_vars_vs_Phisodin_fixed_Phiwin.fig' );
-elseif strcmp(win, 'varied')
-    save_data_name = sprintf('all_vars_vs_Phisodin_varied_Phiwin.fig');
-end
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f',g,h,k], save_data_name)
+% if     strcmp(win,  'fixed')
+%     save_data_name = sprintf('all_vars_vs_Phisodin_fixed_Phiwin.fig' );
+% elseif strcmp(win, 'varied')
+%     save_data_name = sprintf('all_vars_vs_Phisodin_varied_Phiwin.fig');
+% end
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f',g,h,k], save_data_name)
 
 end
 
