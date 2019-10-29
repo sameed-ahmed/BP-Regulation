@@ -3,11 +3,11 @@
 % taken from Jessica, which are taken in part from some paper (Karaaslan
 % 2005?).
 
-function [exitflag,imag] = solve_ss_numerical(ACEI,diuretic,NSAID,IG)
+function [exitflag,imag] = solve_ss_numerical(ACEI,diuretic,NSAID,IG,gg,AA)
 human = 1;% 1 for human, 0 for rat
 species = {'rat','human'};
 gender     = {'male', 'female'};
-AA = 2.5;
+%AA = 2.5;
 
 %SS_data_IG = zeros(82,2);
 % X          = zeros(82,2);
@@ -15,27 +15,30 @@ AA = 2.5;
 % EXITFLAG   = zeros(1 ,2);
 % OUTPUT     = cell (1 ,2);
 
-for gg = 1
+%for gg =1
+    %disp([gg,AA,ACEI,diuretic,NSAID])
 %    for mm=0:0.25:1
 %d_inhibit = mm
 %% Parameters
 pars = get_params(species{human+1},gender{gg},AA);
 
 %% Drug Treatments
-kappa_ACEI = ACEI;
+kappa_ACEI = 0;
 kappa_d = 0;
 kappa_d_tgf = 0;
 kappa_d_renin = 0;
 
 
-if ACEI ~= 0
-    kappa_ACEI = 0.76;
+if ACEI == 1
+    kappa_ACEI = 0.76*ACEI;
+elseif ACEI > 1
+    kappa_ACEI = 1;
 end
-if diuretic
+if diuretic > 0
 
-    kappa_d = 0.15;
-    kappa_d_tgf = 0.4;
-    kappa_d_renin = 0.4;
+    kappa_d = 0.15*diuretic;
+    kappa_d_tgf = 0.4*diuretic;
+    kappa_d_renin = 0.4*diuretic;
 end 
 
 
@@ -99,8 +102,8 @@ for i = 1:length(SSdata)
     end
 end
     
-save_data_name = sprintf('%s_%s_ss_%s_%s_%s_rsna%s_fixedparams_highsodin_highphiwin_impairedmyo2.mat', species{human+1},gender{gg},num2str(ACEI),num2str(diuretic),num2str(NSAID),num2str(AA));
-save_data_name = strcat('Data/', save_data_name);
+save_data_name = sprintf('%s_%s_ss_%s_%s_%s_rsna%s_femalegammaRSNA.mat', species{human+1},gender{gg},num2str(ACEI),num2str(diuretic),num2str(NSAID),num2str(AA));
+save_data_name = strcat('Data_testsexdiff/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 
 % X(:,g) = x;
@@ -108,7 +111,7 @@ save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 % EXITFLAG(g) = exitflag;
 % OUTPUT{g} = output;
 
-end
+%end
 end
 %end
 

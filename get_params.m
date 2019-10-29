@@ -53,7 +53,7 @@ P_ghnom     = 62;      % mmHg
 
 if strcmp(species, 'human') 
     X_PRCPRA = 61/60.0; %fmol/min/pg
-    if strcmp(sex, 'male')     
+    if  strcmp(sex, 'male')     
         k_AGT   = 577.04;
         c_ACE   = 0.88492;
         c_Chym  = 0.09315;

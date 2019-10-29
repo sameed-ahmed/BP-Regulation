@@ -111,7 +111,7 @@ if t < tchange
         kappa_d_tgf   = 0;
         kappa_d_renin = 0;
         NSAID         = drugs(5);%0;
-        elseif drugs(5) > 0
+        elseif drugs(5) > 0 %NSAID only
         kappa_ACEI    = 0;
         kappa_d       = 0;
         kappa_d_tgf   = 0;
@@ -157,7 +157,7 @@ kappa_d_tgf   = drugs(3);
 kappa_d_renin = drugs(4);
 NSAID         = drugs(5);  
 end
-
+%disp([t, kappa_ACEI])
 %% Retrieve variables by name.
 
 rsna          = x(1 ); rsna_p          = x_p(1 ); 
@@ -252,7 +252,7 @@ f = zeros(length(x),1);
 % rsna
 
 rsna0 = N_rsna * alpha_map * alpha_rap;
-if     strcmp(gender,'male')
+if  1%   strcmp(gender,'male')
     f(1 ) = rsna - rsna0;
 elseif strcmp(gender,'female')
     f(1 ) = rsna - rsna0^(1/rsna0);
@@ -279,16 +279,18 @@ f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );
 % Sigma_tgf
 % f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859) / (-0.9617))) );
 %f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859 * SF) / (-0.9617 * SF) )) );
-if NSAID
+if NSAID == 1
     %if t < (tchange + deltat) %Gradually change
     %    nsaid_tgf = ( 0.644032 + 1.188073289 / (2.0285174154 + exp(((1-kappa_d_tgf)*Phi_mdsod - 3.859*SF)/(-0.9617*SF))));
     %    tgf = ( 0.3408 + 3.449 / (3.88 + exp(((1-kappa_d_tgf)*Phi_mdsod - 3.859*SF)/(-0.9617*SF))));
     %    f(10) = Sigma_tgf - ( (nsaid_tgf - tgf)/deltat*(t-tchange) + tgf);
-    %else
-    f(10) = Sigma_tgf - ( 0.644032 + 1.188073289 / (2.0285174154 + exp(((1-kappa_d_tgf)*Phi_mdsod - 3.859*SF)/(-0.9617*SF))));%1;%sig_tgf_EQ;
+    %else %2.5203 
+    f(10) = Sigma_tgf - ( 0.644032 + 1.188073289 / (2.0285174154 + exp(((1-kappa_d_tgf)*Phi_mdsod - 3.859*SF)/(-0.9617*SF))));%1;%sig_tgf_EQ; + 0.4*3.6
     %end
+elseif NSAID > 1
+    f(10) = Sigma_tgf - 1;
 else
-    f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp(((1-kappa_d_tgf)*Phi_mdsod - 3.859*SF)/(-0.9617*SF))));
+    f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp(((1-kappa_d_tgf)*Phi_mdsod  - 3.859*SF)/(-0.9617*SF))));%+ 0.4*3.6
 end
 
 % Phi_filsod
@@ -305,7 +307,7 @@ f(14) = gamma_filsod - ( 0.85 + 0.3 / (1 + exp((Phi_filsod - 18 * SF)/(138 * SF)
 f(15) = gamma_at - ( 0.95 + 0.12 / (1 + exp(2.6 - 1.8 * 1.301/20 * (AT1R*20/AT1R_eq))) );
 % f(15) = gamma_at - ( 0.95 + 0.12 / (1 + exp(2.6 - 1.8 * log10(C_at))) );
 % gamma_rsna
-f(16) = gamma_rsna - ( 0.65+0.07 + 0.8*0.7 / (1 + exp((1 - rsna) / 2.18)) );
+f(16) = gamma_rsna - ( 0.65+0.07 + 0.8*0.7 / (1 + exp((1 - rsna^(1/rsna)) / 2.18)) );
 % f(16) = gamma_rsna - ( 0.5 + 0.7 / (1 + exp((1 - rsna) / 2.18)) );
 % Phi_mdsod
 f(17) = Phi_mdsod - ( Phi_filsod - Phi_ptsodreab );
@@ -341,14 +343,19 @@ f(26) = Phi_usod - max(0,( Phi_dtsod - Phi_cdsodreab ));
 % f(27) = Phi_win - ( max( 0, 0.008 / (1 + 86.1*1.822*(C_adh^(3*-1.607))) - 0.005 ) );
 % % f(27) = Phi_win - ( 0.008 / (1 + 1.822*(C_adh^(-1.607))) - 0.0053 );
 %f(27) = Phi_win - ( max( 0, 0.008 * SF / (1 + 86.1*1.822*(C_adh^(3*-1.607))) - 0.005 * SF ) );
+%normal
 f(27) = Phi_win - (max(0, 0.0078541*SF / (0.65451 + 18.22*C_adh^-1.607) - 0.002));
+%low U = 0.005
+%f(27) = Phi_win - (max(0, 0.0103*SF / (1.4726 + 18.22*C_adh^-1.607) - 0.002));
+%lower U = 0.0025
+%f(27) = Phi_win - (max(0, 0.0177*SF / (3.9271 + 18.22*C_adh^-1.607) - 0.002));
 % V_ecf
 f(28) = V_ecf_p - ( Phi_win - Phi_u );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAT
 % V_b
 % f(29) = V_b - ( 4.5479392962 + 2.431217 / (1 + exp(-(V_ecf - 18.11278) * 0.47437)) );
 % % f(29) = V_b - ( 4.560227 + 2.431217 / (1 + exp(-(V_ecf - 18.11278) * 0.47437)) );
-f(29) = V_b - ( 4.5479392962 * SF + 2.431217 * SF / (1 + exp(-(V_ecf - 18.11278 * SF) * (0.47437 / SF) )) );
+f(29) = V_b - 0.325*V_ecf;%( 4.5479392962 * SF + 2.431217 * SF / (1 + exp(-(V_ecf - 18.11278 * SF) * (0.47437 / SF) )) );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RAT
 % P_mf
 % f(30) = P_mf - ( (7.436 * V_b - 30.18) * epsilon_aum );
@@ -435,7 +442,7 @@ f(55) = M_sod_p - ( Phi_sodin - Phi_usod );
 % end
 % % f(56) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.667) / 0.6056)) );
 if     strcmp(gender,'male')
-    if  NSAID
+    if  NSAID >0
         A = 0.2262;
         C =77.6196;
         B =83.4095;
@@ -448,11 +455,13 @@ if     strcmp(gender,'male')
         %f(57) = nu_mdsod - (A + B./(C+exp(4*((1-kappa_d_renin)* Phi_mdsod - 3.1328)/0.6056)));
         %end
         %f(57) = nu_mdsod - max(0.8,min(1.3,( 0.2262 + 28.04 / (11.56 + exp(((1-kappa_d_renin)*Phi_mdsod - 1.731 * SF) / (0.6056 * SF) )) )));
+    %elseif NSAID > 1
+    %    f(57) = nu_mdsod - 1;
     else 
         f(57) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp(((1-kappa_d_renin)*Phi_mdsod - 1.731 * SF) / (0.6056 * SF) )) );
     end
 elseif strcmp(gender,'female')
-    if NSAID
+    if NSAID > 0
         A = 0.2262;
         C =77.6196;
         B =83.4095;
@@ -461,10 +470,12 @@ elseif strcmp(gender,'female')
         %    nu =  0.2262 + 28.04 / (11.56 + exp(((1-kappa_d_renin)*Phi_mdsod - 1.637 * SF) / (0.6056 * SF) ))  ;
         %    f(57) = nu_mdsod - ( (nsaid_nu - nu)/deltat*(t - tchange) + nsaid_nu );
         %else
-        %f(57) = nu_mdsod - ( A + B./(C+exp(((1-kappa_d_renin)*Phi_mdsod - 1.637*SF)/0.6056*SF)));
-        f(57) = nu_mdsod - (A + B./(C+exp(4*((1-kappa_d_renin)* Phi_mdsod - 3.1328)/0.6056)));
+        f(57) = nu_mdsod - ( A + B./(C+exp(((1-kappa_d_renin)*Phi_mdsod - 1.637*SF)/0.6056*SF)));
+        %f(57) = nu_mdsod - (A + B./(C+exp(4*((1-kappa_d_renin)* Phi_mdsod - 3.1328)/0.6056)));
         %end
         %f(57) = nu_mdsod - min(1.3,( 0.2262 + 28.04 / (11.56 + exp(((1-kappa_d_renin)*Phi_mdsod - 1.637 * SF) / (0.6056 * SF) )) ));
+    %elseif NSAID > 1
+    %    f(57) = nu_mdsod - 1;
     else
        f(57) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp(((1-kappa_d_renin)*Phi_mdsod - 1.637 * SF) / (0.6056 * SF) )) );
     end
@@ -525,13 +536,14 @@ f(78) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
 %normal
 %f(79) = Sigma_myo - ( 5*(P_gh/62-1) +1 );
-f(79) = Sigma_myo - ( 0.9 + 1.0 / ( 1 + (9/1) * exp(-0.9 * (P_gh - 62)) ));
+f(79) = Sigma_myo - ( 0.9 + 1.0 / ( 1 + (9/1) * exp(-0.9 * (P_gh - (62))) ));
 %);
 %impaired
 %f(79) = Sigma_myo - ( 1.1 + 0.5 / ( 1 + (9/1) * exp(-0.9 * (P_gh - 62)) ) );
 % very impaired
 %f(79) = Sigma_myo - ( 1.2 + 0.3 / ( 1 + (9/1) * exp(-0.9 * (P_gh - 62)) ) );
-
+%broken
+%f(79) = Sigma_myo - 1.1;
 %From Hallow
 f(80) = Psi_AT1RAA - ( 0.8   + 0.1902*0.055 * (AT1R*20 / AT1R_eq) - 0.185 / (AT1R*20 / AT1R_eq) );
 
