@@ -58,10 +58,10 @@ pars = get_pars(gender{gg}, scenario{ss});
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
 
 if     strcmp(gender{gg}, 'male')
-    drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
+    drugs = [6068, 0, 0]; % Sampson 2008 male + female; 13 days
 %     drugs = [(3/3)*5492, 0, 0]; % Zimmerman 2015 male + female; 14 days
 elseif strcmp(gender{gg}, 'female')
-    drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
+    drugs = [6182, 0, 0]; % Sampson 2008 male + female; 13 days
 %     drugs = [(2/3)*5492, 0, 0]; % Zimmerman 2015 male + female; 14 days
 end
 
