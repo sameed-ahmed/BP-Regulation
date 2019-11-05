@@ -99,7 +99,7 @@ T_adh     = 6     ; % min
 Phi_sodin = 1.2212; % microEq / min % karaaslan
 N_als_eq  = 1     ; % -
 C_K       = 5     ; % microEq / ml 
-T_al      = 30    ; % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
+T_al      = 60    ; % min LISTED AS 30 IN TABLE %listed as 60 in text will only change dN_al
 N_rs      = 1     ; % ng / ml / min
 
 % RAS
