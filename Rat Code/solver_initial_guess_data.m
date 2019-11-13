@@ -5,9 +5,13 @@
 
 function solver_initial_guess_data
 
-gender = {'male', 'female'};
+species = {'human', 'rat'   };
+gender  = {'male' , 'female'};
 
 for gg = 1:2 % gender
+
+% Species
+sp = 2;
 
 %% Scaling factors
 
@@ -27,10 +31,17 @@ V_b_new = 0.06 * W_b + 0.77; % Lee 1985
 
 % Rat value = Human value x SF
 % Note: This includes conversion of units.
-SF_S = Phi_usod_new / 0.126; % sodium flow
-SF_U = Phi_u_new    / 0.001; % urine flow
-SF_R = R_r_new      / 83.3 ; % resistance
-SF_V = V_b_new      / 5    ; % volume
+if     strcmp(species, 'human')
+    SF_S =                    1; % sodium flow
+    SF_U =                    1; % urine flow
+    SF_R =                    1; % resistance
+    SF_V =                    1; % volume
+elseif strcmp(species, 'rat')
+    SF_S = Phi_usod_new / 0.126; % sodium flow
+    SF_U = Phi_u_new    / 0.001; % urine flow
+    SF_R = R_r_new      / 83.3 ; % resistance
+    SF_V = V_b_new      / 5    ; % volume
+end
 
 %% Manual entry of values
 

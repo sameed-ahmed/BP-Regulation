@@ -15,6 +15,21 @@
 
 function f = bp_reg_solve_baseline(t,x,x_p,pars,drugs)
 
+%% Retrieve species and gender identifier. 
+
+spc = pars(44);
+gen = pars(45);
+if     spc == 1
+    species = 'human';
+elseif spc == 0
+    species = 'rat';
+end
+if     gen == 1
+    gender = 'male';
+elseif gen == 0
+    gender = 'female';
+end
+
 %% Retrieve drugs by name.
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
@@ -22,8 +37,6 @@ k_AngII   = drugs(1);
 gamma_ace = drugs(2);
 gamma_arb = drugs(3);
 alpha     = drugs(4);
-
-%% Retrieve parameters by name.
 
 %% Formulate scaling factors.
 
@@ -36,10 +49,17 @@ V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
 
 % Rat value = Human value x SF
 % Note: This includes conversion of units.
-SF_S = Phi_usod_new / 0.126; % sodium flow
-SF_U = Phi_u_new    / 0.001; % urine flow
-SF_R = R_r_new      / 83.3 ; % resistance
-SF_V = V_b_new      / 5    ; % volume
+if     strcmp(species, 'human')
+    SF_S =                    1; % sodium flow
+    SF_U =                    1; % urine flow
+    SF_R =                    1; % resistance
+    SF_V =                    1; % volume
+elseif strcmp(species, 'rat')
+    SF_S = Phi_usod_new / 0.126; % sodium flow
+    SF_U = Phi_u_new    / 0.001; % urine flow
+    SF_R = R_r_new      / 83.3 ; % resistance
+    SF_V = V_b_new      / 5    ; % volume
+end
 
 %% Retrieve parameters by name.
 
@@ -60,38 +80,32 @@ K_bar            = pars(14) * SF_R;
 R_bv             = pars(15) * SF_R;
 N_adhs_eq        = pars(16);
 T_adh            = pars(17);
-% Phi_sodin        = pars(18);
-N_als_eq         = pars(18);
-C_K              = pars(19);
-T_al             = pars(20);
-N_rs             = pars(21);
-X_PRCPRA         = pars(22);
-h_renin          = pars(23);
-h_AGT            = pars(24);
-h_AngI           = pars(25);
-h_AngII          = pars(26);
-h_Ang17          = pars(27);
-h_AngIV          = pars(28);
-h_AT1R           = pars(29);
-h_AT2R           = pars(30);
-k_AGT            = pars(31);
-c_ACE            = pars(32)*(1-gamma_ace);
-c_Chym           = pars(33);
-c_NEP            = pars(34);
-c_ACE2           = pars(35);
-c_IIIV           = pars(36);
-c_AT1R           = pars(37)*(1-gamma_arb);
-c_AT2R           = pars(38);
-AT1R_eq          = pars(39);
-AT2R_eq          = pars(40);
-Psi_AT2RAA_eq    = pars(41);
-Psi_AT2REA_eq    = pars(42);
-gen              = pars(43);
-if     gen == 1
-    gender = 'male';
-elseif gen == 0
-    gender = 'female';
-end
+Phi_sodin_const  = pars(18);
+N_als_eq         = pars(19);
+C_K              = pars(20);
+T_al             = pars(21);
+N_rs             = pars(22);
+X_PRCPRA         = pars(23);
+h_renin          = pars(24);
+h_AGT            = pars(25);
+h_AngI           = pars(26);
+h_AngII          = pars(27);
+h_Ang17          = pars(28);
+h_AngIV          = pars(29);
+h_AT1R           = pars(30);
+h_AT2R           = pars(31);
+k_AGT            = pars(32);
+c_ACE            = pars(33)*(1-gamma_ace);
+c_Chym           = pars(34);
+c_NEP            = pars(35);
+c_ACE2           = pars(36);
+c_IIIV           = pars(37);
+c_AT1R           = pars(38)*(1-gamma_arb);
+c_AT2R           = pars(39);
+AT1R_eq          = pars(40);
+AT2R_eq          = pars(41);
+Psi_AT2RAA_eq    = pars(42);
+Psi_AT2REA_eq    = pars(43);
 
 %% Retrieve variables by name.
 
@@ -349,7 +363,7 @@ f(26) = lambda_al - ( 1/(387^0.06) * C_al^0.06 );
 f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
 
 % Phi_sodin
-f(28) = Phi_sodin - ( 1.2212 );
+f(28) = Phi_sodin - ( Phi_sodin_const );
 
 % V_ecf
 f(29) = V_ecf_p - ( Phi_win - Phi_u );

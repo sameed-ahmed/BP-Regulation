@@ -24,6 +24,9 @@ scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
 % Index of scenario to fix.
 fixed_ss = 1;
 
+% Species
+sp = 2;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,7 +34,8 @@ fixed_ss = 1;
 % Number of variables.
 num_vars = 93;
 
-gender = {'male', 'female'};
+species = {'human', 'rat'   };
+gender  = {'male' , 'female'};
 
 X        = zeros(num_vars,2);
 RESIDUAL = zeros(num_vars,2);
@@ -43,36 +47,17 @@ for gg = 1:2 % gender
 %% Parameters
 
 % Parameter input
-pars = get_pars(gender{gg}, scenario{fixed_ss});
+pars = get_pars(species{sp}, gender{gg}, scenario{fixed_ss});
 
 %% Drugs
 
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario{fixed_ss}, 'Normal'         ) || strcmp(scenario{fixed_ss}, 'm_RSNA'        ) || ...
-       strcmp(scenario{fixed_ss}, 'm_AT2R'         ) || strcmp(scenario{fixed_ss}, 'm_RAS'         ) || ...
-       strcmp(scenario{fixed_ss}, 'm_Reab'         ) || strcmp(scenario{fixed_ss}, 'm_RAS_&_m_Reab') || ...
-       strcmp(scenario{fixed_ss}, 'm_RSNA_&_m_Reab')
-    drugs = [0, 0, 0, 0];
-elseif strcmp(scenario{fixed_ss}, 'AngII')
-    if     strcmp(gender{gg}, 'male')
-        drugs = [2022, 0, 0, 0]; % Sampson 2008
-    elseif strcmp(gender{gg}, 'female')
-        drugs = [2060, 0, 0, 0]; % Sampson 2008
-    end
-elseif strcmp(scenario{fixed_ss}, 'ACEi')
-%     drugs = [0, 1, 0, 0 ]; % Hall 1980
-    drugs = [0, 0.78, 0, 0]; % Leete 2018
-elseif strcmp(scenario{fixed_ss}, 'ARB')
-    drugs = [0, 0, 0.67, 0]; % Leete 2018
-elseif strcmp(scenario{fixed_ss}, 'AT2R-')
-    drugs = [0, 0, 0, 10];
-end
+drugs = [0, 0, 0, 0];
 
 %% Variables initial guess
 
 % Load data for steady state initial guess. 
 % Set name for data file to be loaded based upon gender.    
-load_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
+load_data_name = sprintf('NEW%s_%s_ss_data_IG.mat', species{sp}, gender{gg});
 load(load_data_name, 'SSdataIG');
 
 % Order
@@ -99,7 +84,7 @@ x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
 %% Find steady state solution
 
-options = optimset(); %options = optimset('MaxFunEvals',num_vars*100+10000);
+options = optimset();
 [SSdata, residual, ...
  exitflag, output] = fsolve(@(x) bp_reg_solve_baseline(t,x,x_p0,pars,drugs), ...
                             x0, options);
@@ -115,22 +100,11 @@ if not (isreal(SSdata))
     disp('Imaginary number returned.')
 end
 
-% % Set any values that are within machine precision of 0 equal to 0.
-% for i = 1:length(SSdata)
-%     if abs(SSdata(i)) < eps*100
-%         SSdata(i) = 0;
-%     end
-% end
-
 % Save values.
-save_data_name = sprintf('NEW%s_ss_data_scenario_%s.mat', gender{gg},scenario{fixed_ss});
+save_data_name = sprintf('NEW%s_%s_ss_data_scenario_%s.mat', ...
+                         species{sp}, gender{gg},scenario{fixed_ss});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
-
-% X(:,g) = x;
-% RESIDUAL(:,g) = residual;
-% EXITFLAG(g) = exitflag;
-% OUTPUT{g} = output;
 
 end % gender
 
