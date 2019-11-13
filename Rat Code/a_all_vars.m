@@ -30,7 +30,7 @@ lambda_dt     = x(24); lambda_dt_p     = x_p(24); % fi % sfs
 lambda_anp    = x(25); lambda_anp_p    = x_p(25); 
 lambda_al     = x(26); lambda_al_p     = x_p(26); 
 Phi_usod      = x(27); Phi_usod_p      = x_p(27); 
-Phi_win       = x(28); Phi_win_p       = x_p(28); 
+Phi_sodin     = x(28); Phi_sodin_p     = x_p(28); 
 V_ecf         = x(29); V_ecf_p         = x_p(29); 
 V_b           = x(30); V_b_p           = x_p(30); % sfv 
 P_mf          = x(31); P_mf_p          = x_p(31); % sfv 
@@ -53,49 +53,51 @@ C_adh         = x(47); C_adh_p         = x_p(47);
 N_adh         = x(48); N_adh_p         = x_p(48); 
 N_adhs        = x(49); N_adhs_p        = x_p(49); % fi
 delta_ra      = x(50); delta_ra_p      = x_p(50); 
-Phi_ptwreab   = x(51); Phi_ptwreab_p   = x_p(51);                           %#ok<*NASGU>
-eta_ptwreab   = x(52); eta_ptwreab_p   = x_p(52); 
-mu_ptsodreab  = x(53); mu_ptsodreab_p  = x_p(53); 
-Phi_mdu       = x(54); Phi_mdu_p       = x_p(54); 
-Phi_dtwreab   = x(55); Phi_dtwreab_p   = x_p(55); 
-eta_dtwreab   = x(56); eta_dtwreab_p   = x_p(56); 
-mu_dtsodreab  = x(57); mu_dtsodreab_p  = x_p(57); 
-Phi_dtu       = x(58); Phi_dtu_p       = x_p(58); 
-Phi_cdwreab   = x(59); Phi_cdwreab_p   = x_p(59); 
-eta_cdwreab   = x(60); eta_cdwreab_p   = x_p(60); 
-mu_cdsodreab  = x(61); mu_cdsodreab_p  = x_p(61); 
-mu_adh        = x(62); mu_adh_p        = x_p(62); 
-Phi_u         = x(63); Phi_u_p         = x_p(63); 
-M_sod         = x(64); M_sod_p         = x_p(64); 
-C_sod         = x(65); C_sod_p         = x_p(65); 
-nu_mdsod      = x(66); nu_mdsod_p      = x_p(66); % fi % sfs
-nu_rsna       = x(67); nu_rsna_p       = x_p(67); 
-C_al          = x(68); C_al_p          = x_p(68); 
-N_al          = x(69); N_al_p          = x_p(69); 
-N_als         = x(70); N_als_p         = x_p(70); 
-xi_ksod       = x(71); xi_ksod_p       = x_p(71); % fi
-xi_map        = x(72); xi_map_p        = x_p(72); 
-xi_at         = x(73); xi_at_p         = x_p(73); 
-hatC_anp      = x(74); hatC_anp_p      = x_p(74); 
-AGT           = x(75); AGT_p           = x_p(75); 
-nu_AT1        = x(76); nu_AT1_p        = x_p(76); 
-R_sec         = x(77); R_sec_p         = x_p(77); 
-PRC           = x(78); PRC_p           = x_p(78); 
-PRA           = x(79); PRA_p           = x_p(79); 
-AngI          = x(80); AngI_p          = x_p(80); 
-AngII         = x(81); AngII_p         = x_p(81); 
-AT1R          = x(82); AT1R_p          = x_p(82); 
-AT2R          = x(83); AT2R_p          = x_p(83); 
-Ang17         = x(84); Ang17_p         = x_p(84); 
-AngIV         = x(85); AngIV_p         = x_p(85); 
-R_aa          = x(86); R_aa_p          = x_p(86); 
-R_ea          = x(87); R_ea_p          = x_p(87); 
-Sigma_myo     = x(88); Sigma_myo_p     = x_p(88); % fi
-Psi_AT1RAA    = x(89); Psi_AT1RAA_p    = x_p(89); 
-Psi_AT1REA    = x(90); Psi_AT1REA_p    = x_p(90); 
-Psi_AT2RAA    = x(91); Psi_AT2RAA_p    = x_p(91); 
-Psi_AT2REA    = x(92); Psi_AT2REA_p    = x_p(92); 
 
+M_sod         = x(51); M_sod_p         = x_p(51); 
+C_sod         = x(52); C_sod_p         = x_p(52); 
+nu_mdsod      = x(53); nu_mdsod_p      = x_p(53); % fi % sfs
+nu_rsna       = x(54); nu_rsna_p       = x_p(54); 
+C_al          = x(55); C_al_p          = x_p(55); 
+N_al          = x(56); N_al_p          = x_p(56); 
+N_als         = x(57); N_als_p         = x_p(57); 
+xi_ksod       = x(58); xi_ksod_p       = x_p(58); % fi
+xi_map        = x(59); xi_map_p        = x_p(59); 
+xi_at         = x(60); xi_at_p         = x_p(60); 
+hatC_anp      = x(61); hatC_anp_p      = x_p(61); 
+AGT           = x(62); AGT_p           = x_p(62); 
+nu_AT1        = x(63); nu_AT1_p        = x_p(63); 
+R_sec         = x(64); R_sec_p         = x_p(64); 
+PRC           = x(65); PRC_p           = x_p(65); 
+PRA           = x(66); PRA_p           = x_p(66); 
+AngI          = x(67); AngI_p          = x_p(67); 
+AngII         = x(68); AngII_p         = x_p(68); 
+AT1R          = x(69); AT1R_p          = x_p(69); 
+AT2R          = x(70); AT2R_p          = x_p(70); 
+Ang17         = x(71); Ang17_p         = x_p(71); 
+AngIV         = x(72); AngIV_p         = x_p(72); 
+R_aa          = x(73); R_aa_p          = x_p(73); 
+R_ea          = x(74); R_ea_p          = x_p(74); 
+Sigma_myo     = x(75); Sigma_myo_p     = x_p(75); % fi
+Psi_AT1RAA    = x(76); Psi_AT1RAA_p    = x_p(76); 
+Psi_AT1REA    = x(77); Psi_AT1REA_p    = x_p(77); 
+Psi_AT2RAA    = x(78); Psi_AT2RAA_p    = x_p(78); 
+Psi_AT2REA    = x(79); Psi_AT2REA_p    = x_p(79); 
+
+Phi_ptwreab   = x(80); Phi_ptwreab_p   = x_p(80);                           %#ok<*NASGU>
+eta_ptwreab   = x(81); eta_ptwreab_p   = x_p(81); 
+mu_ptsodreab  = x(82); mu_ptsodreab_p  = x_p(82); 
+Phi_mdu       = x(83); Phi_mdu_p       = x_p(83); 
+Phi_dtwreab   = x(84); Phi_dtwreab_p   = x_p(84); 
+eta_dtwreab   = x(85); eta_dtwreab_p   = x_p(85); 
+mu_dtsodreab  = x(86); mu_dtsodreab_p  = x_p(86); 
+Phi_dtu       = x(87); Phi_dtu_p       = x_p(87); 
+Phi_cdwreab   = x(88); Phi_cdwreab_p   = x_p(88); 
+eta_cdwreab   = x(89); eta_cdwreab_p   = x_p(89); 
+mu_cdsodreab  = x(90); mu_cdsodreab_p  = x_p(90); 
+mu_adh        = x(91); mu_adh_p        = x_p(91); 
+Phi_u         = x(92); Phi_u_p         = x_p(92); 
+Phi_win       = x(93); Phi_win_p       = x_p(93); 
 
 % fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 
@@ -187,7 +189,8 @@ xi_at         = x(73); xi_at_p         = x_p(73);
 rsna          = x(1 ); rsna_p          = x_p(1 ); 
 alpha_map     = x(2 ); alpha_map_p     = x_p(2 ); % fi
 alpha_rap     = x(3 ); alpha_rap_p     = x_p(3 ); 
-Phi_win       = x(28); Phi_win_p       = x_p(28); 
+Phi_sodin     = x(28); Phi_sodin_p     = x_p(28); 
+Phi_win       = x(64); Phi_win_p       = x_p(64); 
 V_ecf         = x(29); V_ecf_p         = x_p(29); 
 V_b           = x(30); V_b_p           = x_p(30); % sfv 
 N_adhs        = x(49); N_adhs_p        = x_p(49); % fi
