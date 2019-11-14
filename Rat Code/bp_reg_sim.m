@@ -20,6 +20,21 @@
 function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,...
                         scenario)
 
+%% Retrieve species and gender identifier. 
+
+spc = pars(44);
+gen = pars(45);
+if     spc == 1
+    species = 'human';
+elseif spc == 0
+    species = 'rat';
+end
+if     gen == 1
+    gender = 'male';
+elseif gen == 0
+    gender = 'female';
+end
+
 %% Retrieve drugs by name.
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
@@ -44,10 +59,17 @@ V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
 
 % Rat value = Human value x SF
 % Note: This includes conversion of units.
-SF_S = Phi_usod_new / 0.126; % sodium flow
-SF_U = Phi_u_new    / 0.001; % urine flow
-SF_R = R_r_new      / 83.3 ; % resistance
-SF_V = V_b_new      / 5    ; % volume
+if     strcmp(species, 'human')
+    SF_S =                    1; % sodium flow
+    SF_U =                    1; % urine flow
+    SF_R =                    1; % resistance
+    SF_V =                    1; % volume
+elseif strcmp(species, 'rat')
+    SF_S = Phi_usod_new / 0.126; % sodium flow
+    SF_U = Phi_u_new    / 0.001; % urine flow
+    SF_R = R_r_new      / 83.3 ; % resistance
+    SF_V = V_b_new      / 5    ; % volume
+end
 
 %% Retrieve parameters by name.
 
@@ -94,12 +116,6 @@ AT1R_eq          = pars(40);
 AT2R_eq          = pars(41);
 Psi_AT2RAA_eq    = pars(42);
 Psi_AT2REA_eq    = pars(43);
-gen              = pars(44);
-if     gen == 1
-    gender = 'male';
-elseif gen == 0
-    gender = 'female';
-end
 
 %% Retrieve variables by name.
 

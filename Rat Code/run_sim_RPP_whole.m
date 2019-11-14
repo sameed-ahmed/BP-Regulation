@@ -29,11 +29,10 @@ bl_per    = (0 - RPP_per(1)) / inc_per + 1;
 % Scenarios
 % Normal          - normal conditions
 % Denerve         - cut off rsna from kidney
-% Denerve & AT2R- - cut off rsna from kidney and block AT2R
 % Denerve & No Myo      - cut off rsna from kidney and block myogenic response
-% Denerve & No Myo      - cut off rsna from kidney and block tubuloglomerular feedback
+% Denerve & No TGF      - cut off rsna from kidney and block tubuloglomerular feedback
 % Denerve & No Myo, TGF - cut off rsna from kidney and block myogenic response and tubuloglomerular feedback
-scenario = {'Normal', 'Denerve', 'Denerve & AT2R-', ...
+scenario = {'Normal', 'Denerve', ...
             'Denerve & Linear Myo', 'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
 num_scen = length(scenario);
 
@@ -46,6 +45,9 @@ exact_per = 3;
 % Index of scenario to plot for all variables
 % Scenario 'Denerve' is the one from Hilliard 2011.
 exact_scen = 2;
+
+% Species
+sp = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -67,7 +69,8 @@ X_f = zeros(num_vars+1,num_points,num_per,num_scen);
 % RPP = (gender, scenario)
 RPP = zeros(2,num_scen);
 
-gender = {'male', 'female'};
+species = {'human', 'rat'   };
+gender  = {'male' , 'female'};
 
 for pp = 1:num_per  % perturbation
 for ss = 1:num_scen % scenario
@@ -85,11 +88,10 @@ fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
 %% Parameters
 
 % Parameter input
-pars = get_pars(gender{gg}, scenario{ss});
+pars = get_pars(species{sp}, gender{gg}, scenario{ss});
 
 %% Drugs
 
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
 drugs = [0, 0, 0]; % No drug
 
 %% Solve DAE
@@ -166,9 +168,6 @@ t0 = 0; tend = tchange + 50; ppm = (num_points-1)/(tend-t0);
 tspan = linspace(t0,tend,num_points);
 
 % ode options
-options = odeset();
-% options = odeset('RelTol',1e-1, 'AbsTol',1e-4); % default is -3, -6
-% options = odeset('MaxStep',1e-3); % default is 0.1*abs(tf-t0)
 options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
@@ -195,7 +194,7 @@ end % perturbation
 
 % X_m/f = (variables, points, perturbation, scenario)
 X_m(:,:,:,:) = X(:,:,1,:,:);
-X_f(:,:,:,:) = X(:,:,2,:,:); % X_f = X_m;
+X_f(:,:,:,:) = X(:,:,2,:,:);
 
 % % x-axis limits
 % xlower = t0; xupper = tend; 
@@ -468,10 +467,10 @@ xlim([55,210]); xticks([60:30:210]);
 ylim([-1,5]); yticks([-1:2:5]);
 xlabel('RPP (mmHg)'); ylabel('GFR (relative)');
 hold on
-plot(RPP_m,GFR_m(:,4) ,'-', 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % lin myo k--o
-plot(RPP_m,GFR_m(:,5) ,'-', 'LineWidth',3                                   ); % no  myo k--
-plot(RPP_m,GFR_m(:,6) ,'-', 'LineWidth',3                                   ); % no  tgf k:
-plot(RPP_m,GFR_m(:,7) ,'-', 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % no  myo & tgf k--x
+plot(RPP_m,GFR_m(:,3) ,'-', 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % lin myo k--o
+plot(RPP_m,GFR_m(:,4) ,'-', 'LineWidth',3                                   ); % no  myo k--
+plot(RPP_m,GFR_m(:,5) ,'-', 'LineWidth',3                                   ); % no  tgf k:
+plot(RPP_m,GFR_m(:,6) ,'-', 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % no  myo & tgf k--x
 [~, hobj, ~, ~] = legend({'Full AR','Linear MR','No MR','No TGF','No MR and TGF'}, 'FontSize',7,'Location','Northwest');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);

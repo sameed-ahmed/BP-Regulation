@@ -25,6 +25,9 @@ addpath(genpath(mypath))
 scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_&_m_Reab'};
 fixed_ss = 1;
 
+% Species
+sp = 2;
+
 % Number of days to run simulation after change; Day at which to induce change;
 days = 13; day_change = 1;
 
@@ -34,32 +37,21 @@ days = 13; day_change = 1;
 
 num_vars = 92;
 
-gender   = {'male', 'female'};
+species = {'human', 'rat'   };
+gender  = {'male' , 'female'};
 
 % Initialize variables and time.
-SSDATA   = zeros(num_vars,2);
-residual = zeros(num_vars,2);
-X        = cell(1,2);
-T        = cell(1,2);
-
-% % Jacobian sparsity pattern
-% [dfdy_s,dfdy_p_s] = jac_spar;
+X = cell(1,2);
+T = cell(1,2);
 
 for gg = 1:2 % gender
 
 %% Parameters
 
 % Parameter input
-pars = get_pars(gender{gg}, scenario{fixed_ss});
+pars = get_pars(species{sp}, gender{gg}, scenario{fixed_ss});
 
 %% Drugs
-
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
-
-% drugs = [0, 1, 0]; % Total ACEi
-% drugs = [0, 0, 1]; % Total ARB
-% drugs = [0, 0.78, 0]; % Leete 2018 ACEi
-% drugs = [0, 0, 0.67]; % Leete 2018 ARB
 
 drugs = [0, 0, 0]; % No drug
 
@@ -117,22 +109,15 @@ x0 = SSdata; x_p0 = zeros(num_vars,1);
 
 % Time at which to keep steady state, change a parameter, etc.
 tchange = day_change*1440;
-% tchange = 10;
 
 % Initial time (min); Final time (min);
 t0 = 0*1440; tend = tchange + days*1440;
-% t0 = 0; tend = tchange + 1000;
 
 % Time vector
 tspan = [t0, tend]; %linspace(t0,tf,N);
 
 % ode options
-options = odeset();
-% options = odeset('Jacobian',@(t,x,x_p)jac_anal(pars, t,x,x_p));
-% options = odeset('JPattern',{ dfdy_s{gg},dfdy_p_s{gg} });
-% options = odeset('RelTol',1e-1, 'AbsTol',1e-4); % default is -3, -6
 options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
-% options = odeset('RelTol',1e-2, 'AbsTol',1e-4, 'MaxStep',1e-0);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
@@ -143,8 +128,6 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 T{gg} = t';
 X{gg} = x';
 
-% residual(:,g) = bp_reg(0,x0,x_p0,pars);
-
 end % gender
 
 %% Plot
@@ -152,7 +135,6 @@ end % gender
 % Retrieve male and female.
 t_m = T{1}; t_f = T{2};
 X_m = X{1}; X_f = X{2};
-% t_f = t_m; X_f = X_m; 
 
 % x-axis limits
 xlower = t0; xupper = tend; 
@@ -193,8 +175,6 @@ for i = 1:7
         xlim([xlower, xupper])
         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
         
-% %         Minutes
-%         xlabel('Time (min)')
 %         Days
         ax = gca;
 %         ax.XTick = (tchange+0*(1*1440) : 1440 : tchange+days*(1*1440));
@@ -203,13 +183,6 @@ for i = 1:7
                          '7' ,'8' ,'9' ,'10','11','12','13',...
                          '14','15','16','17','18','19','20',...
                          '21','22','23','24','25','26'};
-%         xlabel('Time (days)')
-% %         Weeks
-%         ax = gca;
-%         ax.XTick = [tchange+0*(7*1440); tchange+1*(7*1440); ...
-%                     tchange+2*(7*1440); tchange+3*(7*1440)];
-%         ax.XTickLabel = {'0','1','2','3'};
-%         xlabel('Time (weeks)')
         
 %         legend('Male', 'Female')
         title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
