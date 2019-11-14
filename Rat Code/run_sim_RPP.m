@@ -60,7 +60,7 @@ RPP = zeros(2,num_scen);
 
 gender = {'male', 'female'};
 
-for pp = 1:num_per  % perturbation
+for pp = 1:1  % perturbation
 for ss = 1:num_scen % scenario
 for gg = 1:2        % gender
 

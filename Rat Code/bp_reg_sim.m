@@ -12,15 +12,13 @@
 % SSdata         - steady state variable values
 % drugs          - drug blocking percentage, infusion rate, etc.
 % tchange        - time at which to change something in simulation
-% fact           - factor by which to change something
-% fact_var       - variable in which to effect factor change
 % scenario       - scenario, e.g., female with male RSNA
 
 % Output
 % f     - left hand side of f(t,x(t),x'(t);theta) = 0.
 
 function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,...
-                        fact,fact_ind,scenario)
+                        scenario)
 
 %% Retrieve drugs by name.
 
@@ -52,13 +50,6 @@ SF_R = R_r_new      / 83.3 ; % resistance
 SF_V = V_b_new      / 5    ; % volume
 
 %% Retrieve parameters by name.
-
-% Perturb parameter.
-if     t < tchange
-    pars = 1 * pars;
-elseif t >= tchange
-    pars(fact_ind) = ( (fact-1) * tanh(1 * (t-tchange)) + 1 ) * pars(fact_ind);
-end
 
 N_rsna           = pars(1 );
 R_aass           = pars(2 );

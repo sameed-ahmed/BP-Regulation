@@ -27,11 +27,10 @@ function f = bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,Phi_win_input,...
 
 % Normal                - normal conditions
 % Denerve               - cut off rsna from kidney
-% Denerve & AT2R-       - cut off rsna from kidney and block AT2R
 % Denerve & No Myo      - cut off rsna from kidney and block myogenic response
-% Denerve & No Myo      - cut off rsna from kidney and block tubuloglomerular feedback
+% Denerve & No TGF      - cut off rsna from kidney and block tubuloglomerular feedback
 % Denerve & No Myo, TGF - cut off rsna from kidney and block myogenic response and tubuloglomerular feedback
-% scenario = {'Normal', 'Denerve', 'Denerve & AT2R-', ...
+% scenario = {'Normal', 'Denerve', ...
 %             'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
 
 %% Retrieve drugs by name.
