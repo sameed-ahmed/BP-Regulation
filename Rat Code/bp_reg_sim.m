@@ -1,7 +1,7 @@
 % This is a model of long-term model blood pressure regulation.
 % It is adopted with modifications from Karaaslan 2005 and Leete 2018.
 
-% This function file is to run the dynamic simulation.
+% This function file is to run the dynamic simulation for manipulating renal perfusion pressure.
 
 % Input
 % t              - time
@@ -10,23 +10,24 @@
 % pars           - parameters
 % fixed_var_pars - shift parameters which ensure that effect variables are 1
 % SSdata         - steady state variable values
+% tchange        - time at which to change RPP in simulation
 % drugs          - drug blocking percentage, infusion rate, etc.
-% tchange        - time at which to change something in simulation
+% RPP_per        - perturbation in RPP
 % scenario       - scenario, e.g., female with male RSNA
 
 % Output
-% f     - left hand side of f(t,x(t),x'(t);theta) = 0.
+% f              - left hand side of f(t,x(t),x'(t);theta) = 0.
 
-function f = bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,tchange,...
-                        scenario)
+function f = bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,SSdata,...
+                            tchange,drugs,RPP_per,scenario)
 
 %% Retrieve species and gender identifier. 
 
-spc = pars(44);
+spe = pars(44);
 gen = pars(45);
-if     spc == 1
+if     spe == 1
     species = 'human';
-elseif spc == 0
+elseif spe == 0
     species = 'rat';
 end
 if     gen == 1
@@ -34,6 +35,16 @@ if     gen == 1
 elseif gen == 0
     gender = 'female';
 end
+
+%% Scenarios
+
+% Normal                - normal conditions
+% Denerve               - cut off rsna from kidney
+% Denerve & No Myo      - cut off rsna from kidney and block myogenic response
+% Denerve & No TGF      - cut off rsna from kidney and block tubuloglomerular feedback
+% Denerve & No Myo, TGF - cut off rsna from kidney and block myogenic response and tubuloglomerular feedback
+% scenario = {'Normal', 'Denerve', ...
+%             'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
 
 %% Retrieve drugs by name.
 
@@ -46,6 +57,14 @@ elseif t >= tchange
     k_AngII   = drugs(1);
     gamma_ace = drugs(2);
     gamma_arb = drugs(3);
+end
+
+%% Renal perfusion pressure.
+
+if     t < tchange
+    RPP = SSdata(42);
+elseif t >= 1 *tchange 
+    RPP = RPP_per * tanh(5 * (t-tchange)) + SSdata(42);
 end
 
 %% Formulate scaling factors.
@@ -219,7 +238,7 @@ f = zeros(length(x),1);
 % rsna
 rsna0 = N_rsna * alpha_map * alpha_rap;
 if     strcmp(gender,'male')
-    f(1 ) = rsna - rsna0;
+        f(1 ) = rsna - rsna0;
 elseif strcmp(gender,'female')
     if     strcmp(scenario, 'm_RSNA') || strcmp(scenario, 'm_RSNA_&_m_Reab')
         f(1 ) = rsna - rsna0;
@@ -233,19 +252,58 @@ f(2 ) = alpha_map - ( 0.5 + 1 / (1 + exp((P_ma - fixed_var_pars(1)) / 15)) );
 f(3 ) = alpha_rap - ( 1 - 0.008 * P_ra );
 % R_r
 f(4 ) = R_r - ( R_aa + R_ea );
+% MODIFY ------------------------------------------------------------------
 % beta_rsna
-f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
+if     t < tchange
+    f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
+elseif t >= tchange
+    if   strcmp(scenario,'Denerve')              || strcmp(scenario,'Denerve & AT2R-')       || ... 
+         strcmp(scenario,'Denerve & Linear Myo') || strcmp(scenario,'Denerve & No Myo')      || ...
+         strcmp(scenario,'Denerve & No TGF')     || strcmp(scenario,'Denerve & No Myo, TGF')
+        f(5 ) = beta_rsna - ( 1 );
+    else
+        f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
+    end
+end
+% MODIFY ------------------------------------------------------------------
+% VARY --------------------------------------------------------------------
 % Phi_rb
-f(6 ) = Phi_rb - ( P_ma / R_r );
+if     t < tchange
+      f(6 ) = Phi_rb - ( P_ma / R_r );
+elseif t >= tchange
+    if true
+        f(6 ) = Phi_rb - ( P_ma / R_r );
+    else
+        f(6 ) = Phi_rb - ( RPP / R_r );
+    end
+end
+% VARY --------------------------------------------------------------------
 % Phi_gfilt
 f(7 ) = Phi_gfilt - ( P_f * C_gcf );
 % P_f
 f(8 ) = P_f - ( P_gh - (P_B + P_go) );
+% VARY --------------------------------------------------------------------
 % P_gh
-f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );
+if     t < tchange
+       f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );
+elseif t >= tchange
+    if true
+        f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );
+    else
+        f(9 ) = P_gh - ( RPP - Phi_rb * R_aa );
+    end
+end
+% VARY --------------------------------------------------------------------
 % Sigma_tgf - rat
-% f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - 3.859) / (-0.9617))) );
-f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
+if     t < tchange
+    f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
+elseif t >= tchange
+    if   strcmp(scenario,'Denerve & No TGF') || strcmp(scenario,'Denerve & No Myo, TGF')
+        f(10) = Sigma_tgf - ( 1 );
+    else
+        f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
+    end
+end
 % Phi_filsod
 f(11) = Phi_filsod - ( Phi_gfilt * C_sod );
 % Phi_ptsodreab
@@ -273,8 +331,20 @@ gammaat_a = 0.136;
 gammaat_b = -1/(1-gammaat_c) * log(gammaat_a/(1-gammaat_d) - 1);
 f(15) = gamma_at - ( gammaat_d + gammaat_a / (1 + exp(-gammaat_b * ((AT1R/AT1R_eq) - gammaat_c)) ) );
 
+% MODIFY ------------------------------------------------------------------
 % gamma_rsna
-f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
+if     t < tchange
+    f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
+elseif t >= tchange
+    if   strcmp(scenario,'Denerve')              || strcmp(scenario,'Denerve & AT2R-')       || ... 
+         strcmp(scenario,'Denerve & Linear Myo') || strcmp(scenario,'Denerve & No Myo')      || ...
+         strcmp(scenario,'Denerve & No TGF')     || strcmp(scenario,'Denerve & No Myo, TGF')
+        f(16) = gamma_rsna - ( 1 );
+    else
+        f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
+    end
+end
+% MODIFY ------------------------------------------------------------------
 % Phi_mdsod
 f(17) = Phi_mdsod - ( Phi_filsod - Phi_ptsodreab );
 % Phi_dtsodreab
@@ -308,6 +378,7 @@ f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
 % eta_cdsodreab
 f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * lambda_dt * lambda_anp );
 % lambda_dt - rat
+% f(24) = lambda_dt - ( 0.82 + 0.2553 / (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (0.245 * SF_S) )) );
 % -----------------------------------------------------------------------
 if     strcmp(gender,  'male')
 % lambdadt_b = 0.2555; % jessica
@@ -342,7 +413,7 @@ elseif strcmp(gender,'female')
 % % % % lambdadt_b = 0.2007; % 98% % redone
 % % ---
 % % lambdadt_c = 2; % <= 90%
-% % lambdadt_c = -30 / SF_S / (log(lambdadt_b / (1 / eta_cdsodreab_eq - 0.82) - 1) - log(lambdadt_b / (1 - 0.82) - 1));
+% lambdadt_c = -30 / SF_S / (log(lambdadt_b / (1 / eta_cdsodreab_eq - 0.82) - 1) - log(lambdadt_b / (1 - 0.82) - 1));
 % f(24) = lambda_dt - ( 0.82 + lambdadt_b/ (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (lambdadt_c * SF_S) )) );
 % % -----------------------------------------------------------------------
 % -----------------------------------------------------------------------
@@ -365,27 +436,11 @@ f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
 f(26) = lambda_al - ( 1/(387^0.06) * C_al^0.06 );
 % Phi_usod
 f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
-% Phi_win - rat
-% f(28) = Phi_win - ( 0.003 / (1 + exp(-2.25 * (C_adh - 3.87))) );
-% f(28) = Phi_win - ( 0.003 * SF / (1 + exp(-2.25 * (C_adh - 3.87))) );
-% -------------------------------------------------------------------------
-% phiwin_a = 0.8;
-% phiwin_d = SSdata(28);
-% phiwin_c = (0.002313 - 0.001) * SF_V;
-% phiwin_b = SSdata(47);
-% f(28) = Phi_win - ( phiwin_c * tanh(phiwin_a * (C_adh - phiwin_b)) + phiwin_d );
-% -------------------------------------------------------------------------
-% phiwin_a = 0.8;
-% phiwin_b = SSdata(47) + 1/phiwin_a * log(0.002313 / (0.001) - 1);
-% f(28) = Phi_win - ( 0.002313 / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) + (SSdata(28) - 0.001) );
-% -------------------------------------------------------------------------
-% f(28) = Phi_win - ( SSdata(28) );
-% -------------------------------------------------------------------------
 phiwin_a = 0.8;
 phiwin_c = 0.002313;
 phiwin_b = SSdata(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.0150 - 1);
 f(28) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
-% -------------------------------------------------------------------------
+% f(28) = Phi_win - ( SSdata(28) );
 % V_ecf
 f(29) = V_ecf_p - ( Phi_win - Phi_u );
 % V_b - rat
@@ -403,14 +458,10 @@ f(33) = Phi_co - ( Phi_vr );
 % f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281) - 0.8256 ) );
 prapra = 0.2787 * exp(SSdata(33) * 0.2281 * SF_R);
 prapra = prapra + 0.01 * prapra;
-% prapra = 0.2787 * exp(15.0235185777134 * 0.2281 * SF_R);
 f(34) = P_ra - ( max( 0, 0.2787 * exp(Phi_co * 0.2281 * SF_R) - prapra ) );
-% f(34) = P_ra - ( 0.2787 * exp(Phi_co * 0.2281 * SF_R) - prapra );
-% f(34) = P_ra - ( 0 );
 % vas
 f(35) = vas_p - ( 1 / 1000 * (vas_f - vas_d) );
 % vas_f - rat
-% f(36) = vas_f - ( (11.312 * exp(-Phi_co * 0.4799)) / 100000 );
 vvv = -1/SSdata(33) * log(1/11.312);
 f(36) = vas_f - ( (11.312 * exp(-Phi_co * vvv)) / 100 );
 % vas_d
@@ -442,7 +493,6 @@ f(48) = N_adh_p - ( 1/T_adh * (N_adhs - N_adh) );
 f(49) = N_adhs - ( N_adhs_eq * (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
 % delta_ra
 f(50) = delta_ra_p - ( 0.2 * P_ra_p - 0.0007 * delta_ra );
-% f(50) = delta_ra - ( 0 );
 
 % Phi_ptwreab
 f(51) = Phi_ptwreab - ( Phi_gfilt * eta_ptwreab );
@@ -497,8 +547,21 @@ f(65) = C_sod - ( M_sod / V_ecf );
 % end
 % % f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - 1.667) / 0.6056)) );
 f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - fixed_var_pars(7)) / (0.6056 * SF_S) )) );
+% MODIFY ------------------------------------------------------------------
 % nu_rsna
-f(67) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
+if     t < tchange
+    f(67) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8667)) );
+elseif t >= tchange
+    if   strcmp(scenario,'Denerve')              || strcmp(scenario,'Denerve & AT2R-')       || ... 
+         strcmp(scenario,'Denerve & Linear Myo') || strcmp(scenario,'Denerve & No Myo')      || ...
+         strcmp(scenario,'Denerve & No TGF')     || strcmp(scenario,'Denerve & No Myo, TGF')
+%         f(67) = nu_rsna - ( SSdata(66) );
+        f(67) = nu_rsna - ( 1 );
+    else
+        f(67) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
+    end
+end
+% MODIFY ------------------------------------------------------------------
 % C_al - rat
 % if     strcmp(gender,  'male')
 %     f(68) = C_al - ( N_al * 85      );
@@ -542,24 +605,39 @@ f(80) = AngI_p - ( PRA - (c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI 
 f(81) = AngII_p - ( k_AngII + (c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII );
 % AT1R
 f(82) = AT1R_p - ( c_AT1R * AngII - log(2)/h_AT1R * AT1R );
+% MODIFY ------------------------------------------------------------------
 % AT2R
-f(83) = AT2R_p - ( c_AT2R * AngII - log(2)/h_AT2R * AT2R );
+if   strcmp(scenario,'Denerve & AT2R-')
+    alpha = 10;
+    f(83) = AT2R_p - ( c_AT2R * AngII - log(2)/h_AT2R * AT2R - alpha * AT2R );
+else
+    f(83) = AT2R_p - ( c_AT2R * AngII - log(2)/h_AT2R * AT2R );
+end
+% MODIFY ------------------------------------------------------------------
 % Ang17
 f(84) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
 % AngIV
 f(85) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
 % R_aa
 f(86) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA);
-% f(86) = R_aa - ( R_aass * 1);
 % R_ea
 f(87) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
-% f(87) = R_ea - ( R_eass * 1 );
 % Sigma_myo
 sigmamyo_a = 0.75;
 sigmamyo_b = 1.2;
 sigmamyo_d = 0.6;
 sigmamyo_c = sigmamyo_b / (1-sigmamyo_a) - 1;
-f(88) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
+if     t < tchange
+    f(88) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
+elseif t >= tchange
+    if   strcmp(scenario,'Denerve & Linear Myo')
+        f(88) = Sigma_myo - ( 5 * (P_gh / fixed_var_pars(9) - 1) + 1 );
+    elseif   strcmp(scenario,'Denerve & No Myo') || strcmp(scenario,'Denerve & No Myo, TGF')
+        f(88) = Sigma_myo - ( 1 );
+    else
+        f(88) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
+    end
+end
 % Psi_AT1RAA
 f(89) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R_eq) );
 % Psi_AT1REA

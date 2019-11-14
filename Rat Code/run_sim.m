@@ -35,10 +35,11 @@ days = 13; day_change = 1;
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-num_vars = 92;
-
 species = {'human', 'rat'   };
 gender  = {'male' , 'female'};
+
+% Number of variables
+num_vars = 92;
 
 % Initialize variables and time.
 X = cell(1,2);
@@ -59,11 +60,10 @@ drugs = [0, 0, 0]; % No drug
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% Karaaslan 2005 and Leete 2018. 
+% solve_ss_baseline.m.
 
 % Set name for data file to be loaded based upon gender and scenario.    
 load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{fixed_ss});
-
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 
@@ -72,6 +72,9 @@ load(load_data_name, 'SSdata');
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 SSdata(fixed_ind) = 1;
+
+% Renal perfusion pressure perturbation place holder.
+RPP_per = 0;
 
 % Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -114,15 +117,15 @@ tchange = day_change*1440;
 t0 = 0*1440; tend = tchange + days*1440;
 
 % Time vector
-tspan = [t0, tend]; %linspace(t0,tf,N);
+tspan = [t0, tend];
 
 % ode options
 options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,...
-                          tchange,scenario{fixed_ss}), ...
+               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata       ,...
+                          tchange,drugs,RPP_per,scenario{fixed_ss}),...
                tspan, x0, x_p0, options);
 
 T{gg} = t';
@@ -157,7 +160,6 @@ f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-%     f(i) = figure; 
     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
@@ -177,7 +179,6 @@ for i = 1:7
         
 %         Days
         ax = gca;
-%         ax.XTick = (tchange+0*(1*1440) : 1440 : tchange+days*(1*1440));
         ax.XTick = (tchange+0*(1) : 1 : tchange+days*(1));
         ax.XTickLabel = {'0' ,'1' ,'2' ,'3' ,'4' ,'5' ,'6' ,...
                          '7' ,'8' ,'9' ,'10','11','12','13',...

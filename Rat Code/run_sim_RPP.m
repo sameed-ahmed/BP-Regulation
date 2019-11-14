@@ -45,16 +45,15 @@ sp = 2;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Number of variables
-% 1 less due to fixed water intake.
-num_vars = 92-1;
+num_vars = 92;
 
 % Initialize variables.
 % X = (variables, points, gender, perturbation, scenario)
-X = zeros(num_vars+1,num_points,2,num_per,num_scen);
+X = zeros(num_vars,num_points,2,num_per,num_scen);
 % Retrieve male/female. 
 % X_m/f = (variables, points, perturbation, scenario)
-X_m = zeros(num_vars+1,num_points,num_per,num_scen);
-X_f = zeros(num_vars+1,num_points,num_per,num_scen);
+X_m = zeros(num_vars,num_points,num_per,num_scen);
+X_f = zeros(num_vars,num_points,num_per,num_scen);
 
 % Need to store male and female RPP for plotting later.
 % RPP = (gender, scenario)
@@ -66,15 +65,6 @@ gender  = {'male' , 'female'};
 for pp = 1:num_per  % perturbation
 for ss = 1:num_scen % scenario
 for gg = 1:2        % gender
-
-% Retrieve and replace parameters in fixed variable equations.
-% Set name for data file to be loaded based upon gender.    
-load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
-load(load_data_name, 'SSdata');
-fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-fixed_var_pars = SSdata(fixed_ind);
-phicophico = SSdata(33); cadhcadh = SSdata(47);
-fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
 
 %% Parameters
 
@@ -89,9 +79,9 @@ drugs = [0, 0, 0]; % No drug
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% Karaaslan 2005 and Leete 2018. 
+% solve_ss_baseline.m.
 
-% Load data for steady state initial value. 
+% Retrieve and replace parameters in fixed variable equations.
 % Fixed variable parameters are only retrieved and replaced for scenarios
 % which are solved for in the solve_ss_baseline because the parameter has
 % changed for the fixed variable to remain 1.
@@ -99,21 +89,15 @@ drugs = [0, 0, 0]; % No drug
 % require this because they load the fixed variable parameter from the
 % baseline scenario, and they are perturbed scenarios in which the fixed
 % variable is no longer 1.
-if   strcmp(scenario{ss},'Denerve & AT2R-')
-    load_data_name = sprintf('%s_ss_data_scenario_AT2R-.mat', gender{gg});
-    load(load_data_name, 'SSdata');
-else
-    load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
-    load(load_data_name, 'SSdata');
-    SSdata(fixed_ind) = 1;
-end
+% Set name for data file to be loaded based upon gender.    
+load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
+load(load_data_name, 'SSdata');
+fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
+fixed_var_pars = SSdata(fixed_ind);
+SSdata(fixed_ind) = 1;
 
-% Store water intake as an input and delete it as a variable.
-Phi_win_input = SSdata(28);
-SSdata(28) = '';
-
-% Input Renal Perfusion Pressure.
-RPP(gg,ss) = SSdata(42-1);
+% Renal Perfusion Pressure.
+RPP(gg,ss) = SSdata(42);
 
 % Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -163,16 +147,11 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,...
-                              Phi_win_input,tchange,drugs,...
-                              RPP(gg,ss),RPP_per(pp)     ,...
-                              SSdata,scenario{ss})       ,...
+               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata     ,...
+                          tchange,drugs,RPP_per(pp),scenario{ss}),...
                tspan, x0, x_p0, options);
 t = t'; x = x';
 
-% Add in Phi_win where it originally was.
-Phi_win = Phi_win_input*ones(1,length(t));
-x = [x(1:27,:); Phi_win; x(28:end,:)];
 % Store solution.
 % X = (variables, points, gender, perturbation, scenario)
 X(:,:,gg,pp,ss) = x;
@@ -191,8 +170,8 @@ X_f(:,:,:,:) = X(:,:,2,:,:);
 xlower = t0; xupper = tend; 
 
 % y-axis limits
-ylower = zeros(num_vars+1); yupper = ylower; 
-for i = 1:num_vars+1
+ylower = zeros(num_vars); yupper = ylower; 
+for i = 1:num_vars
     ylower(i) = 0.9*min(min(X_m(i,:,exact_per,exact_scen)), min(X_f(i,:,exact_per,exact_scen)));
     yupper(i) = 1.1*max(max(X_m(i,:,exact_per,exact_scen)), max(X_f(i,:,exact_per,exact_scen)));
     if abs(yupper(i)) < eps*100
@@ -206,7 +185,6 @@ f  = gobjects(7,1);
 ss1 = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-%     f(i) = figure; 
     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7

@@ -27,6 +27,9 @@ scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'm_RSNA_&_m_Reab'};
 num_scen = length(scenario);
 fixed_ss = 1;
 
+% Species
+sp = 2;
+
 % Number of days to run simulation after change; Day at which to induce change;
 days = 13; day_change = 1;
 % Number of points for plotting resolution
@@ -36,6 +39,9 @@ N = ((days+1)*1440) / 2;
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+species = {'human', 'rat'   };
+gender  = {'male' , 'female'};
+
 % Number of variables
 num_vars = 92;
 
@@ -43,15 +49,13 @@ num_vars = 92;
 % X = (variables, points, gender, scenario)
 X = zeros(num_vars,N,2,num_scen);
 
-gender = {'male', 'female'};
-
 for ss = 1:num_scen % scenario
 for gg = 1:2        % gender
 
 %% Parameters
 
 % Parameter input
-pars = get_pars(gender{gg}, scenario{ss});
+pars = get_pars(species{sp}, gender{gg}, scenario{ss});
 
 %% Drugs
 
@@ -59,21 +63,18 @@ pars = get_pars(gender{gg}, scenario{ss});
 
 if     strcmp(gender{gg}, 'male')
     drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
-%     drugs = [(3/3)*5492, 0, 0]; % Zimmerman 2015 male + female; 14 days
 elseif strcmp(gender{gg}, 'female')
     drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
-%     drugs = [(2/3)*5492, 0, 0]; % Zimmerman 2015 male + female; 14 days
 end
 
 %% Solve DAE
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% Karaaslan 2005 and Leete 2018. 
+% solve_ss_baseline.m.
 
 % Set name for data file to be loaded based upon gender and scenario.    
 load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
-
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 
@@ -82,6 +83,9 @@ load(load_data_name, 'SSdata');
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 fixed_var_pars = SSdata(fixed_ind);
 SSdata(fixed_ind) = 1;
+
+% Renal perfusion pressure perturbation place holder.
+RPP_per = 0;
 
 % Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -117,30 +121,22 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % System is initially at steady state, so the derivative is 0.
 x0 = SSdata; x_p0 = zeros(num_vars,1);
 
-% Factor by which to change something.
-fact = 1;
-fact_var = '';
-
 % Time at which to keep steady state, change a parameter, etc.
 tchange = day_change*1440;
-% tchange = 10;
 
 % Initial time (min); Final time (min);
 t0 = 0*1440; tend = tchange + days*1440;
-% t0 = 0; tend = tchange + 1000;
 
 % Time vector
 tspan = linspace(t0,tend,N);
 
 % ode options
-% options = odeset('RelTol',1e-1, 'AbsTol',1e-4); % default is -3, -6
 options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
-% options = odeset('RelTol',1e-2, 'AbsTol',1e-4, 'MaxStep',1e-0);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata,drugs,...
-                          tchange,fact,fact_var,scenario{ss})     ,...
+               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata ,...
+                          tchange,drugs,RPP_per,scenario{ss}),...
                tspan, x0, x_p0, options);
 
 % X = (variables, points, gender, scenario)
@@ -178,7 +174,6 @@ f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-%     f(i) = figure; 
     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
@@ -197,6 +192,7 @@ for i = 1:7
         xlim([xlower, xupper])
         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
         
+%         Days
         ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
         ax.XTickLabel = {'0' ,'2' ,'4' ,'6' ,'8' ,'10','12',...
                          '14','16','18','20','22','24','26'};

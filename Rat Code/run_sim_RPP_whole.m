@@ -32,8 +32,9 @@ bl_per    = (0 - RPP_per(1)) / inc_per + 1;
 % Denerve & No Myo      - cut off rsna from kidney and block myogenic response
 % Denerve & No TGF      - cut off rsna from kidney and block tubuloglomerular feedback
 % Denerve & No Myo, TGF - cut off rsna from kidney and block myogenic response and tubuloglomerular feedback
-scenario = {'Normal', 'Denerve', ...
-            'Denerve & Linear Myo', 'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
+scenario = {'Normal'              , 'Denerve'              , ...
+            'Denerve & Linear Myo', 'Denerve & No Myo'     , ...
+            'Denerve & No TGF'    , 'Denerve & No Myo, TGF'};
 num_scen = length(scenario);
 
 % Number of points for plotting resolution
@@ -55,15 +56,15 @@ sp = 2;
 
 % Number of variables
 % 1 less due to fixed water intake.
-num_vars = 92-1;
+num_vars = 92;
 
 % Initialize variables.
 % X = (variables, points, gender, perturbation, scenario)
-X = zeros(num_vars+1,num_points,2,num_per,num_scen);
+X = zeros(num_vars,num_points,2,num_per,num_scen);
 % Retrieve male/female. 
 % X_m/f = (variables, points, perturbation, scenario)
-X_m = zeros(num_vars+1,num_points,num_per,num_scen);
-X_f = zeros(num_vars+1,num_points,num_per,num_scen);
+X_m = zeros(num_vars,num_points,num_per,num_scen);
+X_f = zeros(num_vars,num_points,num_per,num_scen);
 
 % Need to store male and female RPP for plotting later.
 % RPP = (gender, scenario)
@@ -75,15 +76,6 @@ gender  = {'male' , 'female'};
 for pp = 1:num_per  % perturbation
 for ss = 1:num_scen % scenario
 for gg = 1:2        % gender
-
-% Retrieve and replace parameters in fixed variable equations.
-% Set name for data file to be loaded based upon gender.    
-load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
-load(load_data_name, 'SSdata');
-fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-fixed_var_pars = SSdata(fixed_ind);
-phicophico = SSdata(33); cadhcadh = SSdata(47);
-fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
 
 %% Parameters
 
@@ -98,9 +90,9 @@ drugs = [0, 0, 0]; % No drug
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% Karaaslan 2005 and Leete 2018. 
+% solve_ss_baseline.m.
 
-% Load data for steady state initial value. 
+% Retrieve and replace parameters in fixed variable equations.
 % Fixed variable parameters are only retrieved and replaced for scenarios
 % which are solved for in the solve_ss_baseline because the parameter has
 % changed for the fixed variable to remain 1.
@@ -108,21 +100,15 @@ drugs = [0, 0, 0]; % No drug
 % require this because they load the fixed variable parameter from the
 % baseline scenario, and they are perturbed scenarios in which the fixed
 % variable is no longer 1.
-if   strcmp(scenario{ss},'Denerve & AT2R-')
-    load_data_name = sprintf('%s_ss_data_scenario_AT2R-.mat', gender{gg});
-    load(load_data_name, 'SSdata');
-else
-    load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
-    load(load_data_name, 'SSdata');
-    SSdata(fixed_ind) = 1;
-end
+% Set name for data file to be loaded based upon gender.    
+load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
+load(load_data_name, 'SSdata');
+fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
+fixed_var_pars = SSdata(fixed_ind);
+SSdata(fixed_ind) = 1;
 
-% Store water intake as an input and delete it as a variable.
-Phi_win_input = SSdata(28);
-SSdata(28) = '';
-
-% Input Renal Perfusion Pressure.
-RPP(gg,ss) = SSdata(42-1);
+% Renal Perfusion Pressure.
+RPP(gg,ss) = SSdata(42);
 
 % Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -172,16 +158,11 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-                bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,...
-                               Phi_win_input,tchange,drugs,...
-                               RPP(gg,ss),RPP_per(pp)     ,...
-                               SSdata,scenario{ss})       ,...
+               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata     ,...
+                          tchange,drugs,RPP_per(pp),scenario{ss}),...
                 tspan, x0, x_p0, options);
 t = t'; x = x';
 
-% Add in Phi_win where it originally was.
-Phi_win = Phi_win_input*ones(1,length(t));
-x = [x(1:27,:); Phi_win; x(28:end,:)];
 % Store solution.
 % X = (variables, points, gender, perturbation, scenario)
 X(:,:,gg,pp,ss) = x;
@@ -196,68 +177,67 @@ end % perturbation
 X_m(:,:,:,:) = X(:,:,1,:,:);
 X_f(:,:,:,:) = X(:,:,2,:,:);
 
-% % x-axis limits
-% xlower = t0; xupper = tend; 
-% 
-% % y-axis limits
-% ylower = zeros(num_vars+1); yupper = ylower; 
-% for i = 1:num_vars+1
-%     ylower(i) = 0.9*min(min(X_m(i,:,exact_per,exact_scen)), min(X_f(i,:,exact_per,exact_scen)));
-%     yupper(i) = 1.1*max(max(X_m(i,:,exact_per,exact_scen)), max(X_f(i,:,exact_per,exact_scen)));
-%     if abs(yupper(i)) < eps*100
-%         ylower(i) = -10^(-5); yupper(i) = 10^(-5);
-%     end
-% end
-% 
-% % Plot all variables vs time. ---------------------------------------------
-% 
-% f  = gobjects(7,1);
-% s1 = gobjects(7,15);
-% % Loop through each set of subplots.
-% for i = 1:7
-% %     f(i) = figure; 
-%     f(i) = figure('pos',[750 500 650 450]);
-%     % This is to avoid the empty plots in the last subplot set.
-%     if i == 7
-%         last_plot = 2;
-%     else
-%         last_plot = 15;
-%     end
-%     % Loop through each subplot within a set of subplots.
-%     for j = 1:last_plot
-%         s1(i,j) = subplot(3,5,j);
-%         s1(i,j).Position = s1(i,j).Position + [0 0 0.01 0];
-%         
-%         plot(s1(i,j), t,X_m((i-1)*15+j,:,exact_per,exact_scen),'b' , ...
-%                       t,X_f((i-1)*15+j,:,exact_per,exact_scen),'r');
-%         
-% %         xlim([xlower, xupper])
-%         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
-%         
-% %         Minutes
-% %         ax = gca;
-% %         ax.XTick = (tchange : 10 : tend);
-% %         ax.XTickLabel = {'0'  ,'20' ,'40' ,'60' ,'80' ,'100','120',...
-% %                          '140','160','180','200','220','140','260',...
-% %                          '280','300','320','340','360','380','400',...
-% %                          '420','440','460','480','500','520'};
-% %         xlabel('$t$ (min)', 'Interpreter','latex')
-%         
-% %         legend('Male', 'Female')
-%         title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
-%     end
-% end
-% 
-% % Plot renal perfusion pressure input vs time. ----------------------------
-% 
-% tplot   = [t0:1:tend];
-% RPPplot = zeros(1,length(tplot));
-% RPPplot(1        :tchange) = RPP(1,2);
-% RPPplot(tchange+1:tend+1 ) = RPP(1,2) + RPP_per(exact_per);
-% g = figure('pos',[100 100 675 450]);
-% plot(tplot,RPPplot, 'LineWidth',3)
-% xlabel('$t$ (min)', 'Interpreter','latex')
-% ylabel('$RPP$'    , 'Interpreter','latex')
+% x-axis limits
+xlower = t0; xupper = tend; 
+
+% y-axis limits
+ylower = zeros(num_vars); yupper = ylower; 
+for i = 1:num_vars
+    ylower(i) = 0.9*min(min(X_m(i,:,exact_per,exact_scen)), min(X_f(i,:,exact_per,exact_scen)));
+    yupper(i) = 1.1*max(max(X_m(i,:,exact_per,exact_scen)), max(X_f(i,:,exact_per,exact_scen)));
+    if abs(yupper(i)) < eps*100
+        ylower(i) = -10^(-5); yupper(i) = 10^(-5);
+    end
+end
+
+% Plot all variables vs time. ---------------------------------------------
+
+f  = gobjects(7,1);
+s1 = gobjects(7,15);
+% Loop through each set of subplots.
+for i = 1:7
+    f(i) = figure('pos',[750 500 650 450]);
+    % This is to avoid the empty plots in the last subplot set.
+    if i == 7
+        last_plot = 2;
+    else
+        last_plot = 15;
+    end
+    % Loop through each subplot within a set of subplots.
+    for j = 1:last_plot
+        s1(i,j) = subplot(3,5,j);
+        s1(i,j).Position = s1(i,j).Position + [0 0 0.01 0];
+        
+        plot(s1(i,j), t,X_m((i-1)*15+j,:,exact_per,exact_scen),'b' , ...
+                      t,X_f((i-1)*15+j,:,exact_per,exact_scen),'r');
+        
+%         xlim([xlower, xupper])
+        ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
+        
+%         Minutes
+%         ax = gca;
+%         ax.XTick = (tchange : 10 : tend);
+%         ax.XTickLabel = {'0'  ,'20' ,'40' ,'60' ,'80' ,'100','120',...
+%                          '140','160','180','200','220','140','260',...
+%                          '280','300','320','340','360','380','400',...
+%                          '420','440','460','480','500','520'};
+%         xlabel('$t$ (min)', 'Interpreter','latex')
+        
+%         legend('Male', 'Female')
+        title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
+    end
+end
+
+% Plot renal perfusion pressure input vs time. ----------------------------
+
+tplot   = [t0:1:tend];
+RPPplot = zeros(1,length(tplot));
+RPPplot(1        :tchange) = RPP(1,2);
+RPPplot(tchange+1:tend+1 ) = RPP(1,2) + RPP_per(exact_per);
+g = figure('pos',[100 100 675 450]);
+plot(tplot,RPPplot, 'LineWidth',3)
+xlabel('$t$ (min)', 'Interpreter','latex')
+ylabel('$RPP$'    , 'Interpreter','latex')
 
 % Plot data as in Hilliard 2011. ------------------------------------------
 
@@ -306,7 +286,7 @@ for ss = 1:num_scen
 end
 
 % RPP
-RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per; 
+RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per;
 
 % Autoregulatory range vertical lines
 arr_lower = [93,93]; arr_upper = [173,173]; arr_line = [-1;14];
