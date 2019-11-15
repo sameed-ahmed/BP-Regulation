@@ -21,7 +21,7 @@ addpath(genpath(mypath))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Experiment
-experiment = 'test';
+experiment = 'steady state';
 
 % Input of interest
 % N_rsna       - par 1 ; -30%, +30%
@@ -151,12 +151,17 @@ clear SSdata;
 % Arbitrary value for time to input.
 x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
+% Time at which to change and renal perfusion pressure perturbation 
+% place holders.
+RPP_per = 0; tchange = 0;
+
 %% Find steady state solution
 
 options = optimset('Display','off');
 [SSdata, residual, ...
- exitflag, output] = fsolve(@(x) bp_reg_solve(t,x,x_p0,pars,SSdata_input           ,...
-                                              drugs,scenario{fixed_ss},experiment) ,...
+ exitflag, output] = fsolve(@(x) bp_reg_mod(t,x,x_p0,pars,SSdata_input    ,...
+                                           tchange,drugs,RPP_per          ,...
+                                           scenario{fixed_ss},experiment) ,...
                             x0, options);
 
 % Check for solver convergence.
