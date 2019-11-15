@@ -230,12 +230,13 @@ elseif strcmp(gender,'female')
     end
 end
 % alpha_map
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(2 ) = 1 - ( 0.5 + 1 / (1 + exp((P_ma - alpha_map) / 15)) );
-else
-    f(2 ) = alpha_map - ( 0.5 + 1 / (1 + exp((P_ma - fixed_var_pars(1)) / 15)) );
-end
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(2 ) = 1 - ( 0.5 + 1 / (1 + exp((P_ma - alpha_map) / 15)) );
+% else
+%     f(2 ) = alpha_map - ( 0.5 + 1 / (1 + exp((P_ma - fixed_var_pars(1)) / 15)) );
+% end
+f(2 ) = alpha_map - ( 0.5 + 1 / (1 + exp((P_ma - fixed_var_pars(1)) / 15)) );
 % alpha_rap
 f(3 ) = alpha_rap - ( 1 - 0.008 * P_ra );
 % R_r
@@ -252,12 +253,13 @@ f(8 ) = P_f - ( P_gh - (P_B + P_go) );
 % P_gh
 f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );
 % Sigma_tgf - rat - female reabsorption
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(10) = 1 - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - Sigma_tgf) / (-0.9617 * SF_S) )) );
-else
-    f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
-end
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(10) = 1 - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - Sigma_tgf) / (-0.9617 * SF_S) )) );
+% else
+%     f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
+% end
+f(10) = Sigma_tgf - ( 0.3408 + 3.449 / (3.88 + exp((Phi_mdsod - fixed_var_pars(2)) / (-0.9617 * SF_S) )) );
 % Phi_filsod
 f(11) = Phi_filsod - ( Phi_gfilt * C_sod );
 % Phi_ptsodreab
@@ -265,12 +267,13 @@ f(12) = Phi_ptsodreab - ( Phi_filsod * eta_ptsodreab );
 % eta_ptsodreab
 f(13) = eta_ptsodreab - ( eta_ptsodreab_eq * gamma_filsod * gamma_at * gamma_rsna );
 % gamma_filsod - rat
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(14) = 1 - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - gamma_filsod)/(138 * SF_S) )) );
-else
-    f(14) = gamma_filsod - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - fixed_var_pars(3))/(138 * SF_S) )) );
-end
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(14) = 1 - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - gamma_filsod)/(138 * SF_S) )) );
+% else
+%     f(14) = gamma_filsod - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - fixed_var_pars(3))/(138 * SF_S) )) );
+% end
+f(14) = gamma_filsod - ( 0.8 + 0.3 / (1 + exp((Phi_filsod - fixed_var_pars(3))/(138 * SF_S) )) );
 % gamma_at
 gammaat_c = 0.8017;
 gammaat_d = 0.92;
@@ -286,35 +289,18 @@ f(18) = Phi_dtsodreab - ( Phi_mdsod * eta_dtsodreab );
 % eta_dtsodreab
 f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al );
 % psi_al - rat
-% f(20) = psi_al - ( 0.17 + 0.94 / (1 + exp((0.48 - 1.2 * log10(C_al)) / 0.88)) );
-% f(20) = psi_al - ( 1/(387^0.3) * C_al^0.3 );
-% ------------------------------------------------------
-% % dd = 0.5;
-% dd = 0.0;
-% aa = 1 / eta_dtsodreab_eq - dd;
-% bb = 0.92;
-% bb = 0.1;
-% cc = (aa * 387^bb) / (1 - dd) - 387^bb;
-% f(20) = psi_al - ( (aa * C_al^bb) / (cc + C_al^bb) + dd );
-% ------------------------------------------------------
-% ------------------------------------------------------
 bb = 0.1;
 dd = 1.05 / bb;
 aa = (1 + bb) * dd;
 cc = -1/387 * log((aa / (1 + dd) - 1) / bb);
 f(20) = psi_al - ( aa / (1 + bb * exp(-cc * C_al)) - dd );
-% ------------------------------------------------------
-% f(20) = psi_al - 1;
 % Phi_dtsod
 f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
 % Phi_cdsodreab
 f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
 % eta_cdsodreab
 f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * lambda_dt * lambda_anp );
-% lambda_dt - rat - female reabsorption
-% f(24) = lambda_dt - ( 0.82 + 0.39 / (1 + exp((Phi_dtsod - 1.7625) / 0.375)) );
-% f(24) = lambda_dt - ( 0.82 + 0.2553 / (1 + exp((Phi_dtsod - fixed_var_pars(4)) / (0.245 * SF_S) )) );
-% -----------------------------------------------------------------------
+% lambda_dt - rat
 if     strcmp(gender,  'male')
 lambdadt_b = 0.275; % karaaslan refit
 lambdadt_c = 2.3140; % karaaslan refit
@@ -322,12 +308,13 @@ elseif strcmp(gender,'female')
 lambdadt_b = 1/eta_cdsodreab_eq - 0.8; % karaaslan refit
 lambdadt_c = 2.86; % 96%
 end
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(24) = 1 - ( 0.8 + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - lambda_dt)) ) );
-else
-    f(24) = lambda_dt - ( 0.8 + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - fixed_var_pars(4))) ) );
-end
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(24) = 1 - ( 0.8 + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - lambda_dt)) ) );
+% else
+%     f(24) = lambda_dt - ( 0.8 + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - fixed_var_pars(4))) ) );
+% end
+f(24) = lambda_dt - ( 0.8 + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - fixed_var_pars(4))) ) );
 % lambda_anp
 f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
 % lambda_al
@@ -336,11 +323,14 @@ f(26) = lambda_al - ( 1/(387^0.06) * C_al^0.06 );
 f(27) = Phi_usod - ( Phi_dtsod - Phi_cdsodreab );
 % -----------------------------------------------------------------------
 % Phi_win - rat
-phiwin_a = 0.8;
-phiwin_c = 0.002313;
-phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.0150 - 1);
-f(28) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
-% f(28) = Phi_win - ( SSdata(28) );
+if     strcmp(experiment, 'fixed win')
+    f(28) = Phi_win - ( SSdata_input(28) );
+else
+    phiwin_a = 0.8;
+    phiwin_c = 0.002313;
+    phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.0150 - 1);
+    f(28) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
+end
 % -------------------------------------------------------------------------
 % V_ecf
 f(29) = V_ecf_p - ( Phi_win - Phi_u );
@@ -377,12 +367,13 @@ f(42) = P_ma - ( Phi_co * R_tp );
 % epsilon_aum
 f(43) = epsilon_aum - ( 4/5 * (a_chemo + a_baro) );
 % a_auto
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(44) = 1 - ( 3.0042 * exp(-a_auto * P_ma) );
-else
-    f(44) = a_auto - ( 3.0042 * exp(-fixed_var_pars(5) * P_ma) );
-end
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(44) = 1 - ( 3.0042 * exp(-a_auto * P_ma) );
+% else
+%     f(44) = a_auto - ( 3.0042 * exp(-fixed_var_pars(5) * P_ma) );
+% end
+f(44) = a_auto - ( 3.0042 * exp(-fixed_var_pars(5) * P_ma) );
 % a_chemo
 f(45) = a_chemo - ( 1/4 * a_auto );
 % a_baro
@@ -392,23 +383,22 @@ f(47) = C_adh - ( 4 * N_adh );
 % N_adh
 f(48) = N_adh_p - ( 1/T_adh * (N_adhs - N_adh) );
 % N_adhs
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(49) = 1 - ( N_adhs_eq * (max( 0, C_sod - N_adhs) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
-else
-    f(49) = N_adhs - ( N_adhs_eq * (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
-end
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(49) = 1 - ( N_adhs_eq * (max( 0, C_sod - N_adhs) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
+% else
+%     f(49) = N_adhs - ( N_adhs_eq * (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
+% end
+f(49) = N_adhs - ( N_adhs_eq * (max( 0, C_sod - fixed_var_pars(6)) + max( 0, epsilon_aum - 1 ) - delta_ra) / 3 );
 % delta_ra
 f(50) = delta_ra_p - ( 0.2 * P_ra_p - 0.0007 * delta_ra );
-
 % Phi_ptwreab
 f(51) = Phi_ptwreab - ( Phi_gfilt * eta_ptwreab );
 % eta_ptwreab
 f(52) = eta_ptwreab - ( eta_ptwreab_eq * mu_ptsodreab );
-
+% mu_ptsodreab
 musodreab_a = 0.12;
 musodreab_b = 10;
-% mu_ptsodreab
 f(53) = mu_ptsodreab - ( musodreab_a * tanh(musodreab_b * (eta_ptsodreab/eta_ptsodreab_eq - 1)) + 1 );
 % Phi_mdu
 f(54) = Phi_mdu - ( Phi_gfilt - Phi_ptwreab );
@@ -426,7 +416,6 @@ f(59) = Phi_cdwreab - ( Phi_dtu * eta_cdwreab );
 f(60) = eta_cdwreab - ( eta_cdwreab_eq * mu_cdsodreab * mu_adh );
 % mu_cdsodreab
 f(61) = mu_cdsodreab - ( musodreab_a * tanh(musodreab_b * (eta_cdsodreab/eta_cdsodreab_eq - 1)) + 1 );
-
 % mu_adh
 aaa = 1.0328;
 bbb = 0.1938;
@@ -434,17 +423,18 @@ ccc = -1/4 * log((aaa - 1) / bbb);
 f(62) = mu_adh - ( aaa - bbb * exp(-ccc * C_adh) );
 % Phi_u - rat
 f(63) = Phi_u - ( Phi_dtu - Phi_cdwreab );
-
 % M_sod
 f(64) = M_sod_p - ( Phi_sodin - Phi_usod );
 % C_sod
 f(65) = C_sod - ( M_sod / V_ecf );
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(66) = 1 - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - nu_mdsod) / (0.6056 * SF_S) )) );
-else
-    f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - fixed_var_pars(7)) / (0.6056 * SF_S) )) );
-end
+% nu_mdsod
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(66) = 1 - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - nu_mdsod) / (0.6056 * SF_S) )) );
+% else
+%     f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - fixed_var_pars(7)) / (0.6056 * SF_S) )) );
+% end
+f(66) = nu_mdsod - ( 0.2262 + 28.04 / (11.56 + exp((Phi_mdsod - fixed_var_pars(7)) / (0.6056 * SF_S) )) );
 % nu_rsna
 f(67) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - 0.8662)) );
 f(68) = C_al - ( N_al * 387 );
@@ -453,12 +443,13 @@ f(69) = N_al_p - ( 1/T_al * (N_als - N_al) );
 % N_als
 f(70) = N_als - ( N_als_eq * xi_ksod * xi_map * xi_at );
 % xi_ksod
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(71) = 1 - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - xi_ksod)) ) ); 
-else
-    f(71) = xi_ksod - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - fixed_var_pars(8))) ) ); 
-end
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(71) = 1 - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - xi_ksod)) ) ); 
+% else
+%     f(71) = xi_ksod - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - fixed_var_pars(8))) ) ); 
+% end
+f(71) = xi_ksod - ( 5 / ( 1 + exp(0.265 * (C_sod/C_K - fixed_var_pars(8))) ) ); 
 % xi_map
 if P_ma <= 100
     f(72) = xi_map - ( (1/exp(-0.0425 * 100)) * exp(-0.0425 * P_ma) );
@@ -504,12 +495,13 @@ sigmamyo_a = 0.75;
 sigmamyo_b = 1.2;
 sigmamyo_d = 0.6;
 sigmamyo_c = sigmamyo_b / (1-sigmamyo_a) - 1;
-if     strcmp(experiment, 'baseline') || ...
-       strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
-    f(88) = 1 - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - Sigma_myo)) ) );
-else
-    f(88) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
-end
+% if     strcmp(experiment, 'baseline') || ...
+%        strcmp(experiment, 'm_Reab'  ) || strcmp(experiment, 'm_RSNA_&_m_Reab')
+%     f(88) = 1 - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - Sigma_myo)) ) );
+% else
+%     f(88) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
+% end
+f(88) = Sigma_myo - ( sigmamyo_a + sigmamyo_b / ( 1 + sigmamyo_c * exp(-sigmamyo_d * (P_gh - fixed_var_pars(9))) ) );
 % Psi_AT1RAA
 f(89) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R_eq) );
 % Psi_AT1REA
