@@ -57,12 +57,12 @@ in_label = flip({'RSNA\newline-30% to +30%', ...
 % Output of interest
 % Phi_gfilt         - var 7
 % P_ma              - var 42
-% Phi_u             - var 63
-% R_aa              - var 86
-% R_ea              - var 87
+% Phi_u             - var 92
+% R_aa              - var 73
+% R_ea              - var 74
 % eta_alpha-sodreab - var 13, 19, 23 (alpha = pt, dt, cd)
-% eta_alpha-wreab   - var 52, 56, 60 (alpha = pt, dt, cd)
-out_ind = [7;42;63;86;87;13;19;23;52;56;60];
+% eta_alpha-wreab   - var 81, 85, 89 (alpha = pt, dt, cd)
+out_ind = [7;42;92;73;74;13;19;23;81;85;89];
 out_num = length(out_ind);
 % Variable labels for bar graph
 out_label = {'GFR', 'MAP', 'UF', 'R_{AA}', 'R_{EA}', ...
@@ -87,7 +87,7 @@ sp = 2;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Number of variables
-num_vars = 92;
+num_vars = 93;
 
 % Initialize variables.
 % X = (variable, parameter, change, gender)
