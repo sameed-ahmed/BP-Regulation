@@ -8,7 +8,6 @@
 % x              - variables
 % x_p            - variable derivatives
 % pars           - parameters
-% fixed_var_pars - shift parameters which ensure that effect variables are 1
 % SSdata         - steady state variable values
 % tchange        - time at which to change RPP in simulation
 % drugs          - drug blocking percentage, infusion rate, etc.
@@ -36,7 +35,8 @@ elseif gen == 0
     gender = 'female';
 end
 
-% Retrieve 
+%% Retrieve fixed variable parameters.
+
 % alpha_map, var 02; Sigma_tgf, var 10; gamma_filsod, var 14; 
 % lambda_dt, var 24; a_auto   , var 44; N_adhs      , var 49; 
 % nu_mdsod , var 66; xi_ksod  , var 71; Sigma_myo   , var 88;

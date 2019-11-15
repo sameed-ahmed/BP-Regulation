@@ -37,11 +37,6 @@ num_vars = 93;
 species = {'human', 'rat'   };
 gender  = {'male' , 'female'};
 
-X        = zeros(num_vars,2);
-RESIDUAL = zeros(num_vars,2);
-EXITFLAG = zeros(1 ,2);
-OUTPUT   = cell (1 ,2);
-
 for gg = 1:2 % gender
 
 %% Parameters
@@ -57,7 +52,7 @@ drugs = [0, 0, 0, 0];
 
 % Load data for steady state initial guess. 
 % Set name for data file to be loaded based upon gender.    
-load_data_name = sprintf('NEW%s_%s_ss_data_IG.mat', species{sp}, gender{gg});
+load_data_name = sprintf('%s_%s_ss_data_IG.mat', species{sp}, gender{gg});
 load(load_data_name, 'SSdataIG');
 
 % Order

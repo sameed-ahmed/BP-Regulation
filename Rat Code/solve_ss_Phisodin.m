@@ -20,6 +20,9 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Experiment
+experiment = 'test';
+
 % Scenarios
 % Normal - Normal conditions
 % m_RSNA - male RSNA
@@ -32,6 +35,9 @@ scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'ACEi', 'AngII'};
 num_scen = length(scenario);
 % Index of scenario to plot for all variables
 fixed_ss = 1;
+
+% Species
+sp = 2;
 
 % Boolean to fix/vary water intake.
 % win =  'fixed';
@@ -46,16 +52,8 @@ lower = 1/5; upper = 5;
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Number of variables changes based on whether water intake is
-% fixed/varied.
-if     strcmp(win,  'fixed')
-    num_vars = 92-1;
-elseif strcmp(win, 'varied')
-    num_vars = 92;
-end
-
-% Baseline of water intake for each scenario if it is fixed.
-Phi_win_bl = zeros(2*iteration-1,2,num_scen);
+% Number of variables.
+num_vars = 92;
 
 % Range for fold decrease/increase.
 iter_range_l = linspace(lower, 1, iteration);
@@ -70,64 +68,27 @@ iter_range   = [iter_range_l, iter_range_u];
 X = zeros(num_vars,2*iteration-1,2,num_scen);
 % Retrieve male/female. 
 % X_m/f = (variable, iteration, scenario)
-if     strcmp(win,  'fixed')
-    X_m = zeros(num_vars+1,2*iteration-1,num_scen);
-    X_f = zeros(num_vars+1,2*iteration-1,num_scen);
-elseif strcmp(win, 'varied')
-    X_m = zeros(num_vars,2*iteration-1,num_scen);
-    X_f = zeros(num_vars,2*iteration-1,num_scen);
-end
+X_m = zeros(num_vars,2*iteration-1,num_scen);
+X_f = zeros(num_vars,2*iteration-1,num_scen);
 
-gender = {'male'    , 'female'  };
-change = {'decrease', 'increase'};
+species = {'human'   , 'rat'     };
+gender  = {'male'    , 'female'  };
+change  = {'decrease', 'increase'};
 
 for ss = 1:num_scen % scenario
 for gg = 1:2        % gender
 for cc = 1:2        % change
 
 % Set name for data file to be loaded based upon gender and scenario.    
-load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{ss});
-
-% Retrieve and replace parameters in fixed variable equations.
-% Load data for steady state initial guess. 
-% Fixed variable parameters are only retrieved and replaced for scenarios
-% which are solved for in the solve_ss_baseline because the parameter has
-% changed for the fixed variable to remain 1.
-% Otherwise scenarios which are solved for in solve_ss_scenario do not 
-% require this because they load the fixed variable parameter from the
-% baseline scenario, and they are perturbed scenarios in which the fixed
-% variable is no longer 1.
-fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-if   strcmp(scenario{ss}, 'ACEi') || strcmp(scenario{ss}, 'AngII')
-    if     strcmp(gender{gg}, 'male')
-        load(  'male_ss_data_scenario_Normal.mat', 'SSdata');
-    elseif strcmp(gender{gg}, 'female')
-        load('female_ss_data_scenario_Normal.mat', 'SSdata');
-    end
-    fixed_var_pars = SSdata(fixed_ind);
-    phicophico = SSdata(33); cadhcadh = SSdata(47);
-    fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
-    load(load_data_name, 'SSdata');
-else
-    load(load_data_name, 'SSdata');
-    fixed_var_pars = SSdata(fixed_ind);
-    phicophico = SSdata(33); cadhcadh = SSdata(47);
-    fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
-    SSdata(fixed_ind) = 1;
-end
-SSdataIG = SSdata;
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', species{sp},gender{gg},scenario{ss});
+load(load_data_name, 'SSdata');
+SSdataIG     = SSdata;
 clear SSdata;
 
-% Load data for baseline water intake if it is fixed.
-Phi_win_bl(1,gg,ss) = SSdataIG(28);
-% Input Phi_win if it is fixed.
-Phi_win_input = Phi_win_bl(1,gg,ss);
-
-% Delete Phi_win if it is fixed.
-if     strcmp(win,  'fixed')
-    SSdataIG(28) = '';
-elseif strcmp(win, 'varied')
-end
+load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', species{sp},gender{gg});
+load(load_data_name, 'SSdata');
+SSdata_input = SSdata;
+clear SSdata;
 
 for iter = 1:iteration % range
 
@@ -135,7 +96,7 @@ for iter = 1:iteration % range
 
 % Baseline/range of sodium intake.
 Phi_sodin_bl_m = 1.2212;
-Phi_sodin_bl_f = 1.2212; % CHECK IF DIFFERENT LATER.
+Phi_sodin_bl_f = 1.2212;
 Phi_sodin_range_m = Phi_sodin_bl_m * iter_range;
 Phi_sodin_range_f = Phi_sodin_bl_f * iter_range;
 
@@ -155,7 +116,7 @@ elseif strcmp(gender{gg}, 'female')
 end
 
 % Parameter input
-pars     = get_pars(gender{gg}, scenario{ss});
+pars     = get_pars(species{sp}, gender{gg}, scenario{ss});
 pars(18) = Phi_sodin;
 
 %% Drugs
@@ -212,15 +173,11 @@ x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
 %% Find steady state solution
 
-% options = optimset(); %options = optimset('MaxFunEvals',8100+10000);
 options = optimset('Display','off');
-[SSdata, ~, ...
-exitflag, output] = fsolve(@(x) bp_reg_solve_Phisodin(t,x,x_p0,pars ,...
-                                                      fixed_var_pars,...
-                                                      drugs,win     ,...
-                                                      Phi_win_input ,...
-                                                      scenario{ss}) ,...
-                           x0, options);
+[SSdata, residual, ...
+ exitflag, output] = fsolve(@(x) bp_reg_solve(t,x,x_p0,pars,SSdata_input     ,...
+                                              drugs,scenario{ss},experiment) ,...
+                            x0, options);
 
 % Check for solver convergence.
 if exitflag == 0
@@ -263,32 +220,14 @@ end % gender
 
 %% Retrieve data and visualize
 
-% X = (variable, iteration, gender, scenario)
-% Phi_win_range = [scenario, iteration]
-% Add in Phi_win where it originally was if it is fixed.
-if     strcmp(win,  'fixed')
-    Phi_win_bl(:,:,ss) = Phi_win_bl(1,:,ss) .* ones(2*iteration-1,1,1);
-    X_m(:,:,ss) = [X(1:27,:,1,ss); Phi_win_bl(:,1,ss)'; X(28:end,:,1,ss)];
-    X_f(:,:,ss) = [X(1:27,:,2,ss); Phi_win_bl(:,2,ss)'; X(28:end,:,2,ss)];
-elseif strcmp(win, 'varied')
-    X_m(:,:,ss) = X(:,:,1,ss); X_f(:,:,ss) = X(:,:,2,ss);
-end
+X_m(:,:,ss) = X(:,:,1,ss); X_f(:,:,ss) = X(:,:,2,ss);
 
 end % scenario
 
 % x-axis
 xscale = iter_range;
 
-% % Plot relative change/relative change vs relative change to see slope
-% xscale = xscale - 1;
-% X_m(:,:,1) = (X_m(:,:,1) - X_m(:,iteration,1)) ./ X_m(:,iteration,1);
-% X_f(:,:,1) = (X_f(:,:,1) - X_f(:,iteration,1)) ./ X_f(:,iteration,1);
-% X_m(:,:,1) = X_m(:,:,1) ./ xscale;
-% X_f(:,:,1) = X_f(:,:,1) ./ xscale;
-
 % y-axis limits
-% X_f = X_m;
-% X_m = X_f;
 ylower = zeros(length(X_m(:,1,1)),1); yupper = ylower; 
 for i = 1:length(ylower)
     ylower(i) = 0.9*min(min(X_m(i,:,1)), min(X_f(i,:,1)));
@@ -301,16 +240,12 @@ for i = 1:length(ylower)
     end
 end
 
-% X_f = zeros(size(X_f));
-% X_m = zeros(size(X_m));
-
 % Plot all variables vs sodium intake. ------------------------------------
 
 f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-%     f(i) = figure;
     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7

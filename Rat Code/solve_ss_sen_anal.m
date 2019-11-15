@@ -20,6 +20,9 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Experiment
+experiment = 'test';
+
 % Input of interest
 % N_rsna       - par 1 ; -30%, +30%
 % N_als        - par 19; -30%, +30%
@@ -72,10 +75,12 @@ out_label = {'GFR', 'MAP', 'UF', 'R_{AA}', 'R_{EA}', ...
 % ACEi   - Angiotensin convernting enzyme inhibitor
 % ARB    - Angiotensin receptor blocker
 % AT2R-  - Block AT2R through decay
-% RHyp   - Renal hypertension due to increased afferent arteriolar resistance
-scenario = {'Normal', 'AngII', 'ACEi', 'ARB', 'AT2R-', 'RHyp'};
+scenario = {'Normal', 'AngII', 'ACEi', 'ARB', 'AT2R-'};
 % Index of scenario to plot for all variables
 fixed_ss = 1;
+
+% Species
+sp = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -88,8 +93,9 @@ num_vars = 92;
 % X = (variable, parameter, change, gender)
 X = zeros(num_vars,par_iter,2,2);
 
-gender = {'male'    , 'female'  };
-change = {'decrease', 'increase'};
+species = {'human'   , 'rat'     };
+gender  = {'male'    , 'female'  };
+change  = {'decrease', 'increase'};
 
 for iter = 1:par_iter % par
 for cc   = 1:2        % change
@@ -98,7 +104,7 @@ for gg   = 1:2        % gender
 %% Parameters
 
 % Parameter input
-pars = get_pars(gender{gg}, scenario{fixed_ss});
+pars = get_pars(species{sp}, gender{gg}, scenario{fixed_ss});
 
 % Change parameter of interest.
 if     strcmp(change{cc}, 'decrease')
@@ -110,45 +116,35 @@ end
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario{fixed_ss}, 'Normal') || strcmp(scenario{fixed_ss}, 'RHyp')
-    drugs = [0, 0, 0, 0];
-elseif strcmp(scenario{fixed_ss}, 'AngII')
+if     strcmp(scenario{fixed_ss}, 'AngII')
     if     strcmp(gender{gg}, 'male')
         drugs = [2022, 0, 0, 0]; % Sampson 2008
     elseif strcmp(gender{gg}, 'female')
         drugs = [2060, 0, 0, 0]; % Sampson 2008
     end
 elseif strcmp(scenario{fixed_ss}, 'ACEi')
-    drugs = [0, 0.78, 0, 0]; % Leete 2018
+        drugs = [0, 0.78, 0, 0]; % Leete 2018
 elseif strcmp(scenario{fixed_ss}, 'ARB')
-    drugs = [0, 0, 0.67, 0]; % Leete 2018
+        drugs = [0, 0, 0.67, 0]; % Leete 2018
 elseif strcmp(scenario{fixed_ss}, 'AT2R-')
-    drugs = [0, 0, 0, 10];
+        drugs = [0, 0, 0, 10];
+else
+        drugs = [0, 0, 0, 0];
 end
 
 %% Variables initial guess
 
-% Retrieve and replace parameters in fixed variable equations.
 % Load data for steady state initial guess. 
 % Set name for data file to be loaded based upon gender.    
-load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', species{sp},gender{gg},scenario{fixed_ss});
 load(load_data_name, 'SSdata');
-fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-fixed_var_pars = SSdata(fixed_ind);
-phicophico = SSdata(33); cadhcadh = SSdata(47);
-fixed_var_pars = [fixed_var_pars; cadhcadh; phicophico];
-SSdata(fixed_ind) = 1;
 SSdataIG = SSdata;
 clear SSdata
 
-% Ang II infusion steady state value is sensitive to such a huge change.
-% Thus it is done incrementally and iteratively.
-if     strcmp(scenario{fixed_ss}, 'AngII')
-    load_data_name = sprintf('%s_ss_data_scenario_AngII.mat', gender{gg});
-    load(load_data_name, 'SSdata');
-    SSdataIG = SSdata;
-    clear SSdata;
-end
+load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', species{sp},gender{gg});
+load(load_data_name, 'SSdata');
+SSdata_input = SSdata;
+clear SSdata;
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
@@ -157,12 +153,10 @@ x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
 %% Find steady state solution
 
-% options = optimset(); %options = optimset('MaxFunEvals',num_vars*100+10000);
 options = optimset('Display','off');
 [SSdata, residual, ...
- exitflag, output] = fsolve(@(x) bp_reg_solve_sen_anal(t,x,x_p0,pars ,...
-                                                       fixed_var_pars,...
-                                                       drugs)        ,...
+ exitflag, output] = fsolve(@(x) bp_reg_solve(t,x,x_p0,pars,SSdata_input           ,...
+                                              drugs,scenario{fixed_ss},experiment) ,...
                             x0, options);
 
 % Check for solver convergence.
@@ -188,16 +182,6 @@ SSdata = (SSdata - SSdataIG) ./ SSdataIG * 100;
 
 % Store solution.
 X(:,iter,cc,gg) = SSdata;
-
-% % Sanity check to see script's progress. Also a check for where to
-% % troubleshoot in case the solver does not converge.
-% if     strcmp(gender{gg}, 'male')
-%     fprintf('  male %s iteration = %s out of %s \n', ...
-%             change{cc},num2str(iter),num2str(par_iter))
-% elseif strcmp(gender{gg}, 'female')
-%     fprintf('female %s iteration = %s out of %s \n', ...
-%             change{cc},num2str(iter),num2str(par_iter))
-% end
 
 end % gender
 end % change
