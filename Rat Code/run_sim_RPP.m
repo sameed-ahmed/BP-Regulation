@@ -16,6 +16,9 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Experiment
+experiment = 'RPP';
+
 % Renal perfusion pressure perturbation
 % Enter postive for increase or negative for decrease.
 RPP_per = [-20; 0; 20];
@@ -82,7 +85,7 @@ drugs = [0, 0, 0]; % No drug
 % solve_ss_baseline.m.
 
 % Set name for data file to be loaded based upon gender.    
-load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
+load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', species{sp},gender{gg});
 load(load_data_name, 'SSdata');
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
 SSdata(fixed_ind) = 1;
@@ -138,8 +141,9 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,SSdata                    ,...
-                          tchange,drugs,RPP_per(pp),scenario{ss}),...
+               bp_reg_sim(t,x,x_p,pars,SSdata       ,...
+                          tchange,drugs,RPP_per(pp) ,...
+                          scenario{ss},experiment)  ,...
                tspan, x0, x_p0, options);
 t = t'; x = x';
 

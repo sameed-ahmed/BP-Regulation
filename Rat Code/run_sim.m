@@ -17,6 +17,9 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Experiment
+experiment = 'test';
+
 % Scenarios
 % Normal         - Normal conditions
 % m_RAS          - male RAS pars
@@ -63,7 +66,7 @@ drugs = [0, 0, 0]; % No drug
 % solve_ss_baseline.m.
 
 % Set name for data file to be loaded based upon gender and scenario.    
-load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{fixed_ss});
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', species{sp},gender{gg},scenario{fixed_ss});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
@@ -120,8 +123,9 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,SSdata                      ,...
-                          tchange,drugs,RPP_per,scenario{fixed_ss}),...
+               bp_reg_sim(t,x,x_p,pars,SSdata            ,...
+                          tchange,drugs,RPP_per          ,...
+                          scenario{fixed_ss},experiment) ,...
                tspan, x0, x_p0, options);
 
 T{gg} = t';
