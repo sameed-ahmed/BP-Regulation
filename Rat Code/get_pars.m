@@ -147,6 +147,22 @@ elseif strcmp(species, 'rat')
     end
 end
 
+% Add directory containing data.
+mypath = pwd;
+mypath = strcat(mypath, '/Data');
+addpath(genpath(mypath))
+
+% Retrieve and replace parameters in fixed variable equations.
+% These are the shift parameters which ensure that effect variables are 1.
+% Set name for data file to be loaded based upon gender.    
+if   strcmp(scenario, 'm_Reab'         ) || ...
+     strcmp(scenario, 'm_RSNA_&_m_Reab')
+    load_data_name = sprintf('%s_fixed_var_pars_scenario_m_Reab.mat', gender);
+else
+    load_data_name = sprintf('%s_fixed_var_pars_scenario_Normal.mat', gender);
+end
+load(load_data_name, 'fixed_var_pars');
+
 % Parameter input
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
@@ -155,7 +171,8 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
         h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
         c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; Psi_AT2RAA_eq; Psi_AT2REA_eq; ...
-        spe; gen; Phi_sodin_orig; Phi_u_orig; R_r_orig; W_b];
+        spe; gen; Phi_sodin_orig; Phi_u_orig; R_r_orig; W_b; ...
+        fixed_var_pars];
     
 end
 

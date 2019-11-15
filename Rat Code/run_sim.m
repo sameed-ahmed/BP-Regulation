@@ -66,11 +66,7 @@ drugs = [0, 0, 0]; % No drug
 load_data_name = sprintf('%s_ss_data_scenario_%s.mat', gender{gg},scenario{fixed_ss});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
-
-% Retrieve and replace parameters in fixed variable equations.
-% These are the shift parameters which ensure that effect variables are 1.
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-fixed_var_pars = SSdata(fixed_ind);
 SSdata(fixed_ind) = 1;
 
 % Renal perfusion pressure perturbation place holder.
@@ -124,7 +120,7 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata       ,...
+               bp_reg_sim(t,x,x_p,pars,SSdata                      ,...
                           tchange,drugs,RPP_per,scenario{fixed_ss}),...
                tspan, x0, x_p0, options);
 

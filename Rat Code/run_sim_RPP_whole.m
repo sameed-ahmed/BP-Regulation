@@ -92,19 +92,10 @@ drugs = [0, 0, 0]; % No drug
 % This initial condition is the steady state data value taken from
 % solve_ss_baseline.m.
 
-% Retrieve and replace parameters in fixed variable equations.
-% Fixed variable parameters are only retrieved and replaced for scenarios
-% which are solved for in the solve_ss_baseline because the parameter has
-% changed for the fixed variable to remain 1.
-% Otherwise scenarios which are solved for in solve_ss_scenario do not 
-% require this because they load the fixed variable parameter from the
-% baseline scenario, and they are perturbed scenarios in which the fixed
-% variable is no longer 1.
 % Set name for data file to be loaded based upon gender.    
 load_data_name = sprintf('%s_ss_data_scenario_Normal.mat', gender{gg});
 load(load_data_name, 'SSdata');
 fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-fixed_var_pars = SSdata(fixed_ind);
 SSdata(fixed_ind) = 1;
 
 % Renal Perfusion Pressure.
@@ -158,7 +149,7 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_sim(t,x,x_p,pars,fixed_var_pars,SSdata     ,...
+               bp_reg_sim(t,x,x_p,pars,SSdata                    ,...
                           tchange,drugs,RPP_per(pp),scenario{ss}),...
                 tspan, x0, x_p0, options);
 t = t'; x = x';

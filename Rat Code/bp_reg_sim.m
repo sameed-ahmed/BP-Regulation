@@ -18,8 +18,8 @@
 % Output
 % f              - left hand side of f(t,x(t),x'(t);theta) = 0.
 
-function f = bp_reg_sim_RPP(t,x,x_p,pars,fixed_var_pars,SSdata,...
-                            tchange,drugs,RPP_per,scenario)
+function f = bp_reg_sim(t,x,x_p,pars,SSdata,...
+                        tchange,drugs,RPP_per,scenario)
 
 %% Retrieve species and gender identifier. 
 
@@ -36,15 +36,12 @@ elseif gen == 0
     gender = 'female';
 end
 
-%% Scenarios
-
-% Normal                - normal conditions
-% Denerve               - cut off rsna from kidney
-% Denerve & No Myo      - cut off rsna from kidney and block myogenic response
-% Denerve & No TGF      - cut off rsna from kidney and block tubuloglomerular feedback
-% Denerve & No Myo, TGF - cut off rsna from kidney and block myogenic response and tubuloglomerular feedback
-% scenario = {'Normal', 'Denerve', ...
-%             'Denerve & No Myo', 'Denerve & No TGF', 'Denerve & No Myo, TGF'};
+% Retrieve 
+% alpha_map, var 02; Sigma_tgf, var 10; gamma_filsod, var 14; 
+% lambda_dt, var 24; a_auto   , var 44; N_adhs      , var 49; 
+% nu_mdsod , var 66; xi_ksod  , var 71; Sigma_myo   , var 88;
+fixed_var_pars  = pars(end-8:end);
+pars(end-8:end) = '';
 
 %% Retrieve drugs by name.
 
