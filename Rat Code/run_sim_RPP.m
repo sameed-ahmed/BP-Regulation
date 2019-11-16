@@ -223,46 +223,33 @@ ylabel('$RPP$'    , 'Interpreter','latex')
 % rel = value divided by baseline value; act = actual value
 
 % X_m/f = (variables, points, perturbation, scenario)
+
 time_int    = (tchange+10)*ppm+1:(tchange+30)*ppm+1;
 time_points = length(time_int);
 RBF_rel_m  = zeros(num_per,num_scen); RBF_rel_f  = zeros(num_per,num_scen);  
 GFR_rel_m  = zeros(num_per,num_scen); GFR_rel_f  = zeros(num_per,num_scen); 
 UF_rel_m   = zeros(num_per,num_scen); UF_rel_f   = zeros(num_per,num_scen); 
 USOD_rel_m = zeros(num_per,num_scen); USOD_rel_f = zeros(num_per,num_scen); 
-% ---
-RBF_act_m  = zeros(num_per,num_scen); RBF_act_f  = zeros(num_per,num_scen);  
-GFR_act_m  = zeros(num_per,num_scen); GFR_act_f  = zeros(num_per,num_scen); 
-UF_act_m   = zeros(num_per,num_scen); UF_act_f   = zeros(num_per,num_scen); 
-USOD_act_m = zeros(num_per,num_scen); USOD_act_f = zeros(num_per,num_scen); 
+
 for ss = 1:num_scen
     for pp = 1:num_per
         RBF_rel_m (pp,ss) = (sum(X_m(6 , time_int, pp, ss)) / time_points) ...
-                      / (sum(X_m(6 , time_int, 2 , ss)) / time_points);
+                          / (sum(X_m(6 , time_int, 2 , ss)) / time_points);
         GFR_rel_m (pp,ss) = (sum(X_m(7 , time_int, pp, ss)) / time_points) ...
-                      / (sum(X_m(7 , time_int, 2 , ss)) / time_points);
+                          / (sum(X_m(7 , time_int, 2 , ss)) / time_points);
         UF_rel_m  (pp,ss) = (sum(X_m(92, time_int, pp, ss)) / time_points) ...
-                      / (sum(X_m(92, time_int, 2 , ss)) / time_points);
+                          / (sum(X_m(92, time_int, 2 , ss)) / time_points);
         USOD_rel_m(pp,ss) = (sum(X_m(27, time_int, pp, ss)) / time_points) ...
-                      / (sum(X_m(27, time_int, 2 , ss)) / time_points);
+                          / (sum(X_m(27, time_int, 2 , ss)) / time_points);
         
         RBF_rel_f (pp,ss) = (sum(X_f(6 , time_int, pp, ss)) / time_points) ...
-                      / (sum(X_f(6 , time_int, 2 , ss)) / time_points);
+                          / (sum(X_f(6 , time_int, 2 , ss)) / time_points);
         GFR_rel_f (pp,ss) = (sum(X_f(7 , time_int, pp, ss)) / time_points) ...
-                      / (sum(X_f(7 , time_int, 2 , ss)) / time_points);
+                          / (sum(X_f(7 , time_int, 2 , ss)) / time_points);
         UF_rel_f  (pp,ss) = (sum(X_f(92, time_int, pp, ss)) / time_points) ...
-                      / (sum(X_f(92, time_int, 2 , ss)) / time_points);
+                          / (sum(X_f(92, time_int, 2 , ss)) / time_points);
         USOD_rel_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points) ...
-                      / (sum(X_f(27, time_int, 2 , ss)) / time_points);
-% ---
-        RBF_act_m (pp,ss) = (sum(X_m(6 , time_int, pp, ss)) / time_points);
-        GFR_act_m (pp,ss) = (sum(X_m(7 , time_int, pp, ss)) / time_points);
-        UF_act_m  (pp,ss) = (sum(X_m(92, time_int, pp, ss)) / time_points);
-        USOD_act_m(pp,ss) = (sum(X_m(27, time_int, pp, ss)) / time_points);
-        
-        RBF_act_f (pp,ss) = (sum(X_f(6 , time_int, pp, ss)) / time_points);
-        GFR_act_f (pp,ss) = (sum(X_f(7 , time_int, pp, ss)) / time_points);
-        UF_act_f  (pp,ss) = (sum(X_f(92, time_int, pp, ss)) / time_points);
-        USOD_act_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points);
+                          / (sum(X_f(27, time_int, 2 , ss)) / time_points);
     end
 end
 
@@ -276,42 +263,22 @@ RBFdata_yes_at2r_rel_m  = [0.8894; 1.0000; 1.0609]; RBFdata_yes_at2r_rel_f  = [0
 GFRdata_yes_at2r_rel_m  = [0.7816; 1.0000; 1.0083]; GFRdata_yes_at2r_rel_f  = [0.7395; 1.0000; 1.1357]; 
 UFdata_yes_at2r_rel_m   = [0.6163; 1.0000; 1.4535]; UFdata_yes_at2r_rel_f   = [0.8097; 1.0000; 2.2327]; 
 USODdata_yes_at2r_rel_m = [0.4000; 1.0000; 1.8744]; USODdata_yes_at2r_rel_f = [0.5979; 1.0000; 3.0815]; 
-% ---
-RBFdata_yes_at2r_act_m  = [4.7605; 5.3525; 5.6785]; RBFdata_yes_at2r_act_f  = [3.1620; 3.6930; 4.0790]; 
-GFRdata_yes_at2r_act_m  = [1.2161; 1.5558; 1.5687]; GFRdata_yes_at2r_act_f  = [0.7909; 1.0695; 1.2146]; 
-UFdata_yes_at2r_act_m   = [0.0070; 0.0114; 0.0166]; UFdata_yes_at2r_act_f   = [0.0096; 0.0118; 0.0264]; 
-USODdata_yes_at2r_act_m = [0.4327; 1.0818; 2.0277]; USODdata_yes_at2r_act_f = [0.9147; 1.5299; 4.7142]; 
 % Block AT2R
 RBFdata_blk_at2r_rel_m  = [0.8652; 1.0000; 1.2381]; RBFdata_blk_at2r_rel_f  = [0.5404; 1.0000; 1.0961]; 
 GFRdata_blk_at2r_rel_m  = [0.7476; 1.0000; 1.2907]; GFRdata_blk_at2r_rel_f  = [0.2642; 1.0000; 1.3678]; 
 UFdata_blk_at2r_rel_m   = [0.7106; 1.0000; 1.7368]; UFdata_blk_at2r_rel_f   = [0.4597; 1.0000; 2.7119]; 
 USODdata_blk_at2r_rel_m = [0.0000; 1.0000; 3.5712]; USODdata_blk_at2r_rel_f = [0.5161; 1.0000; 4.2295]; 
-% ---
-RBFdata_blk_at2r_act_m  = [4.3215; 4.9950; 6.1845]; RBFdata_blk_at2r_act_f  = [1.9823; 3.6679; 4.0205]; 
-GFRdata_blk_at2r_act_m  = [1.0443; 1.3970; 1.8030]; GFRdata_blk_at2r_act_f  = [0.2093; 0.7922; 1.0836]; 
-UFdata_blk_at2r_act_m   = [0.0036; 0.0051; 0.0088]; UFdata_blk_at2r_act_f   = [0.0031; 0.0067; 0.0181]; 
-USODdata_blk_at2r_act_m = [0.0000; 0.1875; 0.6696]; USODdata_blk_at2r_act_f = [0.3203; 0.6206; 2.6247]; 
 
 % Male combined array for ease of plotting
 RBFdata_rel_m  = [zeros(3,1), RBFdata_yes_at2r_rel_m , RBFdata_blk_at2r_rel_m ];
 GFRdata_rel_m  = [zeros(3,1), GFRdata_yes_at2r_rel_m , GFRdata_blk_at2r_rel_m ];
 UFdata_rel_m   = [zeros(3,1), UFdata_yes_at2r_rel_m  , UFdata_blk_at2r_rel_m  ];
 USODdata_rel_m = [zeros(3,1), USODdata_yes_at2r_rel_m, USODdata_blk_at2r_rel_m];
-% ---
-RBFdata_act_m  = [zeros(3,1), RBFdata_yes_at2r_act_m , RBFdata_blk_at2r_act_m ];
-GFRdata_act_m  = [zeros(3,1), GFRdata_yes_at2r_act_m , GFRdata_blk_at2r_act_m ];
-UFdata_act_m   = [zeros(3,1), UFdata_yes_at2r_act_m  , UFdata_blk_at2r_act_m  ];
-USODdata_act_m = [zeros(3,1), USODdata_yes_at2r_act_m, USODdata_blk_at2r_act_m];
 % Female combined array for ease of plotting
 RBFdata_rel_f  = [zeros(3,1), RBFdata_yes_at2r_rel_f , RBFdata_blk_at2r_rel_f ];
 GFRdata_rel_f  = [zeros(3,1), GFRdata_yes_at2r_rel_f , GFRdata_blk_at2r_rel_f ];
 UFdata_rel_f   = [zeros(3,1), UFdata_yes_at2r_rel_f  , UFdata_blk_at2r_rel_f  ];
 USODdata_rel_f = [zeros(3,1), USODdata_yes_at2r_rel_f, USODdata_blk_at2r_rel_f];
-% ---
-RBFdata_act_f  = [zeros(3,1), RBFdata_yes_at2r_act_f , RBFdata_blk_at2r_act_f ];
-GFRdata_act_f  = [zeros(3,1), GFRdata_yes_at2r_act_f , GFRdata_blk_at2r_act_f ];
-UFdata_act_f   = [zeros(3,1), UFdata_yes_at2r_act_f  , UFdata_blk_at2r_act_f  ];
-USODdata_act_f = [zeros(3,1), USODdata_yes_at2r_act_f, USODdata_blk_at2r_act_f];
 
 % Subplot -----------------------------------------------------------------
 
@@ -368,60 +335,6 @@ plot(s_rel1(4), RPP_f,USOD_rel_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576],
 plot(s_rel1(4), RPP_f,USODdata_rel_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
 hold(s_rel1(4), 'off')
 title(s_rel1(4), 'D')
-% ---
-h(2) = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
-s_act1(1) = subplot(2,2,1); 
-s_act1(2) = subplot(2,2,2); 
-s_act1(3) = subplot(2,2,3);
-s_act1(4) = subplot(2,2,4); 
-
-plot(s_act1(1), RPP_m,RBF_act_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s_act1(1), [75,125]); set(s_act1(1),'XTick', [80,100,120]);
-% ylim(s_act1(1), [0.6,1.2])
-xlabel(s_act1(1), 'RPP (mmHg)'); ylabel(s_act1(1), 'RBF (ml/min)');
-hold(s_act1(1), 'on')
-plot(s_act1(1), RPP_m,RBFdata_act_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_act1(1), RPP_f,RBF_act_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_act1(1), RPP_f,RBFdata_act_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
-hold(s_act1(1), 'off')
-[~, hobj, ~, ~] = legend(s_act1(1), {'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
-hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
-title(s_act1(1), 'A')
-
-plot(s_act1(2), RPP_m,GFR_act_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s_act1(2), [75,125]); set(s_act1(2),'XTick', [80,100,120]);
-% ylim(s_act1(2), [0.6,1.2])
-xlabel(s_act1(2), 'RPP (mmHg)'); ylabel(s_act1(2), 'GFR (ml/min)');
-hold(s_act1(2), 'on')
-plot(s_act1(2), RPP_m,GFRdata_act_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_act1(2), RPP_f,GFR_act_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_act1(2), RPP_f,GFRdata_act_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
-hold(s_act1(2), 'off')
-title(s_act1(2), 'B')
-
-plot(s_act1(3), RPP_m,UF_act_m      (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s_act1(3), [75,125]); set(s_act1(3),'XTick', [80,100,120]);
-% ylim(s_act1(3), [0.0,3.5])
-xlabel(s_act1(3), 'RPP (mmHg)'); ylabel(s_act1(3), 'UF (ml/min)');
-hold(s_act1(3), 'on')
-plot(s_act1(3), RPP_m,UFdata_act_m  (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_act1(3), RPP_f,UF_act_f      (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_act1(3), RPP_f,UFdata_act_f  (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
-hold(s_act1(3), 'off')
-title(s_act1(3), 'C')
-
-plot(s_act1(4), RPP_m,USOD_act_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s_act1(4), [75,125]); set(s_act1(4),'XTick', [80,100,120]);
-% ylim(s_act1(4), [0.0,3.5])
-xlabel(s_act1(4), 'RPP (mmHg)'); ylabel(s_act1(4), 'USOD (\mu eq/min)');
-hold(s_act1(4), 'on')
-plot(s_act1(4), RPP_m,USODdata_act_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_act1(4), RPP_f,USOD_act_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_act1(4), RPP_f,USODdata_act_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
-hold(s_act1(4), 'off')
-title(s_act1(4), 'D')
 
 % Save figures. -----------------------------------------------------------
 
