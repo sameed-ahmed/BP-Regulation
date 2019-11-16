@@ -171,6 +171,11 @@ for i = 1:length(ylower)
     end
 end
 
+% Interesting variables to plot.
+var_ind = [33;41;42;9;73;74;6;7;27;92;93;29]; sub_var_num = length(var_ind);
+
+% Plot all vars vs time. --------------------------------------------------
+
 f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
@@ -195,13 +200,50 @@ for i = 1:7
         
 %         Days
         ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
-        ax.XTickLabel = {'0' ,'2' ,'4' ,'6' ,'8' ,'10','12',...
-                         '14','16','18','20','22','24','26'};
+        ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
 
 %         legend('Male', 'Female')
         title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
     end
 end
+
+% Plot interesting variables. ---------------------------------------------
+
+f2 = figure('pos',[000 000 600 600], 'DefaultAxesFontSize',12);
+s2 = gobjects(1,sub_var_num);
+% Loop through each subplot within a set of subplots.
+for j = 1:sub_var_num
+    s2(j) = subplot(4,3,j);
+    if     mod(j,3) == 1
+        hshift = -0.05;
+    elseif mod(j,3) == 0
+        hshift = 0.05;
+    else
+        hshift = 0;
+    end
+    s2(j).Position = s2(j).Position + [hshift 0 0.01 0.01];
+
+    plot(s2(j), t,X_m(var_ind(j),:,fixed_ss), 'Color',[0.203, 0.592, 0.835], 'LineWidth',2.5);
+    hold(s2(j), 'on')
+    plot(s2(j), t,X_f(var_ind(j),:,fixed_ss), 'Color',[0.835, 0.203, 0.576], 'LineWidth',2.5);
+    hold(s2(j), 'off')
+
+    xlim([xlower, xupper])
+    ylim([ylower(var_ind(j)), yupper(var_ind(j))])
+    
+    set(s2(j), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
+    set(s2(j), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+    
+    if j == 10 || j == 11
+        ax = gca;
+        ax.YAxis.Exponent = -3;
+    end
+
+    ylabel(names(var_ind(j)), 'Interpreter','latex', 'FontSize',16)
+end
+legend(s2(1),'Male','Female', 'Location','east')
+xlh = xlabel(s2(11),'Time (days)');
+xlh.Position(2) = xlh.Position(2) - 0.0005;
 
 % Plot Mean Arterial Pressure vs Time. ------------------------------------
 
@@ -391,7 +433,7 @@ title(s1(2), 'B', 'FontSize',14)
 
 save_data_name = sprintf('all_vars_AngII_inf.fig');
 save_data_name = strcat('Figures/', save_data_name);
-savefig([f;g;h';k], save_data_name)
+savefig([f;f2;g;h';k], save_data_name)
 
 end
 
