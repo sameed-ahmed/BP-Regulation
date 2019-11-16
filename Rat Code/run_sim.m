@@ -193,17 +193,9 @@ end
 
 % Save figures.
 
-% if     fact == 1
-%     save_data_name = sprintf('all_vars_baseline.fig');
-% else
-%     if     strcmp(fact_var,'Phi_sodin')
-%         save_data_name = sprintf('all_vars_%gxPhisodin.fig',fact);
-%     elseif strcmp(fact_var,'N_rsna'   )
-%         save_data_name = sprintf('all_vars_%gxNrsna.fig'   ,fact);
-%     end
-% end
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig(f, save_data_name)
+save_data_name = sprintf('all_vars_baseline.fig');
+save_data_name = strcat('Figures/', save_data_name);
+savefig(f, save_data_name)
 
 end
 

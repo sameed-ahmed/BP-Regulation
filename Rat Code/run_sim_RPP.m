@@ -425,9 +425,9 @@ title(s_act1(4), 'D')
 
 % Save figures. -----------------------------------------------------------
 
-% save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig(h, save_data_name)
+save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
+save_data_name = strcat('Figures/', save_data_name);
+savefig(h, save_data_name)
 
 end
 
