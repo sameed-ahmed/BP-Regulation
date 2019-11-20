@@ -37,7 +37,7 @@ for i = 1:2:length(varargin)
     end
 end
 
-pars = get_params(species{human+1},gender{gg},AA);
+pars = get_pars(species{human+1},gender{gg},'',AA);
 
 
 kappa_ACEI = 0;
@@ -83,7 +83,7 @@ t0 = 0*1440; tf = tchange + num_days*1440;
 %tspan = [t0, tf];
 tspan = t0:10:tf;
 % Solve dae
-[t,x] = ode15i(@(t,x,x_p) bp_reg_sim(t,x,x_p,pars,tchange,...
+[t,x] = ode15i(@(t,x,x_p) bp_reg_mod(t,x,x_p,pars,tchange,...
                                      'ACEI',kappa_ACEI,'furosemide',[kappa_f,kappa_f_md],'NSAID',NSAID',...
                                      'Myogenic Response',myo_ind,'Water Intake',water_ind), ...
                 tspan, x0, x_p0);

@@ -33,7 +33,7 @@ for i = 1:2:length(varargin)
 end
 
 %% Parameters
-pars = get_params(species{human+1},gender{gg},AA);
+pars = get_pars(species{human+1},gender{gg},'',AA);
 
 %% Drug Treatments
 kappa_ACEI = 0;
@@ -88,12 +88,13 @@ tchange=0;
 %options = optimset(); options = optimset('Display','off');
 options = optimset('Display','off','MaxFunEvals',8200+10000);
 [SSdata, residual, ...
- exitflag, output] = fsolve(@(x) bp_reg_sim(t,x,x_p0,pars,tchange,...
+ exitflag, output] = fsolve(@(x) bp_reg_mod(t,x,x_p0,pars,tchange,...
                                             'ACEI',kappa_ACEI,'furosemide',[kappa_f,kappa_f_md],'NSAID',NSAID',...
                                             'Myogenic Response',myo_ind,'Water Intake',water_ind), ...
                             x0, options);
 
-%Check for imaginary solution.
+
+% %Check for imaginary solution.
 if not (isreal(SSdata))
     %disp('Imaginary number returned.')
     imag = 1;
