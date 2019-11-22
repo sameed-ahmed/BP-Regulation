@@ -199,11 +199,7 @@ elseif strcmp(species, 'rat')
     
     if     m_Reab
         load_data_name1 = sprintf('%s_fixed_var_pars_scenario_m_Reab_.mat', sex);
-        if m_RAS
-            load_data_name2 = sprintf('%s_%s_ss_data_scenario_m_RAS_m_Reab_.mat', species,sex);
-        else
-            load_data_name2 = sprintf('%s_%s_ss_data_scenario_m_Reab_.mat'      , species,sex);
-        end
+        load_data_name2 = sprintf('%s_%s_ss_data_scenario_m_Reab_.mat'    , species,sex);
     else
         load_data_name1 = sprintf('%s_fixed_var_pars_scenario_Normal_.mat', sex);
         load_data_name2 = sprintf('%s_%s_ss_data_scenario_Normal_.mat', species,sex);

@@ -16,9 +16,6 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Experiment
-experiment = 'test';
-
 % Scenarios
 % Normal - Normal conditions
 % m_RSNA - male RSNA
@@ -26,7 +23,7 @@ experiment = 'test';
 % m_RAS  - male RAS pars
 % m_Reab - male fractional sodium and water reabsorption
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
-scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'm_RSNA_&_m_Reab'};
+scenario = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', 'm_RSNA_m_Reab_'};
 num_scen = length(scenario);
 fixed_ss = 1;
 
@@ -43,48 +40,47 @@ N = ((days+1)*1440) / 2;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 species = {'human', 'rat'   };
-gender  = {'male' , 'female'};
+sex     = {'male' , 'female'};
 
 % Number of variables
 num_vars = 93;
 
 % Initialize variables.
-% X = (variables, points, gender, scenario)
+% X = (variables, points, sex, scenario)
 X = zeros(num_vars,N,2,num_scen);
 
-for ss = 1:num_scen % scenario
-for gg = 1:2        % gender
+for sce_ind = 1:num_scen % scenario
+for sex_ind = 1:2        % sex
+
+varargin_input = {scenario{sce_ind},true};
 
 %% Parameters
 
 % Parameter input
-pars = get_pars(species{sp}, gender{gg}, scenario{ss});
+pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 
 %% Drugs
 
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
-
-if     strcmp(gender{gg}, 'male')
-    drugs = [2022, 0, 0]; % Sampson 2008 male + female; 13 days
-elseif strcmp(gender{gg}, 'female')
-    drugs = [2060, 0, 0]; % Sampson 2008 male + female; 13 days
+% Ang II inf rate fmol/(ml min)
+if     strcmp(sex{sex_ind}, 'male')
+    kappa_AngII = 2022; % Sampson 2008
+elseif strcmp(sex{sex_ind}, 'female')
+    kappa_AngII= 2060; % Sampson 2008
 end
+
+varargin_input = {varargin_input{:}, 'AngII_',kappa_AngII};
 
 %% Solve DAE
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% solve_ss_baseline.m.
+% solve_ss_scenario.m.
 
-% Set name for data file to be loaded based upon gender and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', species{sp},gender{gg},scenario{ss});
+% Set name for data file to be loaded based upon sex and scenario.    
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+                         species{sp},sex{sex_ind},scenario{sce_ind});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
-% fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-% SSdata(fixed_ind) = 1;
-
-% Renal perfusion pressure perturbation place holder.
-RPP_per = 0;
 
 % Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -135,15 +131,13 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_mod(t,x,x_p,pars,SSdata      ,...
-                          tchange,drugs,RPP_per    ,...
-                          scenario{ss},experiment) ,...
+               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input), ...
                tspan, x0, x_p0, options);
 
-% X = (variables, points, gender, scenario)
-X(:,:,gg,ss) = x';
+% X = (variables, points, sex, scenario)
+X(:,:,sex_ind,sce_ind) = x';
 
-end % gender
+end % sex
 end % scenario
 
 %% Plot
@@ -254,7 +248,7 @@ MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
              26.18,28.87,29.54,31.26,34.71,36.53,42.18];
 MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
              13.91,17.31,17.04,18.37,19.63,23.23,24.42];
-% Substract MAP by baseline for each gender and all scenarios.
+% Substract MAP by baseline for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
 MAP_m = reshape(X_m(42,:,:) - X_m(42,1,:), [N,num_scen]);
 MAP_f = reshape(X_f(42,:,:) - X_f(42,1,:), [N,num_scen]);
@@ -277,7 +271,7 @@ set(hl,'LineWidth',1.5);
 
 % Plot all other quantities of interest. ----------------------------------
 
-% GFR; BV; RSNA; REA/RR for each gender and all scenarios.
+% GFR; BV; RSNA; REA/RR for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
 GFR_m  = reshape(X_m( 7,:,:), [N,num_scen]);
 GFR_f  = reshape(X_f( 7,:,:), [N,num_scen]);
@@ -295,7 +289,7 @@ BV_f  = BV_f  ./ BV_f (1,:);
 R_m   = R_m   ./ R_m  (1,:);
 R_f   = R_f   ./ R_f  (1,:);
 
-% Filtration fraction for sodium and urine for each gender and all scenarios.
+% Filtration fraction for sodium and urine for each sex and all scenarios.
 FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [N,num_scen]) * 100;
 FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [N,num_scen]) * 100;
 FRW_m  = reshape((X_m( 7,:,:) - X_m(92,:,:)) ./ X_m( 7,:,:), [N,num_scen]) * 100;
@@ -383,7 +377,7 @@ title(s_main(4), 'D')
 
 % Plot male - female bar graph for each scenario --------------------------
 
-% Retrieve last MAP value for each gender and all scenarios.
+% Retrieve last MAP value for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
 deltaMAP_m = reshape(X_m(42,end,1:end) - X_m(42,1,1:end), [1,num_scen]);
 deltaMAP_f = reshape(X_f(42,end,1:end) - X_f(42,1,1:end), [1,num_scen]);

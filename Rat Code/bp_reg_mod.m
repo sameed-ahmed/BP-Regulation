@@ -72,6 +72,7 @@ kappa_AngII = 0; % Ang II infusion rate fmol/ml/min
 kappa_ACEi  = 0; % ACE inhibitor %
 kappa_ARB   = 0; % Angiotensin receptor blocker %
 
+RPP_ind = false; % Boolean for controlling renal perfusion pressure
 RPP_per = 0    ; % Renal perfusion pressure mmHg
 denerve = false; % Boolean for unilateral renal denervation by fixing rsna = 1, which is baseline.
 fix_win = false; % Boolean for fixing water intake.
@@ -82,8 +83,6 @@ lin_Myo = false; % Boolean for having linear myogenic response.
 
 m_RSNA = false; % Boolean for having male RSNA in the female model.
 m_AT2R = false; % Boolean for having male effect of AT2R in the female model.
-
-experiment = ''; % String for which experiment is being conducted.
 
 %% Read and assign optional parameters.
 
@@ -102,7 +101,7 @@ for i = 1:2:length(varargin)
         kappa_ARB  = varargin{i + 1};
         
     elseif strcmp(varargin{i},'RPP_')
-        experiment = 'RPP';
+        RPP_ind = true;
         RPP_per = varargin{i + 1};
     elseif strcmp(varargin{i},'Denerve_')
         denerve = varargin{i + 1};
@@ -116,19 +115,29 @@ for i = 1:2:length(varargin)
     elseif strcmp(varargin{i},'lin_Myo_')
         lin_Myo = varargin{i + 1};
         
-    elseif strcmp(varargin{i},'m_RSNA_') || strcmp(varargin{i},'m_RSNA_m_Reab')
+    elseif strcmp(varargin{i},'m_RSNA_') || strcmp(varargin{i},'m_RSNA_m_Reab_')
         m_RSNA = varargin{i + 1};
     elseif strcmp(varargin{i},'m_AT2R_')
         m_AT2R = varargin{i + 1};
     end
 end
 
-if strcmp(experiment, 'RPP')
+if RPP_ind
     if     t <  tchange
         RPP = SSdata_input(42);
     elseif t >= tchange 
         RPP = RPP_per * tanh(5 * (t-tchange)) + SSdata_input(42);
     end
+end
+
+if     t <  tchange
+    kappa_AngII = 0; 
+    kappa_ACEi  = 0; 
+    kappa_ARB   = 0;
+elseif t >= tchange 
+    kappa_AngII = kappa_AngII; 
+    kappa_ACEi  = kappa_ACEi; 
+    kappa_ARB   = kappa_ARB;
 end
 
 %% Formulate human to rat scaling factors.
@@ -326,7 +335,7 @@ else
     f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
 end
 % Phi_rb
-if     strcmp(experiment, 'RPP')
+if     RPP_ind
     f(6 ) = Phi_rb - ( RPP / R_r );
 else
     f(6 ) = Phi_rb - ( P_ma / R_r );
@@ -336,7 +345,7 @@ f(7 ) = Phi_gfilt - ( P_f * C_gcf );
 % P_f
 f(8 ) = P_f - ( P_gh - (P_B + P_go) );
 % P_gh
-if     strcmp(experiment, 'RPP')
+if     RPP_ind
     f(9 ) = P_gh - ( RPP - Phi_rb * R_aa );
 else
     f(9 ) = P_gh - ( P_ma - Phi_rb * R_aa );

@@ -21,10 +21,11 @@ addpath(genpath(mypath))
 % Normal - Normal conditions
 % m_RAS  - male RAS pars
 % m_Reab - male fractional sodium and water reabsorption
-scenario = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', ...
-            'm_RAS_m_Reab_', 'm_RSNA_m_Reab_', ...
-            'AngII_', 'ACEi_', 'ARB_'};
-fixed_ss = 1;
+scenario1 = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', ...
+             'm_RAS_m_Reab_', 'm_RSNA_m_Reab_'};
+scenario2 = {'Normal_', 'AngII_', 'ACEi_', 'ARB_'};
+fixed_ss1 = 1;
+fixed_ss2 = 1;
 
 % Species
 sp = 2;
@@ -46,9 +47,9 @@ num_vars = 93;
 X = cell(1,2);
 T = cell(1,2);
 
-varargin_input = {scenario{fixed_ss},true};
-
 for sex_ind = 1:2 % gender
+
+varargin_input = {scenario1{fixed_ss1},true};
 
 %% Parameters
 
@@ -59,16 +60,16 @@ pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario{fixed_ss}, 'AngII_')
+if     strcmp(scenario2{fixed_ss2}, 'AngII_')
     if     strcmp(sex{sex_ind}, 'male')
-        varargin_input = {'AngII_',2022}; % Sampson 2008
+        varargin_input = {varargin_input{:}, 'AngII_',2022}; % Sampson 2008
     elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = {'AngII_',2060}; % Sampson 2008
+        varargin_input = {varargin_input{:}, 'AngII_',2060}; % Sampson 2008
     end
-elseif strcmp(scenario{fixed_ss}, 'ACEi_')
-        varargin_input = {'ACEi_',0.78}; % Leete 2018
-elseif strcmp(scenario{fixed_ss}, 'ARB_')
-        varargin_input = {'ARB_',0.67}; % Leete 2018
+elseif strcmp(scenario2{fixed_ss2}, 'ACEi_')
+        varargin_input = {varargin_input{:}, 'ACEi_',0.78}; % Leete 2018
+elseif strcmp(scenario2{fixed_ss2}, 'ARB_')
+        varargin_input = {varargin_input{:}, 'ARB_',0.67}; % Leete 2018
 end
 
 %% Solve DAE
@@ -79,7 +80,9 @@ end
 
 % Set name for data file to be loaded based upon gender and scenario.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{sp},sex{sex_ind},scenario{fixed_ss});
+                         species{sp},sex{sex_ind},scenario1{fixed_ss1});
+% load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+%                          species{sp},sex{sex_ind},scenario1{1});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 
@@ -199,9 +202,11 @@ end
 
 % Save figures.
 
-% save_data_name = sprintf('all_vars_baseline.fig');
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig(f, save_data_name)
+if strcmp(scenario1{fixed_ss1}, 'Normal_') && strcmp(scenario2{fixed_ss2}, 'Normal_')
+    save_data_name = sprintf('all_vars_baseline.fig');
+    save_data_name = strcat('Figures/', save_data_name);
+    savefig(f, save_data_name)
+end
 
 end
 

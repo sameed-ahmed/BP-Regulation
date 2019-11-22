@@ -50,28 +50,24 @@ for sex_ind = 1:2        % gender
 
 %% Parameters
 
-% varargin_input = cell(1,2);
 varargin_input = {scenario{sce_ind},true};
-% varargin_input{1} = scenario{sce_ind};
-% varargin_input{2} = true;
-% varargin_input = varargin_input{1:2}
 
 % Parameter input
 pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 
 %% Drugs
 
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
+% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
 if     strcmp(scenario{sce_ind}, 'AngII_')
-    if     strcmp(sex{sex_ind}, 'male')
+    if     strcmp(sex{sex_ind}, 'male'  )
         varargin_input = {'AngII_',2022}; % Sampson 2008
     elseif strcmp(sex{sex_ind}, 'female')
         varargin_input = {'AngII_',2060}; % Sampson 2008
     end
-elseif strcmp(scenario{sce_ind}, 'ACEi_')
-        varargin_input = {'ACEi_',0.78}; % Leete 2018
-elseif strcmp(scenario{sce_ind}, 'ARB_')
-        varargin_input = {'ARB_',0.67}; % Leete 2018
+elseif strcmp(scenario{sce_ind}, 'ACEi_' )
+        varargin_input = {'ACEi_' ,0.78 }; % Leete 2018
+elseif strcmp(scenario{sce_ind}, 'ARB_'  )
+        varargin_input = {'ARB_'  ,0.67 }; % Leete 2018
 end
 
 %% Variables initial guess

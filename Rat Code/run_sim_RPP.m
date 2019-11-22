@@ -16,18 +16,14 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Experiment
-experiment = 'RPP';
-
 % Renal perfusion pressure perturbation
 % Enter postive for increase or negative for decrease.
 RPP_per = [-20; 0; 20];
 num_per = length(RPP_per);
 
 % Scenarios
-% Normal          - normal conditions
-% Denerve         - cut off rsna from kidney
-scenario = {'Normal', 'Denerve'};
+% Denerve - cut off rsna from kidney
+scenario = {'Denerve'};
 num_scen = length(scenario);
 
 % Number of points for plotting resolution
@@ -38,7 +34,7 @@ exact_per = 3;
 
 % Index of scenario to plot for all variables
 % Scenario 'Denerve' is the one from Hilliard 2011.
-exact_scen = 2;
+exact_scen = 1;
 
 % Species
 sp = 2;
@@ -51,7 +47,7 @@ sp = 2;
 num_vars = 93;
 
 % Initialize variables.
-% X = (variables, points, gender, perturbation, scenario)
+% X = (variables, points, sex, perturbation, scenario)
 X = zeros(num_vars,num_points,2,num_per,num_scen);
 % Retrieve male/female. 
 % X_m/f = (variables, points, perturbation, scenario)
@@ -59,39 +55,37 @@ X_m = zeros(num_vars,num_points,num_per,num_scen);
 X_f = zeros(num_vars,num_points,num_per,num_scen);
 
 % Need to store male and female RPP for plotting later.
-% RPP = (gender, scenario)
+% RPP = (sex, scenario)
 RPP = zeros(2,num_scen);
 
 species = {'human', 'rat'   };
-gender  = {'male' , 'female'};
+sex     = {'male' , 'female'};
 
-for pp = 1:num_per  % perturbation
-for ss = 1:num_scen % scenario
-for gg = 1:2        % gender
+for per_ind = 1:num_per  % perturbation
+for sce_ind = 1:num_scen % scenario
+for sex_ind = 1:2        % sex
+
+varargin_input = {'RPP_',RPP_per(per_ind), scenario{sce_ind},true, 'Fixed_WIn',true};
 
 %% Parameters
 
 % Parameter input
-pars = get_pars(species{sp}, gender{gg}, scenario{ss});
-
-%% Drugs
-
-drugs = [0, 0, 0]; % No drug
+pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 
 %% Solve DAE
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% solve_ss_baseline.m.
+% solve_ss_scenario.m.
 
-% Set name for data file to be loaded based upon gender.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', species{sp},gender{gg});
+% Set name for data file to be loaded based upon sex.    
+load_data_name = sprintf('%s_%s_ss_data_scenario_Normal_.mat', ...
+                         species{sp},sex{sex_ind});
+% Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
-% fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-% SSdata(fixed_ind) = 1;
 
 % Renal Perfusion Pressure.
-RPP(gg,ss) = SSdata(42);
+RPP(sex_ind,sce_ind) = SSdata(42);
 
 % Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -142,17 +136,15 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_mod(t,x,x_p,pars,SSdata       ,...
-                          tchange,drugs,RPP_per(pp) ,...
-                          scenario{ss},experiment)  ,...
+               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input), ...
                tspan, x0, x_p0, options);
 t = t'; x = x';
 
 % Store solution.
-% X = (variables, points, gender, perturbation, scenario)
-X(:,:,gg,pp,ss) = x;
+% X = (variables, points, sex, perturbation, scenario)
+X(:,:,sex_ind,per_ind,sce_ind) = x;
 
-end % gender
+end % sex
 end % scenario
 end % perturbation
 
@@ -208,8 +200,8 @@ end
 
 tplot   = [t0:1:tend];
 RPPplot = zeros(1,length(tplot));
-RPPplot(1        :tchange) = RPP(1,2);
-RPPplot(tchange+1:tend+1 ) = RPP(1,2) + RPP_per(exact_per);
+RPPplot(1        :tchange) = RPP(1,exact_scen);
+RPPplot(tchange+1:tend+1 ) = RPP(1,exact_scen) + RPP_per(exact_per);
 g = figure('pos',[100 100 675 450]);
 plot(tplot,RPPplot, 'LineWidth',3)
 xlabel('$t$ (min)', 'Interpreter','latex')
@@ -231,30 +223,30 @@ GFR_rel_m  = zeros(num_per,num_scen); GFR_rel_f  = zeros(num_per,num_scen);
 UF_rel_m   = zeros(num_per,num_scen); UF_rel_f   = zeros(num_per,num_scen); 
 USOD_rel_m = zeros(num_per,num_scen); USOD_rel_f = zeros(num_per,num_scen); 
 
-for ss = 1:num_scen
-    for pp = 1:num_per
-        RBF_rel_m (pp,ss) = (sum(X_m(6 , time_int, pp, ss)) / time_points) ...
-                          / (sum(X_m(6 , time_int, 2 , ss)) / time_points);
-        GFR_rel_m (pp,ss) = (sum(X_m(7 , time_int, pp, ss)) / time_points) ...
-                          / (sum(X_m(7 , time_int, 2 , ss)) / time_points);
-        UF_rel_m  (pp,ss) = (sum(X_m(92, time_int, pp, ss)) / time_points) ...
-                          / (sum(X_m(92, time_int, 2 , ss)) / time_points);
-        USOD_rel_m(pp,ss) = (sum(X_m(27, time_int, pp, ss)) / time_points) ...
-                          / (sum(X_m(27, time_int, 2 , ss)) / time_points);
+for sce_ind = 1:num_scen
+    for per_ind = 1:num_per
+        RBF_rel_m (per_ind,sce_ind) = (sum(X_m(6 , time_int, per_ind, sce_ind)) / time_points) ...
+                                    / (sum(X_m(6 , time_int, 2 , sce_ind)) / time_points);
+        GFR_rel_m (per_ind,sce_ind) = (sum(X_m(7 , time_int, per_ind, sce_ind)) / time_points) ...
+                                    / (sum(X_m(7 , time_int, 2 , sce_ind)) / time_points);
+        UF_rel_m  (per_ind,sce_ind) = (sum(X_m(92, time_int, per_ind, sce_ind)) / time_points) ...
+                                    / (sum(X_m(92, time_int, 2 , sce_ind)) / time_points);
+        USOD_rel_m(per_ind,sce_ind) = (sum(X_m(27, time_int, per_ind, sce_ind)) / time_points) ...
+                                    / (sum(X_m(27, time_int, 2 , sce_ind)) / time_points);
         
-        RBF_rel_f (pp,ss) = (sum(X_f(6 , time_int, pp, ss)) / time_points) ...
-                          / (sum(X_f(6 , time_int, 2 , ss)) / time_points);
-        GFR_rel_f (pp,ss) = (sum(X_f(7 , time_int, pp, ss)) / time_points) ...
-                          / (sum(X_f(7 , time_int, 2 , ss)) / time_points);
-        UF_rel_f  (pp,ss) = (sum(X_f(92, time_int, pp, ss)) / time_points) ...
-                          / (sum(X_f(92, time_int, 2 , ss)) / time_points);
-        USOD_rel_f(pp,ss) = (sum(X_f(27, time_int, pp, ss)) / time_points) ...
-                          / (sum(X_f(27, time_int, 2 , ss)) / time_points);
+        RBF_rel_f (per_ind,sce_ind) = (sum(X_f(6 , time_int, per_ind, sce_ind)) / time_points) ...
+                                    / (sum(X_f(6 , time_int, 2 , sce_ind)) / time_points);
+        GFR_rel_f (per_ind,sce_ind) = (sum(X_f(7 , time_int, per_ind, sce_ind)) / time_points) ...
+                                    / (sum(X_f(7 , time_int, 2 , sce_ind)) / time_points);
+        UF_rel_f  (per_ind,sce_ind) = (sum(X_f(92, time_int, per_ind, sce_ind)) / time_points) ...
+                                    / (sum(X_f(92, time_int, 2 , sce_ind)) / time_points);
+        USOD_rel_f(per_ind,sce_ind) = (sum(X_f(27, time_int, per_ind, sce_ind)) / time_points) ...
+                                    / (sum(X_f(27, time_int, 2 , sce_ind)) / time_points);
     end
 end
 
 % RPP
-RPP_m = RPP(1,2) + RPP_per; RPP_f = RPP(2,2) + RPP_per; 
+RPP_m = RPP(1,exact_scen) + RPP_per; RPP_f = RPP(2,exact_scen) + RPP_per; 
 
 % Data --------------------------------------------------------------------
 
@@ -289,50 +281,50 @@ s_rel1(2) = subplot(2,2,2);
 s_rel1(3) = subplot(2,2,3);
 s_rel1(4) = subplot(2,2,4); 
 
-plot(s_rel1(1), RPP_m,RBF_rel_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+plot(s_rel1(1), RPP_m,RBF_rel_m     (:,exact_scen) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
 xlim(s_rel1(1), [75,125]); set(s_rel1(1),'XTick', [80,100,120]);
 ylim(s_rel1(1), [0.6,1.2])
 xlabel(s_rel1(1), 'RPP (mmHg)'); ylabel(s_rel1(1), 'RBF (relative)');
 hold(s_rel1(1), 'on')
-plot(s_rel1(1), RPP_m,RBFdata_rel_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_rel1(1), RPP_f,RBF_rel_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_rel1(1), RPP_f,RBFdata_rel_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+plot(s_rel1(1), RPP_m,RBFdata_rel_m (:,2         ) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(1), RPP_f,RBF_rel_f     (:,exact_scen) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(1), RPP_f,RBFdata_rel_f (:,2         ) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
 hold(s_rel1(1), 'off')
 [~, hobj, ~, ~] = legend(s_rel1(1), {'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 title(s_rel1(1), 'A')
 
-plot(s_rel1(2), RPP_m,GFR_rel_m     (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+plot(s_rel1(2), RPP_m,GFR_rel_m     (:,exact_scen) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
 xlim(s_rel1(2), [75,125]); set(s_rel1(2),'XTick', [80,100,120]);
 ylim(s_rel1(2), [0.6,1.2])
 xlabel(s_rel1(2), 'RPP (mmHg)'); ylabel(s_rel1(2), 'GFR (relative)');
 hold(s_rel1(2), 'on')
-plot(s_rel1(2), RPP_m,GFRdata_rel_m (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_rel1(2), RPP_f,GFR_rel_f     (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_rel1(2), RPP_f,GFRdata_rel_f (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+plot(s_rel1(2), RPP_m,GFRdata_rel_m (:,2         ) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(2), RPP_f,GFR_rel_f     (:,exact_scen) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(2), RPP_f,GFRdata_rel_f (:,2         ) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
 hold(s_rel1(2), 'off')
 title(s_rel1(2), 'B')
 
-plot(s_rel1(3), RPP_m,UF_rel_m      (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+plot(s_rel1(3), RPP_m,UF_rel_m      (:,exact_scen) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
 xlim(s_rel1(3), [75,125]); set(s_rel1(3),'XTick', [80,100,120]);
 ylim(s_rel1(3), [0.0,3.5])
 xlabel(s_rel1(3), 'RPP (mmHg)'); ylabel(s_rel1(3), 'UF (relative)');
 hold(s_rel1(3), 'on')
-plot(s_rel1(3), RPP_m,UFdata_rel_m  (:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_rel1(3), RPP_f,UF_rel_f      (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_rel1(3), RPP_f,UFdata_rel_f  (:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+plot(s_rel1(3), RPP_m,UFdata_rel_m  (:,2         ) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(3), RPP_f,UF_rel_f      (:,exact_scen) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(3), RPP_f,UFdata_rel_f  (:,2         ) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
 hold(s_rel1(3), 'off')
 title(s_rel1(3), 'C')
 
-plot(s_rel1(4), RPP_m,USOD_rel_m    (:,2) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+plot(s_rel1(4), RPP_m,USOD_rel_m    (:,exact_scen) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
 xlim(s_rel1(4), [75,125]); set(s_rel1(4),'XTick', [80,100,120]);
 ylim(s_rel1(4), [0.0,3.5])
 xlabel(s_rel1(4), 'RPP (mmHg)'); ylabel(s_rel1(4), 'USOD (relative)');
 hold(s_rel1(4), 'on')
-plot(s_rel1(4), RPP_m,USODdata_rel_m(:,2) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-plot(s_rel1(4), RPP_f,USOD_rel_f    (:,2) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-plot(s_rel1(4), RPP_f,USODdata_rel_f(:,2) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
+plot(s_rel1(4), RPP_m,USODdata_rel_m(:,2         ) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(4), RPP_f,USOD_rel_f    (:,exact_scen) ,'x-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_rel1(4), RPP_f,USODdata_rel_f(:,2         ) ,'o--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8); 
 hold(s_rel1(4), 'off')
 title(s_rel1(4), 'D')
 

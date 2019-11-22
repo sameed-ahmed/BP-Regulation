@@ -20,9 +20,6 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Experiment
-experiment = 'steady state';
-
 % Scenarios
 % Normal - Normal conditions
 % m_RSNA - male RSNA
@@ -31,17 +28,14 @@ experiment = 'steady state';
 % m_Reab - male fractional sodium and water reabsorption
 % ACEi   - Angiotensin convernting enzyme inhibitor
 % AngII  - Ang II infusion
-scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'ACEi', 'AngII'};
+scenario = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', ...
+            'ACEi_', 'AngII_'};
 num_scen = length(scenario);
 % Index of scenario to plot for all variables
 fixed_ss = 1;
 
 % Species
 sp = 2;
-
-% Boolean to fix/vary water intake.
-% win =  'fixed';
-win = 'varied';
 
 % Number of iterations below/above baseline.
 iteration = 51; % must be odd number for symmetry
@@ -64,7 +58,7 @@ iter_range_l(end) = '';
 iter_range   = [iter_range_l, iter_range_u];
 
 % Initialize variables.
-% X = (variable, iteration, gender, scenario)
+% X = (variable, iteration, sex, scenario)
 X = zeros(num_vars,2*iteration-1,2,num_scen);
 % Retrieve male/female. 
 % X_m/f = (variable, iteration, scenario)
@@ -72,22 +66,23 @@ X_m = zeros(num_vars,2*iteration-1,num_scen);
 X_f = zeros(num_vars,2*iteration-1,num_scen);
 
 species = {'human'   , 'rat'     };
-gender  = {'male'    , 'female'  };
+sex     = {'male'    , 'female'  };
 change  = {'decrease', 'increase'};
 
-for ss = 1:num_scen % scenario
-for gg = 1:2        % gender
-for cc = 1:2        % change
+for sce_ind = 1:num_scen % scenario
+for sex_ind = 1:2        % sex
+for cha_ind = 1:2        % change
 
-% Set name for data file to be loaded based upon gender and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', species{sp},gender{gg},scenario{ss});
+varargin_input = {scenario{sce_ind},true};
+
+% Parameter input
+pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+
+% Set name for data file to be loaded based upon sex and scenario.    
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+                         species{sp},sex{sex_ind},scenario{sce_ind});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
-clear SSdata;
-
-load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', species{sp},gender{gg});
-load(load_data_name, 'SSdata');
-SSdata_input = SSdata;
 clear SSdata;
 
 for iter = 1:iteration % range
@@ -101,37 +96,32 @@ Phi_sodin_range_m = Phi_sodin_bl_m * iter_range;
 Phi_sodin_range_f = Phi_sodin_bl_f * iter_range;
 
 % Vary sodium intake.
-if     strcmp(gender{gg}, 'male')
-    if     strcmp(change{cc}, 'decrease')
+if     strcmp(sex{sex_ind}, 'male')
+    if     strcmp(change{cha_ind}, 'decrease')
         Phi_sodin = Phi_sodin_range_m(iteration-iter+1);
-    elseif strcmp(change{cc}, 'increase')
+    elseif strcmp(change{cha_ind}, 'increase')
         Phi_sodin = Phi_sodin_range_m(iteration+iter-1);
     end
-elseif strcmp(gender{gg}, 'female')
-    if     strcmp(change{cc}, 'decrease')
+elseif strcmp(sex{sex_ind}, 'female')
+    if     strcmp(change{cha_ind}, 'decrease')
         Phi_sodin = Phi_sodin_range_f(iteration-iter+1);
-    elseif strcmp(change{cc}, 'increase')
+    elseif strcmp(change{cha_ind}, 'increase')
         Phi_sodin = Phi_sodin_range_f(iteration+iter-1);
     end
 end
-
-% Parameter input
-pars     = get_pars(species{sp}, gender{gg}, scenario{ss});
 pars(18) = Phi_sodin;
 
 %% Drugs
 
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
-if     strcmp(scenario{ss}, 'ACEi'  )
-        drugs = [0   , 1, 0]; % Hall 2018
-elseif strcmp(scenario{ss}, 'AngII' )
-    if     strcmp(gender{gg}, 'male'  )
-        drugs = [2022, 0, 0]; % Sampson 2008
-    elseif strcmp(gender{gg}, 'female')
-        drugs = [2060, 0, 0]; % Sampson 2008
+% drugs = [ACEi target level, Ang II inf rate fmol/(ml min)]
+if     strcmp(scenario{sce_ind}, 'ACEi_' )
+        varargin_input = {'ACEi_' ,1   }; % Hall 1980
+elseif strcmp(scenario{sce_ind}, 'AngII_')
+    if     strcmp(sex{sex_ind}, 'male'  )
+        varargin_input = {'AngII_',2022}; % Sampson 2008
+    elseif strcmp(sex{sex_ind}, 'female')
+        varargin_input = {'AngII_',2060}; % Sampson 2008
     end
-else
-        drugs = [0   , 0, 0];
 end
 
 %% Variables initial guess
@@ -172,17 +162,15 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % Arbitrary value for time to input.
 x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
-% Time at which to change and renal perfusion pressure perturbation 
-% place holders.
-RPP_per = 0; tchange = 0;
+% Time at which to change and place holder.
+tchange = 0;
 
 %% Find steady state solution
 
 options = optimset('Display','off');
 [SSdata, residual, ...
- exitflag, output] = fsolve(@(x) bp_reg_mod(t,x,x_p0,pars,SSdata_input ,...
-                                            tchange,drugs,RPP_per      ,...
-                                            scenario{ss},experiment)   ,...
+ exitflag, output] = fsolve(@(x) ...
+                            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input), ...
                             x0, options);
 
 % Check for solver convergence.
@@ -204,10 +192,10 @@ for i = 1:length(SSdata)
 end
 
 % Store solution.
-if     strcmp(change{cc}, 'decrease')
-    X(:,iteration-iter+1,gg,ss) = SSdata;
-elseif strcmp(change{cc}, 'increase')
-    X(:,iteration+iter-1,gg,ss) = SSdata;
+if     strcmp(change{cha_ind}, 'decrease')
+    X(:,iteration-iter+1,sex_ind,sce_ind) = SSdata;
+elseif strcmp(change{cha_ind}, 'increase')
+    X(:,iteration+iter-1,sex_ind,sce_ind) = SSdata;
 end
 
 % To avoid the solver not converging, the initial guess for solution to the
@@ -218,15 +206,15 @@ SSdataIG = SSdata;
 % Sanity check to see script's progress. Also a check for where to
 % troubleshoot in case the solver does not converge.
 fprintf('%s %s %s iteration = %s out of %s \n', ...
-        scenario{ss},gender{gg},change{cc},num2str(iter),num2str(iteration))
+        scenario{sce_ind},sex{sex_ind},change{cha_ind},num2str(iter),num2str(iteration))
 
 end % change
 end % range
-end % gender
+end % sex
 
 %% Retrieve data and visualize
 
-X_m(:,:,ss) = X(:,:,1,ss); X_f(:,:,ss) = X(:,:,2,ss);
+X_m(:,:,sce_ind) = X(:,:,1,sce_ind); X_f(:,:,sce_ind) = X(:,:,2,sce_ind);
 
 end % scenario
 
@@ -343,7 +331,7 @@ hold off
 
 % Plot all other quantities of interest. ----------------------------------
 
-% CSOD; CADH; BV; for each gender and all scenarios.
+% CSOD; CADH; BV; for each sex and all scenarios.
 % X_m/f = (variable, iteration, scenario)
 CSOD_m = reshape(X_m(52,:,:), [2*iteration-1,num_scen]);
 CSOD_f = reshape(X_f(52,:,:), [2*iteration-1,num_scen]);
@@ -359,7 +347,7 @@ CADH_f = CADH_f ./ CADH_f(iteration,:);
 BV_m   = BV_m   ./ BV_m  (iteration,:);
 BV_f   = BV_f   ./ BV_f  (iteration,:);
 
-% Filtration fraction for sodium and urine for each gender and all scenarios.
+% Filtration fraction for sodium and urine for each sex and all scenarios.
 FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [2*iteration-1,num_scen]) * 100;
 FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [2*iteration-1,num_scen]) * 100;
 FRW_m  = reshape((X_m( 7,:,:) - X_m(92,:,:)) ./ X_m( 7,:,:), [2*iteration-1,num_scen]) * 100;
@@ -449,12 +437,12 @@ legend('-DynamicLegend');
 scen_linestyle_m = {'b-x', 'b-o', 'b-+', 'b-*',};
 scen_linestyle_f = {'r-x', 'r-o', 'r-+', 'r-*',};
 scen_legend = {'RSNA', 'AT2R', 'RAS', 'Reab'};
-for ss = 2:num_scen-2
+for sce_ind = 2:num_scen-2
     hold all
-    plot(X_m(42,:,ss),xscale,scen_linestyle_m{ss-1}, 'LineWidth',3, 'DisplayName',scen_legend{ss-1})
+    plot(X_m(42,:,sce_ind),xscale,scen_linestyle_m{sce_ind-1}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-1})
     legend('-DynamicLegend');
     hold all
-    plot(X_f(42,:,ss),xscale,scen_linestyle_f{ss-1}, 'LineWidth',3, 'DisplayName',scen_legend{ss-1})
+    plot(X_f(42,:,sce_ind),xscale,scen_linestyle_f{sce_ind-1}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-1})
     legend('-DynamicLegend');
 end
 
@@ -473,12 +461,12 @@ legend('-DynamicLegend');
 scen_linestyle_m = {'b--', 'b:'};
 scen_linestyle_f = {'r--', 'r:'};
 scen_legend = {'ACEi', 'Ang II'};
-for ss = num_scen-1:num_scen
+for sce_ind = num_scen-1:num_scen
     hold all
-    plot(X_m(42,:,ss),xscale,scen_linestyle_m{ss-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{ss-(num_scen-2)})
+    plot(X_m(42,:,sce_ind),xscale,scen_linestyle_m{sce_ind-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-(num_scen-2)})
     legend('-DynamicLegend');
     hold all
-    plot(X_f(42,:,ss),xscale,scen_linestyle_f{ss-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{ss-(num_scen-2)})
+    plot(X_f(42,:,sce_ind),xscale,scen_linestyle_f{sce_ind-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-(num_scen-2)})
     legend('-DynamicLegend');
 end
 
