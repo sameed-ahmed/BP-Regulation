@@ -1,35 +1,52 @@
 % 
 
-function pars = get_pars(species, gender, scenario)
+function pars = get_pars(species, sex, varargin)
 
-%% Parameters
+%% Species and sex identifier
 
 % Species boolean
 if     strcmp(species, 'human')
-    spe = 1;
+    spe_par = 1;
 elseif strcmp(species, 'rat')
-    spe = 0;
+    spe_par = 0;
+end
+if     strcmp(sex, 'male')
+    sex_par = 1;
+elseif strcmp(sex, 'female')
+    sex_par = 0;
 end
 
-% Gender boolean
-% Sodium intake
-% Renal vascular resistance
-% Body weight (~blood volume)
-% Original values are added as separate parameters because these may be
-% modified by another script.
-if     strcmp(gender, 'male')
-    gen = 1;
-    Phi_sodin_orig = 1.2212;
-    Phi_u_orig = 0.0150;
-    R_r_orig = 5.981 + 9.756;
-    W_b = 238;
-elseif strcmp(gender, 'female')
-    gen = 0;
-    Phi_sodin_orig = 1.2212;
-    Phi_u_orig = 0.0150;
-    R_r_orig = 9.361 + 15.27;
-    W_b = 194;
+%% Default parameter inputs for changes in simulation.
+
+m_Reab = false; % Boolean for having male fractional sodium/water reabsorption in the female model.
+m_RAS  = false; % Boolean for having male RAS parameters in the female model.
+
+%% Read and assign optional parameters.
+
+% The odd inputs of varargin are strings for each scenario. The
+% corresponding even inputs are the values for the effect parameters to
+% modify something.
+varargin = varargin{:};
+for i = 1:2:length(varargin)
+    if     strcmp(varargin{i},'Normal_')
+%         scenario = strcat(scenario,varargin{i});
+%         scenario = varargin{i};
+    elseif strcmp(varargin{i},'m_Reab_') || strcmp(varargin{i},'m_RSNA_m_Reab_')
+%         scenario = strcat(scenario,varargin{i});
+%         scenario = varargin{i};
+        m_Reab = varargin{i + 1};
+    elseif strcmp(varargin{i},'m_RAS_' )
+%         scenario = strcat(scenario,varargin{i});
+%         scenario = varargin{i};
+        m_RAS  = varargin{i + 1};
+    elseif strcmp(varargin{i},'m_RAS_m_Reab_' )
+%         scenario = varargin{i};
+        m_Reab = varargin{i + 1};
+        m_RAS  = varargin{i + 1};
+    end
 end
+
+%% Generic parameters
 
 N_rsna    = 1.00  ; % -
 P_B       = 18    ; % mmHg
@@ -58,17 +75,18 @@ h_AT2R        = 12  ; % min
 Psi_AT2RAA_eq = 1   ; % -
 Psi_AT2REA_eq = 1   ; % -
 
-% Species specific parameters
+%% Species and sex specific parameters
+
 if     strcmp(species, 'human')
     
 elseif strcmp(species, 'rat')
-    if     strcmp(gender, 'male')
+    if     strcmp(sex, 'male')
         R_aass = 5.981; % mmHg min / ml
         R_eass = 9.756; % mmHg min / ml
         C_gcf  = 0.068; % ml / min / mmHg
         
         % Transport parameters
-        eta_ptsodreab_eq = 0.80; % karaaslan
+        eta_ptsodreab_eq = 0.80;
         eta_dtsodreab_eq = 0.50; 
         eta_cdsodreab_eq = 0.93;
         eta_ptwreab_eq = 0.86; 
@@ -76,74 +94,88 @@ elseif strcmp(species, 'rat')
         eta_cdwreab_eq = 0.78;
         
         % RAS
-        X_PRCPRA = 135.59/17.312   ; % 
-        k_AGT    = 801.02          ; % 
-        c_ACE    = 0.096833        ; % 
-        c_Chym   = 0.010833        ; % 
-        c_NEP    = 0.012667        ; % 
-        c_ACE2   = 0.0026667       ; % 
-        c_IIIV   = 0.29800         ; % 
-        c_AT1R   = 0.19700         ; % 
-        c_AT2R   = 0.065667        ; % 
-        AT1R_eq  = 20.4807902818665; % 
-        AT2R_eq  = 6.82696474842298; % 
-    elseif strcmp(gender, 'female')
+        X_PRCPRA = 135.59/17.312   ; % 1 / min
+        k_AGT    = 801.02          ; % fmol / ml / min
+        c_ACE    = 0.096833        ; % 1 / min
+        c_Chym   = 0.010833        ; % 1 / min
+        c_NEP    = 0.012667        ; % 1 / min
+        c_ACE2   = 0.0026667       ; % 1 / min
+        c_IIIV   = 0.29800         ; % 1 / min
+        c_AT1R   = 0.19700         ; % 1 / min
+        c_AT2R   = 0.065667        ; % 1 / min
+        AT1R_eq  = 20.4807902818665; % fmol / ml
+        AT2R_eq  = 6.82696474842298; % fmol / ml
+    elseif strcmp(sex, 'female')
         R_aass = 9.361; % mmHg min / ml
         R_eass = 15.27; % mmHg min / ml
         C_gcf  = 0.047; % ml / min / mmHg
         
         % Transport parameters
-        if   strcmp(scenario, 'm_Reab'         ) || ...
-             strcmp(scenario, 'm_RAS_&_m_Reab' ) || ...
-             strcmp(scenario, 'm_RSNA_&_m_Reab')
+        if   m_Reab
         eta_ptsodreab_eq = 0.71; % male
         eta_dtsodreab_eq = 0.50; 
         eta_cdsodreab_eq = 0.93;
         else
-        eta_ptsodreab_eq = 0.50; % calibrated
+        eta_ptsodreab_eq = 0.50;
         eta_dtsodreab_eq = 0.50; 
         eta_cdsodreab_eq = 0.96;
         end
         
-        if   strcmp(scenario, 'm_Reab'         ) || ...
-             strcmp(scenario, 'm_RAS_&_m_Reab' ) || ...
-             strcmp(scenario, 'm_RSNA_&_m_Reab')
+        if   m_Reab
         eta_ptwreab_eq = 0.80; % male 
         eta_dtwreab_eq = 0.60; 
         eta_cdwreab_eq = 0.78;
         else
-        eta_ptwreab_eq = 0.50; % calibrated
+        eta_ptwreab_eq = 0.50;
         eta_dtwreab_eq = 0.60; 
         eta_cdwreab_eq = 0.91;
         end
         
         % RAS
-        if   strcmp(scenario, 'm_RAS'         ) || ...
-             strcmp(scenario, 'm_RAS_&_m_Reab')
-        X_PRCPRA = 135.59/17.312   ; %  % male
-        k_AGT    = 801.02          ; % 
-        c_ACE    = 0.096833        ; % 
-        c_Chym   = 0.010833        ; % 
-        c_NEP    = 0.012667        ; % 
-        c_ACE2   = 0.0026667       ; % 
-        c_IIIV   = 0.29800         ; % 
-        c_AT1R   = 0.19700         ; % 
-        c_AT2R   = 0.065667        ; % 
-        AT1R_eq  = 20.4807902818665; % 
-        AT2R_eq  = 6.82696474842298; % 
+        if   m_RAS
+        X_PRCPRA = 135.59/17.312   ; % 1 / min % male
+        k_AGT    = 801.02          ; % fmol / ml / min
+        c_ACE    = 0.096833        ; % 1 / min
+        c_Chym   = 0.010833        ; % 1 / min
+        c_NEP    = 0.012667        ; % 1 / min
+        c_ACE2   = 0.0026667       ; % 1 / min
+        c_IIIV   = 0.29800         ; % 1 / min
+        c_AT1R   = 0.19700         ; % 1 / min
+        c_AT2R   = 0.065667        ; % 1 / min
+        AT1R_eq  = 20.4807902818665; % fmol / ml
+        AT2R_eq  = 6.82696474842298; % fmol / ml
         else
-        X_PRCPRA = 114.22/17.312;
-        k_AGT    = 779.63          ; % 
-        c_ACE    = 0.11600         ; % 
-        c_Chym   = 0.012833        ; % 
-        c_NEP    = 0.0076667       ; % 
-        c_ACE2   = 0.00043333      ; % 
-        c_IIIV   = 0.29800         ; % 
-        c_AT1R   = 0.19700         ; % 
-        c_AT2R   = 0.065667        ; % 
-        AT1R_eq  = 20.4538920068419; % 
-        AT2R_eq  = 6.81799861123497; % 
+        X_PRCPRA = 114.22/17.312   ; % 1 / min
+        k_AGT    = 779.63          ; % fmol / ml / min
+        c_ACE    = 0.11600         ; % 1 / min
+        c_Chym   = 0.012833        ; % 1 / min
+        c_NEP    = 0.0076667       ; % 1 / min
+        c_ACE2   = 0.00043333      ; % 1 / min
+        c_IIIV   = 0.29800         ; % 1 / min
+        c_AT1R   = 0.19700         ; % 1 / min
+        c_AT2R   = 0.065667        ; % 1 / min
+        AT1R_eq  = 20.4538920068419; % fmol / ml
+        AT2R_eq  = 6.81799861123497; % fmol / ml
         end
+    end
+end
+
+%% Human to rat scaling factors
+
+% Physiological variables which determine scaling factors.
+% Original values are added as separate parameters because these may be
+% modified by another script.
+if     strcmp(species, 'rat')
+    if     strcmp(sex, 'male')
+        Phi_sodin_orig = 1.2212 ; % Sodium intake
+        Phi_u_orig = 0.0150     ; % Urine excretion
+        R_r_orig = 5.981 + 9.756; % Renal vascular resistance
+        W_b = 238               ; % Body weight (~blood volume)
+    elseif strcmp(sex, 'female')
+        Phi_sodin_orig = 1.2212 ; % Sodium intake
+        Phi_u_orig = 0.0150     ; % Urine excretion
+        R_r_orig = 9.361 + 15.27; % Renal vascular resistance
+        W_b = 194               ; % Body weight (~blood volume)
     end
 end
 
@@ -152,16 +184,33 @@ mypath = pwd;
 mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
-% Retrieve and replace parameters in fixed variable equations.
+% Retrieve parameters in fixed variable equations.
 % These are the shift parameters which ensure that effect variables are 1.
-% Set name for data file to be loaded based upon gender.    
-if   strcmp(scenario, 'm_Reab'         ) || ...
-     strcmp(scenario, 'm_RSNA_&_m_Reab')
-    load_data_name = sprintf('%s_fixed_var_pars_scenario_m_Reab.mat', gender);
-else
-    load_data_name = sprintf('%s_fixed_var_pars_scenario_Normal.mat', gender);
+% Retrieve baseline steady state variable values.
+% This is done if the species is rat.
+% The female model with male reabsorption requires its own file to be
+% loaded since changing the transport parameters will change the steady
+% state value of several variables.
+if     strcmp(species, 'human')
+    fixed_var_pars = 0;
+    SSdata         = 0;
+elseif strcmp(species, 'rat')
+    % Set name for data file to be loaded based upon sex and scenario.
+    
+    if     m_Reab
+        load_data_name1 = sprintf('%s_fixed_var_pars_scenario_m_Reab_.mat', sex);
+        if m_RAS
+            load_data_name2 = sprintf('%s_%s_ss_data_scenario_m_RAS_m_Reab_.mat', species,sex);
+        else
+            load_data_name2 = sprintf('%s_%s_ss_data_scenario_m_Reab_.mat'      , species,sex);
+        end
+    else
+        load_data_name1 = sprintf('%s_fixed_var_pars_scenario_Normal_.mat', sex);
+        load_data_name2 = sprintf('%s_%s_ss_data_scenario_Normal_.mat', species,sex);
+    end
+    load(load_data_name1, 'fixed_var_pars');
+    load(load_data_name2, 'SSdata');
 end
-load(load_data_name, 'fixed_var_pars');
 
 % Parameter input
 pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
@@ -171,8 +220,10 @@ pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
         X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
         h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
         c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; Psi_AT2RAA_eq; Psi_AT2REA_eq; ...
-        spe; gen; Phi_sodin_orig; Phi_u_orig; R_r_orig; W_b; ...
-        fixed_var_pars];
+        spe_par; sex_par; ...
+        
+        Phi_sodin_orig; Phi_u_orig; R_r_orig; W_b; ...
+        fixed_var_pars; SSdata];
     
 end
 

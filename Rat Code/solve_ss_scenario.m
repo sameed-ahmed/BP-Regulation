@@ -14,20 +14,23 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Experiment
-experiment = 'steady state';
-
 % Scenarios
-% AngII  - Ang II infusion
-% ACEi   - Angiotensin convernting enzyme inhibitor
-% ARB    - Angiotensin receptor blocker
-% AT2R-  - Block AT2R through decay
-scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-            'm_RAS_&_m_Reab', 'm_RSNA_&_m_Reab', ...
-            'AngII', 'ACEi', 'ARB', 'AT2R-'};
+% Normal - Normal conditions
+% m_RSNA - male RSNA
+% m_AT2R - male AT2R
+% m_RAS  - male RAS pars
+% m_Reab - male fractional sodium/water reabsorption
+
+% m_RAS_m_Reab  - male RAS pars & fractional sodium/water reabsorption
+% m_RSNA_m_Reab - male RSNA     & fractional sodium/water reabsorption
+
+% AngII - Ang II infusion
+% ACEi  - Angiotensin convernting enzyme inhibitor
+% ARB   - Angiotensin receptor blocker
+scenario = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', ...
+            'm_RAS_m_Reab_', 'm_RSNA_m_Reab_', ...
+            'AngII_', 'ACEi_', 'ARB_'};
 num_scen = length(scenario);
-% Index of scenario to fix.
-fixed_ss = 1;
 
 % Species
 sp = 2;
@@ -40,57 +43,50 @@ sp = 2;
 num_vars = 93;
 
 species = {'human', 'rat'   };
-gender  = {'male' , 'female'};
+sex     = {'male' , 'female'};
 
-for ss = 1:num_scen % scenario
-for gg = 1:2        % gender
+for sce_ind = 1:num_scen % scenario
+for sex_ind = 1:2        % gender
 
 %% Parameters
 
+% varargin_input = cell(1,2);
+varargin_input = {scenario{sce_ind},true};
+% varargin_input{1} = scenario{sce_ind};
+% varargin_input{2} = true;
+% varargin_input = varargin_input{1:2}
+
 % Parameter input
-pars = get_pars(species{sp}, gender{gg}, scenario{ss});
+pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario{ss}, 'AngII')
-    if     strcmp(gender{gg}, 'male')
-        drugs = [2022, 0, 0, 0]; % Sampson 2008
-    elseif strcmp(gender{gg}, 'female')
-        drugs = [2060, 0, 0, 0]; % Sampson 2008
+if     strcmp(scenario{sce_ind}, 'AngII_')
+    if     strcmp(sex{sex_ind}, 'male')
+        varargin_input = {'AngII_',2022}; % Sampson 2008
+    elseif strcmp(sex{sex_ind}, 'female')
+        varargin_input = {'AngII_',2060}; % Sampson 2008
     end
-elseif strcmp(scenario{ss}, 'ACEi')
-        drugs = [0, 0.78, 0, 0]; % Leete 2018
-elseif strcmp(scenario{ss}, 'ARB')
-        drugs = [0, 0, 0.67, 0]; % Leete 2018
-elseif strcmp(scenario{ss}, 'AT2R-')
-        drugs = [0, 0, 0, 10];
-else
-        drugs = [0, 0, 0, 0];
+elseif strcmp(scenario{sce_ind}, 'ACEi_')
+        varargin_input = {'ACEi_',0.78}; % Leete 2018
+elseif strcmp(scenario{sce_ind}, 'ARB_')
+        varargin_input = {'ARB_',0.67}; % Leete 2018
 end
 
 %% Variables initial guess
 
 % Load data for steady state initial guess. 
-% Set name for data file to be loaded based upon gender.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', species{sp}, gender{gg});
+% Set name for data file to be loaded based upon gender.
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+                         species{sp},sex{sex_ind},scenario{sce_ind});
 % load_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
-SSdata_input = SSdata;
 clear SSdata
 
 % load_data_name = sprintf('NEW%s_%s_ss_data_IG.mat', species{sp},gender{gg});
 % load(load_data_name, 'SSdataIG');
-
-% Ang II infusion steady state value is sensitive to such a huge change.
-% Thus it is done incrementally and iteratively.
-if strcmp(scenario{ss}, 'AngII')
-    load_data_name = sprintf('%s_%s_ss_data_scenario_AngII.mat', species{sp},gender{gg});
-    load(load_data_name, 'SSdata');
-    SSdataIG = SSdata;
-    clear SSdata;
-end
 
 % Order
 % x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
@@ -114,17 +110,15 @@ end
 % Arbitrary value for time to input.
 x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
 
-% Time at which to change and renal perfusion pressure perturbation 
-% place holders.
-RPP_per = 0; tchange = 0;
+% Time at which to change place holder.
+tchange = 0;
 
 %% Find steady state solution
 
 options = optimset();
 [SSdata, residual, ...
- exitflag, output] = fsolve(@(x) bp_reg_mod(t,x,x_p0,pars,SSdata_input ,...
-                                            tchange,drugs,RPP_per      ,...
-                                            scenario{ss},experiment)   ,...
+ exitflag, output] = fsolve(@(x) ...
+                            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input), ...
                             x0, options);
 
 % Check for solver convergence.
@@ -147,7 +141,7 @@ end
 
 % Save values.
 save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{sp}, gender{gg},scenario{ss});
+                         species{sp}, sex{sex_ind},scenario{sce_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 

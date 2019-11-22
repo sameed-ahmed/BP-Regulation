@@ -17,15 +17,13 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Experiment
-experiment = 'test';
-
 % Scenarios
-% Normal         - Normal conditions
-% m_RAS          - male RAS pars
-% m_Reab         - male fractional sodium and water reabsorption
-% m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
-scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_&_m_Reab'};
+% Normal - Normal conditions
+% m_RAS  - male RAS pars
+% m_Reab - male fractional sodium and water reabsorption
+scenario = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', ...
+            'm_RAS_m_Reab_', 'm_RSNA_m_Reab_', ...
+            'AngII_', 'ACEi_', 'ARB_'};
 fixed_ss = 1;
 
 % Species
@@ -39,7 +37,7 @@ days = 13; day_change = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 species = {'human', 'rat'   };
-gender  = {'male' , 'female'};
+sex     = {'male' , 'female'};
 
 % Number of variables
 num_vars = 93;
@@ -48,32 +46,42 @@ num_vars = 93;
 X = cell(1,2);
 T = cell(1,2);
 
-for gg = 1:2 % gender
+varargin_input = {scenario{fixed_ss},true};
+
+for sex_ind = 1:2 % gender
 
 %% Parameters
 
 % Parameter input
-pars = get_pars(species{sp}, gender{gg}, scenario{fixed_ss});
+pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+% pars([1;7;20;29;55]+58)
 
 %% Drugs
 
-drugs = [0, 0, 0]; % No drug
+% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
+if     strcmp(scenario{fixed_ss}, 'AngII_')
+    if     strcmp(sex{sex_ind}, 'male')
+        varargin_input = {'AngII_',2022}; % Sampson 2008
+    elseif strcmp(sex{sex_ind}, 'female')
+        varargin_input = {'AngII_',2060}; % Sampson 2008
+    end
+elseif strcmp(scenario{fixed_ss}, 'ACEi_')
+        varargin_input = {'ACEi_',0.78}; % Leete 2018
+elseif strcmp(scenario{fixed_ss}, 'ARB_')
+        varargin_input = {'ARB_',0.67}; % Leete 2018
+end
 
 %% Solve DAE
 
 % Initial value
 % This initial condition is the steady state data value taken from
-% solve_ss_baseline.m.
+% solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon gender and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', species{sp},gender{gg},scenario{fixed_ss});
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+                         species{sp},sex{sex_ind},scenario{fixed_ss});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
-% fixed_ind = [2, 10, 14, 24, 44, 49, 66, 71, 88];
-% SSdata(fixed_ind) = 1;
-
-% Renal perfusion pressure perturbation place holder.
-RPP_per = 0;
 
 % Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -124,13 +132,11 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_mod(t,x,x_p,pars,SSdata            ,...
-                          tchange,drugs,RPP_per          ,...
-                          scenario{fixed_ss},experiment) ,...
+               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input), ...
                tspan, x0, x_p0, options);
 
-T{gg} = t';
-X{gg} = x';
+T{sex_ind} = t';
+X{sex_ind} = x';
 
 end % gender
 
@@ -193,9 +199,9 @@ end
 
 % Save figures.
 
-save_data_name = sprintf('all_vars_baseline.fig');
-save_data_name = strcat('Figures/', save_data_name);
-savefig(f, save_data_name)
+% save_data_name = sprintf('all_vars_baseline.fig');
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig(f, save_data_name)
 
 end
 
