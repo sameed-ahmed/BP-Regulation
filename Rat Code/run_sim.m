@@ -21,9 +21,9 @@ addpath(genpath(mypath))
 % Normal - Normal conditions
 % m_RAS  - male RAS pars
 % m_Reab - male fractional sodium and water reabsorption
-scenario1 = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', ...
-             'm_RAS_m_Reab_', 'm_RSNA_m_Reab_'};
-scenario2 = {'Normal_', 'AngII_', 'ACEi_', 'ARB_'};
+scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+             'm_RAS_m_Reab', 'm_RSNA_m_Reab'};
+scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB'};
 fixed_ss1 = 1;
 fixed_ss2 = 1;
 
@@ -31,7 +31,7 @@ fixed_ss2 = 1;
 sp = 2;
 
 % Number of days to run simulation after change; Day at which to induce change;
-days = 13; day_change = 1;
+days = 1; day_change = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -60,16 +60,16 @@ pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
-if     strcmp(scenario2{fixed_ss2}, 'AngII_')
+if     strcmp(scenario2{fixed_ss2}, 'AngII')
     if     strcmp(sex{sex_ind}, 'male')
-        varargin_input = {varargin_input{:}, 'AngII_',2022}; % Sampson 2008
+        varargin_input = {varargin_input{:}, 'AngII',2022}; % Sampson 2008
     elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = {varargin_input{:}, 'AngII_',2060}; % Sampson 2008
+        varargin_input = {varargin_input{:}, 'AngII',2060}; % Sampson 2008
     end
-elseif strcmp(scenario2{fixed_ss2}, 'ACEi_')
-        varargin_input = {varargin_input{:}, 'ACEi_',0.78}; % Leete 2018
-elseif strcmp(scenario2{fixed_ss2}, 'ARB_')
-        varargin_input = {varargin_input{:}, 'ARB_',0.67}; % Leete 2018
+elseif strcmp(scenario2{fixed_ss2}, 'ACEi')
+        varargin_input = {varargin_input{:}, 'ACEi',0.78}; % Leete 2018
+elseif strcmp(scenario2{fixed_ss2}, 'ARB')
+        varargin_input = {varargin_input{:}, 'ARB',0.67}; % Leete 2018
 end
 
 %% Solve DAE
@@ -202,7 +202,7 @@ end
 
 % Save figures.
 
-if strcmp(scenario1{fixed_ss1}, 'Normal_') && strcmp(scenario2{fixed_ss2}, 'Normal_')
+if strcmp(scenario1{fixed_ss1}, 'Normal') && strcmp(scenario2{fixed_ss2}, 'Normal')
     save_data_name = sprintf('all_vars_baseline.fig');
     save_data_name = strcat('Figures/', save_data_name);
     savefig(f, save_data_name)

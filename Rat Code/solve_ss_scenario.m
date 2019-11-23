@@ -27,9 +27,9 @@ addpath(genpath(mypath))
 % AngII - Ang II infusion
 % ACEi  - Angiotensin convernting enzyme inhibitor
 % ARB   - Angiotensin receptor blocker
-scenario = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', ...
-            'm_RAS_m_Reab_', 'm_RSNA_m_Reab_', ...
-            'AngII_', 'ACEi_', 'ARB_'};
+scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+            'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
+            'AngII', 'ACEi', 'ARB'};
 num_scen = length(scenario);
 
 % Species
@@ -58,16 +58,16 @@ pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
-if     strcmp(scenario{sce_ind}, 'AngII_')
+if     strcmp(scenario{sce_ind}, 'AngII')
     if     strcmp(sex{sex_ind}, 'male'  )
-        varargin_input = {'AngII_',2022}; % Sampson 2008
+        varargin_input = {'AngII',2022}; % Sampson 2008
     elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = {'AngII_',2060}; % Sampson 2008
+        varargin_input = {'AngII',2060}; % Sampson 2008
     end
-elseif strcmp(scenario{sce_ind}, 'ACEi_' )
-        varargin_input = {'ACEi_' ,0.78 }; % Leete 2018
-elseif strcmp(scenario{sce_ind}, 'ARB_'  )
-        varargin_input = {'ARB_'  ,0.67 }; % Leete 2018
+elseif strcmp(scenario{sce_ind}, 'ACEi' )
+        varargin_input = {'ACEi' ,0.78 }; % Leete 2018
+elseif strcmp(scenario{sce_ind}, 'ARB'  )
+        varargin_input = {'ARB'  ,0.67 }; % Leete 2018
 end
 
 %% Variables initial guess
@@ -103,8 +103,8 @@ clear SSdata
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
-% Arbitrary value for time to input.
-x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
+% Arbitrary value for time to input, greater than tchange + deltat.
+x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 30;
 
 % Time at which to change place holder.
 tchange = 0;

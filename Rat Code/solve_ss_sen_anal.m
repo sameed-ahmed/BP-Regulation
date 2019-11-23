@@ -21,18 +21,18 @@ addpath(genpath(mypath))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Input of interest
-% N_rsna       - par 1 ; -30%, +30%
-% N_als        - par 19; -30%, +30%
-% N_rs         - par 22; -30%, +30%
-% R_aass       - par 2 ; -50%, +250%
-% R_eass       - par 3 ; -50%, +250%
-% c_ACE        - par 33; -50%, +50%
-% c_AT1R       - par 38; -50%, +50%
-% c_AT2R       - par 39; -50%, +50%
-% % Psi_AT2RAA - par 42; -50%, +50%
-% % Psi_AT2REA - par 43; -50%, +50%
+% N_rsna       - par 3 ; -30%, +30%
+% N_als        - par 18; -30%, +30%
+% N_rs         - par 21; -30%, +30%
+% R_aass       - par 4 ; -50%, +250%
+% R_eass       - par 5 ; -50%, +250%
+% c_ACE        - par 32; -50%, +50%
+% c_AT1R       - par 37; -50%, +50%
+% c_AT2R       - par 38; -50%, +50%
+% % Psi_AT2RAA - par 41; -50%, +50%
+% % Psi_AT2REA - par 42; -50%, +50%
 % Parameter indices
-in_ind      = [1;19;22;2;3;33;38;39];
+in_ind      = [3;18;21;4;5;32;37;38];
 % Range for percent change
 range_lower = [30;30;30;50 ;50 ;50;50;50];
 range_upper = [30;30;30;250;250;50;50;50];
@@ -71,7 +71,7 @@ out_label = {'GFR', 'MAP', 'UF', 'R_{AA}', 'R_{EA}', ...
 % AngII  - Ang II infusion
 % ACEi   - Angiotensin convernting enzyme inhibitor
 % ARB    - Angiotensin receptor blocker
-scenario = {'Normal_', 'AngII_', 'ACEi_', 'ARB_'};
+scenario = {'Normal', 'AngII', 'ACEi', 'ARB'};
 % Index of scenario to plot for all variables
 fixed_ss = 1;
 
@@ -114,16 +114,16 @@ end
 %% Drugs
 
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
-if     strcmp(scenario{fixed_ss}, 'AngII_')
+if     strcmp(scenario{fixed_ss}, 'AngII')
     if     strcmp(sex{sex_ind}, 'male'  )
-        varargin_input = {'AngII_',2022}; % Sampson 2008
+        varargin_input = {'AngII',2022}; % Sampson 2008
     elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = {'AngII_',2060}; % Sampson 2008
+        varargin_input = {'AngII',2060}; % Sampson 2008
     end
-elseif strcmp(scenario{fixed_ss}, 'ACEi_' )
-        varargin_input = {'ACEi_' ,0.78 }; % Leete 2018
-elseif strcmp(scenario{fixed_ss}, 'ARB_'  )
-        varargin_input = {'ARB_'  ,0.67 }; % Leete 2018
+elseif strcmp(scenario{fixed_ss}, 'ACEi' )
+        varargin_input = {'ACEi' ,0.78 }; % Leete 2018
+elseif strcmp(scenario{fixed_ss}, 'ARB'  )
+        varargin_input = {'ARB'  ,0.67 }; % Leete 2018
 end
 
 %% Variables initial guess

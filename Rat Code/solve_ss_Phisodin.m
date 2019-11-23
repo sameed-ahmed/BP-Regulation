@@ -28,8 +28,8 @@ addpath(genpath(mypath))
 % m_Reab - male fractional sodium and water reabsorption
 % ACEi   - Angiotensin convernting enzyme inhibitor
 % AngII  - Ang II infusion
-scenario = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', ...
-            'ACEi_', 'AngII_'};
+scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+            'ACEi', 'AngII'};
 num_scen = length(scenario);
 % Index of scenario to plot for all variables
 fixed_ss = 1;
@@ -109,18 +109,18 @@ elseif strcmp(sex{sex_ind}, 'female')
         Phi_sodin = Phi_sodin_range_f(iteration+iter-1);
     end
 end
-pars(18) = Phi_sodin;
+pars(17) = Phi_sodin;
 
 %% Drugs
 
 % drugs = [ACEi target level, Ang II inf rate fmol/(ml min)]
-if     strcmp(scenario{sce_ind}, 'ACEi_' )
-        varargin_input = {'ACEi_' ,1   }; % Hall 1980
-elseif strcmp(scenario{sce_ind}, 'AngII_')
+if     strcmp(scenario{sce_ind}, 'ACEi' )
+        varargin_input = {'ACEi' ,1   }; % Hall 1980
+elseif strcmp(scenario{sce_ind}, 'AngII')
     if     strcmp(sex{sex_ind}, 'male'  )
-        varargin_input = {'AngII_',2022}; % Sampson 2008
+        varargin_input = {'AngII',2022}; % Sampson 2008
     elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = {'AngII_',2060}; % Sampson 2008
+        varargin_input = {'AngII',2060}; % Sampson 2008
     end
 end
 
@@ -159,8 +159,8 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
-% Arbitrary value for time to input.
-x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
+% Arbitrary value for time to input, greater than tchange + deltat.
+x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 30;
 
 % Time at which to change and place holder.
 tchange = 0;

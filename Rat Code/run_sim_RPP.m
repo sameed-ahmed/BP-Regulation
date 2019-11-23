@@ -65,7 +65,7 @@ for per_ind = 1:num_per  % perturbation
 for sce_ind = 1:num_scen % scenario
 for sex_ind = 1:2        % sex
 
-varargin_input = {'RPP_',RPP_per(per_ind), scenario{sce_ind},true, 'Fixed_WIn',true};
+varargin_input = {'RPP',RPP_per(per_ind), scenario{sce_ind},true, 'Fixed Water Intake',true};
 
 %% Parameters
 
@@ -79,7 +79,7 @@ pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_Normal_.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
                          species{sp},sex{sex_ind});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');

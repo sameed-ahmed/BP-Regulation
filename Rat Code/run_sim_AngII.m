@@ -23,7 +23,7 @@ addpath(genpath(mypath))
 % m_RAS  - male RAS pars
 % m_Reab - male fractional sodium and water reabsorption
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
-scenario = {'Normal_', 'm_RSNA_', 'm_AT2R_', 'm_RAS_', 'm_Reab_', 'm_RSNA_m_Reab_'};
+scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'm_RSNA_m_Reab'};
 num_scen = length(scenario);
 fixed_ss = 1;
 
@@ -68,7 +68,7 @@ elseif strcmp(sex{sex_ind}, 'female')
     kappa_AngII= 2060; % Sampson 2008
 end
 
-varargin_input = {varargin_input{:}, 'AngII_',kappa_AngII};
+varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
 
 %% Solve DAE
 
