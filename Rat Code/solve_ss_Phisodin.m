@@ -35,7 +35,7 @@ num_scen = length(scenario);
 fixed_ss = 1;
 
 % Species
-sp = 2;
+spe_ind = 2;
 
 % Number of iterations below/above baseline.
 iteration = 51; % must be odd number for symmetry
@@ -76,11 +76,11 @@ for cha_ind = 1:2        % change
 varargin_input = {scenario{sce_ind},true};
 
 % Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
 
 % Set name for data file to be loaded based upon sex and scenario.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{sp},sex{sex_ind},scenario{sce_ind});
+                         species{spe_ind},sex{sex_ind},scenario{sce_ind});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
 clear SSdata;
@@ -162,7 +162,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % Arbitrary value for time to input, greater than tchange + deltat.
 x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 30;
 
-% Time at which to change and place holder.
+% Time at which to change place holder.
 tchange = 0;
 
 %% Find steady state solution

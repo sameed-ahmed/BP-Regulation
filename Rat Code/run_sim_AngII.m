@@ -28,7 +28,7 @@ num_scen = length(scenario);
 fixed_ss = 1;
 
 % Species
-sp = 2;
+spe_ind = 2;
 
 % Number of days to run simulation after change; Day at which to induce change;
 days = 13; day_change = 1;
@@ -57,7 +57,7 @@ varargin_input = {scenario{sce_ind},true};
 %% Parameters
 
 % Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
 
 %% Drugs
 
@@ -78,7 +78,7 @@ varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
 
 % Set name for data file to be loaded based upon sex and scenario.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{sp},sex{sex_ind},scenario{sce_ind});
+                         species{spe_ind},sex{sex_ind},scenario{sce_ind});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 

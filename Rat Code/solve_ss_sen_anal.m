@@ -76,7 +76,7 @@ scenario = {'Normal', 'AngII', 'ACEi', 'ARB'};
 fixed_ss = 1;
 
 % Species
-sp = 2;
+spe_ind = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -102,7 +102,7 @@ for sex_ind = 1:2        % sex
 varargin_input = {scenario{fixed_ss},true};
 
 % Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
 
 % Change parameter of interest.
 if     strcmp(change{cha_ind}, 'decrease')
@@ -131,17 +131,34 @@ end
 % Load data for steady state initial guess. 
 % Set name for data file to be loaded based upon sex.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{sp},sex{sex_ind},scenario{fixed_ss});
+                         species{spe_ind},sex{sex_ind},scenario{fixed_ss});
 load(load_data_name, 'SSdata');
 SSdataIG = SSdata;
 clear SSdata
 
+% Order
+% x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
+%       P_f; P_gh; Sigma_tgf; Phi_filsod; Phi_ptsodreab; eta_ptsodreab; ...
+%       gamma_filsod; gamma_at; gamma_rsna; Phi_mdsod; Phi_dtsodreab; ...
+%       eta_dtsodreab; psi_al; Phi_dtsod; Phi_cdsodreab; eta_cdsodreab; ...
+%       lambda_dt; lambda_anp; lambda_al; Phi_usod; Phi_sodin; V_ecf; ...
+%       V_b; P_mf; Phi_vr; Phi_co; P_ra; vas; vas_f; vas_d; R_a; R_ba; ...
+%       R_vr; R_tp; P_ma; epsilon_aum; a_auto; a_chemo; a_baro; C_adh; ...
+%       N_adh; N_adhs; delta_ra; ...
+%       M_sod; C_sod; nu_mdsod; nu_rsna; C_al; N_al; N_als; xi_ksod; ...
+%       xi_map; xi_at; hatC_anp; AGT; nu_AT1; R_sec; PRC; PRA; AngI; ...
+%       AngII; AT1R; AT2R; Ang17; AngIV; R_aa; R_ea; Sigma_myo; ...
+%       Psi_AT1RAA; Psi_AT1REA; Psi_AT2RAA; Psi_AT2REA; ...
+%       Phi_ptwreab; eta_ptwreab; mu_ptsodreab; ...
+%       Phi_mdu; Phi_dtwreab; eta_dtwreab; mu_dtsodreab; Phi_dtu; ...
+%       Phi_cdwreab; eta_cdwreab; mu_cdsodreab; mu_adh; Phi_u; Phi_win];
+
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
-% Arbitrary value for time to input.
-x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 0;
+% Arbitrary value for time to input, greater than tchange + deltat.
+x0 = SSdataIG; x_p0 = zeros(num_vars,1); t = 30;
 
-% Time at which to change and place holder.
+% Time at which to change place holder.
 tchange = 0;
 
 %% Find steady state solution

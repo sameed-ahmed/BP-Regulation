@@ -33,7 +33,7 @@ scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
 num_scen = length(scenario);
 
 % Species
-sp = 2;
+spe_ind = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -53,7 +53,7 @@ for sex_ind = 1:2        % gender
 varargin_input = {scenario{sce_ind},true};
 
 % Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
 
 %% Drugs
 
@@ -75,7 +75,7 @@ end
 % Load data for steady state initial guess. 
 % Set name for data file to be loaded based upon gender.
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{sp},sex{sex_ind},scenario{sce_ind});
+                         species{spe_ind},sex{sex_ind},scenario{sce_ind});
 % load_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
@@ -137,7 +137,7 @@ end
 
 % Save values.
 save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{sp}, sex{sex_ind},scenario{sce_ind});
+                         species{spe_ind},sex{sex_ind},scenario{sce_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 

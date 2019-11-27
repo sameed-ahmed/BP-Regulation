@@ -48,7 +48,7 @@ exact_per = 3;
 exact_scen = 1;
 
 % Species
-sp = 2;
+spe_ind = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -93,7 +93,7 @@ end
 %% Parameters
 
 % Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
 
 %% Solve DAE
 
@@ -103,7 +103,7 @@ pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 
 % Set name for data file to be loaded based upon sex.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
-                         species{sp},sex{sex_ind});
+                         species{spe_ind},sex{sex_ind});
 load(load_data_name, 'SSdata');
 
 % Renal Perfusion Pressure.
