@@ -64,8 +64,12 @@ pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
 % Ang II inf rate fmol/(ml min)
 if     strcmp(sex{sex_ind}, 'male')
     kappa_AngII = 2022; % Sampson 2008
+%     kappa_AngII = 785; % Sampson 2008
+%     kappa_AngII = 630; % Sampson 2008
 elseif strcmp(sex{sex_ind}, 'female')
-    kappa_AngII= 2060; % Sampson 2008
+    kappa_AngII = 2060; % Sampson 2008
+%     kappa_AngII = 475; % Sampson 2008
+%     kappa_AngII = 630; % Sampson 2008
 end
 
 varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
@@ -303,7 +307,7 @@ FRW_f  = FRW_f  ./ FRW_f (1,:);
 h(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(t,RSNA_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim([xlower, xupper]); ylim([0.55,1.05]);
+xlim([xlower, xupper]); ylim([0.50,1.05]);
 ax = gca;
 ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
 ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
@@ -358,7 +362,7 @@ plot(s_main(3), t,GFR_m (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'Line
 xlim(s_main(3), [xlower, xupper]);
 set(s_main(3), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(3), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
-ylim(s_main(3), [0.7,1.25])
+ylim(s_main(3), [0.65,1.35])
 xlabel(s_main(3), 'Time (days)'); ylabel(s_main(3), 'GFR (relative)');
 hold(s_main(3), 'on')
 plot(s_main(3), t,GFR_f (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -418,7 +422,7 @@ bar(s1(2), scen_comp,MAP_comp,'k');
 % set(gca,'xticklabel',xtickget,'fontsize',6)
 % xtickangle(s1(2),90)
 % xlim(s1(2), [1-1,6+1])
-ylim(s1(2), [0,15])
+ylim(s1(2), [0,20])
 xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
 % hAxes.XAxis.FontSize = 6;
 title(s1(2), 'B', 'FontSize',14)

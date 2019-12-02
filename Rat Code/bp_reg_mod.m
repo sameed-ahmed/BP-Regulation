@@ -478,7 +478,17 @@ f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
 % Phi_cdsodreab
 f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
 % eta_cdsodreab
-f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * lambda_dt * lambda_anp );
+eta_cdsodreab0 = ( eta_cdsodreab_eq * lambda_dt * lambda_anp * lambda_al);
+% f(23) = eta_cdsodreab - ( eta_cdsodreab0);
+etacd_a = 0.02;
+if     eta_cdsodreab0 <= eta_cdsodreab_eq + etacd_a
+    f(23) = eta_cdsodreab - ( eta_cdsodreab0);
+elseif eta_cdsodreab0 > eta_cdsodreab_eq + etacd_a
+    etacd_b = 12;
+    etacd_c = (eta_cdsodreab_eq + etacd_a) - (1/etacd_b) * atanh((eta_cdsodreab_eq + etacd_a));
+    f(23) = eta_cdsodreab - ( tanh(etacd_b * (eta_cdsodreab0 - etacd_c)) );
+end
+
 % lambda_dt
 if     strcmp(species, 'human')
     lambdadt_a = 0.82 ; lambdadt_b = 0.39         ;
@@ -489,7 +499,8 @@ elseif strcmp(species, 'rat')
     if     strcmp(sex,  'male')
         lambdadt_b = 0.275; lambdadt_c = 2.3140;
     elseif strcmp(sex,'female')
-        lambdadt_b = 1/eta_cdsodreab_eq - 0.8; lambdadt_c = 2.86;
+%         lambdadt_b = 1/eta_cdsodreab_eq - 0.8; lambdadt_c = 2.86;
+        lambdadt_b = 0.275; lambdadt_c = 2.3140;
     end
 end
 f(24) = lambda_dt - ( lambdadt_a + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - lambdadt_d)) ) );
@@ -654,7 +665,7 @@ if     strcmp(species, 'human')
     xiat_a = 0.47; xiat_b = 2.4; xiat_c = 2.4394;
     xiat_d = 1.445;
 elseif strcmp(species, 'rat')
-    xiat_a = 0.1; xiat_b = 2.9; xiat_c = 2.0;
+    xiat_a = 0.2; xiat_b = 1.7 - xiat_a; xiat_c = 4.9;
     xiat_d = 1 + 1/xiat_c * log(xiat_b/(1-xiat_a) - 1);
 end
 f(60) = xi_at - ( xiat_a + xiat_b / (1 + exp(-xiat_c * ((AT1R/AT1R_eq) - xiat_d)) ) );

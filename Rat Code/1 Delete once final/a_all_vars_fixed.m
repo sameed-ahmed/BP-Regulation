@@ -11,3 +11,5 @@ N_adhs_v        = x(49); N_adhs_p_v        = x_p(49);
 nu_mdsod_v      = x(53); nu_mdsod_p_v      = x_p(53); 
 xi_ksod_v       = x(58); xi_ksod_p_v       = x_p(58); 
 Sigma_myo_v     = x(75); Sigma_myo_p_v     = x_p(75); 
+
+[2;10;14;24;44;49;53;58;75];
