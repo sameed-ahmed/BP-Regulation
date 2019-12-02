@@ -1,8 +1,10 @@
-%Leete and Layton 2019 Triple Whammy AKI
-%Run all simulations and create all figures for the paper
+% Leete and Layton 2019 Triple Whammy AKI
+% Run all simulations and create figures 4 and 5 for the paper
 
-%Saves simulation data to folder called "Data/"
-%Save plots to folder called "Figures/"
+% It reads from files in Human_IG_Data/. It writes to folders called Human_Data/ and Human_Figures/.
+% The files in Human_IG_Data/ are sufficient initial guesses for the steady state solver.
+% Steady state solutions are then used as initial conditions in the time
+% course simulations
 
 % species indicator
 human = 1;
@@ -11,8 +13,6 @@ gender   = {'male', 'female'};
 health_labels = {'normotensive','hypertensive'};
 % factor by which to multiply rsna baseline (N_rsna)
 rsna = [1,2.5]; %1 for normotensive, 2.5 for hypertensive
-% risk factor cases
-%cases = {'';'_impairedmyo';'_lowwaterintake';'_lowwaterintake_impairedmyo'};
 % drug treatments. Columns are ACEi, furosemide, and NSAID (normal and high doses)
 models = [0,0,0;... %normal dose
     1,0,0;...
@@ -34,7 +34,6 @@ models = [0,0,0;... %normal dose
 % time course model.
 % This will loop through available initial guesses for the solver. Will
 % display if a solution was found for each simulation or not.
-myo_ending = {'','_impairedmyo'};
 disp('----------Computing steady state solutions----------')
 disp({'sex','normo/hyp','impaired myogenic'})
 for gg= 1:2
@@ -50,7 +49,7 @@ for gg= 1:2
                         disp(['found solution for ', num2str(i)])
                         break
                     end
-                    if (j==11)  && ((exitflag == 0) || (imag == 1))
+                    if (j==1)  && ((exitflag == 0) || (imag == 1))
                         disp(['no proper IG found for ', num2str(i)])
                     end   
                 end
@@ -85,6 +84,6 @@ end
 plot_scatter();
 % % 
 % % % Plot risk factor bar charts (Figure 5)
-double_triple_columns();
+plot_riskfactors();
         
         

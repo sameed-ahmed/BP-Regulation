@@ -1,12 +1,17 @@
-% This simulates the blood pressure regulation model blood_press_reg.m.
+% This solves the time course simulations. It saves output to Human_Data/.
 % 
-% Parameters are given by:
-% "Long-Term Mathematical Model Involving Renal Sympathetic Nerve Activity,
-% Arterial Pressure, and Sodium Excretion" - 2005 - Karaaslan, et. al.
-% "Sex-specific Long-term Blood Pressure Regulation: Modeling and Analysis"
-% - 2018 - Leete, Layton.
-% 
-% Steady state data is calculated by solve_ss_numerical.m.
+% Required input parameters:
+% human - 1 to run a human simulation, 0 for the rat simulation
+% gg - 1 for male, 2 for female
+% IC - string containing the filename of the initial condition for the solver
+
+% Optional input parameters: (each should be a string followed by a value)
+% 'ACEi', # - value between 0 and 1 for the variable kappa_ACEi. Default is 0.
+% 'furosemide', # - array of length 2 containing the values between 0 and 1 for the variables kappa_f and kappa_f_md.
+% 'NSAID', # - 0 for no treatment 1 for normal dose, 2 for high dose. Default is [0 0].
+% 'Impaired Myogenic Response', # - 0 for normal, 1 for impaired. Default is 0.
+% 'Low Water Intake', # - 0 for normal, 1 for low water intake. Default is 0.
+% 'RSNA', # - value by which N_rsna is multiplied by to induce hypertension. In my simulations it is 1 for normotensive simulations, 2.5 for hypertensive. Default is 1.
 
 function run_sim_treatments(human,gg,IC, varargin)
 species = {'rat','human'};
