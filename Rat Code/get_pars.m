@@ -21,13 +21,14 @@ end
 
 m_Reab = false; % Boolean for having male fractional sodium/water reabsorption in the female model.
 m_RAS  = false; % Boolean for having male RAS parameters in the female model.
-hyp    = false; % Boolean for having hypertension.
+hyp    = 1    ; % Multiplicative factor for RSNA to induce hypertension.
 
 %% Read and assign optional parameters.
 
 % The odd inputs of varargin are strings for each scenario. The
 % corresponding even inputs are the values for the effect parameters to
 % modify something.
+
 varargin = varargin{:};
 for i = 1:2:length(varargin)
     if     strcmp(varargin{i},'Normal')
@@ -38,33 +39,25 @@ for i = 1:2:length(varargin)
     elseif strcmp(varargin{i},'m_RAS_m_Reab' )
         m_Reab = varargin{i + 1};
         m_RAS  = varargin{i + 1};
-    elseif strcmp(varargin{i},'Hyp' )
+    elseif strcmp(varargin{i},'RSNA' )
         hyp    = varargin{i + 1};
     end
 end
 
 %% Generic parameters
 
-if   hyp
-    N_rsna = 2.5   ; % -
-else
-    N_rsna = 1.00  ; % -
-end
-P_B        = 18    ; % mmHg
-P_go       = 28    ; % mmHg
-K_vd       = 0.01  ; % -
-
-%%% JESSICA: Try this rescaled K_vd in your code. You will just have to
-%%% adjust the denominator of equations 35 and 36 as I have.
-
-K_bar      = 16.6  ; % mmHg min / ml
-R_bv       = 3.4   ; % mmHg min / ml
-N_adhs_eq  = 1     ; % -
-T_adh      = 6     ; % min
-N_als_eq   = 1     ; % -
-C_K        = 5     ; % microEq / ml 
-T_al       = 60    ; % min
-N_rs       = 1     ; % ng / ml / min
+N_rsna     = 1 * hyp; % -
+P_B        = 18     ; % mmHg
+P_go       = 28     ; % mmHg
+K_vd       = 0.01   ; % -
+K_bar      = 16.6   ; % mmHg min / ml
+R_bv       = 3.4    ; % mmHg min / ml
+N_adhs_eq  = 1      ; % -
+T_adh      = 6      ; % min
+N_als_eq   = 1      ; % -
+C_K        = 5      ; % microEq / ml 
+T_al       = 60     ; % min
+N_rs       = 1      ; % ng / ml / min
 
 % RAS
 h_renin       = 12  ; % min
@@ -105,7 +98,7 @@ if     strcmp(species, 'human')
         AT1R_eq = 13.99    ;
         AT2R_eq = 5.0854   ;
         ALD_eq  = 85       ;
-        if   hyp
+        if   hyp > 1
             A_twreab = 0.0182;
         else
             A_twreab = 0.0193;
@@ -122,7 +115,7 @@ if     strcmp(species, 'human')
         AT1R_eq = 3.78     ;
         AT2R_eq = 5.0854   ;
         ALD_eq  = 69.1775  ;
-        if   hyp
+        if   hyp > 1
             A_twreab = 0.0181;
         else
             A_twreab = 0.0199;
@@ -261,17 +254,17 @@ end
 %% Parameter output/input
 
 % % % OLD % % %
-pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
-        eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
-        eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; ...
-        N_adhs_eq; T_adh; Phi_sodin; N_als_eq; C_K; T_al; N_rs; ...
-        X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
-        h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
-        c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; Psi_AT2RAA_eq; Psi_AT2REA_eq; ...
-        spe_par; sex_par; ...
-        
-        Phi_sodin_orig; Phi_u_orig; R_r_orig; W_b; ...
-        fixed_var_pars; SSdata];
+% pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
+%         eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
+%         eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; ...
+%         N_adhs_eq; T_adh; Phi_sodin; N_als_eq; C_K; T_al; N_rs; ...
+%         X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
+%         h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
+%         c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; Psi_AT2RAA_eq; Psi_AT2REA_eq; ...
+%         spe_par; sex_par; ...
+%         
+%         Phi_sodin_orig; Phi_u_orig; R_r_orig; W_b; ...
+%         fixed_var_pars; SSdata];
 
 
 % % % NEW % % %
@@ -302,7 +295,6 @@ end
 
 
 end
-
 
 
 
