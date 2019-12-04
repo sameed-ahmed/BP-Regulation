@@ -76,7 +76,7 @@ for cha_ind = 1:2        % change
 varargin_input = {scenario{sce_ind},true};
 
 % Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{sp}, sex{sex_ind}, varargin_input{:});
 
 % Set name for data file to be loaded based upon sex and scenario.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
@@ -170,7 +170,7 @@ tchange = 0;
 options = optimset('Display','off');
 [SSdata, residual, ...
  exitflag, output] = fsolve(@(x) ...
-                            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input), ...
+                            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
                             x0, options);
 
 % Check for solver convergence.
@@ -246,7 +246,7 @@ for i = 1:7
     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
-        last_plot = 2;
+        last_plot = mod(num_vars, 15);
     else
         last_plot = 15;
     end

@@ -101,7 +101,6 @@ m_AT2R = false; % Boolean for having male effect of AT2R in the female model.
 % corresponding even inputs are the values for the effect parameters to
 % modify something.
 
-varargin = varargin{:};
 for i = 1:2:length(varargin)
     % Drugs
     if     strcmp(varargin{i},'AngII')

@@ -29,7 +29,6 @@ hyp    = 1    ; % Multiplicative factor for RSNA to induce hypertension.
 % corresponding even inputs are the values for the effect parameters to
 % modify something.
 
-varargin = varargin{:};
 for i = 1:2:length(varargin)
     if     strcmp(varargin{i},'Normal')
     elseif strcmp(varargin{i},'m_Reab') || strcmp(varargin{i},'m_RSNA_m_Reab')

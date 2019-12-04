@@ -93,7 +93,7 @@ end
 %% Parameters
 
 % Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{sp}, sex{sex_ind}, varargin_input{:});
 
 %% Solve DAE
 
@@ -158,7 +158,7 @@ options = odeset('RelTol',1e-1, 'AbsTol',1e-2, 'MaxStep',1e-2);
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input), ...
+               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
                tspan, x0, x_p0, options);
 t = t'; x = x';
 
@@ -198,7 +198,7 @@ for i = 1:7
     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
-        last_plot = 2;
+        last_plot = mod(num_vars, 15);
     else
         last_plot = 15;
     end

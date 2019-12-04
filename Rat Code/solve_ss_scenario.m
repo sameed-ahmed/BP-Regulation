@@ -53,7 +53,7 @@ for sex_ind = 1:2        % gender
 varargin_input = {scenario{sce_ind},true};
 
 % Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{sp}, sex{sex_ind}, varargin_input{:});
 
 %% Drugs
 
@@ -114,7 +114,7 @@ tchange = 0;
 options = optimset();
 [SSdata, residual, ...
  exitflag, output] = fsolve(@(x) ...
-                            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input), ...
+                            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
                             x0, options);
 
 % Check for solver convergence.
