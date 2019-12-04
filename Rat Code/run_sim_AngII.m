@@ -23,9 +23,11 @@ addpath(genpath(mypath))
 % m_RAS  - male RAS pars
 % m_Reab - male fractional sodium and water reabsorption
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
-scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', 'm_RSNA_m_Reab'};
+scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+            'm_RSNA_m_Reab', ...
+            'Pri_Hyp'};
 num_scen = length(scenario);
-fixed_ss = 1;
+fixed_ss = 7;
 
 % Species
 spe_ind = 2;
@@ -49,7 +51,7 @@ num_vars = 93;
 % X = (variables, points, sex, scenario)
 X = zeros(num_vars,N,2,num_scen);
 
-for sce_ind = 1:num_scen % scenario
+for sce_ind = fixed_ss:fixed_ss % scenario
 for sex_ind = 1:2        % sex
 
 varargin_input = {scenario{sce_ind},true};
@@ -77,7 +79,7 @@ varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s1.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
@@ -425,9 +427,9 @@ title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
-save_data_name = sprintf('all_vars_AngII_inf.fig');
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f;f2;g;h';k], save_data_name)
+% save_data_name = sprintf('all_vars_AngII_inf.fig');
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f;f2;g;h';k], save_data_name)
 
 end
 

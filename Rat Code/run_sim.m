@@ -18,13 +18,15 @@ addpath(genpath(mypath))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Scenarios
-% Normal - Normal conditions
-% m_RAS  - male RAS pars
-% m_Reab - male fractional sodium and water reabsorption
+% Normal  - Normal conditions
+% m_RAS   - male RAS pars
+% m_Reab  - male fractional sodium and water reabsorption
+% Pri_Hyp - essential/primary hypertension
 scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-             'm_RAS_m_Reab', 'm_RSNA_m_Reab'};
+             'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
+             'Pri_Hyp'};
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB'};
-fixed_ss1 = 1;
+fixed_ss1 = 8;
 fixed_ss2 = 1;
 
 % Species
@@ -47,7 +49,7 @@ num_vars = 93;
 X = cell(1,2);
 T = cell(1,2);
 
-for sex_ind = 1:2 % gender
+for sex_ind = 1:2 % sex
 
 varargin_input = {scenario1{fixed_ss1},true};
 
@@ -78,8 +80,8 @@ end
 % This initial condition is the steady state data value taken from
 % solve_ss_scenario.m.
 
-% Set name for data file to be loaded based upon gender and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+% Set name for data file to be loaded based upon sex and scenario.    
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
                          species{spe_ind},sex{sex_ind},scenario1{fixed_ss1});
 % load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
 %                          species{sp},sex{sex_ind},scenario1{1});
@@ -141,7 +143,7 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 T{sex_ind} = t';
 X{sex_ind} = x';
 
-end % gender
+end % sex
 
 %% Plot
 

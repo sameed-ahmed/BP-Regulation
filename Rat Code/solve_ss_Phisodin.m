@@ -29,10 +29,11 @@ addpath(genpath(mypath))
 % ACEi   - Angiotensin convernting enzyme inhibitor
 % AngII  - Ang II infusion
 scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-            'ACEi', 'AngII'};
+            'ACEi', 'AngII', ...
+            'Pri_Hyp'};
 num_scen = length(scenario);
 % Index of scenario to plot for all variables
-fixed_ss = 1;
+fixed_ss = 8;
 
 % Species
 spe_ind = 2;
@@ -69,7 +70,7 @@ species = {'human'   , 'rat'     };
 sex     = {'male'    , 'female'  };
 change  = {'decrease', 'increase'};
 
-for sce_ind = 1:num_scen % scenario
+for sce_ind = fixed_ss:fixed_ss % scenario
 for sex_ind = 1:2        % sex
 for cha_ind = 1:2        % change
 
@@ -79,7 +80,7 @@ varargin_input = {scenario{sce_ind},true};
 pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
 
 % Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
@@ -222,10 +223,10 @@ end % scenario
 xscale = iter_range;
 
 % y-axis limits
-ylower = zeros(length(X_m(:,1,1)),1); yupper = ylower; 
+ylower = zeros(length(X_m(:,1,fixed_ss)),1); yupper = ylower; 
 for i = 1:length(ylower)
-    ylower(i) = 0.9*min(min(X_m(i,:,1)), min(X_f(i,:,1)));
-    yupper(i) = 1.1*max(max(X_m(i,:,1)), max(X_f(i,:,1)));
+    ylower(i) = 0.9*min(min(X_m(i,:,fixed_ss)), min(X_f(i,:,fixed_ss)));
+    yupper(i) = 1.1*max(max(X_m(i,:,fixed_ss)), max(X_f(i,:,fixed_ss)));
     if ylower(i) == yupper(i)
         ylower(i) = ylower(i) - 10^(-5); yupper(i) = yupper(i) + 10^(-5);
     end
@@ -511,9 +512,9 @@ title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
-save_data_name = sprintf('all_vars_vs_Phisodin.fig');
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f',f2,g,h,k], save_data_name)
+% save_data_name = sprintf('all_vars_vs_Phisodin.fig');
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f',f2,g,h,k], save_data_name)
 
 end
 

@@ -22,6 +22,7 @@ end
 m_Reab = false; % Boolean for having male fractional sodium/water reabsorption in the female model.
 m_RAS  = false; % Boolean for having male RAS parameters in the female model.
 hyp    = false; % Boolean for having hypertension.
+p_hyp  = false; % Boolean for having primary hypertension.
 
 %% Read and assign optional parameters.
 
@@ -31,6 +32,7 @@ hyp    = false; % Boolean for having hypertension.
 varargin = varargin{:};
 for i = 1:2:length(varargin)
     if     strcmp(varargin{i},'Normal')
+        
     elseif strcmp(varargin{i},'m_Reab') || strcmp(varargin{i},'m_RSNA_m_Reab')
         m_Reab = varargin{i + 1};
     elseif strcmp(varargin{i},'m_RAS' )
@@ -38,8 +40,11 @@ for i = 1:2:length(varargin)
     elseif strcmp(varargin{i},'m_RAS_m_Reab' )
         m_Reab = varargin{i + 1};
         m_RAS  = varargin{i + 1};
+        
     elseif strcmp(varargin{i},'Hyp' )
         hyp    = varargin{i + 1};
+    elseif strcmp(varargin{i},'Pri_Hyp' )
+        p_hyp  = varargin{i + 1};
     end
 end
 
@@ -256,25 +261,9 @@ if strcmp(species, 'rat')
     end
     load(load_data_name1, 'fixed_var_pars');
     load(load_data_name2, 'SSdata');
-end
+end    
 
 %% Parameter output/input
-
-% % % OLD % % %
-pars = [N_rsna; R_aass; R_eass; P_B; P_go; C_gcf; eta_ptsodreab_eq; ...
-        eta_dtsodreab_eq; eta_cdsodreab_eq; eta_ptwreab_eq; ...
-        eta_dtwreab_eq; eta_cdwreab_eq; K_vd; K_bar; R_bv; ...
-        N_adhs_eq; T_adh; Phi_sodin; N_als_eq; C_K; T_al; N_rs; ...
-        X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
-        h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
-        c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; Psi_AT2RAA_eq; Psi_AT2REA_eq; ...
-        spe_par; sex_par; ...
-        
-        Phi_sodin_orig; Phi_u_orig; R_r_orig; W_b; ...
-        fixed_var_pars; SSdata];
-
-
-% % % NEW % % %
 
 % Generic model parameters
 pars = [spe_par; sex_par; ...
@@ -297,9 +286,11 @@ elseif strcmp(species, 'rat')
             fixed_var_pars; SSdata];
 end
 
-
-
-
+if p_hyp
+    clear pars
+    load_pars_name = sprintf('%s_%s_pars_scenario_Pri_Hyp3.mat', species,sex);
+    load(load_pars_name, 'pars');
+end
 
 end
 

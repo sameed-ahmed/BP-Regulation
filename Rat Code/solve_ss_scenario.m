@@ -46,7 +46,7 @@ species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
 for sce_ind = 1:num_scen % scenario
-for sex_ind = 1:2        % gender
+for sex_ind = 1:2        % sex
 
 %% Parameters
 
@@ -73,15 +73,15 @@ end
 %% Variables initial guess
 
 % Load data for steady state initial guess. 
-% Set name for data file to be loaded based upon gender.
+% Set name for data file to be loaded based upon sex.
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
-% load_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
+% load_data_name = sprintf('NEW%s_ss_data_IG.mat', sex{gg});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
 clear SSdata
 
-% load_data_name = sprintf('NEW%s_%s_ss_data_IG.mat', species{sp},gender{gg});
+% load_data_name = sprintf('NEW%s_%s_ss_data_IG.mat', species{sp},sex{gg});
 % load(load_data_name, 'SSdataIG');
 
 % Order
@@ -141,7 +141,7 @@ save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 
-end % gender
+end % sex
 end % scenario
 
 end

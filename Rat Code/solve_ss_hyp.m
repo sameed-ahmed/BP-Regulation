@@ -233,10 +233,16 @@ while check_vars % iteration
 end % iteration
 
 % Save values.
-save_data_name = sprintf('%s_%s_ss_hyp_data_&_pars_scenario_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},scenario{fixed_ss});
+% Steady state data
+save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp.mat', ...
+                         species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'SSdata', 'pars', 'iter_fail')
+save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
+% Parameters
+save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
+                         species{spe_ind},sex{sex_ind});
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'pars', 'iter_fail')
 
 end % sex
 

@@ -24,6 +24,7 @@ num_per = length(RPP_per);
 % Scenarios
 % Denerve - cut off rsna from kidney
 scenario = {'Denerve'};
+% scenario = {'Pri_Hyp'};
 num_scen = length(scenario);
 
 % Number of points for plotting resolution
@@ -65,7 +66,8 @@ for per_ind = 1:num_per  % perturbation
 for sce_ind = 1:num_scen % scenario
 for sex_ind = 1:2        % sex
 
-varargin_input = {'RPP',RPP_per(per_ind), scenario{sce_ind},true, 'Fixed Water Intake',true};
+varargin_input = {'RPP',RPP_per(per_ind), scenario{sce_ind},true, ...
+                  'Denerve',true, 'Fixed Water Intake',true};
 
 %% Parameters
 
@@ -81,6 +83,8 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
 % Set name for data file to be loaded based upon sex.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
                          species{spe_ind},sex{sex_ind});
+% load_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp3.mat', ...
+%                          species{spe_ind},sex{sex_ind});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 
@@ -330,9 +334,9 @@ title(s_rel1(4), 'D')
 
 % Save figures. -----------------------------------------------------------
 
-save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
-save_data_name = strcat('Figures/', save_data_name);
-savefig(h, save_data_name)
+% save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig(h, save_data_name)
 
 end
 
