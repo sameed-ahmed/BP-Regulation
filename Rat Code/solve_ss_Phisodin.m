@@ -80,7 +80,7 @@ varargin_input = {scenario{sce_ind},true};
 pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 % Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
@@ -302,7 +302,7 @@ xlh.Position(2) = xlh.Position(2) - 0.005;
 g(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
 plot(X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim([90, 120])
+% xlim([90, 120])
 ylim([lower, upper])
 ax = gca;
 % ax.XTick = (80 : 10 : 120);

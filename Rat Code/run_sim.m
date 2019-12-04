@@ -81,7 +81,7 @@ end
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
                          species{spe_ind},sex{sex_ind},scenario1{fixed_ss1});
 % load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
 %                          species{sp},sex{sex_ind},scenario1{1});
@@ -204,11 +204,11 @@ end
 
 % Save figures.
 
-if strcmp(scenario1{fixed_ss1}, 'Normal') && strcmp(scenario2{fixed_ss2}, 'Normal')
-    save_data_name = sprintf('all_vars_baseline.fig');
-    save_data_name = strcat('Figures/', save_data_name);
-    savefig(f, save_data_name)
-end
+% if strcmp(scenario1{fixed_ss1}, 'Normal') && strcmp(scenario2{fixed_ss2}, 'Normal')
+%     save_data_name = sprintf('all_vars_baseline.fig');
+%     save_data_name = strcat('Figures/', save_data_name);
+%     savefig(f, save_data_name)
+% end
 
 end
 

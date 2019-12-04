@@ -29,15 +29,15 @@ par_num = length(par_ind);
 % Range for parameters
 par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
 par_range_upper = [200;200;100;100;100;100]/100;
-% Transport parameters to perturb
-% eta_ptsodreab_eq - par 9 ; 0.4, 0.9
-% eta_dtsodreab_eq - par 10; 0.4, 0.9
-% eta_cdsodreab_eq - par 11; 
-% Indices
-trans_par_ind = [9;10;11];
-% Range for transport parameters
-trans_par_range_lower = [0.4; 0.4];
-trans_par_range_upper = [0.9; 0.9];
+% % Transport parameters to perturb
+% % eta_ptsodreab_eq - par 9 ; 0.4, 0.9
+% % eta_dtsodreab_eq - par 10; 0.4, 0.9
+% % eta_cdsodreab_eq - par 11; 
+% % Indices
+% trans_par_ind = [9;10;11];
+% % Range for transport parameters
+% trans_par_range_lower = [0.4; 0.4];
+% trans_par_range_upper = [0.9; 0.9];
 
 % Variables to check
 % P_ma      - var 42; +30,40, +40,50
@@ -84,7 +84,7 @@ for sex_ind = 1:2 % sex
 varargin_input = {scenario{fixed_ss},true};
 
 % Parameter input
-pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 % Set interval bounds for parameters.
 lower = pars(par_ind) - par_range_lower .* pars(par_ind);
@@ -176,16 +176,16 @@ while check_vars % iteration
     % Replace input parameters with newly sampled parameter.
     pars(par_ind) = ran_vec;
     
-    % Sample between 0 and 1.
-    trans_ran_vec = random('unif',0,1,2,1);
-    % Sample within interval.
-    trans_ran_vec = trans_par_range_lower + ...
-                    trans_ran_vec .* (trans_par_range_upper - trans_par_range_lower);
-    % Calculate CD sodium reabsorption based upon constraint.
-    eta_cd = 1 - Phi_usod / (Phi_filsod * (1 - trans_ran_vec(1)) * (1 - trans_ran_vec(2)));
-    trans_ran_vec = [trans_ran_vec; eta_cd];
-    % Replace input parameters with newly sampled parameter.
-    pars(trans_par_ind) = trans_ran_vec;
+%     % Sample between 0 and 1.
+%     trans_ran_vec = random('unif',0,1,2,1);
+%     % Sample within interval.
+%     trans_ran_vec = trans_par_range_lower + ...
+%                     trans_ran_vec .* (trans_par_range_upper - trans_par_range_lower);
+%     % Calculate CD sodium reabsorption based upon constraint.
+%     eta_cd = 1 - Phi_usod / (Phi_filsod * (1 - trans_ran_vec(1)) * (1 - trans_ran_vec(2)));
+%     trans_ran_vec = [trans_ran_vec; eta_cd];
+%     % Replace input parameters with newly sampled parameter.
+%     pars(trans_par_ind) = trans_ran_vec;
 
     %% Find steady state solution
 
@@ -193,7 +193,7 @@ while check_vars % iteration
     options = optimset('Display','off');
     [SSdata, residual, ...
      exitflag, output] = fsolve(@(x) ...
-                                bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input), ...
+                                bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
                                 x0, options);
 
     % Check for solver convergence.

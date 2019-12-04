@@ -83,7 +83,7 @@ varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s1.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
@@ -251,7 +251,7 @@ xlh.Position(2) = xlh.Position(2) - 0.0005;
 tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
              7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
 MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
-             26.18,28.87,29.54,31.26,34.71,36.53,42.18];
+             26.18,28.87,29.54,31.26,34.71,36.53,42.18] + 30;
 MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
              13.91,17.31,17.04,18.37,19.63,23.23,24.42];
 % Substract MAP by baseline for each sex and all scenarios.

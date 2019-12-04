@@ -81,10 +81,10 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
-                         species{spe_ind},sex{sex_ind});
-% load_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp3.mat', ...
+% load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
 %                          species{spe_ind},sex{sex_ind});
+load_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp3.mat', ...
+                         species{spe_ind},sex{sex_ind});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 

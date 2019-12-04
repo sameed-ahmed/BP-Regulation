@@ -71,9 +71,11 @@ out_label = {'GFR', 'MAP', 'UF', 'R_{AA}', 'R_{EA}', ...
 % AngII  - Ang II infusion
 % ACEi   - Angiotensin convernting enzyme inhibitor
 % ARB    - Angiotensin receptor blocker
-scenario = {'Normal', 'AngII', 'ACEi', 'ARB'};
+scenario = {'Normal', ...
+            'AngII', 'ACEi', 'ARB', ...
+            'Pri_Hyp'};
 % Index of scenario to plot for all variables
-fixed_ss = 1;
+fixed_ss = 5;
 
 % Species
 spe_ind = 2;
@@ -130,7 +132,7 @@ end
 
 % Load data for steady state initial guess. 
 % Set name for data file to be loaded based upon sex.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{fixed_ss});
 load(load_data_name, 'SSdata');
 SSdataIG = SSdata;

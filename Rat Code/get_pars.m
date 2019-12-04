@@ -278,7 +278,7 @@ end
 
 if p_hyp
     clear pars
-    load_pars_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', species,sex);
+    load_pars_name = sprintf('%s_%s_pars_scenario_Pri_Hyp3.mat', species,sex);
     load(load_pars_name, 'pars');
 end
 
