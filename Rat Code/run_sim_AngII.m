@@ -59,15 +59,19 @@ varargin_input = {scenario{sce_ind},true};
 %% Parameters
 
 % Parameter input
-pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 %% Drugs
 
 % Ang II inf rate fmol/(ml min)
 if     strcmp(sex{sex_ind}, 'male')
     kappa_AngII = 2022; % Sampson 2008
+%     kappa_AngII = 785; % Sampson 2008
+%     kappa_AngII = 630; % Sampson 2008
 elseif strcmp(sex{sex_ind}, 'female')
-    kappa_AngII= 2060; % Sampson 2008
+    kappa_AngII = 2060; % Sampson 2008
+%     kappa_AngII = 475; % Sampson 2008
+%     kappa_AngII = 630; % Sampson 2008
 end
 
 varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
@@ -79,7 +83,7 @@ varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s1.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
@@ -133,7 +137,7 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input), ...
+               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
                tspan, x0, x_p0, options);
 
 % X = (variables, points, sex, scenario)
@@ -179,7 +183,7 @@ for i = 1:7
     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
-        last_plot = 2;
+        last_plot = mod(num_vars, 15);
     else
         last_plot = 15;
     end
@@ -305,7 +309,7 @@ FRW_f  = FRW_f  ./ FRW_f (1,:);
 h(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(t,RSNA_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim([xlower, xupper]); ylim([0.55,1.05]);
+xlim([xlower, xupper]); ylim([0.50,1.05]);
 ax = gca;
 ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
 ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
@@ -360,7 +364,7 @@ plot(s_main(3), t,GFR_m (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'Line
 xlim(s_main(3), [xlower, xupper]);
 set(s_main(3), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(3), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
-ylim(s_main(3), [0.7,1.25])
+ylim(s_main(3), [0.65,1.35])
 xlabel(s_main(3), 'Time (days)'); ylabel(s_main(3), 'GFR (relative)');
 hold(s_main(3), 'on')
 plot(s_main(3), t,GFR_f (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -420,7 +424,7 @@ bar(s1(2), scen_comp,MAP_comp,'k');
 % set(gca,'xticklabel',xtickget,'fontsize',6)
 % xtickangle(s1(2),90)
 % xlim(s1(2), [1-1,6+1])
-ylim(s1(2), [0,15])
+ylim(s1(2), [0,20])
 xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
 % hAxes.XAxis.FontSize = 6;
 title(s1(2), 'B', 'FontSize',14)

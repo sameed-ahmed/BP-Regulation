@@ -77,10 +77,10 @@ for cha_ind = 1:2        % change
 varargin_input = {scenario{sce_ind},true};
 
 % Parameter input
-pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input);
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 % Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
@@ -171,7 +171,7 @@ tchange = 0;
 options = optimset('Display','off');
 [SSdata, residual, ...
  exitflag, output] = fsolve(@(x) ...
-                            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input), ...
+                            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
                             x0, options);
 
 % Check for solver convergence.
@@ -247,7 +247,7 @@ for i = 1:7
     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
-        last_plot = 2;
+        last_plot = mod(num_vars, 15);
     else
         last_plot = 15;
     end
@@ -302,7 +302,7 @@ xlh.Position(2) = xlh.Position(2) - 0.005;
 g(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
 plot(X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-% xlim([80, 120])
+xlim([90, 120])
 ylim([lower, upper])
 ax = gca;
 % ax.XTick = (80 : 10 : 120);
@@ -310,7 +310,7 @@ xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 hold on
 plot(X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-legend('Male','Female', 'Location','Northwest')
+legend('Male','Female', 'Location','Southeast')
 hold off
 % ---
 % Convert from micro eq/min to m eq/day
@@ -490,12 +490,13 @@ s1(1) = subplot(1,2,1);
 s1(2) = subplot(1,2,2); 
 
 plot(s1(1), X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-% xlim(s1(1), [80, 120]); set(s1(1),'XTick', [80,100,120]);
+xlim(s1(1), [90, 120]); 
+% set(s1(1),'XTick', [80,100,120]);
 ylim(s1(1), [lower, upper])
 xlabel(s1(1), 'MAP (mmHg)', 'FontSize',14*1.1); ylabel(s1(1), {'Fold change in'; 'sodium excretion'}, 'FontSize',14);
 hold(s1(1), 'on')
 plot(s1(1), X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-legend(s1(1), {'Male','Female'}, 'Location','Northwest', 'FontSize',14)
+legend(s1(1), {'Male','Female'}, 'Location','Southeast', 'FontSize',14)
 hold(s1(1), 'off')
 title(s1(1), 'A', 'FontSize',14)
 
@@ -505,7 +506,7 @@ bar(s1(2), scen_comp,MAP_comp,'k');
 % set(gca,'xticklabel',xtickget,'fontsize',6)
 % xtickangle(s1(2),90)
 % xlim(s1(2), [1-1,6+1])
-ylim(s1(2), [-1,7])
+ylim(s1(2), [-2,5])
 xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
 % hAxes.XAxis.FontSize = 6;
 title(s1(2), 'B', 'FontSize',14)

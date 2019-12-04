@@ -74,30 +74,22 @@ kappa_ACEi_inp  = 0; % ACE inhibitor %
 kappa_ARB_inp   = 0; % Angiotensin receptor blocker %
 kappa_f_inp     = 0; % Furosemide values. array of length 2
 kappa_f_md_inp  = 0; % Furosemide values. array of length 2
-NSAID_inp       = 0; % NSAID indicator. O for none, 1 for normal, 2 for high dose.
-
-%%% JESSICA: Change to 'NSAID' if deleted below.
+NSAID           = 0; % NSAID indicator. O for none, 1 for normal, 2 for high dose.
 
 % Renal perfusion pressure
 RPP_ind = false; % Boolean for controlling renal perfusion pressure
 RPP_per = 0    ; % Renal perfusion pressure mmHg
 
 % Autoregulatory mechanisms
-denerve = false; % Boolean for unilateral renal denervation by fixing rsna = 1, which is baseline.
-no_TGF  = false; % Boolean for canceling the tubuloglomerular feedback.
-no_Myo  = false; % Boolean for canceling the myogenic response.
-lin_Myo = false; % Boolean for having linear myogenic response.
-myo_ind = false; % Boolean for having impaired myogenic response.
-
-%%% JESSICA: For visual clarity, I have declared boolean parameters coming
-%%% from varargin to be 'false' or 'true' instead of '0' or '1' in order to
-%%% distinguish them from quantities that are 0, like the drugs. (Plus, as
-%%% you can probably tell, I have borderline obsessive compulsive disorder, 
-%%% haha.)
+denerve     = false; % Boolean for unilateral renal denervation by fixing rsna = 1, which is baseline.
+no_TGF      = false; % Boolean for canceling the tubuloglomerular feedback.
+no_Myo      = false; % Boolean for canceling the myogenic response.
+lin_Myo     = false; % Boolean for having linear myogenic response.
+imp_Myo_ind = false; % Boolean for having impaired myogenic response.
 
 % Water intake
-fix_win   = false; % Boolean for fixing water intake.
-water_ind = false; % Boolean for having low water intake.
+fix_win     = false; % Boolean for fixing water intake.
+low_win_ind = false; % Boolean for having low water intake.
 
 % Sex specific mechanisms
 m_RSNA = false; % Boolean for having male RSNA in the female model.
@@ -109,7 +101,6 @@ m_AT2R = false; % Boolean for having male effect of AT2R in the female model.
 % corresponding even inputs are the values for the effect parameters to
 % modify something.
 
-varargin = varargin{:};
 for i = 1:2:length(varargin)
     % Drugs
     if     strcmp(varargin{i},'AngII')
@@ -123,7 +114,7 @@ for i = 1:2:length(varargin)
         kappa_f_inp     = f_dose(1);
         kappa_f_md_inp  = f_dose(2);
     elseif strcmp(varargin{i},'NSAID')
-        NSAID_inp       = varargin{i + 1};
+        NSAID           = varargin{i + 1};
         
     % Renal perfusion pressure    
     elseif strcmp(varargin{i},'RPP')
@@ -132,25 +123,21 @@ for i = 1:2:length(varargin)
         
     % Autoregulatory mechanisms    
     elseif strcmp(varargin{i},'Denerve')
-        denerve = varargin{i + 1};
+        denerve     = varargin{i + 1};
     elseif strcmp(varargin{i},'No TGF')
-        no_TGF  = varargin{i + 1};
+        no_TGF      = varargin{i + 1};
     elseif strcmp(varargin{i},'No Myo')
-        no_Myo  = varargin{i + 1};
+        no_Myo      = varargin{i + 1};
     elseif strcmp(varargin{i},'Linear Myo')
-        lin_Myo = varargin{i + 1};
-    elseif strcmp(varargin{i},'Myogenic Response')
-        myo_ind = varargin{i+1};
+        lin_Myo     = varargin{i + 1};
+    elseif strcmp(varargin{i},'Impaired Myogenic Response')
+        imp_Myo_ind = varargin{i+1};
         
     % Water intake    
     elseif strcmp(varargin{i},'Fixed Water Intake')
-        fix_win   = varargin{i + 1};
-    elseif strcmp(varargin{i},'Water Intake')
-        water_ind = varargin{i+1};
-
-%%% JESSICA: Since I am also manipulating the myogenic response and water
-%%% intake, it would be better if you give your scenarios more descriptive
-%%% names.
+        fix_win     = varargin{i + 1};
+    elseif strcmp(varargin{i},'Low Water Intake')
+        low_win_ind = varargin{i+1};
         
     % Sex specific mechanisms    
     elseif strcmp(varargin{i},'m_RSNA') || strcmp(varargin{i},'m_RSNA_m_Reab')
@@ -159,12 +146,6 @@ for i = 1:2:length(varargin)
         m_AT2R = varargin{i + 1};
     end
 end
-
-%%% JESSICA: I removed the species specificity from the changes below since
-%%% varargin takes care of this based upon the script that inputs it. It
-%%% also gives us a chance to run certain scenarios/drugs across both
-%%% humans and rats. So I have also removed the species specificity from
-%%% some of the equations as well.
 
 % Renal perfusion pressure
 if RPP_ind
@@ -182,28 +163,19 @@ if     t < tchange
     kappa_ACEi  = 0;
     kappa_ARB   = 0;
     kappa_f     = 0;
-    kappa_f_md  = 0;
-    NSAID       = NSAID_inp; 
-
-%%% JESSICA: It seems that these lines and NSAID_in are not needed since 
-%%% NSAID is an indicator parameter which doesn't depend time. If you 
-%%% agree, we can delete these lines. It will be consisent with how other 
-%%% indicator parameters, like Myo_ind, are used.
-
+    kappa_f_md  = 0; 
 elseif tchange <= t && t < (tchange  + deltat)
     kappa_AngII = kappa_AngII_inp / (deltat) * (t-tchange); 
     kappa_ACEi  = kappa_ACEi_inp  / (deltat) * (t-tchange);
     kappa_ARB   = kappa_ARB_inp   / (deltat) * (t-tchange);
     kappa_f     = kappa_f_inp     / (deltat) * (t-tchange);
     kappa_f_md  = kappa_f_md_inp  / (deltat) * (t-tchange);
-    NSAID       = NSAID_inp; %%%
 elseif (tchange  + deltat) <= t 
     kappa_AngII = kappa_AngII_inp; 
     kappa_ACEi  = kappa_ACEi_inp ;
     kappa_ARB   = kappa_ARB_inp  ;
     kappa_f     = kappa_f_inp    ;
     kappa_f_md  = kappa_f_md_inp ;
-    NSAID       = NSAID_inp      ; %%%
 end
 
 %% Retrieve parameters by name.
@@ -436,7 +408,7 @@ f(11) = Phi_filsod - ( Phi_gfilt * C_sod );
 % Phi_ptsodreab
 f(12) = Phi_ptsodreab - ( Phi_filsod * eta_ptsodreab );
 % eta_ptsodreab
-f(13) = eta_ptsodreab - ( eta_ptsodreab_eq * gamma_filsod * gamma_at * gamma_rsna );
+f(13) = eta_ptsodreab - ( (1-kappa_f)* eta_ptsodreab_eq * gamma_filsod * gamma_at * gamma_rsna );
 % gamma_filsod
 if     strcmp(species, 'human')
     gammafilsod_a = 0.85; gammafilsod_b = 18;
@@ -446,7 +418,7 @@ end
 f(14) = gamma_filsod - ( gammafilsod_a + 0.3 / (1 + exp((Phi_filsod - gammafilsod_b)/(138 * SF_S) )) );
 % gamma_at
 if     strcmp(species, 'human')
-    gammaat_c = 1.1103; gammaat_d = 0.95; gammaat_a = 0.12 ; 
+    gammaat_c = 2.6/2.3418; gammaat_d = 0.95; gammaat_a = 0.12 ; 
     gammaat_b = 2.3418;
 elseif strcmp(species, 'rat')
     gammaat_c = 0.8017; gammaat_d = 0.92; gammaat_a = 0.136;
@@ -478,26 +450,34 @@ f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
 % Phi_cdsodreab
 f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
 % eta_cdsodreab
-f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * lambda_dt * lambda_anp );
+eta_cdsodreab0 = ( eta_cdsodreab_eq * lambda_dt * lambda_anp * lambda_al);
+if     strcmp(species, 'human')
+    f(23) = eta_cdsodreab - ( eta_cdsodreab0 );
+elseif strcmp(species, 'rat')
+    etacd_a = 0.02;
+    if     eta_cdsodreab0 <= eta_cdsodreab_eq + etacd_a
+        f(23) = eta_cdsodreab - ( eta_cdsodreab0);
+    elseif eta_cdsodreab0 > eta_cdsodreab_eq + etacd_a
+        etacd_b = 12;
+        etacd_c = (eta_cdsodreab_eq + etacd_a) - (1/etacd_b) * atanh((eta_cdsodreab_eq + etacd_a));
+        f(23) = eta_cdsodreab - ( tanh(etacd_b * (eta_cdsodreab0 - etacd_c)) );
+    end
+end
 % lambda_dt
 if     strcmp(species, 'human')
-    lambdadt_a = 0.82 ; lambdadt_b = 0.39         ;
-    lambdadt_c = 0.375; lambdadt_d = 1.7625 * SF_S;
+    lambdadt_a = 0.82   ; lambdadt_b = 0.39         ;
+    lambdadt_c = 1/0.375; lambdadt_d = 1.7625 * SF_S;
 elseif strcmp(species, 'rat')
     lambdadt_a = 0.8;
     lambdadt_d = fixed_var_pars(4);
-    if     strcmp(sex,  'male')
-        lambdadt_b = 0.275; lambdadt_c = 2.3140;
-    elseif strcmp(sex,'female')
-        lambdadt_b = 1/eta_cdsodreab_eq - 0.8; lambdadt_c = 2.86;
-    end
+    lambdadt_b = 0.275; lambdadt_c = 2.3140;
 end
 f(24) = lambda_dt - ( lambdadt_a + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - lambdadt_d)) ) );
 % lambda_anp
 f(25) = lambda_anp - ( -0.1 * hatC_anp + 1.1 );
 % lambda_al
 if     strcmp(species, 'human')
-    lambdaal_a = 0.76;
+    lambdaal_a = 1/0.76;
 elseif strcmp(species, 'rat')
     lambdaal_a = (ALD_eq^0.06);
 end
@@ -651,10 +631,10 @@ else
 end
 % xi_at
 if     strcmp(species, 'human')
-    xiat_a = 0.47; xiat_b = 2.4; xiat_c = 2.4394;
-    xiat_d = 1.445;
+    xiat_a = 0.47; xiat_b = 2.4; xiat_c = 1.5*1.301/0.8;
+    xiat_d = 2.82/0.8/xiat_c;
 elseif strcmp(species, 'rat')
-    xiat_a = 0.1; xiat_b = 2.9; xiat_c = 2.0;
+    xiat_a = 0.2; xiat_b = 1.7 - xiat_a; xiat_c = 4.9;
     xiat_d = 1 + 1/xiat_c * log(xiat_b/(1-xiat_a) - 1);
 end
 f(60) = xi_at - ( xiat_a + xiat_b / (1 + exp(-xiat_c * ((AT1R/AT1R_eq) - xiat_d)) ) );
@@ -692,7 +672,7 @@ f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_A
 f(74) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
 if     strcmp(species, 'human')
-    if myo_ind
+    if imp_Myo_ind
         sigmamyo_a = 1.2; sigmamyo_b = 0.3;
     else
         sigmamyo_a = 0.9; sigmamyo_b = 1.0;
@@ -746,13 +726,13 @@ if     strcmp(species, 'human')
     % mu_Na
     f(82) = mu_Na -  ( (Phi_ptsodreab + Phi_dtsodreab + Phi_cdsodreab) / (pt_sod_reab_EQ + dt_sod_reab_EQ + cd_sod_reab_EQ) );
     % Phi_u
-    if kappa_ACEi + kappa_f + kappa_f_md + NSAID == 0
+    if (kappa_ACEi == 0) && (kappa_f == 0) && (kappa_f_md == 0) && (NSAID == 0)
         f(83) = Phi_u - ( max(0.0003     , Phi_gfilt - Phi_twreab ) );
     else   
         f(83) = Phi_u - ( max(0.0003*0.2 , Phi_gfilt - Phi_twreab ) );
     end
     % Phi_win
-    if water_ind
+    if low_win_ind
         f(84) = Phi_win - (max(0, 0.0177    / (3.9271  + 18.22*C_adh^-1.607) - 0.002));
     else
         f(84) = Phi_win - (max(0, 0.0078541 / (0.65451 + 18.22*C_adh^-1.607) - 0.002));
@@ -798,7 +778,6 @@ elseif strcmp(species, 'rat')
 end
 
 end
-
 
 
 
