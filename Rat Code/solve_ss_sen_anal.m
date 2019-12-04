@@ -308,9 +308,9 @@ title(s2(2), 'B')
 
 % Save figures ------------------------------------------------------------
 
-save_data_name = sprintf('quant_of_int_sen_anal.fig' );
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f;g], save_data_name)
+% save_data_name = sprintf('quant_of_int_sen_anal.fig' );
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f;g], save_data_name)
 
 end
 
