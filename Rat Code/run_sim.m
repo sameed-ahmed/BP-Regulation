@@ -51,6 +51,18 @@ T = cell(1,2);
 
 for sex_ind = 1:2 % sex
 
+% Initial value
+% This initial condition is the steady state data value taken from
+% solve_ss_scenario.m.
+
+% Set name for data file to be loaded based upon sex and scenario.    
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+                         species{spe_ind},sex{sex_ind},scenario1{fixed_ss1});
+% load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+%                          species{sp},sex{sex_ind},scenario1{1});
+% Load data for steady state initial value. 
+load(load_data_name, 'SSdata');
+
 varargin_input = {scenario1{fixed_ss1},true};
 
 %% Parameters
@@ -76,17 +88,17 @@ end
 
 %% Solve DAE
 
-% Initial value
-% This initial condition is the steady state data value taken from
-% solve_ss_scenario.m.
-
-% Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
-                         species{spe_ind},sex{sex_ind},scenario1{fixed_ss1});
+% % Initial value
+% % This initial condition is the steady state data value taken from
+% % solve_ss_scenario.m.
+% 
+% % Set name for data file to be loaded based upon sex and scenario.    
 % load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-%                          species{sp},sex{sex_ind},scenario1{1});
-% Load data for steady state initial value. 
-load(load_data_name, 'SSdata');
+%                          species{spe_ind},sex{sex_ind},scenario1{fixed_ss1});
+% % load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+% %                          species{sp},sex{sex_ind},scenario1{1});
+% % Load data for steady state initial value. 
+% load(load_data_name, 'SSdata');
 
 % Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
