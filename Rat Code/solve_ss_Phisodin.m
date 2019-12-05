@@ -80,7 +80,7 @@ varargin_input = {scenario{sce_ind},true};
 pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 % Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;

@@ -132,7 +132,7 @@ end
 
 % Load data for steady state initial guess. 
 % Set name for data file to be loaded based upon sex.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s3.mat', ...
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
                          species{spe_ind},sex{sex_ind},scenario{fixed_ss});
 load(load_data_name, 'SSdata');
 SSdataIG = SSdata;
