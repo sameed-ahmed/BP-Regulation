@@ -1,7 +1,10 @@
 This code is the companion to "Determining risk factors for triple whammy acute kidney injury: sex-specific modeling and analysis" by Jessica Leete, Francisco J. Lopez-Hernadez, and Anita T. Layton.
 
+This code is the companion to "Sex-Specific Computational Models for Blood Pressure Regulation in the Rat" by Sameed Ahmed and Anita T. Layton.
+
 This file contains information about how to run the code.
-To create all files and figures from the paper, run Leete2020.m
+
+To create all files and figures from the first paper, run Leete2020.m
 To run your own simulations, call solve_ss_numerical or run_sim_treatments with the appropraite inputs.
 
 Leete2020.m
@@ -22,7 +25,6 @@ Optional input parameters: (each should be a string followed by a value)
 'Impaired Myogenic Response', # - 0 for normal, 1 for impaired. Default is 0.
 'Low Water Intake', # - 0 for normal, 1 for low water intake. Default is 0.
 'RSNA', # - value by which N_rsna is multiplied by to induce hypertension. In my simulations it is 1 for normotensive simulations, 2.5 for hypertensive. Default is 1.
-
 
 
 run_sim_treatments.m
@@ -96,3 +98,36 @@ Creates plots from Figure 5 in Leete 2020 paper.
 Saves matlab file to Human_Figures/.
 Saves .png file to Human_Figures/.
 Requires hline from https://www.mathworks.com/matlabcentral/fileexchange/1039-hline-and-vline
+
+
+To create all files and figures from the second paper, run Ahmed2020.m
+To run your own simulations, call run the individual scripts listed in Ahmed2020.m with your inputs.
+
+Ahmed2020.m
+Running this will create all data files and figures for the above mentioned paper.
+It reads from and writes to folders called Rat_Data/ and Rat_Figures/.
+
+run_sim.m
+This runs the time course simulation and saves the figures to Rat_Figures/.
+
+run_sim_AngII.m
+This runs the time course simulation for Ang II infusion as in Ref. Sampson 2008.
+It saves the figures to Rat_Figures/.
+
+run_sim_RPP.m
+This runs the time course simulation for manipulating renal perfusion pressure as in Ref. Hilliard 2011.
+The rat is unilaterally denervated and anesthetized and body fluids are maintained.
+It saves the figures to Rat_Figures/.
+
+solve_ss_Phisodin.m
+This solves the steady state solution for varing sodium intake.
+It saves the figures to Rat_Figures/.
+
+solve_ss_scenario.m
+This solves the steady state solution for different scenarios.
+It saves the data to Rat_Data/.
+
+solve_ss_sen_anal.m
+This solves the steady state solution to conduct a sensitivity analysis for varing certain parameters.
+It saves the figures to Rat_Figures/.
+
