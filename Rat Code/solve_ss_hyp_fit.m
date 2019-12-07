@@ -68,7 +68,7 @@ num_vars = 93; num_pars = 46; % + SF + fixed_var_pars + SSdata
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
-for sex_ind = 1:2 % sex
+for sex_ind = 2:2 % sex
 
 %% Parameters
 
@@ -218,12 +218,11 @@ end
 function tot_err = cost_fun(t,x0,x_p0,pars,pars_est,par_ind,tchange,varargin_input, ...
                             var_ind,var_range_lower,var_range_upper)
 
-%% Find steady state solution
-
 % Place estimated pars in proper location.
 pars(par_ind) = pars_est;
 
-%     options = optimset();
+%% Find steady state solution ---------------------------------------------
+
 options = optimset('Display','off');
 [SSdata  , ~, ...
  exitflag, ~] = fsolve(@(x) ...
@@ -251,17 +250,220 @@ end
 
 % Compute error within range of specified variables.
 num_vars = length(var_ind);
-err = zeros(num_vars,1);
+range_err = zeros(num_vars,1);
 for i = 1:num_vars
-    err(i) = max( ( (SSdata(var_ind(i)) - (var_range_lower(i) + var_range_upper(i))/2)^2 - ...
+    range_err(i) = max( ( (SSdata(var_ind(i)) - (var_range_lower(i) + var_range_upper(i))/2)^2 - ...
                     (                     (var_range_upper(i) - var_range_lower(i))/2)^2 ) ...
                   / SSdata(var_ind(i))^2, 0 );
 end
 
-% Error
-tot_err = sqrt(sum(err)) / num_vars;
+% Range error
+range_err = sqrt(sum(range_err)) / num_vars;
+
+%% Run Ang II infusion simulation. ----------------------------------------
+
+% Retrieve species and sex identifier. 
+spe_par = pars(1);
+sex_par = pars(2);
+if     spe_par == 1
+    species = 'human';
+elseif spe_par == 0
+    species = 'rat';
+end
+if     sex_par == 1
+    sex = 'male';
+elseif sex_par == 0
+    sex = 'female';
+end
+
+% Initialization, etc.
+
+% Number of days to run simulation after change; Day at which to induce change;
+days = 14; day_change = 1;
+% Number of points for plotting resolution
+N = ((days+1)*1440) / 2;
+
+% Number of variables
+num_vars = 93;
+
+% Initialize variables.
+% X = (variables, points)
+X = zeros(num_vars,N);
+
+%% Input drugs.
+
+% Ang II inf rate fmol/(ml min)
+if     strcmp(sex, 'male')
+%     kappa_AngII = 2022; % Sampson 2008
+%     kappa_AngII = 785; % Sullivan 2010
+    kappa_AngII = 630; % Sullivan 2010
+elseif strcmp(sex, 'female')
+%     kappa_AngII = 2060; % Sampson 2008
+%     kappa_AngII = 475; % Sullivan 2010
+    kappa_AngII = 630; % Sullivan 2010
+end
+
+varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
+
+%% Solve DAE.
+
+% Time at which to keep steady state, change a parameter, etc.
+tchange = day_change*1440;
+
+% Initial time (min); Final time (min);
+t0 = 0*1440; tend = tchange + days*1440;
+
+% Time vector
+tspan = linspace(t0,tend,N);
+
+% Initial value is steady state solution with given pars.
+x0 = SSdata;
+
+% ode options
+options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
+% Solve dae
+[~,x] = ode15i(@(t,x,x_p) ...
+               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
+               tspan, x0, x_p0, options);
+
+% Return if simulation crashed.
+if size(x,1) < N
+    tot_err = 1;
+    return
+end
+% X = (variables, points)
+X(:,:) = x';
+
+%% Compute error.
+
+% Data from Sullivan 2010. MAP is in difference from baseline.
+tdata       = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
+               7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1] * 1440;
+if     strcmp(sex, 'male')
+    MAPdata = [0   , 2.4 , 6   , 12.6, 19.2, 22  , 26.4, ...
+               26.3, 32.3, 34.9, 34.6, 36.5, 41.1, 45.1, 44  ];
+elseif strcmp(sex, 'female')
+%     MAPdata = [0   , 1.3 , 1.4 , 0   , -0.3, 2   , 4.1 , ...    % Actual
+%                9.1 , 11.8, 13.5, 15.9, 19.8, 21.9, 19.6, 20.1];
+    MAPdata = [0   , 1.3 , 1.4 , 1.6 , 1.8 , 2   , 4.1 , ...      % Remove 0
+               9.1 , 11.8, 13.5, 15.9, 19.8, 21.9, 19.6, 20.1];
+end
+num_points = length(tdata);
+
+% Substract MAP by baseline.
+% X = (variable, points)
+MAP = X(42,tdata/2) - X(42,1);
+
+% Ang II inf error
+AngII_MAP_err        = (MAP - MAPdata).^2;
+AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ MAPdata(2:end).^2;
+AngII_MAP_err        = sqrt(sum(AngII_MAP_err)) / num_points;
+
+% Total error
+tot_err = (range_err + AngII_MAP_err) / 2;
+% tot_err = AngII_MAP_err;
+% tot_err = range_err;
 
 end
+
+% % -------------------------------------------------------------------------
+% % Ang II infusion error
+% % -------------------------------------------------------------------------
+% 
+% function AngII_MAP_err = run_sim_AngII(x0,x_p0,pars,pars_est,par_ind,varargin_input)
+% 
+% % Place estimated pars in proper location.
+% pars(par_ind) = pars_est;
+% 
+% %% Retrieve species and sex identifier. 
+% 
+% spe_par = pars(1);
+% sex_par = pars(2);
+% if     spe_par == 1
+%     species = 'human';
+% elseif spe_par == 0
+%     species = 'rat';
+% end
+% if     sex_par == 1
+%     sex = 'male';
+% elseif sex_par == 0
+%     sex = 'female';
+% end
+% 
+% %% Initialization, etc.
+% 
+% % Number of days to run simulation after change; Day at which to induce change;
+% days = 14; day_change = 1;
+% % Number of points for plotting resolution
+% N = ((days+1)*1440) / 2;
+% 
+% % Number of variables
+% num_vars = 93;
+% 
+% % Initialize variables.
+% % X = (variables, points)
+% X = zeros(num_vars,N);
+% 
+% %% Input drugs.
+% 
+% % Ang II inf rate fmol/(ml min)
+% if     strcmp(sex, 'male')
+% %     kappa_AngII = 2022; % Sampson 2008
+% %     kappa_AngII = 785; % Sullivan 2010
+%     kappa_AngII = 630; % Sullivan 2010
+% elseif strcmp(sex, 'female')
+% %     kappa_AngII = 2060; % Sampson 2008
+% %     kappa_AngII = 475; % Sullivan 2010
+%     kappa_AngII = 630; % Sullivan 2010
+% end
+% 
+% varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
+% 
+% %% Solve DAE.
+% 
+% % Time at which to keep steady state, change a parameter, etc.
+% tchange = day_change*1440;
+% 
+% % Initial time (min); Final time (min);
+% t0 = 0*1440; tend = tchange + days*1440;
+% 
+% % Time vector
+% tspan = linspace(t0,tend,N);
+% 
+% % ode options
+% options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
+% % Solve dae
+% [~,x] = ode15i(@(t,x,x_p) ...
+%                bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
+%                tspan, x0, x_p0, options);
+% 
+% % X = (variables, points)
+% X(:,:) = x';
+% 
+% %% Compute error.
+% 
+% % Data from Sullivan 2010. MAP is in difference from baseline.
+% tdata       = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
+%                7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1] * 1440;
+% if     strcmp(sex, 'male')
+%     MAPdata = [0   , 2.4 , 6   , 12.6, 19.2, 22  , 26.4, ...
+%                26.3, 32.3, 34.9, 34.6, 36.5, 41.1, 45.1, 44  ];
+% elseif strcmp(sex, 'female')
+%     MAPdata = [0   , 1.3 , 1.4 , 0   , -0.3, 2   , 4.1 , ...
+%                9.1 , 11.8, 13.5, 15.9, 19.8, 21.9, 19.6, 20.1];
+% end
+% num_points = length(tdata);
+% 
+% % Substract MAP by baseline.
+% % X = (variable, points)
+% MAP = X(42,tdata) - X(42,1);
+% 
+% % Error
+% AngII_MAP_err        = (MAP - MAPdata).^2;
+% AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ MAPdata(2:end).^2;
+% AngII_MAP_err        = sqrt(sum(AngII_MAP_err)) / num_points;
+% 
+% end
 
 
 

@@ -49,7 +49,7 @@ num_vars = 93;
 X = cell(1,2);
 T = cell(1,2);
 
-for sex_ind = 1:2 % sex
+for sex_ind = 2:2 % sex
 
 % Initial value
 % This initial condition is the steady state data value taken from
@@ -160,8 +160,10 @@ end % sex
 %% Plot
 
 % Retrieve male and female.
-t_m = T{1}; t_f = T{2};
-X_m = X{1}; X_f = X{2};
+t_m = T{1}; X_m = X{1}; 
+t_f = T{2}; X_f = X{2}; 
+%t_f = t_m; X_f = X_m;
+t_m = t_f; X_m = X_f;
 
 % x-axis limits
 xlower = t0; xupper = tend; 

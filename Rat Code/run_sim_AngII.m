@@ -52,7 +52,7 @@ num_vars = 93;
 X = zeros(num_vars,N,2,num_scen);
 
 for sce_ind = fixed_ss:fixed_ss % scenario
-for sex_ind = 1:2        % sex
+for sex_ind = 2:2        % sex
 
 varargin_input = {scenario{sce_ind},true};
 
@@ -65,13 +65,13 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 % Ang II inf rate fmol/(ml min)
 if     strcmp(sex{sex_ind}, 'male')
-    kappa_AngII = 2022; % Sampson 2008
-%     kappa_AngII = 785; % Sampson 2008
-%     kappa_AngII = 630; % Sampson 2008
+%     kappa_AngII = 2022; % Sampson 2008
+%     kappa_AngII = 785; % Sullivan 2010
+    kappa_AngII = 630; % Sullivan 2010
 elseif strcmp(sex{sex_ind}, 'female')
-    kappa_AngII = 2060; % Sampson 2008
-%     kappa_AngII = 475; % Sampson 2008
-%     kappa_AngII = 630; % Sampson 2008
+%     kappa_AngII = 2060; % Sampson 2008
+%     kappa_AngII = 475; % Sullivan 2010
+    kappa_AngII = 630; % Sullivan 2010
 end
 
 varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
@@ -151,8 +151,10 @@ end % scenario
 % Retrieve male and female.
 % X_m/f = (variables, points, scenario)
 t = t';
-X_m = reshape(X(:,:,1,:), [num_vars,N,num_scen]);
-X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]);
+X_m = reshape(X(:,:,1,:), [num_vars,N,num_scen]); 
+X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]); 
+X_m = X_f;
+%X_f = X_m;
 
 % x-axis limits
 xlower = t0; xupper = tend; 
@@ -247,13 +249,21 @@ xlh.Position(2) = xlh.Position(2) - 0.0005;
 
 % Plot Mean Arterial Pressure vs Time. ------------------------------------
 
-% Data from Sampson 2008. MAP is in difference from baseline.
-tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
-             7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
-MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
-             26.18,28.87,29.54,31.26,34.71,36.53,42.18];
-MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
-             13.91,17.31,17.04,18.37,19.63,23.23,24.42];
+% % Data from Sampson 2008. MAP is in difference from baseline.
+% tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
+%              7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
+% MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
+%              26.18,28.87,29.54,31.26,34.71,36.53,42.18];
+% MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
+%              13.91,17.31,17.04,18.37,19.63,23.23,24.42];
+% Data from Sullivan 2010. MAP is in difference from baseline.
+tdata     = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
+             7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
+MAPdata_m = [0   , 2.4 , 6   , 12.6, 19.2, 22  , 26.4, ...
+             26.3, 32.3, 34.9, 34.6, 36.5, 41.1, 45.1, 44  ];
+MAPdata_f = [0   , 1.3 , 1.4 , 0   , -0.3, 2   , 4.1 , ...
+             9.1 , 11.8, 13.5, 15.9, 19.8, 21.9, 19.6, 20.1];
+
 % Substract MAP by baseline for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
 MAP_m = reshape(X_m(42,:,:) - X_m(42,1,:), [N,num_scen]);
@@ -262,7 +272,7 @@ MAP_f = reshape(X_f(42,:,:) - X_f(42,1,:), [N,num_scen]);
 g(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim([xlower, xupper]); ylim([0, 60]);
+xlim([xlower, xupper]); ylim([-1, 60]);
 ax = gca;
 ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
 ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
