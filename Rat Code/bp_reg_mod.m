@@ -119,11 +119,13 @@ for i = 1:2:length(varargin)
     % Renal perfusion pressure    
     elseif strcmp(varargin{i},'RPP')
         RPP_ind = true;
-        RPP_per = varargin{i + 1};
+        RPP_per    = varargin{i + 1}{1};
+        SSdata_fix = varargin{i + 1}{2};
         
     % Autoregulatory mechanisms    
     elseif strcmp(varargin{i},'Denerve')
-        denerve     = varargin{i + 1};
+        denerve     = varargin{i + 1}{1};
+        SSdata_fix  = varargin{i + 1}{2};
     elseif strcmp(varargin{i},'No TGF')
         no_TGF      = varargin{i + 1};
     elseif strcmp(varargin{i},'No Myo')
@@ -135,7 +137,8 @@ for i = 1:2:length(varargin)
         
     % Water intake    
     elseif strcmp(varargin{i},'Fixed Water Intake')
-        fix_win     = varargin{i + 1};
+        fix_win     = varargin{i + 1}{1};
+        SSdata_fix  = varargin{i + 1}{2};
     elseif strcmp(varargin{i},'Low Water Intake')
         low_win_ind = varargin{i+1};
         
@@ -150,9 +153,9 @@ end
 % Renal perfusion pressure
 if RPP_ind
     if     t <  tchange
-        RPP = SSdata_input(42);
+        RPP = SSdata_fix(42);
     elseif t >= tchange 
-        RPP = RPP_per * tanh(5 * (t-tchange)) + SSdata_input(42);
+        RPP = RPP_per * tanh(5 * (t-tchange)) + SSdata_fix(42);
     end
 end
 
@@ -368,7 +371,7 @@ f(3 ) = alpha_rap - ( 1 - 0.008 * P_ra );
 f(4 ) = R_r - ( R_aa + R_ea );
 % beta_rsna
 if   denerve
-    f(5 ) = beta_rsna - ( 1 );
+    f(5 ) = beta_rsna - ( SSdata_fix(5) );
 else
     f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
 end
@@ -427,7 +430,7 @@ end
 f(15) = gamma_at - ( gammaat_d + gammaat_a / (1 + exp(-gammaat_b * ((AT1R/AT1R_eq) - gammaat_c)) ) );
 % gamma_rsna
 if   denerve
-    f(16) = gamma_rsna - ( 1 );
+    f(16) = gamma_rsna - ( SSdata_fix(16) );
 else
     f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
 end
@@ -603,7 +606,7 @@ elseif strcmp(species, 'rat')
     nursna_a = 0.8662;
 end
 if   denerve
-    f(54) = nu_rsna - ( 1 );
+    f(54) = nu_rsna - ( SSdata_fix(54) );
 else
     f(54) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - nursna_a)) );
 end
@@ -769,7 +772,7 @@ elseif strcmp(species, 'rat')
     f(92) = Phi_u - ( Phi_dtu - Phi_cdwreab );
     % Phi_win
     if     fix_win
-        f(93) = Phi_win - ( SSdata_input(93) );
+        f(93) = Phi_win - ( SSdata_fix(93) );
     else
         phiwin_a = 0.8; phiwin_c = 0.002313;
         phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.0150 - 1);

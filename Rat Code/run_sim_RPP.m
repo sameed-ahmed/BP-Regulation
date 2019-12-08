@@ -23,7 +23,7 @@ num_per = length(RPP_per);
 
 % Scenarios
 % Denerve - cut off rsna from kidney
-scenario = {'Denerve'};
+scenario = {'Normal'};
 num_scen = length(scenario);
 
 % Number of points for plotting resolution
@@ -37,7 +37,7 @@ exact_per = 3;
 exact_scen = 1;
 
 % Species
-sp = 2;
+spe_ind = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -65,24 +65,25 @@ for per_ind = 1:num_per  % perturbation
 for sce_ind = 1:num_scen % scenario
 for sex_ind = 1:2        % sex
 
-varargin_input = {'RPP',RPP_per(per_ind), scenario{sce_ind},true, 'Fixed Water Intake',true};
-
-%% Parameters
-
-% Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input{:});
-
-%% Solve DAE
-
 % Initial value
 % This initial condition is the steady state data value taken from
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
-                         species{sp},sex{sex_ind});
+load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+                         species{spe_ind},sex{sex_ind},scenario{exact_scen});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
+
+varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, scenario{sce_ind},true, ...
+                  'Denerve',{true, SSdata}, 'Fixed Water Intake',{true, SSdata}};
+
+%% Parameters
+
+% Parameter input
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
+
+%% Solve DAE
 
 % Renal Perfusion Pressure.
 RPP(sex_ind,sce_ind) = SSdata(42);

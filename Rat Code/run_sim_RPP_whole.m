@@ -48,7 +48,7 @@ exact_per = 3;
 exact_scen = 1;
 
 % Species
-sp = 2;
+spe_ind = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -77,34 +77,35 @@ for per_ind = 1:num_per  % perturbation
 for sce_ind = 1:num_scen % scenario
 for sex_ind = 1:2        % sex
 
-if sce_ind == num_scen
-    varargin_input = {'RPP',RPP_per(per_ind), ...
-                      scenario1{exact_scen},true, ...
-                      scenario2{sce_ind-2},true, ...
-                      scenario2{sce_ind-1},true, ...
-                      'Fixed Water Intake',true};
-else
-    varargin_input = {'RPP',RPP_per(per_ind), ...
-                      scenario1{exact_scen},true, ...
-                      scenario2{sce_ind},true, ...
-                      'Fixed Water Intake',true};
-end
-
-%% Parameters
-
-% Parameter input
-pars = get_pars(species{sp}, sex{sex_ind}, varargin_input{:});
-
-%% Solve DAE
-
 % Initial value
 % This initial condition is the steady state data value taken from
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
-                         species{sp},sex{sex_ind});
+                         species{spe_ind},sex{sex_ind});
+% Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
+
+if sce_ind == num_scen
+    varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, ...
+                      'Denerve',{true, SSdata}, ...
+                      scenario2{sce_ind-2},true, ...
+                      scenario2{sce_ind-1},true, ...
+                      'Fixed Water Intake',{true, SSdata}};
+else
+    varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, ...
+                      'Denerve',{true, SSdata}, ...
+                      scenario2{sce_ind},true, ...
+                      'Fixed Water Intake',{true, SSdata}};
+end
+
+%% Parameters
+
+% Parameter input
+pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
+
+%% Solve DAE
 
 % Renal Perfusion Pressure.
 RPP(sex_ind,sce_ind) = SSdata(42);
@@ -291,7 +292,7 @@ s1(1) = subplot(1,2,1);
 s1(2) = subplot(1,2,2); 
 
 plot(s1(1), RPP_m,RBF_m (:,exact_scen),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s1(1), [55 ,210]); xticks(s1(1), [60:30 :210]); %#ok<*NBRAK>
+xlim(s1(1), [55 ,210]); %xticks(s1(1), [60:30 :210]); %#ok<*NBRAK>
 ylim(s1(1), [0  ,2.5]); yticks(s1(1), [0 :0.5:2.5]);
 xlabel(s1(1), 'RPP (mmHg)'); ylabel(s1(1), 'RBF (relative)');
 hold(s1(1), 'on')
