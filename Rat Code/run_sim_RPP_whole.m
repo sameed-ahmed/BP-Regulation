@@ -9,7 +9,7 @@ close all
 
 % Add directory containing data.
 mypath = pwd;
-mypath = strcat(mypath, '/Data');
+mypath = strcat(mypath, '/Rat_Data');
 addpath(genpath(mypath))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -452,7 +452,7 @@ hold off
 % Save figures.
 
 save_data_name = sprintf('quant_of_int_vs_RPP_whole.fig' );
-save_data_name = strcat('Figures/', save_data_name);
+save_data_name = strcat('Rat_Figures/', save_data_name);
 savefig([g;h;i], save_data_name)
 
 end

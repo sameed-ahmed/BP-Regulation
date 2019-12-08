@@ -1,5 +1,5 @@
 % This script runs any of the simulations presented in Ahmed and Layton
-% 2019 and saves the resulting figures in the folder "Figures". 
+% 2020 and saves the resulting figures in the folder "Rat_Figures". 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.

@@ -228,7 +228,7 @@ end
 
 % Add directory containing data.
 mypath = pwd;
-mypath = strcat(mypath, '/Data');
+mypath = strcat(mypath, '/Rat_Data');
 addpath(genpath(mypath))
 
 % These are the shift parameters which ensure that effect variables are 1.

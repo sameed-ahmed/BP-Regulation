@@ -7,7 +7,7 @@ function solve_ss_scenario
 
 % Add directory containing data.
 mypath = pwd;
-mypath = strcat(mypath, '/Data');
+mypath = strcat(mypath, '/Rat_Data');
 addpath(genpath(mypath))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -138,7 +138,7 @@ end
 % Save values.
 save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
                          species{sp}, sex{sex_ind},scenario{sce_ind});
-save_data_name = strcat('Data/', save_data_name);
+save_data_name = strcat('Rat_Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 
 end % gender

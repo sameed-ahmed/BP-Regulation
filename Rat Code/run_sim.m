@@ -10,7 +10,7 @@ close all
 
 % Add directory containing data.
 mypath = pwd;
-mypath = strcat(mypath, '/Data');
+mypath = strcat(mypath, '/Rat_Data');
 addpath(genpath(mypath))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -204,7 +204,7 @@ end
 
 if strcmp(scenario1{fixed_ss1}, 'Normal') && strcmp(scenario2{fixed_ss2}, 'Normal')
     save_data_name = sprintf('all_vars_baseline.fig');
-    save_data_name = strcat('Figures/', save_data_name);
+    save_data_name = strcat('Rat_Figures/', save_data_name);
     savefig(f, save_data_name)
 end
 
