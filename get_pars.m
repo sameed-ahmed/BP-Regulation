@@ -21,7 +21,8 @@ end
 
 m_Reab = false; % Boolean for having male fractional sodium/water reabsorption in the female model.
 m_RAS  = false; % Boolean for having male RAS parameters in the female model.
-hyp    = 1; % Multiplicative factor for RSNA to induce hypertension.
+hyp    = 1    ; % Multiplicative factor for RSNA to induce hypertension.
+
 
 %% Read and assign optional parameters.
 
@@ -29,7 +30,6 @@ hyp    = 1; % Multiplicative factor for RSNA to induce hypertension.
 % corresponding even inputs are the values for the effect parameters to
 % modify something.
 
-%varargin = varargin{:};
 for i = 1:2:length(varargin)
     if     strcmp(varargin{i},'Normal')
     elseif strcmp(varargin{i},'m_Reab') || strcmp(varargin{i},'m_RSNA_m_Reab')
@@ -46,19 +46,19 @@ end
 
 %% Generic parameters
 
-N_rsna     = 1 * hyp;
-P_B        = 18    ; % mmHg
-P_go       = 28    ; % mmHg
-K_vd       = 0.01  ; % -
 
-K_bar      = 16.6  ; % mmHg min / ml
-R_bv       = 3.4   ; % mmHg min / ml
-N_adhs_eq  = 1     ; % -
-T_adh      = 6     ; % min
-N_als_eq   = 1     ; % -
-C_K        = 5     ; % microEq / ml 
-T_al       = 60    ; % min
-N_rs       = 1     ; % ng / ml / min
+N_rsna     = 1 * hyp; % -
+P_B        = 18     ; % mmHg
+P_go       = 28     ; % mmHg
+K_vd       = 0.01   ; % -
+K_bar      = 16.6   ; % mmHg min / ml
+R_bv       = 3.4    ; % mmHg min / ml
+N_adhs_eq  = 1      ; % -
+T_adh      = 6      ; % min
+N_als_eq   = 1      ; % -
+C_K        = 5      ; % microEq / ml 
+T_al       = 60     ; % min
+N_rs       = 1      ; % ng / ml / min
 
 % RAS
 h_renin       = 12  ; % min
@@ -230,7 +230,7 @@ end
 
 % Add directory containing data.
 mypath = pwd;
-mypath = strcat(mypath, '/Data');
+mypath = strcat(mypath, '/Rat_Data');
 addpath(genpath(mypath))
 
 % These are the shift parameters which ensure that effect variables are 1.

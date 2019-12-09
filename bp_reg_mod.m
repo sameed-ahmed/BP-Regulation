@@ -81,15 +81,14 @@ RPP_ind = false; % Boolean for controlling renal perfusion pressure
 RPP_per = 0    ; % Renal perfusion pressure mmHg
 
 % Autoregulatory mechanisms
-denerve = false; % Boolean for unilateral renal denervation by fixing rsna = 1, which is baseline.
-no_TGF  = false; % Boolean for canceling the tubuloglomerular feedback.
-no_Myo  = false; % Boolean for canceling the myogenic response.
-lin_Myo = false; % Boolean for having linear myogenic response.
+denerve     = false; % Boolean for unilateral renal denervation by fixing rsna = 1, which is baseline.
+no_TGF      = false; % Boolean for canceling the tubuloglomerular feedback.
+no_Myo      = false; % Boolean for canceling the myogenic response.
+lin_Myo     = false; % Boolean for having linear myogenic response.
 imp_Myo_ind = false; % Boolean for having impaired myogenic response.
 
-
 % Water intake
-fix_win   = false; % Boolean for fixing water intake.
+fix_win     = false; % Boolean for fixing water intake.
 low_win_ind = false; % Boolean for having low water intake.
 
 % Sex specific mechanisms
@@ -102,7 +101,6 @@ m_AT2R = false; % Boolean for having male effect of AT2R in the female model.
 % corresponding even inputs are the values for the effect parameters to
 % modify something.
 
-%varargin = varargin{:}; %it doesn't run on my computer with this line
 for i = 1:2:length(varargin)
     % Drugs
     if     strcmp(varargin{i},'AngII')
@@ -116,28 +114,31 @@ for i = 1:2:length(varargin)
         kappa_f_inp     = f_dose(1);
         kappa_f_md_inp  = f_dose(2);
     elseif strcmp(varargin{i},'NSAID')
-        NSAID       = varargin{i + 1};
+        NSAID           = varargin{i + 1};
         
     % Renal perfusion pressure    
     elseif strcmp(varargin{i},'RPP')
         RPP_ind = true;
-        RPP_per = varargin{i + 1};
+        RPP_per    = varargin{i + 1}{1};
+        SSdata_fix = varargin{i + 1}{2};
         
     % Autoregulatory mechanisms    
     elseif strcmp(varargin{i},'Denerve')
-        denerve = varargin{i + 1};
+        denerve     = varargin{i + 1}{1};
+        SSdata_fix  = varargin{i + 1}{2};
     elseif strcmp(varargin{i},'No TGF')
-        no_TGF  = varargin{i + 1};
+        no_TGF      = varargin{i + 1};
     elseif strcmp(varargin{i},'No Myo')
-        no_Myo  = varargin{i + 1};
+        no_Myo      = varargin{i + 1};
     elseif strcmp(varargin{i},'Linear Myo')
-        lin_Myo = varargin{i + 1};
+        lin_Myo     = varargin{i + 1};
     elseif strcmp(varargin{i},'Impaired Myogenic Response')
         imp_Myo_ind = varargin{i+1};
         
     % Water intake    
     elseif strcmp(varargin{i},'Fixed Water Intake')
-        fix_win   = varargin{i + 1};
+        fix_win     = varargin{i + 1}{1};
+        SSdata_fix  = varargin{i + 1}{2};
     elseif strcmp(varargin{i},'Low Water Intake')
         low_win_ind = varargin{i+1};
         
@@ -152,9 +153,9 @@ end
 % Renal perfusion pressure
 if RPP_ind
     if     t <  tchange
-        RPP = SSdata_input(42);
+        RPP = SSdata_fix(42);
     elseif t >= tchange 
-        RPP = RPP_per * tanh(5 * (t-tchange)) + SSdata_input(42);
+        RPP = RPP_per * tanh(5 * (t-tchange)) + SSdata_fix(42);
     end
 end
 
@@ -166,8 +167,6 @@ if     t < tchange
     kappa_ARB   = 0;
     kappa_f     = 0;
     kappa_f_md  = 0; 
-
-
 elseif tchange <= t && t < (tchange  + deltat)
     kappa_AngII = kappa_AngII_inp / (deltat) * (t-tchange); 
     kappa_ACEi  = kappa_ACEi_inp  / (deltat) * (t-tchange);
@@ -372,7 +371,7 @@ f(3 ) = alpha_rap - ( 1 - 0.008 * P_ra );
 f(4 ) = R_r - ( R_aa + R_ea );
 % beta_rsna
 if   denerve
-    f(5 ) = beta_rsna - ( 1 );
+    f(5 ) = beta_rsna - ( SSdata_fix(5) );
 else
     f(5 ) = beta_rsna - ( 2 / (1 + exp(-3.16 * (rsna - 1))) );
 end
@@ -431,7 +430,7 @@ end
 f(15) = gamma_at - ( gammaat_d + gammaat_a / (1 + exp(-gammaat_b * ((AT1R/AT1R_eq) - gammaat_c)) ) );
 % gamma_rsna
 if   denerve
-    f(16) = gamma_rsna - ( 1 );
+    f(16) = gamma_rsna - ( SSdata_fix(16) );
 else
     f(16) = gamma_rsna - ( 0.72 + 0.56 / (1 + exp((1 - rsna) / 2.18)) );
 end
@@ -454,19 +453,27 @@ f(21) = Phi_dtsod - ( Phi_mdsod - Phi_dtsodreab );
 % Phi_cdsodreab
 f(22) = Phi_cdsodreab - ( Phi_dtsod * eta_cdsodreab );
 % eta_cdsodreab
-f(23) = eta_cdsodreab - ( eta_cdsodreab_eq * lambda_dt * lambda_anp * lambda_al);
+eta_cdsodreab0 = ( eta_cdsodreab_eq * lambda_dt * lambda_anp * lambda_al);
+if     strcmp(species, 'human')
+    f(23) = eta_cdsodreab - ( eta_cdsodreab0 );
+elseif strcmp(species, 'rat')
+    etacd_a = 0.02;
+    if     eta_cdsodreab0 <= eta_cdsodreab_eq + etacd_a
+        f(23) = eta_cdsodreab - ( eta_cdsodreab0);
+    elseif eta_cdsodreab0 > eta_cdsodreab_eq + etacd_a
+        etacd_b = 12;
+        etacd_c = (eta_cdsodreab_eq + etacd_a) - (1/etacd_b) * atanh((eta_cdsodreab_eq + etacd_a));
+        f(23) = eta_cdsodreab - ( tanh(etacd_b * (eta_cdsodreab0 - etacd_c)) );
+    end
+end
 % lambda_dt
 if     strcmp(species, 'human')
-    lambdadt_a = 0.82 ; lambdadt_b = 0.39         ;
+    lambdadt_a = 0.82   ; lambdadt_b = 0.39         ;
     lambdadt_c = 1/0.375; lambdadt_d = 1.7625 * SF_S;
 elseif strcmp(species, 'rat')
     lambdadt_a = 0.8;
     lambdadt_d = fixed_var_pars(4);
-    if     strcmp(sex,  'male')
-        lambdadt_b = 0.275; lambdadt_c = 2.3140;
-    elseif strcmp(sex,'female')
-        lambdadt_b = 1/eta_cdsodreab_eq - 0.8; lambdadt_c = 2.86;
-    end
+    lambdadt_b = 0.275; lambdadt_c = 2.3140;
 end
 f(24) = lambda_dt - ( lambdadt_a + lambdadt_b/ (1 + exp(lambdadt_c/SF_S * (Phi_dtsod - lambdadt_d)) ) );
 % lambda_anp
@@ -599,7 +606,7 @@ elseif strcmp(species, 'rat')
     nursna_a = 0.8662;
 end
 if   denerve
-    f(54) = nu_rsna - ( 1 );
+    f(54) = nu_rsna - ( SSdata_fix(54) );
 else
     f(54) = nu_rsna - ( 1.822 - 2.056 / (1.358 + exp(rsna - nursna_a)) );
 end
@@ -630,7 +637,7 @@ if     strcmp(species, 'human')
     xiat_a = 0.47; xiat_b = 2.4; xiat_c = 1.5*1.301/0.8;
     xiat_d = 2.82/0.8/xiat_c;
 elseif strcmp(species, 'rat')
-    xiat_a = 0.1; xiat_b = 2.9; xiat_c = 2.0;
+    xiat_a = 0.2; xiat_b = 1.7 - xiat_a; xiat_c = 4.9;
     xiat_d = 1 + 1/xiat_c * log(xiat_b/(1-xiat_a) - 1);
 end
 f(60) = xi_at - ( xiat_a + xiat_b / (1 + exp(-xiat_c * ((AT1R/AT1R_eq) - xiat_d)) ) );
@@ -765,7 +772,7 @@ elseif strcmp(species, 'rat')
     f(92) = Phi_u - ( Phi_dtu - Phi_cdwreab );
     % Phi_win
     if     fix_win
-        f(93) = Phi_win - ( SSdata_input(93) );
+        f(93) = Phi_win - ( SSdata_fix(93) );
     else
         phiwin_a = 0.8; phiwin_c = 0.002313;
         phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.0150 - 1);
