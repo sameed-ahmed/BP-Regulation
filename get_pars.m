@@ -23,6 +23,7 @@ m_Reab = false; % Boolean for having male fractional sodium/water reabsorption i
 m_RAS  = false; % Boolean for having male RAS parameters in the female model.
 hyp    = 1    ; % Multiplicative factor for RSNA to induce hypertension.
 
+
 %% Read and assign optional parameters.
 
 % The odd inputs of varargin are strings for each scenario. The
@@ -44,6 +45,7 @@ for i = 1:2:length(varargin)
 end
 
 %% Generic parameters
+
 
 N_rsna     = 1 * hyp; % -
 P_B        = 18     ; % mmHg
