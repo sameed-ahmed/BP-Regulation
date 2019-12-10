@@ -11,7 +11,7 @@
 % experiment = 'pressure-natriuresis whole range';
 % experiment = 'sodium intake';
 % experiment = 'Ang II infusion';
-experiment = 'sensitivity analysis';
+% experiment = 'sensitivity analysis';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
