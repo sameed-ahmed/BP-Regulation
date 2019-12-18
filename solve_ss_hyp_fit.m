@@ -68,7 +68,7 @@ num_vars = 93; num_pars = 46; % + SF + fixed_var_pars + SSdata
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
-for sex_ind = 2:2 % sex
+for sex_ind = 1:1 % sex
 
 %% Parameters
 
@@ -340,13 +340,11 @@ X(:,:) = x';
 tdata       = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
                7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1] * 1440;
 if     strcmp(sex, 'male')
-    MAPdata = [0   , 2.4 , 6   , 12.6, 19.2, 22  , 26.4, ...
-               26.3, 32.3, 34.9, 34.6, 36.5, 41.1, 45.1, 44  ];
+    MAPdata = [0   , 1.1 , 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
+               28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
 elseif strcmp(sex, 'female')
-%     MAPdata = [0   , 1.3 , 1.4 , 0   , -0.3, 2   , 4.1 , ...    % Actual
-%                9.1 , 11.8, 13.5, 15.9, 19.8, 21.9, 19.6, 20.1];
-    MAPdata = [0   , 1.3 , 1.4 , 1.6 , 1.8 , 2   , 4.1 , ...      % Remove 0
-               9.1 , 11.8, 13.5, 15.9, 19.8, 21.9, 19.6, 20.1];
+    MAPdata = [0   , 5.2 ,  5.3,  3.9,  3.6,  5.9,    8,   13, ...
+               15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
 end
 num_points = length(tdata);
 
@@ -360,7 +358,9 @@ AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ MAPdata(2:end).^2;
 AngII_MAP_err        = sqrt(sum(AngII_MAP_err)) / num_points;
 
 % Total error
-tot_err = (range_err + AngII_MAP_err) / 2;
+% alpha = 0.0; % beta  = 2.0;
+tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
+% tot_err = (0.0*range_err + 2.0*AngII_MAP_err) / 2;
 % tot_err = AngII_MAP_err;
 % tot_err = range_err;
 

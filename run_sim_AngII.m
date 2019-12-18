@@ -52,7 +52,7 @@ num_vars = 93;
 X = zeros(num_vars,N,2,num_scen);
 
 for sce_ind = fixed_ss:fixed_ss % scenario
-for sex_ind = 2:2        % sex
+for sex_ind = 1:1        % sex
 
 varargin_input = {scenario{sce_ind},true};
 
@@ -153,8 +153,8 @@ end % scenario
 t = t';
 X_m = reshape(X(:,:,1,:), [num_vars,N,num_scen]); 
 X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]); 
-X_m = X_f;
-%X_f = X_m;
+% X_m = X_f;
+X_f = X_m;
 
 % x-axis limits
 xlower = t0; xupper = tend; 
@@ -259,10 +259,10 @@ xlh.Position(2) = xlh.Position(2) - 0.0005;
 % Data from Sullivan 2010. MAP is in difference from baseline.
 tdata     = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
              7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
-MAPdata_m = [0   , 2.4 , 6   , 12.6, 19.2, 22  , 26.4, ...
-             26.3, 32.3, 34.9, 34.6, 36.5, 41.1, 45.1, 44  ];
-MAPdata_f = [0   , 1.3 , 1.4 , 0   , -0.3, 2   , 4.1 , ...
-             9.1 , 11.8, 13.5, 15.9, 19.8, 21.9, 19.6, 20.1];
+MAPdata_m = [0   , -1.3, 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
+             28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
+MAPdata_f = [0   , 5.2 ,  5.3,  3.9,  3.6,  5.9,    8,   13, ...
+             15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
 
 % Substract MAP by baseline for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
