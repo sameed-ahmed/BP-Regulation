@@ -27,7 +27,7 @@ scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
             'm_RSNA_m_Reab', ...
             'Pri_Hyp'};
 num_scen = length(scenario);
-fixed_ss = 7;
+fixed_ss = 1;
 
 % Species
 spe_ind = 2;
@@ -52,7 +52,7 @@ num_vars = 93;
 X = zeros(num_vars,N,2,num_scen);
 
 for sce_ind = fixed_ss:fixed_ss % scenario
-for sex_ind = 1:1        % sex
+for sex_ind = 1:2        % sex
 
 varargin_input = {scenario{sce_ind},true};
 
@@ -154,7 +154,7 @@ t = t';
 X_m = reshape(X(:,:,1,:), [num_vars,N,num_scen]); 
 X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]); 
 % X_m = X_f;
-X_f = X_m;
+% X_f = X_m;
 
 % x-axis limits
 xlower = t0; xupper = tend; 
@@ -249,25 +249,30 @@ xlh.Position(2) = xlh.Position(2) - 0.0005;
 
 % Plot Mean Arterial Pressure vs Time. ------------------------------------
 
-% % Data from Sampson 2008. MAP is in difference from baseline.
-% tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
-%              7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
-% MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
-%              26.18,28.87,29.54,31.26,34.71,36.53,42.18];
-% MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
-%              13.91,17.31,17.04,18.37,19.63,23.23,24.42];
-% Data from Sullivan 2010. MAP is in difference from baseline.
-tdata     = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
-             7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
-MAPdata_m = [0   , -1.3, 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
-             28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
-MAPdata_f = [0   , 5.2 ,  5.3,  3.9,  3.6,  5.9,    8,   13, ...
-             15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
+% Data from Sampson 2008. MAP is in difference from baseline.
+tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
+             7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
+MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
+             26.18,28.87,29.54,31.26,34.71,36.53,42.18];
+MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
+             13.91,17.31,17.04,18.37,19.63,23.23,24.42];
+% % Data from Sullivan 2010. MAP is in difference from baseline.
+% tdata     = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
+%              7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
+% MAPdata_m = [0   , -1.3, 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
+%              28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
+% MAPdata_f = [0   , 5.2 ,  5.3,  3.9,  3.6,  5.9,    8,   13, ...
+%              15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
 
 % Substract MAP by baseline for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
-MAP_m = reshape(X_m(42,:,:) - X_m(42,1,:), [N,num_scen]);
-MAP_f = reshape(X_f(42,:,:) - X_f(42,1,:), [N,num_scen]);
+MAP_m = zeros(N,num_scen); MAP_f = zeros(N,num_scen);
+for i = 1:num_scen
+    MAP_m(:,i) = X_m(42,:,i) - X_m(42,1,i);
+    MAP_f(:,i) = X_f(42,:,i) - X_f(42,1,i);
+end
+% MAP_m = reshape(X_m(42,:,i) - X_m(42,1,i), [N,num_scen]);
+% MAP_f = reshape(X_f(42,:,i) - X_f(42,1,i), [N,num_scen]);
 
 g(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
@@ -298,12 +303,15 @@ RSNA_f = reshape(X_f( 1,:,:), [N,num_scen]);
 R_m    = reshape(X_m(74,:,:) ./ X_m( 4,:,:), [N,num_scen]);
 R_f    = reshape(X_f(74,:,:) ./ X_f( 4,:,:), [N,num_scen]);
 % Plot as relative change in order to compare male and female.
+size(GFR_m)
+size(GFR_m(1,:))
 GFR_m = GFR_m ./ GFR_m(1,:);
 GFR_f = GFR_f ./ GFR_f(1,:);
 BV_m  = BV_m  ./ BV_m (1,:);
 BV_f  = BV_f  ./ BV_f (1,:);
 R_m   = R_m   ./ R_m  (1,:);
 R_f   = R_f   ./ R_f  (1,:);
+% size(GFR_m)
 
 % Filtration fraction for sodium and urine for each sex and all scenarios.
 FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [N,num_scen]) * 100;

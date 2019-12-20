@@ -210,21 +210,37 @@ end
 
 %% Human to rat scaling factors
 
+% Scaling factors
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
+
 % Physiological variables which determine scaling factors.
 % Original values are added as separate parameters because these may be
 % modified by another script.
-if     strcmp(species, 'rat')
+
+if     strcmp(species, 'human')
+    SF_S =                     1; % sodium flow
+    SF_U =                     1; % urine flow
+    SF_R =                     1; % resistance
+    SF_V =                     1; % volume
+elseif strcmp(species, 'rat')
     if     strcmp(sex, 'male')
-        Phi_sodin_orig = 1.2212 ; % Sodium intake
-        Phi_u_orig = 0.0150     ; % Urine excretion
-        R_r_orig = 5.981 + 9.756; % Renal vascular resistance
-        W_b = 238               ; % Body weight (~blood volume)
+        Phi_sodin_orig = 1.2212 ; % Munger 1988, Karaaslan 2005
+        Phi_u_orig = 0.0150     ; % Munger 1988, Layton 2016
+        R_r_orig = 5.981 + 9.756; % Munger 1988
+        W_b = 238               ; % Munger 1988
     elseif strcmp(sex, 'female')
-        Phi_sodin_orig = 1.2212 ; % Sodium intake
-        Phi_u_orig = 0.0150     ; % Urine excretion
-        R_r_orig = 9.361 + 15.27; % Renal vascular resistance
-        W_b = 194               ; % Body weight (~blood volume)
+        Phi_sodin_orig = 1.2212 ; % Munger 1988, Karaaslan 2005
+        Phi_u_orig = 0.0150     ; % Munger 1988, Layton 2016
+        R_r_orig = 9.361 + 15.27; % Munger 1988
+        W_b = 194               ; % Munger 1988
     end
+    V_b_orig = 0.06 * W_b + 0.77; % Lee 1985
+    
+    SF_S = Phi_sodin_orig / 0.126; % sodium flow
+    SF_U = Phi_u_orig    / 0.001; % urine flow
+    SF_R = R_r_orig      / 83.3 ; % resistance
+    SF_V = V_b_orig      / 5    ; % volume
 end
 
 %% Retrieve parameters in fixed variable equations (rat only).
@@ -268,11 +284,12 @@ pars = [spe_par; sex_par; ...
 % Species model specific parameters
 if     strcmp(species, 'human')
     pars = [pars; ...
-            pt_sod_reab_EQ; dt_sod_reab_EQ; cd_sod_reab_EQ; A_twreab];
+            pt_sod_reab_EQ; dt_sod_reab_EQ; cd_sod_reab_EQ; A_twreab; ...
+            SF_S; SF_U; SF_R; SF_V];
 elseif strcmp(species, 'rat')
     pars = [pars; ...
             eta_ptwreab_eq; eta_dtwreab_eq; eta_cdwreab_eq; ...
-            Phi_sodin_orig; Phi_u_orig; R_r_orig; W_b; ...
+            SF_S; SF_U; SF_R; SF_V; ...
             fixed_var_pars; SSdata];
 end
 

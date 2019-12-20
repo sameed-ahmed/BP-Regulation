@@ -22,9 +22,9 @@ for gg = 1:2 % gender
 
 % Input GFR ml/min. Data from Munger 1988.
 if     strcmp(gender{gg},   'male')
-    Phi_gfilt = 1.22;
+    Phi_gfilt = 2.44;
 elseif strcmp(gender{gg}, 'female')
-    Phi_gfilt = 0.84;
+    Phi_gfilt = 1.68;
 end
 % Input [Sod] micro Eq/ml.
 C_sod = 143;
@@ -46,7 +46,7 @@ Phi_mdsod     = Phi_filsod - Phi_ptsodreab;
 Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
 Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
 Phi_cdsodreab = Phi_dtsod * eta_cdsodreab;
-Phi_usod      = Phi_dtsod - Phi_cdsodreab;
+Phi_usod      = Phi_dtsod - Phi_cdsodreab
 
 vars(:,1) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
              Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
@@ -59,7 +59,7 @@ vars(:,1) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
 
 elseif strcmp(gender{gg}, 'female')
 
-% % Option 1 --------------------------------------------------------------
+% % Option 1 ----------------------------------------------------------------
 % % Compute quantities. Fix Phi_usod, Phi_mdsod, dt and compute pt, cd.
 % Phi_filsod    = Phi_gfilt * C_sod;
 % Phi_usod      = Phi_usod; % same as male
@@ -78,18 +78,18 @@ elseif strcmp(gender{gg}, 'female')
 % eta_dtsodreab = 0.5; 
 % eta_cdsodreab = 0.93;
 
-% % Option 2 --------------------------------------------------------------
-% % Set pt, dt, Phi_usod and compute cd.
-% Phi_filsod    = Phi_gfilt * C_sod;
-% Phi_usod      = Phi_usod; % same as male
-% eta_ptsodreab = 0.5 % calibrate
-% Phi_ptsodreab = Phi_filsod * eta_ptsodreab;
-% Phi_mdsod = Phi_filsod - Phi_ptsodreab;
-% eta_dtsodreab = 0.5 % calibrate
-% Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
-% Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
-% Phi_cdsodreab = Phi_dtsod - Phi_usod;
-% eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
+% Option 2 ----------------------------------------------------------------
+% Set pt, dt, Phi_usod and compute cd.
+Phi_filsod    = Phi_gfilt * C_sod;
+Phi_usod      = Phi_usod; % same as male
+eta_ptsodreab = 0.5 % calibrate
+Phi_ptsodreab = Phi_filsod * eta_ptsodreab;
+Phi_mdsod = Phi_filsod - Phi_ptsodreab;
+eta_dtsodreab = 0.5 % calibrate
+Phi_dtsodreab = Phi_mdsod * eta_dtsodreab;
+Phi_dtsod     = Phi_mdsod - Phi_dtsodreab;
+Phi_cdsodreab = Phi_dtsod - Phi_usod;
+eta_cdsodreab = Phi_cdsodreab / Phi_dtsod
 
 % % Option 3 --------------------------------------------------------------
 % % Set dt, cd and compute pt.
@@ -99,11 +99,12 @@ elseif strcmp(gender{gg}, 'female')
 % eta_cdsodreab = 0.93 % calibrate 
 % eta_ptsodreab = 1 - Phi_usod / ( Phi_filsod * (1 - eta_dtsodreab) * (1 - eta_cdsodreab) )
 
+%% Save quantities.
+
 % vars(:,2) = [eta_ptsodreab; eta_dtsodreab; eta_cdsodreab; ...
 %              Phi_ptsodreab; Phi_dtsodreab; Phi_cdsodreab; ...
 %              Phi_gfilt    ; Phi_filsod   ; Phi_mdsod    ; Phi_dtsod; Phi_usod];
 
-% % Save quantities.
 % save_data_name = sprintf('%s_seg_sodreab_vars.mat', gender{gg});
 % % save_data_name = strcat('Data/', save_data_name);
 % save(save_data_name, 'vars')

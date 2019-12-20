@@ -34,15 +34,7 @@ end
 
 %% Retrieve species specific additional things.
 
-if     strcmp(species, 'human')
-    % Scaling factors
-    % Rat value = Human value x SF
-    % Note: This includes conversion of units.
-    SF_S =                    1; % sodium flow
-    SF_U =                    1; % urine flow
-    SF_R =                    1; % resistance
-    SF_V =                    1; % volume
-elseif strcmp(species, 'rat')
+if strcmp(species, 'rat')
     % Steady state variable values
     SSdata_input     = pars(end-92:end);
     pars(end-92:end) = '';
@@ -50,21 +42,29 @@ elseif strcmp(species, 'rat')
     % Fixed variable parameters
     fixed_var_pars  = pars(end-8:end);
     pars(end-8:end) = '';
-
-    % Physiological variables which determine scaling factors.
-    Phi_usod_new = pars(end-3)      ; % Munger 1988, Karaaslan 2005
-    Phi_u_new    = pars(end-2)      ; % Munger 1988, Layton 2016
-    R_r_new      = pars(end-1)      ; % Munger 1988
-    W_b          = pars(end  )      ; % Munger 1988
-    V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
-    % Scaling factors
-    % Rat value = Human value x SF
-    % Note: This includes conversion of units.
-    SF_S = Phi_usod_new / 0.126; % sodium flow
-    SF_U = Phi_u_new    / 0.001; % urine flow
-    SF_R = R_r_new      / 83.3 ; % resistance
-    SF_V = V_b_new      / 5    ; % volume
+% 
+%     % Physiological variables which determine scaling factors.
+%     Phi_usod_new = pars(end-3)      ; % Munger 1988, Karaaslan 2005
+%     Phi_u_new    = pars(end-2)      ; % Munger 1988, Layton 2016
+%     R_r_new      = pars(end-1)      ; % Munger 1988
+%     W_b          = pars(end  )      ; % Munger 1988
+%     V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
+%     % Scaling factors
+%     % Rat value = Human value x SF
+%     % Note: This includes conversion of units.
+%     SF_S = Phi_usod_new / 0.126; % sodium flow
+%     SF_U = Phi_u_new    / 0.001; % urine flow
+%     SF_R = R_r_new      / 83.3 ; % resistance
+%     SF_V = V_b_new      / 5    ; % volume
 end
+
+% Scaling factors
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
+SF_S = pars(end-3); % sodium flow
+SF_U = pars(end-2); % urine flow
+SF_R = pars(end-1); % resistance
+SF_V = pars(end ); % volume
 
 %% Default parameter inputs for changes in simulation.
 
