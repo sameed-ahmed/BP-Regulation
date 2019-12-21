@@ -42,20 +42,6 @@ if strcmp(species, 'rat')
     % Fixed variable parameters
     fixed_var_pars  = pars(end-8:end);
     pars(end-8:end) = '';
-% 
-%     % Physiological variables which determine scaling factors.
-%     Phi_usod_new = pars(end-3)      ; % Munger 1988, Karaaslan 2005
-%     Phi_u_new    = pars(end-2)      ; % Munger 1988, Layton 2016
-%     R_r_new      = pars(end-1)      ; % Munger 1988
-%     W_b          = pars(end  )      ; % Munger 1988
-%     V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
-%     % Scaling factors
-%     % Rat value = Human value x SF
-%     % Note: This includes conversion of units.
-%     SF_S = Phi_usod_new / 0.126; % sodium flow
-%     SF_U = Phi_u_new    / 0.001; % urine flow
-%     SF_R = R_r_new      / 83.3 ; % resistance
-%     SF_V = V_b_new      / 5    ; % volume
 end
 
 % Scaling factors
@@ -64,7 +50,7 @@ end
 SF_S = pars(end-3); % sodium flow
 SF_U = pars(end-2); % urine flow
 SF_R = pars(end-1); % resistance
-SF_V = pars(end ); % volume
+SF_V = pars(end  ); % volume
 
 %% Default parameter inputs for changes in simulation.
 
@@ -775,7 +761,7 @@ elseif strcmp(species, 'rat')
         f(93) = Phi_win - ( SSdata_fix(93) );
     else
         phiwin_a = 0.8; phiwin_c = 0.002313;
-        phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.0150 - 1);
+        phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.030 - 1);
         f(93) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
     end
 end

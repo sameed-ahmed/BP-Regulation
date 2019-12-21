@@ -33,8 +33,10 @@ bl_per    = (0 - RPP_per(1)) / inc_per + 1;
 % No TGF      - block tubuloglomerular feedback
 % No Myo, TGF - block myogenic response and tubuloglomerular feedback
 scenario1 = {'Denerve'};
-scenario2 = {'Normal' , 'Pri_Hyp', ...
+scenario2 = {'Normal' , ...
              'Linear Myo', 'No Myo' , 'No TGF'};
+% scenario2 = {'Normal' , 'Pri_Hyp', ...
+%              'Linear Myo', 'No Myo' , 'No TGF'};
 num_scen = length(scenario2)+1; % The extra scenario is both no myo and no TGF.
 
 % Number of points for plotting resolution
@@ -78,17 +80,26 @@ for per_ind = 1:num_per  % perturbation
 for sce_ind = 1:num_scen % scenario
 for sex_ind = 1:2        % sex
 
+% Initial value
+% This initial condition is the steady state data value taken from
+% solve_ss_scenario.m.
+
+% Set name for data file to be loaded based upon sex.    
+load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
+                         species{spe_ind},sex{sex_ind});
+load(load_data_name, 'SSdata');
+
 if sce_ind == num_scen
-    varargin_input = {'RPP',RPP_per(per_ind), ...
-                      scenario1{exact_scen1},true, ...
+    varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, ...
+                      'Denerve',{true, SSdata}        , ...
                       scenario2{sce_ind-2},true, ...
                       scenario2{sce_ind-1},true, ...
-                      'Fixed Water Intake',true};
+                      'Fixed Water Intake',{true, SSdata}};
 else
-    varargin_input = {'RPP',RPP_per(per_ind), ...
-                      scenario1{exact_scen1},true, ...
+    varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, ...
+                      'Denerve',{true, SSdata}        , ...
                       scenario2{sce_ind},true, ...
-                      'Fixed Water Intake',true};
+                      'Fixed Water Intake',{true, SSdata}};
 end
 
 %% Parameters
@@ -98,14 +109,14 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 %% Solve DAE
 
-% Initial value
-% This initial condition is the steady state data value taken from
-% solve_ss_scenario.m.
-
-% Set name for data file to be loaded based upon sex.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
-                         species{spe_ind},sex{sex_ind});
-load(load_data_name, 'SSdata');
+% % Initial value
+% % This initial condition is the steady state data value taken from
+% % solve_ss_scenario.m.
+% 
+% % Set name for data file to be loaded based upon sex.    
+% load_data_name = sprintf('%s_%s_ss_data_scenario_Normal.mat', ...
+%                          species{spe_ind},sex{sex_ind});
+% load(load_data_name, 'SSdata');
 
 % Renal Perfusion Pressure.
 RPP(sex_ind,sce_ind) = SSdata(42);
@@ -292,8 +303,8 @@ s1(1) = subplot(1,2,1);
 s1(2) = subplot(1,2,2); 
 
 plot(s1(1), RPP_m,RBF_m (:,exact_scen1),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s1(1), [55 ,210]); xticks(s1(1), [60:30 :210]); %#ok<*NBRAK>
-ylim(s1(1), [0  ,2.5]); yticks(s1(1), [0 :0.5:2.5]);
+xlim(s1(1), [55 ,210]); %xticks(s1(1), [60:30 :210]); %#ok<*NBRAK>
+ylim(s1(1), [0  ,2.5]); %yticks(s1(1), [0 :0.5:2.5]);
 xlabel(s1(1), 'RPP (mmHg)'); ylabel(s1(1), 'RBF (relative)');
 hold(s1(1), 'on')
 plot(s1(1), RPP_f,RBF_f (:,exact_scen1),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
@@ -304,8 +315,8 @@ hold(s1(1), 'off')
 title(s1(1), 'A')
 
 plot(s1(2), RPP_m,GFR_m (:,exact_scen1),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s1(2), [55 ,210]); xticks(s1(2), [60:30 :210]);
-ylim(s1(2), [0  ,2.5]); yticks(s1(2), [0 :0.5:2.5]);
+xlim(s1(2), [55 ,210]); %xticks(s1(2), [60:30 :210]);
+ylim(s1(2), [0  ,2.5]); %yticks(s1(2), [0 :0.5:2.5]);
 xlabel(s1(2), 'RPP (mmHg)'); ylabel(s1(2), 'GFR (relative)');
 hold(s1(2), 'on')
 plot(s1(2), RPP_f,GFR_f (:,exact_scen1),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
@@ -322,8 +333,8 @@ s2(1) = subplot(1,2,1);
 s2(2) = subplot(1,2,2); 
 
 plot(s2(1), RPP_m,UF_m  (:,exact_scen1),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s2(1), [55 ,210]); xticks(s2(1), [60:30:210]);
-ylim(s2(1), [0  ,13 ]); yticks(s2(1), [0 :3 :13 ]);
+xlim(s2(1), [55 ,210]); %xticks(s2(1), [60:30:210]);
+ylim(s2(1), [0  ,13 ]); %yticks(s2(1), [0 :3 :13 ]);
 xlabel(s2(1), 'RPP (mmHg)'); ylabel(s2(1), 'UF (relative)');
 hold(s2(1), 'on')
 plot(s2(1), RPP_f,UF_f  (:,exact_scen1),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
@@ -334,8 +345,8 @@ hold(s2(1), 'off')
 title(s2(1), 'A')
 
 plot(s2(2), RPP_m,USOD_m(:,exact_scen1),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s2(2), [55 ,210]); xticks(s2(2), [60:30:210]);
-ylim(s2(2), [0  ,13 ]); yticks(s2(2), [0 :3 :13 ]);
+xlim(s2(2), [55 ,210]); %xticks(s2(2), [60:30:210]);
+ylim(s2(2), [0  ,13 ]); %yticks(s2(2), [0 :3 :13 ]);
 xlabel(s2(2), 'RPP (mmHg)'); ylabel(s2(2), 'USOD (relative)');
 hold(s2(2), 'on')
 plot(s2(2), RPP_f,USOD_f(:,exact_scen1),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
@@ -352,8 +363,8 @@ s3(1) = subplot(1,2,1);
 s3(2) = subplot(1,2,2); 
 
 plot(s3(1), RPP_m,RAA_m (:,exact_scen1),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s3(1), [55 ,210]); xticks(s3(1), [60:30 :210]);
-ylim(s3(1), [0  ,2.5]); yticks(s3(1), [0 :0.5:2.5]);
+xlim(s3(1), [55 ,210]); %xticks(s3(1), [60:30 :210]);
+ylim(s3(1), [0  ,2.5]); %yticks(s3(1), [0 :0.5:2.5]);
 xlabel(s3(1), 'RPP (mmHg)'); ylabel(s3(1), 'AAR (relative)');
 hold(s3(1), 'on')
 plot(s3(1), RPP_f,RAA_f (:,exact_scen1),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
@@ -364,8 +375,8 @@ hold(s3(1), 'off')
 title(s3(1), 'A')
 
 plot(s3(2), RPP_m,PGH_m (:,exact_scen1),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s3(2), [55 ,210]); xticks(s3(2), [60 :30 :210]);
-ylim(s3(2), [0.7,1.4]); yticks(s3(2), [0.7:0.2:1.4]);
+xlim(s3(2), [55 ,210]); %xticks(s3(2), [60 :30 :210]);
+ylim(s3(2), [0.7,1.4]); %yticks(s3(2), [0.7:0.2:1.4]);
 xlabel(s3(2), 'RPP (mmHg)'); ylabel(s3(2), 'GHP (relative)');
 hold(s3(2), 'on')
 plot(s3(2), RPP_f,PGH_f (:,exact_scen1),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3);
@@ -384,8 +395,8 @@ ss1(3) = subplot(2,2,3);
 ss1(4) = subplot(2,2,4); 
 
 plot(ss1(1), RPP_m,RAA_m     (:,exact_scen1) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(ss1(1), [55,210]); xticks(ss1(1), [60 :30 :210]);
-ylim(ss1(1), [0,2.5]); yticks(ss1(1), [0 :0.5:2.5]);
+xlim(ss1(1), [55,210]); %xticks(ss1(1), [60 :30 :210]);
+ylim(ss1(1), [0 ,2.5]); %yticks(ss1(1), [0 :0.5:2.5]);
 xlabel(ss1(1), 'RPP (mmHg)'); ylabel(ss1(1), 'AAR (relative)');
 hold(ss1(1), 'on')
 plot(ss1(1), RPP_f,RAA_f     (:,exact_scen1) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -396,8 +407,8 @@ legend(ss1(1), 'Male','Female', 'Location','Southeast');
 title(ss1(1), 'A')
 
 plot(ss1(2), RPP_m,PGH_m     (:,exact_scen1) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(ss1(2), [55,210]); xticks(ss1(2), [60 :30 :210]);
-ylim(ss1(2), [0.7,1.4]); yticks(ss1(2), [0.7:0.2:1.4]);
+xlim(ss1(2), [55 ,210]); %xticks(ss1(2), [60 :30 :210]);
+ylim(ss1(2), [0.7,1.4]); %yticks(ss1(2), [0.7:0.2:1.4]);
 xlabel(ss1(2), 'RPP (mmHg)'); ylabel(ss1(2), 'GHP (relative)');
 hold(ss1(2), 'on')
 plot(ss1(2), RPP_f,PGH_f     (:,exact_scen1) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -407,8 +418,8 @@ hold(ss1(2), 'off')
 title(ss1(2), 'B')
 
 plot(ss1(3), RPP_m,RBF_m      (:,exact_scen1) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(ss1(3), [55,210]); xticks(ss1(3), [60 :30 :210]);
-ylim(ss1(3), [0.7,1.4]); yticks(ss1(3), [0.7:0.2:1.4]);
+xlim(ss1(3), [55 ,210]); %xticks(ss1(3), [60 :30 :210]);
+ylim(ss1(3), [0.7,1.4]); %yticks(ss1(3), [0.7:0.2:1.4]);
 xlabel(ss1(3), 'RPP (mmHg)'); ylabel(ss1(3), 'RBF (relative)');
 hold(ss1(3), 'on')
 plot(ss1(3), RPP_f,RBF_f      (:,exact_scen1) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -418,8 +429,8 @@ hold(ss1(3), 'off')
 title(ss1(3), 'C')
 
 plot(ss1(4), RPP_m,GFR_m    (:,exact_scen1) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(ss1(4), [55,210]); xticks(ss1(4), [60 :30 :210]);
-ylim(ss1(4), [0.0,2.5]); yticks(ss1(4), [0 :0.5:2.5]);
+xlim(ss1(4), [55 ,210]); %xticks(ss1(4), [60 :30 :210]);
+ylim(ss1(4), [0.0,2.5]); %yticks(ss1(4), [0 :0.5:2.5]);
 xlabel(ss1(4), 'RPP (mmHg)'); ylabel(ss1(4), 'GFR (relative)');
 hold(ss1(4), 'on')
 plot(ss1(4), RPP_f,GFR_f    (:,exact_scen1) ,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -434,8 +445,8 @@ title(ss1(4), 'D')
 i = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(RPP_m,GFR_m(:,exact_scen1) ,'-', 'LineWidth',3); % k-
-xlim([55,210]); xticks([60:30:210]);
-ylim([-1,5]); yticks([-1:2:5]);
+xlim([55,210]); %xticks([60:30:210]);
+ylim([-1,5  ]); %yticks([-1:2:5]);
 xlabel('RPP (mmHg)'); ylabel('GFR (relative)');
 hold on
 plot(RPP_m,GFR_m(:,2) ,'-', 'LineWidth',3, 'MarkerIndices',1:4:length(RPP_m)); % lin myo k--o
@@ -449,11 +460,11 @@ plot(arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off');
 plot(arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 hold off
 
-% Save figures.
-
-save_data_name = sprintf('quant_of_int_vs_RPP_whole.fig' );
-save_data_name = strcat('Figures/', save_data_name);
-savefig([g;h;i], save_data_name)
+% % Save figures.
+% 
+% save_data_name = sprintf('quant_of_int_vs_RPP_whole.fig' );
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([g;h;i], save_data_name)
 
 end
 

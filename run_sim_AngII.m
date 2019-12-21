@@ -24,8 +24,10 @@ addpath(genpath(mypath))
 % m_Reab - male fractional sodium and water reabsorption
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
 scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-            'm_RSNA_m_Reab', ...
-            'Pri_Hyp'};
+            'm_RSNA_m_Reab'};
+% scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+%             'm_RSNA_m_Reab', ...
+%             'Pri_Hyp'};
 num_scen = length(scenario);
 fixed_ss = 1;
 
@@ -51,7 +53,7 @@ num_vars = 93;
 % X = (variables, points, sex, scenario)
 X = zeros(num_vars,N,2,num_scen);
 
-for sce_ind = fixed_ss:fixed_ss % scenario
+for sce_ind = 1:num_scen % scenario
 for sex_ind = 1:2        % sex
 
 varargin_input = {scenario{sce_ind},true};
@@ -303,15 +305,26 @@ RSNA_f = reshape(X_f( 1,:,:), [N,num_scen]);
 R_m    = reshape(X_m(74,:,:) ./ X_m( 4,:,:), [N,num_scen]);
 R_f    = reshape(X_f(74,:,:) ./ X_f( 4,:,:), [N,num_scen]);
 % Plot as relative change in order to compare male and female.
-size(GFR_m)
-size(GFR_m(1,:))
-GFR_m = GFR_m ./ GFR_m(1,:);
-GFR_f = GFR_f ./ GFR_f(1,:);
-BV_m  = BV_m  ./ BV_m (1,:);
-BV_f  = BV_f  ./ BV_f (1,:);
-R_m   = R_m   ./ R_m  (1,:);
-R_f   = R_f   ./ R_f  (1,:);
-% size(GFR_m)
+GFR_m_bl = GFR_m(1,:);
+GFR_f_bl = GFR_f(1,:);
+BV_m_bl  = BV_m (1,:);
+BV_f_bl  = BV_f (1,:);
+R_m_bl   = R_m  (1,:);
+R_f_bl   = R_f  (1,:);
+for i = 1:N
+    GFR_m(i,:) = GFR_m(i,:) ./ GFR_m_bl;
+    GFR_f(i,:) = GFR_f(i,:) ./ GFR_f_bl;
+    BV_m (i,:) = BV_m (i,:) ./ BV_m_bl ;
+    BV_f (i,:) = BV_f (i,:) ./ BV_f_bl ;
+    R_m  (i,:) = R_m  (i,:) ./ R_m_bl  ;
+    R_f  (i,:) = R_f  (i,:) ./ R_f_bl  ;
+end
+% GFR_m = GFR_m ./ GFR_m(1,:);
+% GFR_f = GFR_f ./ GFR_f(1,:);
+% BV_m  = BV_m  ./ BV_m (1,:);
+% BV_f  = BV_f  ./ BV_f (1,:);
+% R_m   = R_m   ./ R_m  (1,:);
+% R_f   = R_f   ./ R_f  (1,:);
 
 % Filtration fraction for sodium and urine for each sex and all scenarios.
 FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [N,num_scen]) * 100;
@@ -319,10 +332,20 @@ FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [N,num_scen]) * 100
 FRW_m  = reshape((X_m( 7,:,:) - X_m(92,:,:)) ./ X_m( 7,:,:), [N,num_scen]) * 100;
 FRW_f  = reshape((X_f( 7,:,:) - X_f(92,:,:)) ./ X_f( 7,:,:), [N,num_scen]) * 100;
 % Plot as relative change in order to compare male and female.
-FRNA_m = FRNA_m ./ FRNA_m(1,:);
-FRNA_f = FRNA_f ./ FRNA_f(1,:);
-FRW_m  = FRW_m  ./ FRW_m (1,:);
-FRW_f  = FRW_f  ./ FRW_f (1,:);
+FRNA_m_bl = FRNA_m(1,:);
+FRNA_f_bl = FRNA_f(1,:);
+FRW_m_bl  = FRW_m (1,:);
+FRW_f_bl  = FRW_f (1,:);
+for i = 1:N
+    FRNA_m(i,:) = FRNA_m(i,:) ./ FRNA_m_bl;
+    FRNA_f(i,:) = FRNA_f(i,:) ./ FRNA_f_bl;
+    FRW_m (i,:) = FRW_m (i,:) ./ FRW_m_bl ;
+    FRW_f (i,:) = FRW_f (i,:) ./ FRW_f_bl ;
+end
+% FRNA_m = FRNA_m ./ FRNA_m(1,:);
+% FRNA_f = FRNA_f ./ FRNA_f(1,:);
+% FRW_m  = FRW_m  ./ FRW_m (1,:);
+% FRW_f  = FRW_f  ./ FRW_f (1,:);
 
 h(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);

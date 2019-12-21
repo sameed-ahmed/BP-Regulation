@@ -26,7 +26,7 @@ scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
              'Pri_Hyp'};
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB'};
-fixed_ss1 = 8;
+fixed_ss1 = 1;
 fixed_ss2 = 1;
 
 % Species
@@ -49,7 +49,7 @@ num_vars = 93;
 X = cell(1,2);
 T = cell(1,2);
 
-for sex_ind = 1:1 % sex
+for sex_ind = 1:2 % sex
 
 % Initial value
 % This initial condition is the steady state data value taken from
@@ -162,7 +162,7 @@ end % sex
 % Retrieve male and female.
 t_m = T{1}; X_m = X{1}; 
 t_f = T{2}; X_f = X{2}; 
-t_f = t_m; X_f = X_m;
+% t_f = t_m; X_f = X_m;
 % t_m = t_f; X_m = X_f;
 
 % x-axis limits
@@ -186,7 +186,8 @@ f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-    f(i) = figure('pos',[750 500 650 450]);
+    f(i) = figure();
+%     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
         last_plot = mod(num_vars, 15);

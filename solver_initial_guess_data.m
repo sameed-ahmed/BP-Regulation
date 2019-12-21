@@ -17,15 +17,15 @@ spe_ind = 2;
 
 % Physiological variables which determine scaling factors.
 if     strcmp(sex{sex_ind}, 'male')
-    Phi_usod_new = 1.2212; % Munger 1988, Karaaslan 2005
-    Phi_u_new    = 0.0150; % Munger 1988, Layton 2016
-    R_r_new      = 15    ; % Munger 1988
-    W_b          = 238   ; % Munger 1988
+    Phi_usod_new = 2.442; % Munger 1988, Karaaslan 2005
+    Phi_u_new    = 0.030; % Munger 1988, Layton 2016
+    R_r_new      = 8    ; % Munger 1988
+    W_b          = 238  ; % Munger 1988
 elseif strcmp(sex{sex_ind}, 'female')
-    Phi_usod_new = 1.2212; % Munger 1988, Karaaslan 2005
-    Phi_u_new    = 0.0150; % Munger 1988, Layton 2016
-    R_r_new      = 24    ; % Munger 1988
-    W_b          = 194   ; % Munger 1988
+    Phi_usod_new = 2.442; % Munger 1988, Karaaslan 2005
+    Phi_u_new    = 0.030; % Munger 1988, Layton 2016
+    R_r_new      = 12   ; % Munger 1988
+    W_b          = 194  ; % Munger 1988
 end
 V_b_new = 0.06 * W_b + 0.77; % Lee 1985
 
@@ -50,20 +50,20 @@ rsna          = 1;
 alpha_map     = 1; 
 alpha_rap     = 1; 
 if     strcmp(sex{sex_ind}, 'male')
-R_r           = 15; 
+R_r           = 8 ; 
 elseif strcmp(sex{sex_ind}, 'female')
-R_r           = 24; 
+R_r           = 12; 
 end
 beta_rsna     = 1; 
 if     strcmp(sex{sex_ind}, 'male')
-Phi_rb        = 6.5; 
+Phi_rb        = 13 ; 
 elseif strcmp(sex{sex_ind}, 'female')
-Phi_rb        = 4.2; 
+Phi_rb        = 8.4; 
 end
 if     strcmp(sex{sex_ind}, 'male')
-Phi_gfilt     = 1.22; 
+Phi_gfilt     = 2.44; 
 elseif strcmp(sex{sex_ind}, 'female')
-Phi_gfilt     = 0.84; 
+Phi_gfilt     = 1.68; 
 end
 P_f           = 16; 
 P_gh          = 62; 
@@ -179,11 +179,11 @@ AT2R          = 7;
 Ang17         = 50; 
 AngIV         = 1.3; 
 if     strcmp(sex{sex_ind},  'male')
-R_aa          = 6.0; 
-R_ea          = 9.8;
+R_aa          = 3.0; 
+R_ea          = 4.9;
 elseif strcmp(sex{sex_ind},'female')
-R_aa          = 9.4; 
-R_ea          = 15.;
+R_aa          = 4.7; 
+R_ea          = 7.6;
 end
 % Sigma_myo     = 62; % fixed var
 Sigma_myo     = 1; 

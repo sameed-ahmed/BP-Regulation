@@ -129,13 +129,13 @@ if     strcmp(species, 'human')
     cd_sod_reab_EQ = 1.6909;
     
 elseif strcmp(species, 'rat')
-    Phi_sodin = 1.2212; % microEq / min
+    Phi_sodin = 2.4424; % microEq / min
     ALD_eq    = 387   ; % ng / l
     
     if     strcmp(sex, 'male')
-        R_aass = 5.981; % mmHg min / ml
-        R_eass = 9.756; % mmHg min / ml
-        C_gcf  = 0.068; % ml / min / mmHg
+        R_aass = 2.9905; % mmHg min / ml
+        R_eass = 4.878; % mmHg min / ml
+        C_gcf  = 0.136; % ml / min / mmHg
         
         % Transport parameters
         eta_ptsodreab_eq = 0.80; % %
@@ -158,9 +158,9 @@ elseif strcmp(species, 'rat')
         AT1R_eq  = 20.4807902818665; % fmol / ml
         AT2R_eq  = 6.82696474842298; % fmol / ml
     elseif strcmp(sex, 'female')
-        R_aass = 9.361; % mmHg min / ml
-        R_eass = 15.27; % mmHg min / ml
-        C_gcf  = 0.047; % ml / min / mmHg
+        R_aass = 4.6805; % mmHg min / ml
+        R_eass = 7.635; % mmHg min / ml
+        C_gcf  = 0.094; % ml / min / mmHg
         
         % Transport parameters
         if   m_Reab
@@ -225,14 +225,14 @@ if     strcmp(species, 'human')
     SF_V =                     1; % volume
 elseif strcmp(species, 'rat')
     if     strcmp(sex, 'male')
-        Phi_sodin_orig = 1.2212 ; % Munger 1988, Karaaslan 2005
-        Phi_u_orig = 0.0150     ; % Munger 1988, Layton 2016
-        R_r_orig = 5.981 + 9.756; % Munger 1988
+        Phi_sodin_orig = 2.4424 ; % Munger 1988, Karaaslan 2005
+        Phi_u_orig = 0.030      ; % Munger 1988, Layton 2016
+        R_r_orig = 2.9905 + 4.878; % Munger 1988
         W_b = 238               ; % Munger 1988
     elseif strcmp(sex, 'female')
-        Phi_sodin_orig = 1.2212 ; % Munger 1988, Karaaslan 2005
-        Phi_u_orig = 0.0150     ; % Munger 1988, Layton 2016
-        R_r_orig = 9.361 + 15.27; % Munger 1988
+        Phi_sodin_orig = 2.4424 ; % Munger 1988, Karaaslan 2005
+        Phi_u_orig = 0.030      ; % Munger 1988, Layton 2016
+        R_r_orig = 4.6805 + 7.635; % Munger 1988
         W_b = 194               ; % Munger 1988
     end
     V_b_orig = 0.06 * W_b + 0.77; % Lee 1985

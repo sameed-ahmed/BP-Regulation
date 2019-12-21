@@ -75,7 +75,7 @@ scenario = {'Normal', ...
             'AngII', 'ACEi', 'ARB', ...
             'Pri_Hyp'};
 % Index of scenario to plot for all variables
-fixed_ss = 5;
+fixed_ss = 1;
 
 % Species
 spe_ind = 2;
@@ -215,8 +215,11 @@ for i = 1:out_num
     hold on
     binc = barh([par_iter:-1:1], [X_m(out_ind(i),:,2)',X_f(out_ind(i),:,2)']);
     
+    ax = gca;
+    ax.YTickLabel = in_label;
+    
 %     set(gca,'yticklabel',ycat)
-    yticklabels(in_label)
+%     yticklabels(in_label)
 %     ytickangle(45)
     ylim([1-0.5,par_iter+0.5])
 
@@ -246,7 +249,9 @@ s1(2).Position = s1(2).Position + [0.06, 0, 0.00, 0];
 bdec1 = barh(s1(1), [par_iter:-1:1], [X_m(out_ind(2),:,1)',X_f(out_ind(2),:,1)']);
 hold(s1(1), 'on')
 binc1 = barh(s1(1), [par_iter:-1:1], [X_m(out_ind(2),:,2)',X_f(out_ind(2),:,2)']);
-yticklabels(s1(1), in_label)
+ax = gca;
+ax.YTickLabel = in_label;
+% yticklabels(s1(1), in_label)
 ylim(s1(1), [1-0.5,par_iter+0.5])
 bdec1(1).FaceColor = [0.203, 0.592, 0.835]; bdec1(2).FaceColor = [0.835, 0.203, 0.576]; 
 binc1(1).FaceColor = [0.203, 0.592, 0.835]; binc1(2).FaceColor = [0.835, 0.203, 0.576];
@@ -282,7 +287,9 @@ s2(2).Position = s2(2).Position + [0.06, 0, 0.00, 0];
 bdec1 = barh(s2(1), [par_iter:-1:1], [X_m(out_ind(4),:,1)',X_f(out_ind(4),:,1)']);
 hold(s2(1), 'on')
 binc1 = barh(s2(1), [par_iter:-1:1], [X_m(out_ind(4),:,2)',X_f(out_ind(4),:,2)']);
-yticklabels(s2(1), in_label)
+ax = gca;
+ax.YTickLabel = in_label;
+% yticklabels(s2(1), in_label)
 ylim(s2(1), [1-0.5,par_iter+0.5])
 bdec1(1).FaceColor = [0.203, 0.592, 0.835]; bdec1(2).FaceColor = [0.835, 0.203, 0.576]; 
 binc1(1).FaceColor = [0.203, 0.592, 0.835]; binc1(2).FaceColor = [0.835, 0.203, 0.576];

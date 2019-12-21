@@ -29,11 +29,13 @@ addpath(genpath(mypath))
 % ACEi   - Angiotensin convernting enzyme inhibitor
 % AngII  - Ang II infusion
 scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-            'ACEi', 'AngII', ...
-            'Pri_Hyp'};
+            'ACEi', 'AngII'};
+% scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+%             'ACEi', 'AngII', ...
+%             'Pri_Hyp'};
 num_scen = length(scenario);
 % Index of scenario to plot for all variables
-fixed_ss = 8;
+fixed_ss = 1;
 
 % Species
 spe_ind = 2;
@@ -70,7 +72,7 @@ species = {'human'   , 'rat'     };
 sex     = {'male'    , 'female'  };
 change  = {'decrease', 'increase'};
 
-for sce_ind = fixed_ss:fixed_ss % scenario
+for sce_ind = 1:num_scen % scenario
 for sex_ind = 1:2        % sex
 for cha_ind = 1:2        % change
 
@@ -91,8 +93,8 @@ for iter = 1:iteration % range
 %% Parameters
 
 % Baseline/range of sodium intake.
-Phi_sodin_bl_m = 1.2212;
-Phi_sodin_bl_f = 1.2212;
+Phi_sodin_bl_m = 2.4424;
+Phi_sodin_bl_f = 2.4424;
 Phi_sodin_range_m = Phi_sodin_bl_m * iter_range;
 Phi_sodin_range_f = Phi_sodin_bl_f * iter_range;
 
@@ -244,7 +246,8 @@ f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-    f(i) = figure('pos',[750 500 650 450]);
+    f(i) = figure();
+%     f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
         last_plot = mod(num_vars, 15);
@@ -341,12 +344,26 @@ CADH_f = reshape(X_f(47,:,:), [2*iteration-1,num_scen]);
 BV_m   = reshape(X_m(30,:,:), [2*iteration-1,num_scen]);
 BV_f   = reshape(X_f(30,:,:), [2*iteration-1,num_scen]);
 % Plot as relative change in order to compare male and female.
-CSOD_m = CSOD_m ./ CSOD_m(iteration,:);
-CSOD_f = CSOD_f ./ CSOD_f(iteration,:);
-CADH_m = CADH_m ./ CADH_m(iteration,:);
-CADH_f = CADH_f ./ CADH_f(iteration,:);
-BV_m   = BV_m   ./ BV_m  (iteration,:);
-BV_f   = BV_f   ./ BV_f  (iteration,:);
+CSOD_m_bl = CSOD_m(iteration,:);
+CSOD_f_bl = CSOD_f(iteration,:);
+CADH_m_bl = CADH_m(iteration,:);
+CADH_f_bl = CADH_f(iteration,:);
+BV_m_bl   = BV_m  (iteration,:);
+BV_f_bl   = BV_f  (iteration,:);
+for i = 1:2*iteration-1
+    CSOD_m(i,:) = CSOD_m(i,:) ./ CSOD_m_bl;
+    CSOD_f(i,:) = CSOD_f(i,:) ./ CSOD_f_bl;
+    CADH_m(i,:) = CADH_m(i,:) ./ CADH_m_bl;
+    CADH_f(i,:) = CADH_f(i,:) ./ CADH_f_bl;
+    BV_m  (i,:) = BV_m  (i,:) ./ BV_m_bl  ;
+    BV_f  (i,:) = BV_f  (i,:) ./ BV_f_bl  ;
+end
+% CSOD_m = CSOD_m ./ CSOD_m(iteration,:);
+% CSOD_f = CSOD_f ./ CSOD_f(iteration,:);
+% CADH_m = CADH_m ./ CADH_m(iteration,:);
+% CADH_f = CADH_f ./ CADH_f(iteration,:);
+% BV_m   = BV_m   ./ BV_m  (iteration,:);
+% BV_f   = BV_f   ./ BV_f  (iteration,:);
 
 % Filtration fraction for sodium and urine for each sex and all scenarios.
 FRNA_m = reshape((X_m(11,:,:) - X_m(27,:,:)) ./ X_m(11,:,:), [2*iteration-1,num_scen]) * 100;
@@ -354,10 +371,20 @@ FRNA_f = reshape((X_f(11,:,:) - X_f(27,:,:)) ./ X_f(11,:,:), [2*iteration-1,num_
 FRW_m  = reshape((X_m( 7,:,:) - X_m(92,:,:)) ./ X_m( 7,:,:), [2*iteration-1,num_scen]) * 100;
 FRW_f  = reshape((X_f( 7,:,:) - X_f(92,:,:)) ./ X_f( 7,:,:), [2*iteration-1,num_scen]) * 100;
 % Plot as relative change in order to compare male and female.
-FRNA_m = FRNA_m ./ FRNA_m(iteration,:);
-FRNA_f = FRNA_f ./ FRNA_f(iteration,:);
-FRW_m  = FRW_m  ./ FRW_m (iteration,:);
-FRW_f  = FRW_f  ./ FRW_f (iteration,:);
+FRNA_m_bl = FRNA_m(iteration,:);
+FRNA_f_bl = FRNA_f(iteration,:);
+FRW_m_bl  = FRW_m (iteration,:);
+FRW_f_bl  = FRW_f (iteration,:);
+for i = 1:2*iteration-1
+    FRNA_m(i,:) = FRNA_m(i,:) ./ FRNA_m_bl;
+    FRNA_f(i,:) = FRNA_f(i,:) ./ FRNA_f_bl;
+    FRW_m(i,:)  = FRW_m(i,:)  ./ FRW_m_bl ;
+    FRW_f(i,:)  = FRW_f(i,:)  ./ FRW_f_bl ;
+end
+% FRNA_m = FRNA_m ./ FRNA_m(iteration,:);
+% FRNA_f = FRNA_f ./ FRNA_f(iteration,:);
+% FRW_m  = FRW_m  ./ FRW_m (iteration,:);
+% FRW_f  = FRW_f  ./ FRW_f (iteration,:);
 
 g(3) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
