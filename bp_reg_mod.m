@@ -687,9 +687,15 @@ f(76) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R
 % Psi_AT1REA
 f(77) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT1R_eq) );
 % Psi_AT2RAA
-psiat2raa_a = 0.8;
-psiat2raa_b = 1 - psiat2raa_a;
-psiat2raa_c = 0.19;
+if     strcmp(species, 'human')
+    psiat2raa_a = 0.9;
+    psiat2raa_b = 1 - psiat2raa_a;
+    psiat2raa_c = 1;
+elseif strcmp(species, 'rat')
+    psiat2raa_a = 0.8;
+    psiat2raa_b = 1 - psiat2raa_a;
+    psiat2raa_c = 0.19;
+end
 if     strcmp(sex,'male')
         f(78) = Psi_AT2RAA - ( 1 );
 elseif strcmp(sex,'female')
@@ -700,9 +706,15 @@ elseif strcmp(sex,'female')
     end
 end
 % Psi_AT2REA
-psiat2rea_a = 0.8;
-psiat2rea_b = 1 - psiat2rea_a;
-psiat2rea_c = 0.15;
+if     strcmp(species, 'human')
+    psiat2rea_a = 0.9;
+    psiat2rea_b = 1 - psiat2rea_a;
+    psiat2rea_c = 1;
+elseif strcmp(species, 'rat')
+    psiat2rea_a = 0.8;
+    psiat2rea_b = 1 - psiat2rea_a;
+    psiat2rea_c = 0.15;
+end
 if     strcmp(sex,'male')
         f(79) = Psi_AT2REA - ( 1 );
 elseif strcmp(sex,'female')
