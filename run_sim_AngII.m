@@ -405,7 +405,7 @@ plot(s_main(3), t,GFR_m (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'Line
 xlim(s_main(3), [xlower, xupper]);
 set(s_main(3), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(3), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
-ylim(s_main(3), [0.65,1.35])
+ylim(s_main(3), [0.75,1.35])
 xlabel(s_main(3), 'Time (days)'); ylabel(s_main(3), 'GFR (relative)');
 hold(s_main(3), 'on')
 plot(s_main(3), t,GFR_f (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -416,6 +416,7 @@ plot(s_main(4), t,BV_m  (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 'Line
 xlim(s_main(4), [xlower, xupper]);
 set(s_main(4), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
 set(s_main(4), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+ylim(s_main(4), [1,1.25])
 xlabel(s_main(4), 'Time (days)'); ylabel(s_main(4), 'BV (relative)');
 hold(s_main(4), 'on')
 plot(s_main(4), t,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -472,9 +473,9 @@ title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
-% save_data_name = sprintf('all_vars_AngII_inf.fig');
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f;f2;g;h';k], save_data_name)
+save_data_name = sprintf('all_vars_AngII_inf.fig');
+save_data_name = strcat('Figures/', save_data_name);
+savefig([f;f2;g;h';k], save_data_name)
 
 end
 

@@ -186,8 +186,8 @@ f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-    f(i) = figure();
-%     f(i) = figure('pos',[750 500 650 450]);
+%     f(i) = figure();
+    f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
         last_plot = mod(num_vars, 15);
@@ -219,11 +219,11 @@ end
 
 % Save figures.
 
-% if strcmp(scenario1{fixed_ss1}, 'Normal') && strcmp(scenario2{fixed_ss2}, 'Normal')
-%     save_data_name = sprintf('all_vars_baseline.fig');
-%     save_data_name = strcat('Figures/', save_data_name);
-%     savefig(f, save_data_name)
-% end
+if strcmp(scenario1{fixed_ss1}, 'Normal') && strcmp(scenario2{fixed_ss2}, 'Normal')
+    save_data_name = sprintf('all_vars_baseline.fig');
+    save_data_name = strcat('Figures/', save_data_name);
+    savefig(f, save_data_name)
+end
 
 end
 

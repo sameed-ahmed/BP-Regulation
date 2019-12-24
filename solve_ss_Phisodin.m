@@ -246,8 +246,8 @@ f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-    f(i) = figure();
-%     f(i) = figure('pos',[750 500 650 450]);
+%     f(i) = figure();
+    f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
         last_plot = mod(num_vars, 15);
@@ -313,7 +313,7 @@ xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 hold on
 plot(X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-legend('Male','Female', 'Location','Southeast')
+legend('Male','Female', 'Location','Northwest')
 hold off
 % ---
 % Convert from micro eq/min to m eq/day
@@ -422,7 +422,7 @@ plot(s_main(3), xscale,BV_m  (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(3), [lower, upper]);
 set(s_main(3), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(3), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-ylim(s_main(3), [0.97,1.03])
+ylim(s_main(3), [0.985,1.015])
 xlabel(s_main(3), 'Na^+ Intake (relative)'); ylabel(s_main(3), 'BV (relative)');
 hold(s_main(3), 'on')
 plot(s_main(3), xscale,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -540,9 +540,9 @@ title(s1(2), 'B', 'FontSize',14)
 
 % Save figures. -----------------------------------------------------------
 
-% save_data_name = sprintf('all_vars_vs_Phisodin.fig');
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f',f2,g,h,k], save_data_name)
+save_data_name = sprintf('all_vars_vs_Phisodin.fig');
+save_data_name = strcat('Figures/', save_data_name);
+savefig([f',f2,g,h,k], save_data_name)
 
 end
 
