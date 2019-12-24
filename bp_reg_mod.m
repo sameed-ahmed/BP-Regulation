@@ -687,23 +687,29 @@ f(76) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R
 % Psi_AT1REA
 f(77) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT1R_eq) );
 % Psi_AT2RAA
+psiat2raa_a = 0.8;
+psiat2raa_b = 1 - psiat2raa_a;
+psiat2raa_c = 0.19;
 if     strcmp(sex,'male')
         f(78) = Psi_AT2RAA - ( 1 );
 elseif strcmp(sex,'female')
     if   m_AT2R
         f(78) = Psi_AT2RAA - ( 1 );
     else
-        f(78) = Psi_AT2RAA - ( Psi_AT2RAA_eq * (0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1))) );
+        f(78) = Psi_AT2RAA - ( Psi_AT2RAA_eq * (psiat2raa_a + psiat2raa_b * exp(-psiat2raa_c * (AT2R/AT2R_eq - 1))) );
     end
 end
 % Psi_AT2REA
+psiat2rea_a = 0.8;
+psiat2rea_b = 1 - psiat2rea_a;
+psiat2rea_c = 0.15;
 if     strcmp(sex,'male')
         f(79) = Psi_AT2REA - ( 1 );
 elseif strcmp(sex,'female')
     if   m_AT2R
         f(79) = Psi_AT2REA - ( 1 );
     else
-        f(79) = Psi_AT2REA - ( Psi_AT2REA_eq * (0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1))) );
+        f(79) = Psi_AT2REA - ( Psi_AT2REA_eq * (psiat2rea_a + psiat2rea_b * exp(-psiat2rea_c * (AT2R/AT2R_eq - 1))) );
     end    
 end
 
