@@ -692,9 +692,9 @@ if     strcmp(species, 'human')
     psiat2raa_b = 1 - psiat2raa_a;
     psiat2raa_c = 1;
 elseif strcmp(species, 'rat')
-    psiat2raa_a = 0.8;
+    psiat2raa_a = 0.75;
     psiat2raa_b = 1 - psiat2raa_a;
-    psiat2raa_c = 0.19;
+    psiat2raa_c = 0.15;
 end
 if     strcmp(sex,'male')
         f(78) = Psi_AT2RAA - ( 1 );
