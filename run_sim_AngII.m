@@ -23,13 +23,13 @@ addpath(genpath(mypath))
 % m_RAS  - male RAS pars
 % m_Reab - male fractional sodium and water reabsorption
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
-scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-            'm_RSNA_m_Reab'};
 % scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-%             'm_RSNA_m_Reab', ...
-%             'Pri_Hyp'};
+%             'm_RSNA_m_Reab'};
+scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+            'm_RSNA_m_Reab', ...
+            'Pri_Hyp'};
 num_scen = length(scenario);
-fixed_ss = 1;
+fixed_ss = 7;
 
 % Species
 spe_ind = 2;
@@ -53,8 +53,8 @@ num_vars = 93;
 % X = (variables, points, sex, scenario)
 X = zeros(num_vars,N,2,num_scen);
 
-for sce_ind = 1:num_scen % scenario
-for sex_ind = 1:2        % sex
+for sce_ind = fixed_ss:fixed_ss % scenario
+for sex_ind = 1:1        % sex
 
 varargin_input = {scenario{sce_ind},true};
 
@@ -156,7 +156,7 @@ t = t';
 X_m = reshape(X(:,:,1,:), [num_vars,N,num_scen]); 
 X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]); 
 % X_m = X_f;
-% X_f = X_m;
+X_f = X_m;
 
 % x-axis limits
 xlower = t0; xupper = tend; 
@@ -251,20 +251,20 @@ xlh.Position(2) = xlh.Position(2) - 0.0005;
 
 % Plot Mean Arterial Pressure vs Time. ------------------------------------
 
-% Data from Sampson 2008. MAP is in difference from baseline.
-tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
-             7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
-MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
-             26.18,28.87,29.54,31.26,34.71,36.53,42.18];
-MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
-             13.91,17.31,17.04,18.37,19.63,23.23,24.42];
-% % Data from Sullivan 2010. MAP is in difference from baseline.
-% tdata     = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
-%              7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
-% MAPdata_m = [0   , -1.3, 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
-%              28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
-% MAPdata_f = [0   , 5.2 ,  5.3,  3.9,  3.6,  5.9,    8,   13, ...
-%              15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
+% % Data from Sampson 2008. MAP is in difference from baseline.
+% tdata     = [0+1  ,1+1  ,2+1  ,3+1  ,4+1  ,5+1  ,6+1  ,...
+%              7+1  ,8+1  ,9+1  ,10+1 ,11+1 ,12+1 ,13+1 ];
+% MAPdata_m = [0.035,7.218,18.33,19.48,17.76,14.59,19.58,...
+%              26.18,28.87,29.54,31.26,34.71,36.53,42.18];
+% MAPdata_f = [0.011,10.85,15.98,14.31,14.31,18.44,14.71,...
+%              13.91,17.31,17.04,18.37,19.63,23.23,24.42];
+% Data from Sullivan 2010. MAP is in difference from baseline.
+tdata     = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
+             7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
+MAPdata_m = [0   , -1.3, 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
+             28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
+MAPdata_f = [0   , 5.2 ,  5.3,  3.9,  3.6,  5.9,    8,   13, ...
+             15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
 
 % Substract MAP by baseline for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
@@ -471,11 +471,11 @@ xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'Fon
 % hAxes.XAxis.FontSize = 6;
 title(s1(2), 'B', 'FontSize',14)
 
-% Save figures. -----------------------------------------------------------
-
-save_data_name = sprintf('all_vars_AngII_inf.fig');
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f;f2;g;h';k], save_data_name)
+% % Save figures. -----------------------------------------------------------
+% 
+% save_data_name = sprintf('all_vars_AngII_inf.fig');
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f;f2;g;h';k], save_data_name)
 
 end
 
