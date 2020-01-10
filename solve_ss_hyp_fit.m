@@ -42,10 +42,10 @@ par_range_upper = [200;200;100;100;100;100]/100;
 var_ind = [42;33;6;7;92;27;52];
 var_num = length(var_ind);
 % Range for variables for each sex.
-var_range_lower_change_m = [40*100;5;5;5;5;5;2]/100;
-var_range_upper_change_m = [50*100;5;5;5;5;5;2]/100;
-var_range_lower_change_f = [30*100;5;5;5;5;5;2]/100;
-var_range_upper_change_f = [40*100;5;5;5;5;5;2]/100;
+var_range_lower_change_m = [40*100;10;10;10;10;10;5]/100;
+var_range_upper_change_m = [50*100;10;10;10;10;10;5]/100;
+var_range_lower_change_f = [30*100;10;10;10;10;10;5]/100;
+var_range_upper_change_f = [40*100;10;10;10;10;10;5]/100;
 
 % Scenarios
 % Normal - Normal conditions
@@ -171,13 +171,22 @@ A = []; b = []; Aeq = []; beq = []; nonlcon = [];
 % Lower and upper bounds for parameters in fmincon.
 lb = lower;
 ub = upper;
+
+% % Edit options for optimizer.
+% options1 = optimoptions('fmincon', 'Display','iter');
+% [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
+%     fmincon(@(pars_est) ...
+%             cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+%                      var_ind,var_range_lower,var_range_upper), ...
+%             pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options1); %#ok<ASGLU>
+
 % Edit options for optimizer.
-options1 = optimoptions('fmincon', 'Display','iter');
+options1 = optimoptions('ga', 'Display','iter');
 [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
-    fmincon(@(pars_est) ...
-            cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
-                     var_ind,var_range_lower,var_range_upper), ...
-            pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options1); %#ok<ASGLU>
+    ga(@(pars_est) ...
+       cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+                var_ind,var_range_lower,var_range_upper), ...
+       length(pars0_est),A,b,Aeq,beq,lb,ub,nonlcon,options1); %#ok<ASGLU>
 
 % Place estimated pars in proper location.
 pars = pars0;
@@ -358,7 +367,7 @@ AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ MAPdata(2:end).^2;
 AngII_MAP_err        = sqrt(sum(AngII_MAP_err)) / num_points;
 
 % Total error
-% alpha = 0.0; % beta  = 2.0;
+% alpha = 0.0; % beta  = 2.0 - alpha;
 tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
 % tot_err = (0.0*range_err + 2.0*AngII_MAP_err) / 2;
 % tot_err = AngII_MAP_err;
@@ -366,105 +375,62 @@ tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
 
 end
 
-% % -------------------------------------------------------------------------
-% % Ang II infusion error
-% % -------------------------------------------------------------------------
-% 
-% function AngII_MAP_err = run_sim_AngII(x0,x_p0,pars,pars_est,par_ind,varargin_input)
-% 
-% % Place estimated pars in proper location.
-% pars(par_ind) = pars_est;
-% 
-% %% Retrieve species and sex identifier. 
-% 
-% spe_par = pars(1);
-% sex_par = pars(2);
-% if     spe_par == 1
-%     species = 'human';
-% elseif spe_par == 0
-%     species = 'rat';
-% end
-% if     sex_par == 1
-%     sex = 'male';
-% elseif sex_par == 0
-%     sex = 'female';
-% end
-% 
-% %% Initialization, etc.
-% 
-% % Number of days to run simulation after change; Day at which to induce change;
-% days = 14; day_change = 1;
-% % Number of points for plotting resolution
-% N = ((days+1)*1440) / 2;
-% 
-% % Number of variables
-% num_vars = 93;
-% 
-% % Initialize variables.
-% % X = (variables, points)
-% X = zeros(num_vars,N);
-% 
-% %% Input drugs.
-% 
-% % Ang II inf rate fmol/(ml min)
-% if     strcmp(sex, 'male')
-% %     kappa_AngII = 2022; % Sampson 2008
-% %     kappa_AngII = 785; % Sullivan 2010
-%     kappa_AngII = 630; % Sullivan 2010
-% elseif strcmp(sex, 'female')
-% %     kappa_AngII = 2060; % Sampson 2008
-% %     kappa_AngII = 475; % Sullivan 2010
-%     kappa_AngII = 630; % Sullivan 2010
-% end
-% 
-% varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
-% 
-% %% Solve DAE.
-% 
-% % Time at which to keep steady state, change a parameter, etc.
-% tchange = day_change*1440;
-% 
-% % Initial time (min); Final time (min);
-% t0 = 0*1440; tend = tchange + days*1440;
-% 
-% % Time vector
-% tspan = linspace(t0,tend,N);
-% 
-% % ode options
-% options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
-% % Solve dae
-% [~,x] = ode15i(@(t,x,x_p) ...
-%                bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
-%                tspan, x0, x_p0, options);
-% 
-% % X = (variables, points)
-% X(:,:) = x';
-% 
-% %% Compute error.
-% 
-% % Data from Sullivan 2010. MAP is in difference from baseline.
-% tdata       = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
-%                7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1] * 1440;
-% if     strcmp(sex, 'male')
-%     MAPdata = [0   , 2.4 , 6   , 12.6, 19.2, 22  , 26.4, ...
-%                26.3, 32.3, 34.9, 34.6, 36.5, 41.1, 45.1, 44  ];
-% elseif strcmp(sex, 'female')
-%     MAPdata = [0   , 1.3 , 1.4 , 0   , -0.3, 2   , 4.1 , ...
-%                9.1 , 11.8, 13.5, 15.9, 19.8, 21.9, 19.6, 20.1];
-% end
-% num_points = length(tdata);
-% 
-% % Substract MAP by baseline.
-% % X = (variable, points)
-% MAP = X(42,tdata) - X(42,1);
-% 
-% % Error
-% AngII_MAP_err        = (MAP - MAPdata).^2;
-% AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ MAPdata(2:end).^2;
-% AngII_MAP_err        = sqrt(sum(AngII_MAP_err)) / num_points;
-% 
-% end
+% -------------------------------------------------------------------------
+% Nonlinear constraints
+% -------------------------------------------------------------------------
 
+function [c,ceq] = mycon(t,x0,x_p0,pars,pars_est,par_ind,tchange,varargin_input, ...
+                            var_ind,var_range_lower,var_range_upper)
+
+% Place estimated pars in proper location.
+pars(par_ind) = pars_est;
+
+%% Find steady state solution ---------------------------------------------
+
+options = optimset('Display','off');
+[SSdata  , ~, ...
+ exitflag, ~] = fsolve(@(x) ...
+                       bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
+                       x0, options);
+
+% Check for solver convergence.
+if exitflag == 0
+    tot_err = 1;
+    return
+end
+
+% Check for imaginary solution.
+if not (isreal(SSdata))
+    tot_err = 1;
+    return
+end
+
+% Set any values that are within machine precision of 0 equal to 0.
+for i = 1:length(SSdata)
+    if abs(SSdata(i)) < eps*100
+        SSdata(i) = 0;
+    end
+end
+
+% Compute error within range of specified variables.
+num_vars = length(var_ind);
+range_err = zeros(num_vars,1);
+for i = 1:num_vars
+    range_err(i) = max( ( (SSdata(var_ind(i)) - (var_range_lower(i) + var_range_upper(i))/2)^2 - ...
+                    (                     (var_range_upper(i) - var_range_lower(i))/2)^2 ) ...
+                  / SSdata(var_ind(i))^2, 0 );
+end
+
+% Range error
+range_err = sqrt(sum(range_err)) / num_vars;
+
+% Nonlinear inequalities at x.
+c = 0;
+
+% Nonlinear equalities at x.
+ceq = 0;
+
+end
 
 
 
