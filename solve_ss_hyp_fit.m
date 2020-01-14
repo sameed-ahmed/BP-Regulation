@@ -190,11 +190,13 @@ ub = upper;
 
 % Edit options for optimizer.
 options3 = optimoptions('simulannealbnd', 'Display','iter');
+tic
 [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
     simulannealbnd(@(pars_est) ...
                    cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
                             var_ind,var_range_lower,var_range_upper), ...
                    pars0_est,lb,ub,options3);
+opt_time = toc
 
 % Place estimated pars in proper location.
 pars = pars0;
@@ -222,7 +224,7 @@ save(save_data_name, 'SSdata', 'residual_ss', 'exitflag_ss', 'output_ss')
 save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'pars', 'residual_pars', 'exitflag_pars', 'output_pars')
+save(save_data_name, 'pars', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
 
 end % sex
 
