@@ -208,7 +208,7 @@ tic
 %                        'lb',lb,'ub',ub,'nonclon',nonclon,'options',options);
 % [pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(gs,problem);
 
-% % Edit options for optimizer. - ga
+% %% Edit options for optimizer. - ga
 % options = optimoptions('ga', 'Display','iter');
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     ga(@(pars_est) ...
