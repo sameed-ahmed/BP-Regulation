@@ -9,6 +9,8 @@
 
 function solve_ss_sen_anal
 
+tic
+
 close all
 
 % Add directory containing data.
@@ -316,9 +318,11 @@ title(s2(2), 'B')
 
 % Save figures ------------------------------------------------------------
 
-save_data_name = sprintf('quant_of_int_sen_anal.fig' );
+save_data_name = sprintf('quant_of_int_sen_analTEST.fig' );
 save_data_name = strcat('Figures/', save_data_name);
 savefig([f;g], save_data_name)
+
+toc
 
 end
 
