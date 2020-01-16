@@ -187,29 +187,29 @@ tic
 %                      var_ind,var_range_lower,var_range_upper), ...
 %             pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
 
-% Edit options for optimizer. - MultiStart
-opt_name = 'ms';
-options = optimoptions('fmincon', 'Display','iter');
-ms = MultiStart;
-problem = ...
-    createOptimProblem('fmincon','x0',pars0_est,...
-                       'objective',@(pars_est) ...
-                                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
-                                            var_ind,var_range_lower,var_range_upper), ...
-                       'lb',lb,'ub',ub,'nonlcon',nonlcon,'options',options);
-[pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(ms,problem,1);
-
-% % Edit options for optimizer. - GlobalSerach
-% opt_name = 'gs';
+% % Edit options for optimizer. - MultiStart
+% opt_name = 'ms';
 % options = optimoptions('fmincon', 'Display','iter');
-% gs = GlobalSearch;
+% ms = MultiStart;
 % problem = ...
 %     createOptimProblem('fmincon','x0',pars0_est,...
 %                        'objective',@(pars_est) ...
 %                                    cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
 %                                             var_ind,var_range_lower,var_range_upper), ...
 %                        'lb',lb,'ub',ub,'nonlcon',nonlcon,'options',options);
-% [pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(gs,problem);
+% [pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(ms,problem,1);
+
+% Edit options for optimizer. - GlobalSerach
+opt_name = 'gs';
+options = optimoptions('fmincon', 'Display','iter');
+gs = GlobalSearch;
+problem = ...
+    createOptimProblem('fmincon','x0',pars0_est,...
+                       'objective',@(pars_est) ...
+                                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+                                            var_ind,var_range_lower,var_range_upper), ...
+                       'lb',lb,'ub',ub,'nonlcon',nonlcon,'options',options);
+[pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(gs,problem);
 
 % %% Edit options for optimizer. - ga
 % opt_name = 'ga';
@@ -265,8 +265,11 @@ save(save_data_name, 'SSdata', 'residual_ss', 'exitflag_ss', 'output_ss')
 save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_%s.mat', ...
                          species{spe_ind},sex{sex_ind},opt_name);
 save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'pars', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
-% save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
+if opt_name = 'ms' || opt_name = 'gs'
+    save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
+else
+    save(save_data_name, 'pars',              'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
+end
 
 end % sex
 
