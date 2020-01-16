@@ -35,7 +35,7 @@ fixed_ss = 7;
 spe_ind = 2;
 
 % Number of days to run simulation after change; Day at which to induce change;
-days = 13; day_change = 1;
+days = 14; day_change = 1;
 % Number of points for plotting resolution
 N = ((days+1)*1440) / 2;
 
@@ -76,7 +76,7 @@ elseif strcmp(sex{sex_ind}, 'female')
     kappa_AngII = 630; % Sullivan 2010
 end
 
-varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
+varargin_input = [varargin_input, 'AngII',kappa_AngII];
 
 %% Solve DAE
 

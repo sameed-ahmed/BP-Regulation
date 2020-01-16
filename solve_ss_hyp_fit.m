@@ -42,10 +42,10 @@ par_range_upper = [200;200;100;100;100;100]/100;
 var_ind = [42;33;6;7;92;27;52];
 var_num = length(var_ind);
 % Range for variables for each sex.
-var_range_lower_change_m = [40*100;10;10;10;10;10;5]/100;
-var_range_upper_change_m = [50*100;10;10;10;10;10;5]/100;
-var_range_lower_change_f = [30*100;10;10;10;10;10;5]/100;
-var_range_upper_change_f = [40*100;10;10;10;10;10;5]/100;
+var_range_lower_change_m = [40*100;5;5;5;5;5;2]/100;
+var_range_upper_change_m = [50*100;5;5;5;5;5;2]/100;
+var_range_lower_change_f = [30*100;5;5;5;5;5;2]/100;
+var_range_upper_change_f = [40*100;5;5;5;5;5;2]/100;
 
 % Scenarios
 % Normal - Normal conditions
@@ -86,9 +86,11 @@ upper = pars0(par_ind) + par_range_upper .* pars0(par_ind);
 % drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
 if     strcmp(scenario{fixed_ss}, 'AngII')
     if     strcmp(sex{sex_ind}, 'male'  )
-        varargin_input = {'AngII',2022}; % Sampson 2008
+%         varargin_input = {'AngII',2022}; % Sampson 2008
+        varargin_input = {'AngII',630 }; % Sullivan 2010
     elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = {'AngII',2060}; % Sampson 2008
+%         varargin_input = {'AngII',2060}; % Sampson 2008
+        varargin_input = {'AngII',630 }; % Sullivan 2010
     end
 elseif strcmp(scenario{fixed_ss}, 'ACEi' )
         varargin_input = {'ACEi' ,0.78 }; % Leete 2018
@@ -167,35 +169,68 @@ pars0_est = ran_vec;
 % sex_par = pars0(2);
 
 % Place holders for fmincon.
-A = []; b = []; Aeq = []; beq = []; nonlcon = [];
+A = []; b = []; Aeq = []; beq = []; 
+% Nonlinear constraints.
+nonlcon = @(pars_est) mycon(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+                            var_ind,var_range_lower,var_range_upper);
 % Lower and upper bounds for parameters in fmincon.
 lb = lower;
 ub = upper;
 
-% % Edit options for optimizer.
-% options1 = optimoptions('fmincon', 'Display','iter');
+tic
+% % Edit options for optimizer. - fmincon
+% options = optimoptions('fmincon', 'Display','iter');
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     fmincon(@(pars_est) ...
 %             cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
 %                      var_ind,var_range_lower,var_range_upper), ...
-%             pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options1); % %#ok<ASGLU>
+%             pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
 
-% % Edit options for optimizer.
-% options1 = optimoptions('ga', 'Display','iter');
+% % Edit options for optimizer. - MultiStart
+% options = optimoptions('fmincon', 'Display','iter');
+% ms = MultiStart;
+% problem = ...
+%     createOptimProblem('fmincon','x0',pars0_est,...
+%                        'objective',@(pars_est) ...
+%                                    cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+%                                             var_ind,var_range_lower,var_range_upper), ...
+%                        'lb',lb,'ub',ub,'nonclon',nonclon,'options',options);
+% [pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(ms,problem,1);
+
+% % Edit options for optimizer. - GlobalSerach
+% options = optimoptions('fmincon', 'Display','iter');
+% gs = GlobalSearch;
+% problem = ...
+%     createOptimProblem('fmincon','x0',pars0_est,...
+%                        'objective',@(pars_est) ...
+%                                    cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+%                                             var_ind,var_range_lower,var_range_upper), ...
+%                        'lb',lb,'ub',ub,'nonclon',nonclon,'options',options);
+% [pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(gs,problem);
+
+% % Edit options for optimizer. - ga
+% options = optimoptions('ga', 'Display','iter');
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     ga(@(pars_est) ...
 %        cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
 %                 var_ind,var_range_lower,var_range_upper), ...
-%        length(pars0_est),A,b,Aeq,beq,lb,ub,nonlcon,options1); % %#ok<ASGLU>
+%        length(pars0_est),A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
 
-% Edit options for optimizer.
-options3 = optimoptions('simulannealbnd', 'Display','iter');
-tic
+% Edit options for optimizer. - pattersearch
+options = optimoptions('patternsearch', 'Display','iter');
 [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
-    simulannealbnd(@(pars_est) ...
-                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
-                            var_ind,var_range_lower,var_range_upper), ...
-                   pars0_est,lb,ub,options3);
+    patternsearch(@(pars_est) ...
+                  cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+                           var_ind,var_range_lower,var_range_upper), ...
+                  pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
+
+% % Edit options for optimizer. - simulannealbnd
+% options = optimoptions('simulannealbnd', 'Display','iter');
+% [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
+%     simulannealbnd(@(pars_est) ...
+%                    cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+%                             var_ind,var_range_lower,var_range_upper), ...
+%                    pars0_est,lb,ub,options);
 opt_time = toc
 
 % Place estimated pars in proper location.
@@ -225,6 +260,7 @@ save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'pars', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
+% save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
 
 end % sex
 
@@ -243,41 +279,41 @@ pars(par_ind) = pars_est;
 %% Find steady state solution ---------------------------------------------
 
 options = optimset('Display','off');
-[SSdata  , ~, ...
- exitflag, ~] = fsolve(@(x) ...
-                       bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
-                       x0, options);
+[SSdata, ~, ...
+      ~, ~] = fsolve(@(x) ...
+                     bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
+                     x0, options);
 
-% Check for solver convergence.
-if exitflag == 0
-    tot_err = 1;
-    return
-end
-
-% Check for imaginary solution.
-if not (isreal(SSdata))
-    tot_err = 1;
-    return
-end
-
-% Set any values that are within machine precision of 0 equal to 0.
-for i = 1:length(SSdata)
-    if abs(SSdata(i)) < eps*100
-        SSdata(i) = 0;
-    end
-end
-
-% Compute error within range of specified variables.
-num_vars = length(var_ind);
-range_err = zeros(num_vars,1);
-for i = 1:num_vars
-    range_err(i) = max( ( (SSdata(var_ind(i)) - (var_range_lower(i) + var_range_upper(i))/2)^2 - ...
-                    (                     (var_range_upper(i) - var_range_lower(i))/2)^2 ) ...
-                  / SSdata(var_ind(i))^2, 0 );
-end
-
-% Range error
-range_err = sqrt(sum(range_err)) / num_vars;
+% % Check for solver convergence.
+% if exitflag == 0
+%     tot_err = 1;
+%     return
+% end
+% 
+% % Check for imaginary solution.
+% if not (isreal(SSdata))
+%     tot_err = 1;
+%     return
+% end
+% 
+% % Set any values that are within machine precision of 0 equal to 0.
+% for i = 1:length(SSdata)
+%     if abs(SSdata(i)) < eps*100
+%         SSdata(i) = 0;
+%     end
+% end
+% 
+% % Compute error within range of specified variables.
+% num_vars = length(var_ind);
+% range_err = zeros(num_vars,1);
+% for i = 1:num_vars
+%     range_err(i) = max( ( (SSdata(var_ind(i)) - (var_range_lower(i) + var_range_upper(i))/2)^2 - ...
+%                     (                     (var_range_upper(i) - var_range_lower(i))/2)^2 ) ...
+%                   / SSdata(var_ind(i))^2, 0 );
+% end
+% 
+% % Range error
+% range_err = sqrt(sum(range_err)) / num_vars;
 
 %% Run Ang II infusion simulation. ----------------------------------------
 
@@ -322,7 +358,7 @@ elseif strcmp(sex, 'female')
     kappa_AngII = 630; % Sullivan 2010
 end
 
-varargin_input = {varargin_input{:}, 'AngII',kappa_AngII};
+varargin_input = [varargin_input, 'AngII',kappa_AngII];
 
 %% Solve DAE.
 
@@ -347,7 +383,7 @@ options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
 
 % Return if simulation crashed.
 if size(x,1) < N
-    tot_err = 1;
+    tot_err = 5;
     return
 end
 % X = (variables, points)
@@ -378,9 +414,9 @@ AngII_MAP_err        = sqrt(sum(AngII_MAP_err)) / num_points;
 
 % Total error
 % alpha = 0.0; % beta  = 2.0 - alpha;
-tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
+% tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
 % tot_err = (0.0*range_err + 2.0*AngII_MAP_err) / 2;
-% tot_err = AngII_MAP_err;
+tot_err = AngII_MAP_err;
 % tot_err = range_err;
 
 end
@@ -390,7 +426,7 @@ end
 % -------------------------------------------------------------------------
 
 function [c,ceq] = mycon(t,x0,x_p0,pars,pars_est,par_ind,tchange,varargin_input, ...
-                            var_ind,var_range_lower,var_range_upper)
+                         var_ind,var_range_lower,var_range_upper)
 
 % Place estimated pars in proper location.
 pars(par_ind) = pars_est;
@@ -405,40 +441,33 @@ options = optimset('Display','off');
 
 % Check for solver convergence.
 if exitflag == 0
-    tot_err = 1;
+    c = 1;
     return
 end
 
 % Check for imaginary solution.
 if not (isreal(SSdata))
-    tot_err = 1;
+    c = 1;
     return
 end
 
-% Set any values that are within machine precision of 0 equal to 0.
-for i = 1:length(SSdata)
-    if abs(SSdata(i)) < eps*100
-        SSdata(i) = 0;
-    end
-end
+% % Set any values that are within machine precision of 0 equal to 0.
+% for i = 1:length(SSdata)
+%     if abs(SSdata(i)) < eps*100
+%         SSdata(i) = 0;
+%     end
+% end
 
-% Compute error within range of specified variables.
+% Nonlinear inequalities.
 num_vars = length(var_ind);
-range_err = zeros(num_vars,1);
+c = zeros(2*num_vars,1);
 for i = 1:num_vars
-    range_err(i) = max( ( (SSdata(var_ind(i)) - (var_range_lower(i) + var_range_upper(i))/2)^2 - ...
-                    (                     (var_range_upper(i) - var_range_lower(i))/2)^2 ) ...
-                  / SSdata(var_ind(i))^2, 0 );
+    c(2*i-1) =    SSdata(var_ind(i)) - var_range_upper(i)  ;
+    c(2*i)   = -( SSdata(var_ind(i)) - var_range_lower(i) );
 end
 
-% Range error
-range_err = sqrt(sum(range_err)) / num_vars;
-
-% Nonlinear inequalities at x.
-c = 0;
-
-% Nonlinear equalities at x.
-ceq = 0;
+% Nonlinear equalities.
+ceq = [];
 
 end
 
