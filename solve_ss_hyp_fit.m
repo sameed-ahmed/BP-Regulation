@@ -265,7 +265,7 @@ save(save_data_name, 'SSdata', 'residual_ss', 'exitflag_ss', 'output_ss')
 save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_%s.mat', ...
                          species{spe_ind},sex{sex_ind},opt_name);
 save_data_name = strcat('Data/', save_data_name);
-if opt_name = 'ms' || opt_name = 'gs'
+if strcmp(opt_name, 'ms') || strcmp(opt_name, 'gs')
     save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
 else
     save(save_data_name, 'pars',              'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
