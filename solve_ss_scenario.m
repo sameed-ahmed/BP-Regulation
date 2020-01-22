@@ -29,8 +29,10 @@ addpath(genpath(mypath))
 % ARB   - Angiotensin receptor blocker
 scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
             'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
-            'AngII', 'ACEi', 'ARB'};
+            'AngII', 'ACEi', 'ARB', ...
+            'Pri_Hyp'};
 num_scen = length(scenario);
+fixed_scen = 11;
 
 % Species
 spe_ind = 2;
@@ -45,7 +47,7 @@ num_vars = 93;
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
-for sce_ind = 1:num_scen % scenario
+for sce_ind = fixed_scen:fixed_scen % scenario
 for sex_ind = 1:2        % sex
 
 %% Parameters
