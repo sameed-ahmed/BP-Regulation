@@ -37,7 +37,8 @@ spe_ind = 2;
 % Number of days to run simulation after change; Day at which to induce change;
 days = 14; day_change = 1;
 % Number of points for plotting resolution
-N = ((days+1)*1440) / 2;
+% N = ((days+1)*1440) / 2;
+N = (days+1)*10 + 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -135,12 +136,14 @@ t0 = 0*1440; tend = tchange + days*1440;
 tspan = linspace(t0,tend,N);
 
 % ode options
-options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
+options = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
 
+tic
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
                bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
                tspan, x0, x_p0, options);
+toc
 
 % X = (variables, points, sex, scenario)
 X(:,:,sex_ind,sce_ind) = x';
@@ -460,16 +463,16 @@ hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 title(s1(1), 'A', 'FontSize',14)
 
-bar(s1(2), scen_comp,MAP_comp,'k');
-% set(gca,'xticklabel',scen_comp_text);
-% xtickget = get(gca,'xticklabel');  
-% set(gca,'xticklabel',xtickget,'fontsize',6)
-% xtickangle(s1(2),90)
-% xlim(s1(2), [1-1,6+1])
-ylim(s1(2), [0,20])
-xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
-% hAxes.XAxis.FontSize = 6;
-title(s1(2), 'B', 'FontSize',14)
+% bar(s1(2), scen_comp,MAP_comp,'k');
+% % set(gca,'xticklabel',scen_comp_text);
+% % xtickget = get(gca,'xticklabel');  
+% % set(gca,'xticklabel',xtickget,'fontsize',6)
+% % xtickangle(s1(2),90)
+% % xlim(s1(2), [1-1,6+1])
+% ylim(s1(2), [0,20])
+% xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
+% % hAxes.XAxis.FontSize = 6;
+% title(s1(2), 'B', 'FontSize',14)
 
 % % Save figures. -----------------------------------------------------------
 % 

@@ -183,16 +183,16 @@ ub = upper;
 
 parpool
 tic
-% % Edit options for optimizer. - fmincon
-% opt_name = 'fm';
-% options = optimoptions('fmincon', 'Display','iter', 'UseParallel',true);
-% % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
-% %     fmincon(@(pars_est) ...
-% %             cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
-% %                      var_ind,var_range_lower,var_range_upper), ...
-% %             pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
+% Edit options for optimizer. - fmincon
+opt_name = 'fm';
+options = optimoptions('fmincon', 'Display','iter', 'UseParallel',true);
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
-%     fmincon(@cost_fun,pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
+%     fmincon(@(pars_est) ...
+%             cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+%                      var_ind,var_range_lower,var_range_upper), ...
+%             pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
+[pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
+    fmincon(@cost_fun,pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
 
 % % Edit options for optimizer. - MultiStart
 % opt_name = 'ms';
@@ -227,18 +227,18 @@ tic
 %                        'lb',lb,'ub',ub,'nonlcon',nonlcon,'options',options);
 % [pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(gs,problem);
 
-% Edit options for optimizer. - pattersearch
-opt_name = 'ps';
-% options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true);
-options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
-                       'UseParallel',true, 'UseVectorized',false);
+% % Edit options for optimizer. - pattersearch
+% opt_name = 'ps';
+% % options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true);
+% options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
+%                        'UseParallel',true, 'UseVectorized',false);
+% % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
+% %     patternsearch(@(pars_est) ...
+% %                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+% %                            var_ind,var_range_lower,var_range_upper), ...
+% %                   pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options);
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
-%     patternsearch(@(pars_est) ...
-%                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
-%                            var_ind,var_range_lower,var_range_upper), ...
-%                   pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options);
-[pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
-    patternsearch(@cost_fun,pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options);
+%     patternsearch(@cost_fun,pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options);
 
 % % Edit options for optimizer. - ga
 % opt_name = 'ga';
@@ -263,6 +263,13 @@ options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true
 %     simulannealbnd(@cost_fun,pars0_est,lb,ub,options);
 opt_time = toc
 delete(gcp)
+
+% % tic
+% test1 = cost_fun(pars0_est);
+% % toc1 = toc
+% % tic
+% test2 = mycon   (pars0_est);
+% % toc1 = toc
 
 % Place estimated pars in proper location.
 pars = pars0;
@@ -309,6 +316,7 @@ pars0(par_ind) = pars_est;
 
 %% Find steady state solution ---------------------------------------------
 
+% tic
 % Check if computation is necessary for SSdata.
 if ~isequal(pars_est,pars_est_last)
     options_ss = optimset('Display','off');
@@ -318,6 +326,7 @@ if ~isequal(pars_est,pars_est_last)
                x0, options_ss);
     pars_est_last = pars_est;
 end
+% toc1 = toc
 
 % % Check for solver convergence.
 % if exitflag == 0
@@ -371,7 +380,7 @@ end
 % Number of days to run simulation after change; Day at which to induce change;
 days = 14; day_change = 1;
 % Number of points for plotting resolution
-N = ((days+1)*1440) / 2;
+N = (days+1)*1 + 1;
 
 % % Number of variables
 % num_vars = 93;
@@ -410,11 +419,13 @@ tspan = linspace(t0,tend,N);
 x0_angII = SSdata_iter;
 
 % ode options
-options_dae = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
+options_dae = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
+% tic
 % Solve dae
 [~,x] = ode15i(@(t,x,x_p) ...
                bp_reg_mod(t,x,x_p,pars0,tchange_angII,varargin_input_angII{:}), ...
                tspan, x0_angII, x_p0, options_dae);
+% toc2 = toc
 
 % Return if simulation crashed.
 if size(x,1) < N
@@ -428,7 +439,7 @@ X(:,:) = x';
 
 % Data from Sullivan 2010. MAP is in difference from baseline.
 tdata       = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
-               7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1] * 1440;
+               7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1]*1 + 1;
 if     strcmp(sex{sex_ind}, 'male'  )
     MAPdata = [0   , 1.1 , 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
                28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
@@ -438,14 +449,17 @@ elseif strcmp(sex{sex_ind}, 'female')
 end
 num_points = length(tdata);
 
+% tic
 % Substract MAP by baseline.
 % X = (variable, points)
-MAP = X(42,tdata/2) - X(42,1);
+MAP = X(42,tdata) - X(42,1);
 
 % Ang II inf error
 AngII_MAP_err        = (MAP - MAPdata).^2;
 AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ MAPdata(2:end).^2;
-AngII_MAP_err        = sqrt(sum(AngII_MAP_err)) / num_points;
+% AngII_MAP_err        = sqrt(sum(AngII_MAP_err(8:end)) / (num_points-7));
+AngII_MAP_err        = sqrt(mean(AngII_MAP_err(8:end)));
+% toc3 = toc
 
 % Total error
 % alpha = 0.0; % beta  = 2.0 - alpha;
@@ -467,6 +481,7 @@ pars0(par_ind) = pars_est;
 
 %% Find steady state solution ---------------------------------------------
 
+% tic
 % Check if computation is necessary for SSdata.
 if ~isequal(pars_est,pars_est_last)
     options_ss = optimset('Display','off');
@@ -474,7 +489,7 @@ if ~isequal(pars_est,pars_est_last)
         fsolve(@(x) ...
                bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
                x0, options_ss);
-           pars_est_last = pars_est;
+    pars_est_last = pars_est;
            
     % Check for solver convergence.
     if exitflag == 0
@@ -488,6 +503,7 @@ if ~isequal(pars_est,pars_est_last)
         return
     end
 end
+% toc1 = toc
 
 % % Set any values that are within machine precision of 0 equal to 0.
 % for i = 1:length(SSdata)
@@ -496,6 +512,7 @@ end
 %     end
 % end
 
+% tic
 % Nonlinear inequalities.
 % num_vars_check = length(var_ind);
 c = zeros(2*num_vars_check,1);
@@ -503,6 +520,7 @@ for i = 1:num_vars_check
     c(2*i-1) =    SSdata_iter(var_ind(i)) - var_range_upper(i)  ;
     c(2*i)   = -( SSdata_iter(var_ind(i)) - var_range_lower(i) );
 end
+% toc2 = toc
 
 % Nonlinear equalities.
 ceq = [];
