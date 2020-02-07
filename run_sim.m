@@ -26,14 +26,14 @@ scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
              'Pri_Hyp'};
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB'};
-fixed_ss1 = 8;
+fixed_ss1 = 1;
 fixed_ss2 = 1;
 
 % Species
 spe_ind = 2;
 
 % Number of days to run simulation after change; Day at which to induce change;
-days = 1; day_change = 1;
+days = 10; day_change = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -64,6 +64,7 @@ load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
 load(load_data_name, 'SSdata');
 
 varargin_input = {scenario1{fixed_ss1},true};
+varargin_input = [varargin_input, 'Control Water Intake',{{true, SSdata(93)}}];
 
 %% Parameters
 
@@ -186,8 +187,8 @@ f = gobjects(7,1);
 s = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-    f(i) = figure();
-%     f(i) = figure('pos',[750 500 650 450]);
+%     f(i) = figure();
+    f(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
         last_plot = mod(num_vars, 15);

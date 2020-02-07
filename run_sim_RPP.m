@@ -23,8 +23,8 @@ num_per = length(RPP_per);
 
 % Scenarios
 % Denerve - cut off rsna from kidney
-scenario = {'Normal'};
-% scenario = {'Pri_Hyp'};
+% scenario = {'Normal'};
+scenario = {'Pri_Hyp'};
 num_scen = length(scenario);
 
 % Number of points for plotting resolution
@@ -78,6 +78,7 @@ load(load_data_name, 'SSdata');
 
 varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, scenario{sce_ind},true, ...
                   'Denerve',{true, SSdata}, 'Fixed Water Intake',{true, SSdata}};
+varargin_input
 
 %% Parameters
 
@@ -296,8 +297,8 @@ s_rel1(3) = subplot(2,2,3);
 s_rel1(4) = subplot(2,2,4); 
 
 plot(s_rel1(1), RPP_m,RBF_rel_m     (:,exact_scen) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s_rel1(1), [75,125]); set(s_rel1(1),'XTick', [80,100,120]);
-ylim(s_rel1(1), [0.6,1.2])
+% xlim(s_rel1(1), [75,125]); set(s_rel1(1),'XTick', [80,100,120]);
+% ylim(s_rel1(1), [0.6,1.2])
 xlabel(s_rel1(1), 'RPP (mmHg)'); ylabel(s_rel1(1), 'RBF (relative)');
 hold(s_rel1(1), 'on')
 plot(s_rel1(1), RPP_m,RBFdata_rel_m (:,2         ) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
@@ -310,8 +311,8 @@ set(hl,'LineWidth',1.5);
 title(s_rel1(1), 'A')
 
 plot(s_rel1(2), RPP_m,GFR_rel_m     (:,exact_scen) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s_rel1(2), [75,125]); set(s_rel1(2),'XTick', [80,100,120]);
-ylim(s_rel1(2), [0.6,1.2])
+% xlim(s_rel1(2), [75,125]); set(s_rel1(2),'XTick', [80,100,120]);
+% ylim(s_rel1(2), [0.6,1.2])
 xlabel(s_rel1(2), 'RPP (mmHg)'); ylabel(s_rel1(2), 'GFR (relative)');
 hold(s_rel1(2), 'on')
 plot(s_rel1(2), RPP_m,GFRdata_rel_m (:,2         ) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
@@ -321,8 +322,8 @@ hold(s_rel1(2), 'off')
 title(s_rel1(2), 'B')
 
 plot(s_rel1(3), RPP_m,UF_rel_m      (:,exact_scen) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s_rel1(3), [75,125]); set(s_rel1(3),'XTick', [80,100,120]);
-ylim(s_rel1(3), [0.0,3.5])
+% xlim(s_rel1(3), [75,125]); set(s_rel1(3),'XTick', [80,100,120]);
+% ylim(s_rel1(3), [0.0,3.5])
 xlabel(s_rel1(3), 'RPP (mmHg)'); ylabel(s_rel1(3), 'UF (relative)');
 hold(s_rel1(3), 'on')
 plot(s_rel1(3), RPP_m,UFdata_rel_m  (:,2         ) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
@@ -332,8 +333,8 @@ hold(s_rel1(3), 'off')
 title(s_rel1(3), 'C')
 
 plot(s_rel1(4), RPP_m,USOD_rel_m    (:,exact_scen) ,'x-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-xlim(s_rel1(4), [75,125]); set(s_rel1(4),'XTick', [80,100,120]);
-ylim(s_rel1(4), [0.0,3.5])
+% xlim(s_rel1(4), [75,125]); set(s_rel1(4),'XTick', [80,100,120]);
+% ylim(s_rel1(4), [0.0,3.5])
 xlabel(s_rel1(4), 'RPP (mmHg)'); ylabel(s_rel1(4), 'USOD (relative)');
 hold(s_rel1(4), 'on')
 plot(s_rel1(4), RPP_m,USODdata_rel_m(:,2         ) ,'o--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
@@ -342,11 +343,11 @@ plot(s_rel1(4), RPP_f,USODdata_rel_f(:,2         ) ,'o--', 'Color',[0.835, 0.203
 hold(s_rel1(4), 'off')
 title(s_rel1(4), 'D')
 
-% Save figures. -----------------------------------------------------------
-
-save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
-save_data_name = strcat('Figures/', save_data_name);
-savefig(h, save_data_name)
+% % Save figures. -----------------------------------------------------------
+% 
+% save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig(h, save_data_name)
 
 end
 

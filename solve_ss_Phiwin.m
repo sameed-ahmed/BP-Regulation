@@ -7,7 +7,7 @@
 % 
 % All variables are then plotted versus the relative change in input.
 
-function solve_ss_Phisodin
+function solve_ss_Phiwin
 
 close all
 
@@ -41,7 +41,7 @@ fixed_ss = 1;
 spe_ind = 2;
 
 % Number of iterations below/above baseline.
-iteration = 51; % must be odd number for symmetry
+iteration = 101; % must be odd number for symmetry
 % Fold decrease/increase.
 lower = 1/5; upper = 5;
 
@@ -77,6 +77,7 @@ for sex_ind = 1:1        % sex
 for cha_ind = 1:2        % change
 
 varargin_input = {scenario{sce_ind},true};
+varargin_input = [varargin_input, 'Control Water Intake',{{true, 0}}];
 
 % Parameter input
 pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
@@ -89,6 +90,8 @@ SSdataIG     = SSdata;
 clear SSdata;
 
 % Baseline/range of sodium intake.
+Phi_win_bl = SSdataIG(93);
+Phi_win_range = Phi_win_bl * iter_range;
 Phi_sodin_bl = pars(17);
 Phi_sodin_range = Phi_sodin_bl * iter_range;
 
@@ -98,11 +101,18 @@ for iter = 1:iteration % range
 
 % Vary sodium intake.
 if     strcmp(change{cha_ind}, 'decrease')
+    Phi_win   = Phi_win_range  (iteration-iter+1);
     Phi_sodin = Phi_sodin_range(iteration-iter+1);
 elseif strcmp(change{cha_ind}, 'increase')
+    Phi_win   = Phi_win_range  (iteration+iter-1);
     Phi_sodin = Phi_sodin_range(iteration+iter-1);
 end
-pars(17) = Phi_sodin;
+SSdataIG(93) = Phi_win;
+pars(17)     = Phi_sodin;
+
+
+% Replace inputed controled water intake as optional parameter.
+varargin_input{4}{2} = Phi_win;
 
 %% Drugs
 
@@ -309,11 +319,11 @@ legend('Male','Female', 'Location','Northwest')
 hold off
 % ---
 % Convert from micro eq/min to m eq/day
-Phi_sodin_range = Phi_sodin_range * (1/1000) * (60*24/1);
+Phi_win_range = Phi_win_range * (1/1000) * (60*24/1);
 
 g(2) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
-plot(X_m(42,:,fixed_ss),Phi_sodin_range,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+plot(X_m(42,:,fixed_ss),Phi_win_range,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 % xlim([80, 120])
 % ylim([lower, upper])
 ax = gca;
@@ -321,7 +331,7 @@ ax = gca;
 xlabel('MAP (mmHg)')
 ylabel({'Sodium excretion (\mu eq/min)'})
 hold on
-plot(X_f(42,:,fixed_ss),Phi_sodin_range,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+plot(X_f(42,:,fixed_ss),Phi_win_range,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 legend('Male','Female', 'Location','Northwest')
 hold off
 

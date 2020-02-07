@@ -75,6 +75,7 @@ imp_Myo_ind = false; % Boolean for having impaired myogenic response.
 
 % Water intake
 fix_win     = false; % Boolean for fixing water intake.
+con_win     = false; % Boolean for controling water intake.
 low_win_ind = false; % Boolean for having low water intake.
 
 % Sex specific mechanisms
@@ -125,6 +126,9 @@ for i = 1:2:length(varargin)
     elseif strcmp(varargin{i},'Fixed Water Intake')
         fix_win     = varargin{i + 1}{1};
         SSdata_fix  = varargin{i + 1}{2};
+    elseif strcmp(varargin{i},'Control Water Intake')
+        con_win     = varargin{i + 1}{1};
+        Phi_win_con = varargin{i + 1}{2};
     elseif strcmp(varargin{i},'Low Water Intake')
         low_win_ind = varargin{i+1};
         
@@ -144,6 +148,57 @@ if RPP_ind
         RPP = RPP_per * tanh(5 * (t-tchange)) + SSdata_fix(42);
     end
 end
+
+% Control water intake
+% if con_win
+%     if     t <  tchange
+%         Phi_win_con = Phi_win_con;
+%     elseif t >= tchange && t < 2*tchange
+%         Phi_win_con = (Phi_win_con*(1.2-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 2*tchange && t < 3*tchange
+%         Phi_win_con = (Phi_win_con*(1.3-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 3*tchange && t < 4*tchange
+%         Phi_win_con = (Phi_win_con*(1.4-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 4*tchange && t < 5*tchange
+%         Phi_win_con = (Phi_win_con*(1.45-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 5*tchange && t < 6*tchange
+%         Phi_win_con = (Phi_win_con*(1.50-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 6*tchange && t < 7*tchange
+%         Phi_win_con = (Phi_win_con*(1.52-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 7*tchange && t < 8*tchange
+%         Phi_win_con = (Phi_win_con*(1.54-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 8*tchange && t < 9*tchange
+%         Phi_win_con = (Phi_win_con*(1.55-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 9*tchange && t < 10*tchange
+%         Phi_win_con = (Phi_win_con*(1.56-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 10*tchange && t < 11*tchange
+%         Phi_win_con = (Phi_win_con*(1.57-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 11*tchange && t < 12*tchange
+%         Phi_win_con = (Phi_win_con*(1.58-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 12*tchange && t < 13*tchange
+%         Phi_win_con = (Phi_win_con*(1.59-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 13*tchange && t < 14*tchange
+%         Phi_win_con = (Phi_win_con*(1.60-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 14*tchange && t < 15*tchange
+%         Phi_win_con = (Phi_win_con*(1.61-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 15*tchange && t < 16*tchange
+%         Phi_win_con = (Phi_win_con*(1.62-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     elseif t >= 16*tchange 
+%         Phi_win_con = (Phi_win_con*(1.63-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     end
+% end
+
+% if con_win
+%     if     t <  tchange
+%         Phi_win_con = Phi_win_con;
+%     elseif t >= tchange %&& t < 5*tchange
+%         alpha = 3;
+%         Phi_win_con = (Phi_win_con*(alpha-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%         pars(17)    = (pars(17)   *(alpha-1)) * tanh(5 * (t-tchange)) + pars(17);
+% %     elseif t >= 5*tchange %&& t < 3*tchange
+% %         Phi_win_con = (Phi_win_con*(1.7-1)) * tanh(5 * (t-tchange)) + Phi_win_con;
+%     end
+% end
 
 % Drugs
 deltat = 30; % minutes over which to continuously increase drug dose
@@ -777,6 +832,8 @@ elseif strcmp(species, 'rat')
     % Phi_win
     if     fix_win
         f(93) = Phi_win - ( SSdata_fix(93) );
+    elseif con_win
+        f(93) = Phi_win - ( Phi_win_con );
     else
         phiwin_a = 0.8; phiwin_c = 0.002313;
         phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.030 - 1);
