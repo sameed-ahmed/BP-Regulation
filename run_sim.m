@@ -26,7 +26,7 @@ scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
              'Pri_Hyp'};
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB'};
-fixed_ss1 = 1;
+fixed_ss1 = 8;
 fixed_ss2 = 1;
 
 % Species
@@ -49,7 +49,7 @@ num_vars = 93;
 X = cell(1,2);
 T = cell(1,2);
 
-for sex_ind = 1:1 % sex
+for sex_ind = 1:2 % sex
 
 % Initial value
 % This initial condition is the steady state data value taken from
@@ -64,7 +64,7 @@ load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
 load(load_data_name, 'SSdata');
 
 varargin_input = {scenario1{fixed_ss1},true};
-varargin_input = [varargin_input, 'Control Water Intake',{{true, SSdata(93)}}];
+% varargin_input = [varargin_input, 'Control Water Intake',{{true, SSdata(93)}}];
 
 %% Parameters
 
@@ -146,7 +146,7 @@ t0 = 0*1440; tend = tchange + days*1440;
 tspan = [t0, tend];
 
 % ode options
-options = odeset('MaxStep',1); % default is 0.1*abs(t0-tf)
+options = odeset('MaxStep',100); % default is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
@@ -163,7 +163,7 @@ end % sex
 % Retrieve male and female.
 t_m = T{1}; X_m = X{1}; 
 t_f = T{2}; X_f = X{2}; 
-t_f = t_m; X_f = X_m;
+% t_f = t_m; X_f = X_m;
 % t_m = t_f; X_m = X_f;
 
 % x-axis limits

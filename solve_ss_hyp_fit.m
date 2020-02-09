@@ -68,7 +68,8 @@ num_vars = 93; num_pars = 46; % + SF + fixed_var_pars + SSdata
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
-for sex_ind = 1:1 % sex
+parpool
+for sex_ind = 1:2 % sex
 
 %% Parameters
 
@@ -181,7 +182,6 @@ nonlcon = @mycon;
 lb = lower;
 ub = upper;
 
-parpool
 tic
 % % Edit options for optimizer. - fmincon
 % opt_name = 'fm';
@@ -194,23 +194,23 @@ tic
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     fmincon(@cost_fun,pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options); % %#ok<ASGLU>
 
-% Edit options for optimizer. - MultiStart
-opt_name = 'ms';
-N_ms = 5;
-options = optimoptions('fmincon', 'Display','iter', 'UseParallel',true);
-ms = MultiStart;
-% options = optimoptions('fmincon', 'Display','iter');
-% ms = MultiStart('UseParallel',true);
+% % Edit options for optimizer. - MultiStart
+% opt_name = 'ms';
+% N_ms = 5;
+% options = optimoptions('fmincon', 'Display','iter', 'UseParallel',true);
+% ms = MultiStart;
+% % options = optimoptions('fmincon', 'Display','iter');
+% % ms = MultiStart('UseParallel',true);
+% % problem = ...
+% %     createOptimProblem('fmincon','x0',pars0_est,...
+% %                        'objective',@(pars_est) ...
+% %                                    cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+% %                                             var_ind,var_range_lower,var_range_upper), ...
+% %                        'lb',lb,'ub',ub,'nonlcon',nonlcon,'options',options);
 % problem = ...
-%     createOptimProblem('fmincon','x0',pars0_est,...
-%                        'objective',@(pars_est) ...
-%                                    cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
-%                                             var_ind,var_range_lower,var_range_upper), ...
+%     createOptimProblem('fmincon', 'x0',pars0_est, 'objective',@cost_fun, ...
 %                        'lb',lb,'ub',ub,'nonlcon',nonlcon,'options',options);
-problem = ...
-    createOptimProblem('fmincon', 'x0',pars0_est, 'objective',@cost_fun, ...
-                       'lb',lb,'ub',ub,'nonlcon',nonlcon,'options',options);
-[pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(ms,problem,N_ms);
+% [pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(ms,problem,N_ms);
 
 % % Edit options for optimizer. - GlobalSerach
 % opt_name = 'gs';
@@ -228,18 +228,18 @@ problem = ...
 %                        'lb',lb,'ub',ub,'nonlcon',nonlcon,'options',options);
 % [pars_est_min, residual_pars, exitflag_pars, output_pars, solutions] = run(gs,problem);
 
-% % Edit options for optimizer. - pattersearch
-% opt_name = 'ps';
-% % options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true);
-% options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
-%                        'UseParallel',true, 'UseVectorized',false);
-% % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
-% %     patternsearch(@(pars_est) ...
-% %                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
-% %                            var_ind,var_range_lower,var_range_upper), ...
-% %                   pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options);
+% Edit options for optimizer. - pattersearch
+opt_name = 'ps';
+% options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true);
+options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
+                       'UseParallel',true, 'UseVectorized',false);
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
-%     patternsearch(@cost_fun,pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options);
+%     patternsearch(@(pars_est) ...
+%                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
+%                            var_ind,var_range_lower,var_range_upper), ...
+%                   pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options);
+[pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
+    patternsearch(@cost_fun,pars0_est,A,b,Aeq,beq,lb,ub,nonlcon,options);
 
 % % Edit options for optimizer. - ga
 % opt_name = 'ga';
@@ -263,7 +263,6 @@ problem = ...
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     simulannealbnd(@cost_fun,pars0_est,lb,ub,options);
 opt_time = toc
-delete(gcp)
 
 % % tic
 % test1 = cost_fun(pars0_est);
@@ -290,8 +289,10 @@ options2 = optimset();
 %% Save values.
 
 % Steady state data
-save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},opt_name);
+% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_%s.mat', ...
+%                          species{spe_ind},sex{sex_ind},opt_name);
+save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp.mat', ...
+                         species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual_ss', 'exitflag_ss', 'output_ss')
 % Parameters
@@ -305,12 +306,29 @@ else
 end
 
 end % sex
+delete(gcp)
 
 % -------------------------------------------------------------------------
 % Cost function
 % -------------------------------------------------------------------------
 
 function tot_err = cost_fun(pars_est)
+
+% Total error
+% alpha = 0.0; % beta  = 2.0 - alpha;
+% tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
+% tot_err = (0.0*range_err + 2.0*AngII_MAP_err) / 2;
+% tot_err = AngII_err(pars_est);
+% tot_err = range_err;
+tot_err = (AngII_err(pars_est) + Sodin_err(pars_est)) / 2;
+
+end % tot err
+
+% -------------------------------------------------------------------------
+% Ang II inf error
+% -------------------------------------------------------------------------
+
+function err = AngII_err(pars_est)
 
 % Place estimated pars in proper location.
 pars0(par_ind) = pars_est;
@@ -430,7 +448,7 @@ options_dae = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
 
 % Return if simulation crashed.
 if size(x,1) < N
-    tot_err = 5;
+    err = 5;
     return
 end
 % X = (variables, points)
@@ -462,14 +480,87 @@ AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ MAPdata(2:end).^2;
 AngII_MAP_err        = sqrt(mean(AngII_MAP_err(8:end)));
 % toc3 = toc
 
-% Total error
+% Error
 % alpha = 0.0; % beta  = 2.0 - alpha;
 % tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
 % tot_err = (0.0*range_err + 2.0*AngII_MAP_err) / 2;
-tot_err = AngII_MAP_err;
+err = AngII_MAP_err;
 % tot_err = range_err;
 
-end % tot_err
+end % Ang II err
+
+function err = Sodin_err(pars_est)
+
+% Place estimated pars in proper location.
+pars0(par_ind) = pars_est;
+
+% 4-fold increase in sodium intake.
+pars_sodin = pars0;
+pars_sodin(17) = 4 * pars_sodin(17);
+
+%% Find steady state solution ---------------------------------------------
+
+% tic
+% Check if computation is necessary for baseine SSdata.
+if ~isequal(pars_est,pars_est_last)
+    options_ss = optimset('Display','off');
+    [SSdata_iter, ~, ~, ~] = ...
+        fsolve(@(x) ...
+               bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
+               x0, options_ss);
+    pars_est_last = pars_est;
+end
+% toc1 = toc
+
+% tic
+% Compute SSdata for increased sodium intake.
+options_ss = optimset('Display','off');
+[SSdata_sodin, ~, exitflag, ~] = ...
+    fsolve(@(x) ...
+           bp_reg_mod(t,x,x_p0,pars_sodin,tchange,varargin_input{:}), ...
+           x0, options_ss);
+
+% Check for solver convergence.
+if exitflag == 0
+    err = 5;
+    return
+end
+
+% Check for imaginary solution.
+if not (isreal(SSdata_sodin))
+    err = 5;
+    return
+end
+% toc2 = toc
+
+%% Compute error.
+
+% Data from several sources. See 'change in MAP.xlsx'.
+if     strcmp(sex{sex_ind}, 'male'  )
+%     MAPdata = [15,25];
+%     MAPdata = [0,100];
+    MAPdata = 20;
+elseif strcmp(sex{sex_ind}, 'female')
+%     MAPdata = [ 5,10];
+%     MAPdata = [0,100];
+    MAPdata = 7;
+end
+
+% tic
+% Substract MAP by baseline.
+% X = (variable, points)
+MAP = SSdata_sodin(42) - SSdata_iter(42);
+
+% Sodin error
+% err = max( ( (MAP - (MAPdata(1) + MAPdata(2))/2)^2 -  ...
+%              (      (MAPdata(2) - MAPdata(1))/2)^2 ), ...
+%          0 );
+% err = err / MAP^2;
+% err = sqrt(err);
+err = abs(MAP - MAPdata) / MAPdata;
+% toc3 = toc
+
+end % Sodin err
 
 % -------------------------------------------------------------------------
 % Nonlinear constraints

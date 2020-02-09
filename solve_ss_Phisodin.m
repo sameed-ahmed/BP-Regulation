@@ -35,15 +35,15 @@ scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
             'Pri_Hyp'};
 num_scen = length(scenario);
 % Index of scenario to plot for all variables
-fixed_ss = 1;
+fixed_ss = 8;
 
 % Species
 spe_ind = 2;
 
 % Number of iterations below/above baseline.
-iteration = 51; % must be odd number for symmetry
+iteration = 11; % must be odd number for symmetry
 % Fold decrease/increase.
-lower = 1/5; upper = 5;
+lower = 1/4; upper = 4;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -73,7 +73,7 @@ sex     = {'male'    , 'female'  };
 change  = {'decrease', 'increase'};
 
 for sce_ind = fixed_ss:fixed_ss % scenario
-for sex_ind = 1:1        % sex
+for sex_ind = 1:2        % sex
 for cha_ind = 1:2        % change
 
 varargin_input = {scenario{sce_ind},true};
@@ -211,7 +211,8 @@ X_m(:,:,sce_ind) = X(:,:,1,sce_ind); X_f(:,:,sce_ind) = X(:,:,2,sce_ind);
 
 end % scenario
 
-X_f = X_m;
+% X_m = X_f;
+% X_f = X_m;
 
 % x-axis
 xscale = iter_range;

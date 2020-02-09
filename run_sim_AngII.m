@@ -55,7 +55,7 @@ num_vars = 93;
 X = zeros(num_vars,N,2,num_scen);
 
 for sce_ind = fixed_ss:fixed_ss % scenario
-for sex_ind = 1:1        % sex
+for sex_ind = 1:2        % sex
 
 varargin_input = {scenario{sce_ind},true};
 
@@ -159,7 +159,7 @@ t = t';
 X_m = reshape(X(:,:,1,:), [num_vars,N,num_scen]); 
 X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]); 
 % X_m = X_f;
-X_f = X_m;
+% X_f = X_m;
 
 % x-axis limits
 xlower = t0; xupper = tend; 

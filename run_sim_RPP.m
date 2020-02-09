@@ -78,7 +78,6 @@ load(load_data_name, 'SSdata');
 
 varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, scenario{sce_ind},true, ...
                   'Denerve',{true, SSdata}, 'Fixed Water Intake',{true, SSdata}};
-varargin_input
 
 %% Parameters
 
