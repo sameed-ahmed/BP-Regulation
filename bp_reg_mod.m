@@ -200,6 +200,15 @@ end
 %     end
 % end
 
+% if     t <  tchange
+%     
+% elseif t >= tchange %&& t < 2*tchange
+%     alpha = 8;
+%     pars(17) = (pars(17)   *(alpha-1)) * tanh(5 * (t-tchange)) + pars(17);
+% % elseif t >= 2*tchange %&& t < 3*tchange
+% %     pars(17) = (pars(17)   *(alpha+1-1)) * tanh(5 * (t-tchange)) + pars(17);
+% end
+
 % Drugs
 deltat = 30; % minutes over which to continuously increase drug dose
 if     t < tchange
@@ -835,7 +844,10 @@ elseif strcmp(species, 'rat')
     elseif con_win
         f(93) = Phi_win - ( Phi_win_con );
     else
-        phiwin_a = 0.8; phiwin_c = 0.002313;
+%         phiwin_a = 0.8; phiwin_c = 0.002313;
+%         phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.030 - 1);
+%         f(93) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
+        phiwin_a = 0.45; phiwin_c = 0.006;
         phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.030 - 1);
         f(93) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
     end
