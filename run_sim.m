@@ -74,7 +74,7 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 %% Drugs
 
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level, AT2R decay rate]
+% Ang II inf rate fmol/(ml min), ACEi target level (%), ARB target level (%)
 if     strcmp(scenario2{fixed_ss2}, 'AngII')
     if     strcmp(sex{sex_ind}, 'male')
         varargin_input = {varargin_input{:}, 'AngII',2022}; % Sampson 2008

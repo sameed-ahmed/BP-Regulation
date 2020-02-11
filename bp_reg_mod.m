@@ -57,7 +57,8 @@ SF_V = pars(end  ); % volume
 % Drugs
 kappa_AngII_inp = 0; % Ang II infusion rate fmol/ml/min
 kappa_ACEi_inp  = 0; % ACE inhibitor %
-kappa_ARB_inp   = 0; % Angiotensin receptor blocker %
+kappa_ARB1_inp  = 0; % Angiotensin receptor 1 blocker %
+kappa_ARB2_inp  = 0; % Angiotensin receptor 2 blocker %
 kappa_f_inp     = 0; % Furosemide values. array of length 2
 kappa_f_md_inp  = 0; % Furosemide values. array of length 2
 NSAID           = 0; % NSAID indicator. O for none, 1 for normal, 2 for high dose.
@@ -94,8 +95,10 @@ for i = 1:2:length(varargin)
         kappa_AngII_inp = varargin{i + 1};
     elseif strcmp(varargin{i},'ACEi')
         kappa_ACEi_inp  = varargin{i + 1};
-    elseif strcmp(varargin{i},'ARB')
-        kappa_ARB_inp   = varargin{i + 1};
+    elseif strcmp(varargin{i},'ARB1')
+        kappa_ARB1_inp  = varargin{i + 1};
+    elseif strcmp(varargin{i},'ARB2')
+        kappa_ARB2_inp  = varargin{i + 1};
     elseif strcmp(varargin{i},'furosemide')
         f_dose          = varargin{i + 1};
         kappa_f_inp     = f_dose(1);
@@ -214,13 +217,15 @@ alpha = 0.005; % slope for parameter increase
 if     t <  tchange
     kappa_AngII = 0; 
     kappa_ACEi  = 0;
-    kappa_ARB   = 0;
+    kappa_ARB1  = 0;
+    kappa_ARB2  = 0;
     kappa_f     = 0;
     kappa_f_md  = 0; 
 elseif t >= tchange 
     kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
-    kappa_ARB   = kappa_ARB_inp   * tanh(alpha * (t-tchange)); 
+    kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
+    kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
 end
@@ -725,11 +730,11 @@ f(66) = PRA - ( PRC * X_PRCPRA );
 % AngI
 f(67) = AngI_p - ( PRA - ((1-kappa_ACEi) * c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI );
 % AngII
-f(68) = AngII_p - ( kappa_AngII + ((1-kappa_ACEi) * c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + (1-kappa_ARB) * c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII );
+f(68) = AngII_p - ( kappa_AngII + ((1-kappa_ACEi) * c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + (1-kappa_ARB1) * c_AT1R + (1-kappa_ARB2) * c_AT2R) * AngII - log(2)/h_AngII * AngII );
 % AT1R
-f(69) = AT1R_p - ( (1-kappa_ARB) * c_AT1R * AngII - log(2)/h_AT1R * AT1R );
+f(69) = AT1R_p - ( (1-kappa_ARB1) * c_AT1R * AngII - log(2)/h_AT1R * AT1R );
 % AT2R
-f(70) = AT2R_p - ( c_AT2R * AngII - log(2)/h_AT2R * AT2R );
+f(70) = AT2R_p - ( (1-kappa_ARB2) * c_AT2R * AngII - log(2)/h_AT2R * AT2R );
 % Ang17
 f(71) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
 % AngIV
