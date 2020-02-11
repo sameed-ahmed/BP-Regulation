@@ -88,10 +88,10 @@ upper = pars0(par_ind) + par_range_upper .* pars0(par_ind);
 if     strcmp(scenario{fixed_ss}, 'AngII')
     if     strcmp(sex{sex_ind}, 'male'  )
 %         varargin_input = {'AngII',2022}; % Sampson 2008
-        varargin_input = {'AngII',630 }; % Sullivan 2010
+        varargin_input = {'AngII',910 }; % Sullivan 2010
     elseif strcmp(sex{sex_ind}, 'female')
 %         varargin_input = {'AngII',2060}; % Sampson 2008
-        varargin_input = {'AngII',630 }; % Sullivan 2010
+        varargin_input = {'AngII',505 }; % Sullivan 2010
     end
 elseif strcmp(scenario{fixed_ss}, 'ACEi' )
         varargin_input = {'ACEi' ,0.78 }; % Leete 2018
@@ -296,8 +296,10 @@ save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp.mat', ...
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata', 'residual_ss', 'exitflag_ss', 'output_ss')
 % Parameters
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},opt_name);
+% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_%s.mat', ...
+%                          species{spe_ind},sex{sex_ind},opt_name);
+save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
+                         species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 if strcmp(opt_name, 'ms') || strcmp(opt_name, 'gs')
     save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
@@ -411,14 +413,14 @@ X = zeros(num_vars,N);
 %% Input drugs.
 
 % Ang II inf rate fmol/(ml min)
-if     strcmp(sex{sex_ind}, 'male'  )
+if     strcmp(sex{sex_ind}, 'male')
 %     kappa_AngII = 2022; % Sampson 2008
-%     kappa_AngII = 785; % Sullivan 2010
-    kappa_AngII = 630; % Sullivan 2010
+    kappa_AngII = 910; % Sullivan 2010
+%     kappa_AngII = 707; % Sullivan 2010
 elseif strcmp(sex{sex_ind}, 'female')
 %     kappa_AngII = 2060; % Sampson 2008
-%     kappa_AngII = 475; % Sullivan 2010
-    kappa_AngII = 630; % Sullivan 2010
+    kappa_AngII = 505; % Sullivan 2010
+%     kappa_AngII = 707; % Sullivan 2010
 end
 
 varargin_input_angII = [varargin_input, 'AngII',kappa_AngII];

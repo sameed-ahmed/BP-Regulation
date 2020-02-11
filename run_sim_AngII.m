@@ -69,12 +69,12 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 % Ang II inf rate fmol/(ml min)
 if     strcmp(sex{sex_ind}, 'male')
 %     kappa_AngII = 2022; % Sampson 2008
-%     kappa_AngII = 785; % Sullivan 2010
-    kappa_AngII = 630; % Sullivan 2010
+    kappa_AngII = 910; % Sullivan 2010
+%     kappa_AngII = 630; % Sullivan 2010
 elseif strcmp(sex{sex_ind}, 'female')
 %     kappa_AngII = 2060; % Sampson 2008
-%     kappa_AngII = 475; % Sullivan 2010
-    kappa_AngII = 630; % Sullivan 2010
+    kappa_AngII = 505; % Sullivan 2010
+%     kappa_AngII = 630; % Sullivan 2010
 end
 
 varargin_input = [varargin_input, 'AngII',kappa_AngII];
