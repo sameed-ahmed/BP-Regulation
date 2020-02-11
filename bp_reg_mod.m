@@ -210,26 +210,41 @@ end
 % end
 
 % Drugs
-deltat = 30; % minutes over which to continuously increase drug dose
-if     t < tchange
+alpha = 0.005; % slope for parameter increase
+if     t <  tchange
     kappa_AngII = 0; 
     kappa_ACEi  = 0;
     kappa_ARB   = 0;
     kappa_f     = 0;
     kappa_f_md  = 0; 
-elseif tchange <= t && t < (tchange  + deltat)
-    kappa_AngII = kappa_AngII_inp / (deltat) * (t-tchange); 
-    kappa_ACEi  = kappa_ACEi_inp  / (deltat) * (t-tchange);
-    kappa_ARB   = kappa_ARB_inp   / (deltat) * (t-tchange);
-    kappa_f     = kappa_f_inp     / (deltat) * (t-tchange);
-    kappa_f_md  = kappa_f_md_inp  / (deltat) * (t-tchange);
-elseif (tchange  + deltat) <= t 
-    kappa_AngII = kappa_AngII_inp; 
-    kappa_ACEi  = kappa_ACEi_inp ;
-    kappa_ARB   = kappa_ARB_inp  ;
-    kappa_f     = kappa_f_inp    ;
-    kappa_f_md  = kappa_f_md_inp ;
+elseif t >= tchange 
+    kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
+    kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
+    kappa_ARB   = kappa_ARB_inp   * tanh(alpha * (t-tchange)); 
+    kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
+    kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
 end
+
+% deltat = 30; % minutes over which to continuously increase drug dose
+% if     t < tchange
+%     kappa_AngII = 0; 
+%     kappa_ACEi  = 0;
+%     kappa_ARB   = 0;
+%     kappa_f     = 0;
+%     kappa_f_md  = 0; 
+% elseif tchange <= t && t < (tchange  + deltat)
+%     kappa_AngII = kappa_AngII_inp / (deltat) * (t-tchange); 
+%     kappa_ACEi  = kappa_ACEi_inp  / (deltat) * (t-tchange);
+%     kappa_ARB   = kappa_ARB_inp   / (deltat) * (t-tchange);
+%     kappa_f     = kappa_f_inp     / (deltat) * (t-tchange);
+%     kappa_f_md  = kappa_f_md_inp  / (deltat) * (t-tchange);
+% elseif (tchange  + deltat) <= t 
+%     kappa_AngII = kappa_AngII_inp; 
+%     kappa_ACEi  = kappa_ACEi_inp ;
+%     kappa_ARB   = kappa_ARB_inp  ;
+%     kappa_f     = kappa_f_inp    ;
+%     kappa_f_md  = kappa_f_md_inp ;
+% end
 
 %% Retrieve parameters by name.
 
