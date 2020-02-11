@@ -435,44 +435,66 @@ deltaMAP_f = reshape(X_f(42,end,1:end) - X_f(42,1,1:end), [1,num_scen]);
 % Substract all MAP values from all scenarios from normal male MAP.
 MAP_comp = deltaMAP_m(1) - [deltaMAP_m(1), deltaMAP_f];
 % String for bar graph labels.
-scen_comp = categorical({'M - M'              , 'M - F', ...
+scen_comp = categorical({'M - M       ', 'M - F       ', ...
                          'M - F M RSNA', 'M - F M AT2R', ...
                          'M - F M RAS' , 'M - F M Reab', ...
-                         'M - FM RSNA\newline& Reab'});
-scen_comp = reordercats(scen_comp,{'M - M'              , 'M - F', ...
-                                   'M - F M RSNA', 'M - F M AT2R', ...
-                                   'M - F M RAS' , 'M - F M Reab', ...
-                                   'M - FM RSNA\newline& Reab'});
+                         'M - F M RAS \newline& Reab'  , ...
+                         'M - F M RSNA\newline& Reab'  });
+% % Vertical bar graph
+% scen_comp = reordercats(scen_comp,{'M - M'       , 'M - F'       , ...
+%                                    'M - F M RSNA', 'M - F M AT2R', ...
+%                                    'M - F M RAS' , 'M - F M Reab', ...
+%                                    'M - F M RAS\newline& Reab'   , ...
+%                                    'M - F M RSNA\newline& Reab'  });
+% Horizontal bar graph
+scen_comp = reordercats(scen_comp,{'M - F M RSNA\newline& Reab'  , ...
+                                   'M - F M RAS \newline& Reab'  , ...
+                                   'M - F M Reab', 'M - F M RAS ', ...
+                                   'M - F M AT2R', 'M - F M RSNA', ...
+                                   'M - F       ', 'M - M       '});
 
-k = figure('DefaultAxesFontSize',10);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 3.5]);
-s1(1) = subplot(1,2,1); 
-s1(2) = subplot(1,2,2); 
-% s1(2).Position = s1(2).Position + [0.0, 0.0, 0.0, -0.01];
-
-plot(s1(1), t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s1(1), [xlower, xupper]); ylim(s1(1), [0, 60]);
-xticks(s1(1), (tchange+0*(1) : 2 : tchange+days*(1))); xticklabels(s1(1), {'0','2','4','6','8','10','12','14'});
-xlabel(s1(1), 'Time (days)', 'FontSize',14*1.1); ylabel(s1(1), '\DeltaMAP (mmHg)', 'FontSize',14*1.1);
-hold(s1(1), 'on')
-plot(s1(1), t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-plot(s1(1), tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
-plot(s1(1), tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6, 'LineWidth',2)
-[~, hobj, ~, ~] = legend(s1(1), {'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');
-hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
-title(s1(1), 'A', 'FontSize',14)
-
+% k = figure('DefaultAxesFontSize',10);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 3.5]);
+% s1(1) = subplot(1,2,1); 
+% s1(2) = subplot(1,2,2); 
+% % s1(2).Position = s1(2).Position + [0.0, 0.0, 0.0, -0.01];
+% 
+% plot(s1(1), t,MAP_m(:,fixed_ss1),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+% xlim(s1(1), [xlower, xupper]); ylim(s1(1), [0, 60]);
+% xticks(s1(1), (tchange+0*(1) : 2 : tchange+days*(1))); xticklabels(s1(1), {'0','2','4','6','8','10','12','14'});
+% xlabel(s1(1), 'Time (days)', 'FontSize',14*1.1); ylabel(s1(1), '\DeltaMAP (mmHg)', 'FontSize',14*1.1);
+% hold(s1(1), 'on')
+% plot(s1(1), t,MAP_f(:,fixed_ss1),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+% plot(s1(1), tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
+% plot(s1(1), tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6, 'LineWidth',2)
+% [~, hobj, ~, ~] = legend(s1(1), {'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');
+% hl = findobj(hobj,'type','line');
+% set(hl,'LineWidth',1.5);
+% title(s1(1), 'A', 'FontSize',14)
+% 
 % bar(s1(2), scen_comp,MAP_comp,'k');
 % % set(gca,'xticklabel',scen_comp_text);
 % % xtickget = get(gca,'xticklabel');  
 % % set(gca,'xticklabel',xtickget,'fontsize',6)
-% % xtickangle(s1(2),90)
+% xtickangle(s1(2),90)
 % % xlim(s1(2), [1-1,6+1])
 % ylim(s1(2), [0,20])
 % xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
 % % hAxes.XAxis.FontSize = 6;
 % title(s1(2), 'B', 'FontSize',14)
+
+k = figure('DefaultAxesFontSize',10);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
+
+barh(scen_comp,MAP_comp,'k');
+% set(gca,'yticklabel',scen_comp_text);
+% ytickget = get(gca,'yticklabel');  
+% set(gca,'yticklabel',ytickget,'fontsize',6)
+ytickangle(00)
+% ylim([1-1,6+1])
+xlim([0,20])
+ylabel('Scenario', 'FontSize',14); xlabel('\DeltaMAP (mmHg)', 'FontSize',14);
+% hAxes.YAxis.FontSize = 6;
 
 % % Save figures. -----------------------------------------------------------
 % 
