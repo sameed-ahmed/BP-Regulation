@@ -59,6 +59,10 @@ kappa_AngII_inp = 0; % Ang II infusion rate fmol/ml/min
 kappa_ACEi_inp  = 0; % ACE inhibitor %
 kappa_ARB1_inp  = 0; % Angiotensin receptor 1 blocker %
 kappa_ARB2_inp  = 0; % Angiotensin receptor 2 blocker %
+kappa_DRI_inp   = 0; % Direct renin inhibitor %
+kappa_MRB_inp   = 0; % Aldosterone blocker %
+kappa_RSS_inp   = 0; % Renin secretion stimulator %
+
 kappa_f_inp     = 0; % Furosemide values. array of length 2
 kappa_f_md_inp  = 0; % Furosemide values. array of length 2
 NSAID           = 0; % NSAID indicator. O for none, 1 for normal, 2 for high dose.
@@ -99,6 +103,12 @@ for i = 1:2:length(varargin)
         kappa_ARB1_inp  = varargin{i + 1};
     elseif strcmp(varargin{i},'ARB2')
         kappa_ARB2_inp  = varargin{i + 1};
+    elseif strcmp(varargin{i},'DRI' )
+        kappa_DRI_inp   = varargin{i + 1};
+    elseif strcmp(varargin{i},'MRB' )
+        kappa_MRB_inp   = varargin{i + 1};
+    elseif strcmp(varargin{i},'RSS' )
+        kappa_RSS_inp   = varargin{i + 1};
     elseif strcmp(varargin{i},'furosemide')
         f_dose          = varargin{i + 1};
         kappa_f_inp     = f_dose(1);
@@ -219,6 +229,9 @@ if     t <  tchange
     kappa_ACEi  = 0;
     kappa_ARB1  = 0;
     kappa_ARB2  = 0;
+    kappa_DRI   = 0;
+    kappa_MRB   = 0;
+    kappa_RSS   = 0;
     kappa_f     = 0;
     kappa_f_md  = 0; 
 elseif t >= tchange 
@@ -226,6 +239,9 @@ elseif t >= tchange
     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
+    kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
+    kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
+    kappa_RSS   = kappa_RSS_inp   * tanh(alpha * (t-tchange)); 
     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
 end
@@ -682,9 +698,9 @@ else
 end
 % C_al
 if     strcmp(species, 'human')
-    f(55) = C_al - ( max( 1, N_al * ALD_eq ) );
+    f(55) = C_al - ( max( 1, N_al * ALD_eq ) * (1-kappa_MRB) );
 elseif strcmp(species, 'rat')
-    f(55) = C_al - (         N_al * ALD_eq   );
+    f(55) = C_al - (         N_al * ALD_eq   * (1-kappa_MRB) );
 end
 % N_al
 f(56) = N_al_p - ( 1/T_al * (N_als - N_al) );
@@ -722,11 +738,11 @@ elseif strcmp(species, 'rat')
     f(63) = nu_AT1 - ( (AT1R / AT1R_eq)^(-0.95) );
 end
 % R_sec
-f(64) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 );
+f(64) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 * (1+kappa_RSS) );
 % PRC
 f(65) = PRC_p - ( R_sec - log(2)/h_renin * PRC );
 % PRA
-f(66) = PRA - ( PRC * X_PRCPRA );
+f(66) = PRA - ( PRC * X_PRCPRA * (1-kappa_DRI) );
 % AngI
 f(67) = AngI_p - ( PRA - ((1-kappa_ACEi) * c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI );
 % AngII

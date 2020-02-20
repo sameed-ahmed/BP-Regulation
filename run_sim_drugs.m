@@ -15,7 +15,7 @@ addpath(genpath(mypath))
 %                           Begin user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Scenarios
+% Physiological scenarios
 % Normal  - Normal conditions
 % m_RAS   - male RAS pars
 % m_Reab  - male fractional sodium and water reabsorption
@@ -25,9 +25,18 @@ addpath(genpath(mypath))
 scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
              'Pri_Hyp'};
-scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2'};
+% Drug scenarios
+% Normal - Normal conditions
+% AngII  - Ang II infusion fmol/(ml min)
+% ACEi   - Angiotensin converting enzyme inhibitor %
+% ARB1   - Angiotensin receptor 1 blocker %
+% ARB2   - Angiotensin receptor 2 blocker %
+% DRI    - Direct renin inhibitor %
+% MRB    - Aldosterone blocker (MR?) %
+% RSS    - Renin secretion stimulator (thiazide?) %
+scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
 fixed_ss1 = 8;
-fixed_ss2 = 4;
+fixed_ss2 = [8];
 num_scen = length(scenario1);
 
 % Species
@@ -65,19 +74,26 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 %% Drugs
 
-% Ang II inf rate fmol/(ml min), ACEi target level (%), ARB target level (%)
-if     strcmp(scenario2{fixed_ss2}, 'AngII')
-    if     strcmp(sex{sex_ind}, 'male')
-        varargin_input = [varargin_input, 'AngII',910]; % Sullivan 2010
-    elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = [varargin_input, 'AngII',505]; % Sullivan 2010
+for i = 1:length(fixed_ss2)
+    if     strcmp(scenario2{fixed_ss2(i)}, 'AngII')
+        if     strcmp(sex{sex_ind}, 'male')
+            varargin_input = [varargin_input, 'AngII',910]; % Sullivan 2010
+        elseif strcmp(sex{sex_ind}, 'female')
+            varargin_input = [varargin_input, 'AngII',505]; % Sullivan 2010
+        end
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'ACEi' )
+            varargin_input = [varargin_input, 'ACEi' ,0.5]; % 
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB1' )
+            varargin_input = [varargin_input, 'ARB1' ,0.5]; % 
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
+            varargin_input = [varargin_input, 'ARB2' ,0.5]; % 
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'DRI'  )
+            varargin_input = [varargin_input, 'DRI'  ,0.5]; % 
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'MRB'  )
+            varargin_input = [varargin_input, 'MRB'  ,0.5]; % 
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'RSS'  )
+            varargin_input = [varargin_input, 'RSS'  ,0.5]; % 
     end
-elseif strcmp(scenario2{fixed_ss2}, 'ACEi' )
-        varargin_input = [varargin_input, 'ACEi' ,0.5]; % 
-elseif strcmp(scenario2{fixed_ss2}, 'ARB1' )
-        varargin_input = [varargin_input, 'ARB1' ,0.5]; % 
-elseif strcmp(scenario2{fixed_ss2}, 'ARB2' )
-        varargin_input = [varargin_input, 'ARB2' ,0.5]; % 
 end
 
 %% Solve DAE
