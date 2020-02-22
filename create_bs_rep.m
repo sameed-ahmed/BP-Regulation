@@ -37,10 +37,12 @@ end
 % bs_time = toc
 
 % Compute average over all rats.
+% Make all data values as change in MAP from baseline.
 % tic
 AngII_data_rep = zeros(num_sample,time_points);
 for j = 1:num_sample
     AngII_data_rep(j,:) = mean(bs_sample(:,:,j));
+    AngII_data_rep(j,:) = AngII_data_rep(j,:) - AngII_data_rep(j,1);
 end
 % mean_time = toc
 
