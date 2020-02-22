@@ -302,7 +302,7 @@ save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 if strcmp(opt_name, 'ms') || strcmp(opt_name, 'gs')
-    save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
+    save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time') %#ok<USESWNS>
 else
     save(save_data_name, 'pars',              'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
 end
@@ -539,13 +539,13 @@ end
 
 % Data from several sources. See 'change in MAP.xlsx'.
 if     strcmp(sex{sex_ind}, 'male'  )
-%     MAPdata = [15,25];
+    MAPdata = [15,25];
 %     MAPdata = [0,100];
-    MAPdata = 20;
+%     MAPdata = 20;
 elseif strcmp(sex{sex_ind}, 'female')
-%     MAPdata = [ 5,10];
+    MAPdata = [ 5,10];
 %     MAPdata = [0,100];
-    MAPdata = 7;
+%     MAPdata = 7;
 end
 
 % tic
@@ -554,12 +554,12 @@ end
 MAP = SSdata_sodin(42) - SSdata_iter(42);
 
 % Sodin error
-% err = max( ( (MAP - (MAPdata(1) + MAPdata(2))/2)^2 -  ...
-%              (      (MAPdata(2) - MAPdata(1))/2)^2 ), ...
-%          0 );
-% err = err / MAP^2;
-% err = sqrt(err);
-err = abs(MAP - MAPdata) / MAPdata;
+err = max( ( (MAP - (MAPdata(1) + MAPdata(2))/2)^2 -  ...
+             (      (MAPdata(2) - MAPdata(1))/2)^2 ), ...
+         0 );
+err = err / mean(MAPdata)^2;
+err = sqrt(err);
+% err = abs(MAP - MAPdata) / MAPdata;
 % toc3 = toc
 
 end % Sodin err
