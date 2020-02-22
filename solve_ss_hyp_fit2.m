@@ -5,13 +5,13 @@
 % Steady state data for the intial guess is inputted by solver_initial_guess_data.m.
 
 % function solve_ss_hyp_fit 
-function [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
-% function pars = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
+% function [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
+function pars = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
 
-% Add directory containing data.
-mypath = pwd;
-mypath = strcat(mypath, '/Data');
-addpath(genpath(mypath))
+% % Add directory containing data.
+% mypath = pwd;
+% mypath = strcat(mypath, '/Data');
+% addpath(genpath(mypath))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.
@@ -184,7 +184,7 @@ nonlcon = @mycon;
 lb = lower;
 ub = upper;
 
-tic
+% tic
 % % Edit options for optimizer. - fmincon
 % opt_name = 'fm';
 % options = optimoptions('fmincon', 'Display','iter', 'UseParallel',true);
@@ -264,7 +264,7 @@ options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true
 % %                    pars0_est,lb,ub,options);
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     simulannealbnd(@cost_fun,pars0_est,lb,ub,options);
-opt_time = toc
+% opt_time = toc
 
 % % tic
 % test1 = cost_fun(pars0_est);
@@ -281,12 +281,12 @@ pars(par_ind) = pars_est_min;
 % spe_par = pars_min(1);
 % sex_par = pars_min(2);
 
-% Solve system with found pars.
-options2 = optimset();
-[SSdata, residual_ss, exitflag_ss, output_ss] = ...
-    fsolve(@(x) ...
-           bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
-           x0, options2); % %#ok<ASGLU>
+% % Solve system with found pars.
+% options2 = optimset();
+% [SSdata, residual_ss, exitflag_ss, output_ss] = ...
+%     fsolve(@(x) ...
+%            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
+%            x0, options2); % %#ok<ASGLU>
 
 %% Save values.
 
