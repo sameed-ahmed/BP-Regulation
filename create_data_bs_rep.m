@@ -1,4 +1,4 @@
-function create_bs_rep
+function create_data_bs_rep
 
 close all
 clear

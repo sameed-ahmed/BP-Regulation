@@ -1,4 +1,4 @@
-function create_par_dist
+function create_par_bs_rep
 
 clc
 
