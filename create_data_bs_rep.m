@@ -26,7 +26,7 @@ data_points = size(data,1);
 time_points = size(data,2);
 
 % Number of bootstrap samples.
-num_sample = 400;
+num_sample = 1000;
 
 % Create bootstrap replicates of sample sets of rats.
 % tic
@@ -52,7 +52,7 @@ end
 % max(time_course_data)
 
 % Save data.
-save_data_name = sprintf('%s_%s_AngII_data_rep.mat', ...
+save_data_name = sprintf('%s_%s_AngII_data_bs_rep.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'AngII_data_rep', 'num_sample')
