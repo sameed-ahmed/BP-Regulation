@@ -16,7 +16,7 @@ sex     = {'male' , 'female'};
 parpool
 for sex_ind = 1:1 % sex
 
-%% Load bootstrap replicate data created by create_bs_rep.m.
+%% Load bootstrap replicate data created by create_data_bs_rep.m.
 
 % if     strcmp(sex{sex_ind}, 'male'  )
 %     AngII_MAP_data = [0   , 1.1 , 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
@@ -26,7 +26,7 @@ for sex_ind = 1:1 % sex
 %                15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
 % end
 
-load_data_name = sprintf('%s_%s_AngII_data_rep.mat', species{spe_ind},sex{sex_ind});
+load_data_name = sprintf('%s_%s_AngII_data_bs_rep.mat', species{spe_ind},sex{sex_ind});
 load(load_data_name, 'AngII_data_rep');
 
 num_sample = size(AngII_data_rep,1);
@@ -37,7 +37,7 @@ num_sample = size(AngII_data_rep,1);
 pars_rep = zeros(152,num_sample);
 
 tic
-for j = 1:num_sample
+for j = 1:10
 % [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data);
     pars_rep(:,j) = solve_ss_hyp_fit2(sex_ind,AngII_data_rep(j,:));
     
@@ -59,10 +59,10 @@ bs_rep_fit_time = toc
 % save_data_name = strcat('Data/', save_data_name);
 % save(save_data_name, 'pars')
 
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep.mat', ...
-                         species{spe_ind},sex{sex_ind});
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'pars_rep', 'num_sample', 'bs_rep_fit_time')
+% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep.mat', ...
+%                          species{spe_ind},sex{sex_ind});
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'pars_rep', 'num_sample', 'bs_rep_fit_time')
 
 end % sex
 delete(gcp)

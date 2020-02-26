@@ -163,7 +163,7 @@ ran_vec = random('unif',0,1,par_num,1);
 ran_vec = lower + ran_vec .* (upper - lower);
 % Replace input parameters with newly sampled parameter.
 pars0(par_ind) = ran_vec;
-pars0_est = ran_vec;
+pars0_est = ran_vec
 
 % Initialize last pars to avoid unnecessary computation for SSdata.
 pars_est_last = [];
@@ -276,6 +276,7 @@ options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true
 % Place estimated pars in proper location.
 pars = pars0;
 pars(par_ind) = pars_est_min;
+pars_est_min
 
 % pars_min
 % spe_par = pars_min(1);

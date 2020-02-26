@@ -295,12 +295,12 @@ end
 
 if p_hyp
     clear pars
-%     load_pars_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', species,sex);
-%     load(load_pars_name, 'pars');
+    load_pars_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', species,sex);
+    load(load_pars_name, 'pars');
     
-    load_pars_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep.mat', species,sex);
-    load(load_pars_name, 'pars_rep');
-    pars = pars_rep; clear pars_rep
+%     load_pars_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep10.mat', species,sex);
+%     load(load_pars_name, 'pars_rep');
+%     pars = pars_rep; clear pars_rep
 end
 
 end
