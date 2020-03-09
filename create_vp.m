@@ -65,7 +65,8 @@ f1  = figure('DefaultAxesFontSize',14);
 s1 = gobjects(pars_hyp_num);
 for i = 1:pars_hyp_num
     s1(i) = subplot(3,2,i);
-    histogram(s1(i),pars_hyp(i,:))
+%     histogram(s1(i),pars_hyp(i,:))
+    histogram(s1(i),pars_hyp(i,1:10))
     xlabel(s1(i), pars_names(i), 'Interpreter','latex', 'FontSize',16)
 end
 hist_title = sprintf('%s',sex{sex_ind});
@@ -75,7 +76,8 @@ sgtitle(hist_title, 'FontSize',16)
 
 tic
 SSdata_rep = zeros(num_vars, num_sample);
-for j = 1:num_sample
+% for j = 1:num_sample
+for j = 1:10
     SSdata_rep(:,j) = solve_ss_scenario(pars_rep(:,j));
     fprintf('%s iteration = %s out of %s \n', ...
             sex{sex_ind},num2str(j),num2str(num_sample))
@@ -96,7 +98,8 @@ f2  = figure('DefaultAxesFontSize',14);
 s2 = gobjects(vars_hyp_num);
 for i = 1:vars_hyp_num
     s2(i) = subplot(3,3,i);
-    histogram(s2(i),vars_hyp(i,:))
+%     histogram(s2(i),vars_hyp(i,:))
+    histogram(s2(i),vars_hyp(i,1:10))
     xlabel(s2(i), vars_names(i), 'Interpreter','latex', 'FontSize',16)
 end
 hist_title = sprintf('%s',sex{sex_ind});
