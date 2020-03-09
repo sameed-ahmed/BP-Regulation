@@ -138,11 +138,11 @@ for i = 1:length(SSdata)
     end
 end
 
-% Save values.
-save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},scenario{sce_ind});
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
+% % Save values.
+% save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+%                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 
 end % sex
 end % scenario

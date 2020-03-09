@@ -135,8 +135,12 @@ t0 = 0*1440; tend = tchange + days*1440;
 % Time vector
 tspan = linspace(t0,tend,N);
 
+% Start time counter.
+odestart = tic; counter = 0;
+
 % ode options
-options = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
+options = odeset('MaxStep',1000, 'Events',@(t,x,xp) myevent(t,x,xp)); 
+% default MaxStep is 0.1*abs(t0-tf)
 
 tic
 % Solve dae
@@ -144,6 +148,11 @@ tic
                bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
                tspan, x0, x_p0, options);
 toc
+
+if size(x,1) < N
+    disp('Simulation has crashed.')
+    return
+end
 
 % X = (variables, points, sex, scenario)
 X(:,:,sex_ind,sce_ind) = x';
@@ -502,7 +511,27 @@ ylabel('Scenario', 'FontSize',14); xlabel('\DeltaMAP (mmHg)', 'FontSize',14);
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([f;f2;g;h';k], save_data_name)
 
+%% Event function
+
+function [values,isterminal,direction] = myevent(t,x,xp)
+
+%  Don't let integration go for more than 1.2 seconds.
+if toc(odestart) > 2
+    values = 0;
+    counter = counter + 1;
+else
+    values = 1;
+    counter = counter + 1;
 end
+
+isterminal = 1;
+direction = 0;
+
+end
+
+end
+
+
 
 
 
