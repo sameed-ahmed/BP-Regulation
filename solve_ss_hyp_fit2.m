@@ -6,7 +6,8 @@
 
 % function solve_ss_hyp_fit 
 % function [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
-function pars = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
+% function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
+function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_MAP_data)
 
 % % Add directory containing data.
 % mypath = pwd;
@@ -30,7 +31,7 @@ par_ind = [13;14;4;21;18;3];
 par_num = length(par_ind);
 % Range for parameters
 par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
-par_range_upper = [200;200;100;100;100;100]/100;
+par_range_upper = [100;400;100;100;100;100]/100;
 
 % Variables to check
 % P_ma      - var 42; +30,40, +40,50
@@ -75,10 +76,10 @@ sex     = {'male' , 'female'};
 
 %% Parameters
 
-varargin_input = {scenario{fixed_ss},true};
-
-% Parameter input
-pars0 = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
+% varargin_input = {scenario{fixed_ss},true};
+% 
+% % Parameter input
+% pars0 = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 % Set interval bounds for parameters.
 lower = pars0(par_ind) - par_range_lower .* pars0(par_ind);
@@ -103,11 +104,11 @@ end
 
 %% Variables initial guess
 
-% Load data for steady state initial guess. 
-% Set name for data file to be loaded based upon sex.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},scenario{fixed_ss});
-load(load_data_name, 'SSdata');
+% % Load data for steady state initial guess. 
+% % Set name for data file to be loaded based upon sex.    
+% load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+%                          species{spe_ind},sex{sex_ind},scenario{fixed_ss});
+% load(load_data_name, 'SSdata');
 SSdataIG = SSdata;
 
 % Set acceptable range for certain variables.
@@ -158,12 +159,29 @@ tchange = 0;
 %% Uniformly randomly sample perturbed parameters from range.
 
 % Sample between 0 and 1.
+% rng('default')
 ran_vec = random('unif',0,1,par_num,1);
 % Sample within interval.
 ran_vec = lower + ran_vec .* (upper - lower);
 % Replace input parameters with newly sampled parameter.
 pars0(par_ind) = ran_vec;
 pars0_est = ran_vec
+% pars0_est = [30.2589; 12.5101; 3.6061; 1.19  ; 1.50  ; 1.12  ] % diverges for j = 15?
+% pars0_est = [17.9423; 13.9705; 5.6973; 1.5338; 1.1092; 1.8258] % mycon get stuck for j = 15
+
+% options_pre_ss = optimset('Display','iter', 'MaxFunEvals',2000);
+% [~, ~, exitflag_pre_ss, ~] = ...
+%     fsolve(@(x) ...
+%            bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
+%            x0, options_pre_ss);
+
+% % Check for solver convergence.
+% if exitflag_pre_ss == 0
+%     error('Infeasible initial point')
+% else
+%     error('Feasible initial point')
+% end
+
 
 % Initialize last pars to avoid unnecessary computation for SSdata.
 pars_est_last = [];
@@ -179,7 +197,7 @@ SSdata_iter = [];
 % Place holders for fmincon.
 A = []; b = []; Aeq = []; beq = []; 
 % Nonlinear constraints.
-nonlcon = @mycon;
+nonlcon = @mycon; iter = 0;
 % Lower and upper bounds for parameters in fmincon.
 lb = lower;
 ub = upper;
@@ -233,8 +251,12 @@ ub = upper;
 % Edit options for optimizer. - pattersearch
 opt_name = 'ps';
 % options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true);
+% options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
+%                        'UseParallel',true, 'UseVectorized',false, 'OutputFcn',@outfun);
+% options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
+%                        'UseParallel',true, 'UseVectorized',false, 'MaxTime',450);
 options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
-                       'UseParallel',true, 'UseVectorized',false);
+                       'UseParallel',false, 'UseVectorized',false, 'TimeLimit',1000 );
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     patternsearch(@(pars_est) ...
 %                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
@@ -326,6 +348,7 @@ function tot_err = cost_fun(pars_est)
 % tot_err = AngII_err(pars_est);
 % tot_err = range_err;
 tot_err = (AngII_err(pars_est) + Sodin_err(pars_est)) / 2;
+% tot_err = 0;
 
 end % tot err
 
@@ -439,11 +462,16 @@ t0 = 0*1440; tend = tchange_angII + days*1440;
 % Time vector
 tspan = linspace(t0,tend,N);
 
+% Start time counter.
+odestart = tic;
+
 % Initial value is steady state solution with given pars.
 x0_angII = SSdata_iter;
 
 % ode options
-options_dae = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
+options_dae = odeset('MaxStep',1000, 'Events',@(t,x,xp) myevent(t,x,xp)); 
+% default MaxStep is 0.1*abs(t0-tf)
+
 % tic
 % Solve dae
 [~,x] = ode15i(@(t,x,x_p) ...
@@ -492,7 +520,27 @@ AngII_MAP_err        = sqrt(mean(AngII_MAP_err(8:end)));
 err = AngII_MAP_err;
 % tot_err = range_err;
 
+%% Event function
+
+function [values,isterminal,direction] = myevent(t,x,xp)
+
+%  Don't let integration go for more than 1.2 seconds.
+if toc(odestart) > 1
+    values = 0;
+else
+    values = 1;
+end
+
+isterminal = 1;
+direction = 0;
+
+end
+
 end % Ang II err
+
+% -------------------------------------------------------------------------
+% Sodium intake error
+% -------------------------------------------------------------------------
 
 function err = Sodin_err(pars_est)
 
@@ -573,6 +621,13 @@ end % Sodin err
 
 function [c,ceq] = mycon(pars_est)
 
+% if iter > 2
+% %     iter = 0
+%     c   =  1;
+%     ceq = [];
+%     return
+% end
+
 % Place estimated pars in proper location.
 pars0(par_ind) = pars_est;
 
@@ -581,26 +636,34 @@ pars0(par_ind) = pars_est;
 % tic
 % Check if computation is necessary for SSdata.
 if ~isequal(pars_est,pars_est_last)
-    options_ss = optimset('Display','off');
-    [SSdata_iter, ~, exitflag, ~] = ...
+    options_ss = optimset('Display','off', 'MaxFunEvals',2000);
+    [SSdata_iter, ~, exitflag_ss, ~] = ...
         fsolve(@(x) ...
                bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
                x0, options_ss);
     pars_est_last = pars_est;
-           
+%     exitflag_ss
+%     pars_est
+    
     % Check for solver convergence.
-    if exitflag == 0
-        c = 1;
+    if exitflag_ss == 0
+        c   =  1;
+        ceq = [];
+%         iter = iter + 1;
         return
+%     else
+%         iter = 0;
     end
 
     % Check for imaginary solution.
     if not (isreal(SSdata_iter))
-        c = 1;
+        c   =  1;
+        ceq = [];
         return
     end
 end
 % toc1 = toc
+pars_est;
 
 % % Set any values that are within machine precision of 0 equal to 0.
 % for i = 1:length(SSdata)
@@ -623,6 +686,24 @@ end
 ceq = [];
 
 end % mycon
+
+% % -------------------------------------------------------------------------
+% % Output function
+% % -------------------------------------------------------------------------
+% 
+% function [stop,options,optchanged]  = outfun(optimvalues,options,flag)
+% 
+% stop = false;
+% optchanged = false;
+% 
+% switch flag
+%     case 'init'
+%         disp('Starting the algorithm');
+%     case {'iter','interrupt'}
+%         disp('Iterating ...')
+%     case 'done'
+%         disp('Performing final task');
+% end
 
 end % solve_ss_hyp_fit
 
