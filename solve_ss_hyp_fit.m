@@ -288,24 +288,24 @@ options2 = optimset();
 
 %% Save values.
 
-% Steady state data
-% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_%s.mat', ...
-%                          species{spe_ind},sex{sex_ind},opt_name);
-save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp.mat', ...
-                         species{spe_ind},sex{sex_ind});
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'SSdata', 'residual_ss', 'exitflag_ss', 'output_ss')
-% Parameters
-% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_%s.mat', ...
-%                          species{spe_ind},sex{sex_ind},opt_name);
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
-                         species{spe_ind},sex{sex_ind});
-save_data_name = strcat('Data/', save_data_name);
-if strcmp(opt_name, 'ms') || strcmp(opt_name, 'gs')
-    save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time') %#ok<USESWNS>
-else
-    save(save_data_name, 'pars',              'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
-end
+% % Steady state data
+% % save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_%s.mat', ...
+% %                          species{spe_ind},sex{sex_ind},opt_name);
+% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp.mat', ...
+%                          species{spe_ind},sex{sex_ind});
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'SSdata', 'residual_ss', 'exitflag_ss', 'output_ss')
+% % Parameters
+% % save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_%s.mat', ...
+% %                          species{spe_ind},sex{sex_ind},opt_name);
+% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
+%                          species{spe_ind},sex{sex_ind});
+% save_data_name = strcat('Data/', save_data_name);
+% if strcmp(opt_name, 'ms') || strcmp(opt_name, 'gs')
+%     save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time') %#ok<USESWNS>
+% else
+%     save(save_data_name, 'pars',              'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
+% end
 
 end % sex
 delete(gcp)
@@ -491,6 +491,10 @@ err = AngII_MAP_err;
 
 end % Ang II err
 
+% -------------------------------------------------------------------------
+% Sodiun intake error
+% -------------------------------------------------------------------------
+
 function err = Sodin_err(pars_est)
 
 % Place estimated pars in proper location.
@@ -587,13 +591,15 @@ if ~isequal(pars_est,pars_est_last)
            
     % Check for solver convergence.
     if exitflag == 0
-        c = 1;
+        c   = 1;
+        ceq = [];
         return
     end
 
     % Check for imaginary solution.
     if not (isreal(SSdata_iter))
-        c = 1;
+        c   = 1;
+        ceq = [];
         return
     end
 end
