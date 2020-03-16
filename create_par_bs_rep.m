@@ -21,7 +21,7 @@ spe_ind = 2;
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
-% parpool
+parpool
 for sex_ind = 1:2 % sex
 
 %% Parameters
@@ -110,7 +110,7 @@ save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'pars_rep', 'num_sample', 'bs_rep_fit_time')
 
 end % sex
-% delete(gcp)
+delete(gcp)
 % delete(myCluster.Jobs)
 
 
