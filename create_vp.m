@@ -49,7 +49,7 @@ for sex_ind = 1:2 % sex
 
 %% Load bootstrap replicate parameters created by create_par_bs_rep.m.
 
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep10.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_hyp = pars_rep(pars_ind,:);
@@ -58,59 +58,59 @@ pars_num   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
 % num_sample = 10;
 
-%% Plot parameter distribution.
-
-% Plot
-f1  = figure('DefaultAxesFontSize',14);
-s1 = gobjects(pars_hyp_num);
-for i = 1:pars_hyp_num
-    s1(i) = subplot(3,2,i);
+%% % Plot parameter distribution.
+% 
+% % Plot
+% f1  = figure('DefaultAxesFontSize',14);
+% s1 = gobjects(pars_hyp_num);
+% for i = 1:pars_hyp_num
+%     s1(i) = subplot(3,2,i);
 %     histogram(s1(i),pars_hyp(i,:))
-    histogram(s1(i),pars_hyp(i,1:10))
-    xlabel(s1(i), pars_names(i), 'Interpreter','latex', 'FontSize',16)
-end
-hist_title = sprintf('%s',sex{sex_ind});
-sgtitle(hist_title, 'FontSize',16)
+% %     histogram(s1(i),pars_hyp(i,1:10))
+%     xlabel(s1(i), pars_names(i), 'Interpreter','latex', 'FontSize',16)
+% end
+% hist_title = sprintf('%s',sex{sex_ind});
+% sgtitle(hist_title, 'FontSize',16)
 
 %% Create virtual population corresponding to each parameter set.
 
 tic
 SSdata_rep = zeros(num_vars, num_sample);
-% for j = 1:num_sample
-for j = 1:10
+for j = 1:num_sample
+% for j = 1:10
     SSdata_rep(:,j) = solve_ss_scenario(pars_rep(:,j));
-    fprintf('%s iteration = %s out of %s \n', ...
-            sex{sex_ind},num2str(j),num2str(num_sample))
+%     fprintf('%s iteration = %s out of %s \n', ...
+%             sex{sex_ind},num2str(j),num2str(num_sample))
 end
 bs_rep_solve_time = toc
 
-%% Plot variables of interest distribution.
-
-vars_ind   = [42;33;41;29;30;52;6;7;92];
-vars_names = {'$P_{ma}$'   , '$\Phi_{co}$'   , '$R_{tp}$'  , ...
-              '$V_{ecf}$'  , '$V_{b}$'       , '$C_{sod}$' , ...
-              '$\Phi_{rb}$', '$\Phi_{gfilt}$', '$\Phi_{u}$'};
-vars_hyp_num = length(vars_ind);
-vars_hyp = SSdata_rep(vars_ind,:);
-
-% Plot
-f2  = figure('DefaultAxesFontSize',14);
-s2 = gobjects(vars_hyp_num);
-for i = 1:vars_hyp_num
-    s2(i) = subplot(3,3,i);
+%% % Plot variables of interest distribution.
+% 
+% vars_ind   = [42;33;41;29;30;52;6;7;92];
+% vars_names = {'$P_{ma}$'   , '$\Phi_{co}$'   , '$R_{tp}$'  , ...
+%               '$V_{ecf}$'  , '$V_{b}$'       , '$C_{sod}$' , ...
+%               '$\Phi_{rb}$', '$\Phi_{gfilt}$', '$\Phi_{u}$'};
+% vars_hyp_num = length(vars_ind);
+% vars_hyp = SSdata_rep(vars_ind,:);
+% 
+% % Plot
+% f2  = figure('DefaultAxesFontSize',14);
+% s2 = gobjects(vars_hyp_num);
+% for i = 1:vars_hyp_num
+%     s2(i) = subplot(3,3,i);
 %     histogram(s2(i),vars_hyp(i,:))
-    histogram(s2(i),vars_hyp(i,1:10))
-    xlabel(s2(i), vars_names(i), 'Interpreter','latex', 'FontSize',16)
-end
-hist_title = sprintf('%s',sex{sex_ind});
-sgtitle(hist_title, 'FontSize',16)
+% %     histogram(s2(i),vars_hyp(i,1:10))
+%     xlabel(s2(i), vars_names(i), 'Interpreter','latex', 'FontSize',16)
+% end
+% hist_title = sprintf('%s',sex{sex_ind});
+% sgtitle(hist_title, 'FontSize',16)
 
 %% Save data.
 
-% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep10.mat', ...
-%                          species{spe_ind},sex{sex_ind});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata_rep', 'num_sample', 'bs_rep_solve_time')
+save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                         species{spe_ind},sex{sex_ind});
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'SSdata_rep', 'num_sample', 'bs_rep_solve_time')
 
 end % sex
 
@@ -172,41 +172,6 @@ end
 end % solve_ss_scenario
 
 end % create_vp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
