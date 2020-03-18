@@ -26,8 +26,12 @@ pars_range_upper = [200;200;100;100;100;100]/100;
 
 pars_ind     = [13;14;4;21;18;3];
 pars_hyp_num = length(pars_ind);
-pars_names   = {'$K_{bar}$', '$R_{bv}$'      , '$R_{aa-ss}$', ...
-                '$N_{rs}$' , '$N_{als}^{eq}$', '$N_{rsna}$' };
+pars_names   = {'$K_{bar}$'            , '$R_{bv}$'             , ...
+                '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
+                '$N_{als}^{eq}$'       , '$N_{rsna}$'           };
+pars_units   = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
+                '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
+                '$-$'                  , '$-$'                  };
 
 vars_ind     = [42;33;41;29;30;52;6;7;92];
 vars_hyp_num = length(vars_ind);
@@ -97,7 +101,10 @@ s1   = gobjects(pars_hyp_num);
 for i = 1:pars_hyp_num
     s1(i) = subplot(3,2,i);
     histogram(s1(i),pars_hyp(i,:),10)
-    xlabel(s1(i), pars_names(i), 'Interpreter','latex', 'FontSize',16)
+
+    xlabel_name = strcat(pars_names(i), ' (', num2str(pars_hyp_bl(i),3), pars_units(i), ')');
+    xlabel(s1(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)
+    
 end
 hist_title = sprintf('%s',sex{sex_ind});
 sgtitle(hist_title, 'FontSize',16)
