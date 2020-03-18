@@ -20,11 +20,12 @@ addpath(genpath(mypath))
 % m_RAS   - male RAS pars
 % m_Reab  - male fractional sodium and water reabsorption
 % Pri_Hyp - essential/primary hypertension
-% scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-%              'm_RAS_m_Reab', 'm_RSNA_m_Reab'};
 scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-             'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
-             'Pri_Hyp'};
+             'm_RAS_m_Reab', 'm_RSNA_m_Reab'};
+% scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+%              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
+%              'Pri_Hyp'};
+fixed_ss1 = 1;
 % Drug scenarios
 % Normal - Normal conditions
 % AngII  - Ang II infusion fmol/(ml min)
@@ -35,12 +36,14 @@ scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) %
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
-fixed_ss1 = 8;
-fixed_ss2 = [8];
+fixed_ss2 = [3];
 num_scen = length(scenario1);
 
 % Species
 spe_ind = 2;
+
+% Bootstrap replicate sample number
+sample_num = random('Discrete Uniform',1000)
 
 % Number of days to run simulation after change; Day at which to induce change;
 days = 14; day_change = 1;
@@ -60,17 +63,31 @@ num_vars = 93;
 
 % Initialize variables.
 % X = (variables, points, sex, scenario)
-X = zeros(num_vars,N,2,num_scen);
+X_dy = zeros(num_vars,N,2,num_scen);
+% X = (variables, sex, scenario)
+X_ss = zeros(num_vars,2,num_scen);
 
 for sce_ind = fixed_ss1:fixed_ss1 % scenario
 for sex_ind = 1:2        % sex
 
 varargin_input = {scenario1{sce_ind},true};
 
-%% Parameters
+%% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
-% Parameter input
-pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
+% Parameters
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                              species{spe_ind},sex{sex_ind});
+load(load_data_name_pars, 'pars_rep');
+num_pars   = size(pars_rep,1);
+num_sample = size(pars_rep,2);
+pars_rep = pars_rep(:,sample_num);
+
+% Variables
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                              species{spe_ind},sex{sex_ind});
+load(load_data_name_vars, 'SSdata_rep');
+num_vars   = size(SSdata_rep,1);
+SSdata_rep = SSdata_rep(:,sample_num);
 
 %% Drugs
 
@@ -82,9 +99,9 @@ for i = 1:length(fixed_ss2)
             varargin_input = [varargin_input, 'AngII',505]; % Sullivan 2010
         end
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ACEi' )
-            varargin_input = [varargin_input, 'ACEi' ,0.5]; % 
+            varargin_input = [varargin_input, 'ACEi' ,1.0]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB1' )
-            varargin_input = [varargin_input, 'ARB1' ,0.5]; % 
+            varargin_input = [varargin_input, 'ARB1' ,0.55]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
             varargin_input = [varargin_input, 'ARB2' ,0.5]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'DRI'  )
@@ -96,19 +113,7 @@ for i = 1:length(fixed_ss2)
     end
 end
 
-%% Solve DAE
-
-% Initial value
-% This initial condition is the steady state data value taken from
-% solve_ss_scenario.m.
-
-% Set name for data file to be loaded based upon sex and scenario.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},scenario1{sce_ind});
-% Load data for steady state initial value. 
-load(load_data_name, 'SSdata');
-
-% Variable names for plotting.
+%% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -139,31 +144,69 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
           '$\Phi_{u}$'; '$\Phi_{win}$'};
 
+%% Solve DAE dynamic
+
 % Initial condition for the variables and their derivatives. 
 % System is initially at steady state, so the derivative is 0.
-x0 = SSdata; x_p0 = zeros(num_vars,1);
+x0_dy = SSdata_rep; x_p0_dy = zeros(num_vars,1);
 
 % Time at which to keep steady state, change a parameter, etc.
-tchange = day_change*1440;
+tchange_dy = day_change*1440;
 
 % Initial time (min); Final time (min);
-t0 = 0*1440; tend = tchange + days*1440;
+t0 = 0*1440; tend = tchange_dy + days*1440;
 
 % Time vector
 tspan = linspace(t0,tend,N);
 
-% ode options
-options = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
-
-% tic
+% ODE options
+options_dy = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
 % Solve dae
-[t,x] = ode15i(@(t,x,x_p) ...
-               bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
-               tspan, x0, x_p0, options);
-% toc
+[t_dy,x] = ode15i(@(t,x,x_p) ...
+               bp_reg_mod(t,x,x_p,pars_rep,tchange_dy,varargin_input{:}), ...
+               tspan, x0_dy, x_p0_dy, options_dy);
 
 % X = (variables, points, sex, scenario)
-X(:,:,sex_ind,sce_ind) = x';
+X_dy(:,:,sex_ind,sce_ind) = x';
+
+% %% Solve system steady state
+% 
+% % Initial guess for the variables.
+% % Find the steady state solution, so the derivative is 0.
+% % Arbitrary value for time to input, greater than tchange + deltat.
+% x0_ss = SSdata_rep; x_p0_ss = zeros(num_vars,1); t_ss = 30;
+% 
+% % Time at which to change place holder.
+% tchange_ss = 0;
+% 
+% % Solver options
+% options_ss = optimset();
+% % Solve system
+% [SSdata, residual, ...
+%  exitflag, output] = fsolve(@(x) ...
+%                             bp_reg_mod(t_ss,x,x_p0_ss,pars_rep,tchange_ss,varargin_input{:}), ...
+%                             x0_ss, options_ss);
+% 
+% % Check for solver convergence.
+% if exitflag == 0
+%     disp('Solver did not converge.')
+%     disp(output)
+% end
+% 
+% % Check for imaginary solution.
+% if not (isreal(SSdata))
+%     disp('Imaginary number returned.')
+% end
+% 
+% % Set any values that are within machine precision of 0 equal to 0.
+% for i = 1:length(SSdata)
+%     if abs(SSdata(i)) < eps*100
+%         SSdata(i) = 0;
+%     end
+% end
+% 
+% % X = (variables, sex, scenario)
+% X_ss(:,sex_ind,sce_ind) = SSdata;
 
 end % sex
 end % scenario
@@ -172,24 +215,25 @@ end % scenario
 
 % Retrieve male and female.
 % X_m/f = (variables, points, scenario)
-t = t';
-X_m = reshape(X(:,:,1,:), [num_vars,N,num_scen]); 
-X_f = reshape(X(:,:,2,:), [num_vars,N,num_scen]); 
-% X_m = X_f;
-% X_f = X_m;
+t_dy = t_dy';
+X_dy_m = reshape(X_dy(:,:,1,:), [num_vars,N,num_scen]); 
+X_dy_f = reshape(X_dy(:,:,2,:), [num_vars,N,num_scen]); 
+% % X_m/f = (variables, scenario)
+% X_ss_m = reshape(X_ss(:,  1,:), [num_vars,  num_scen]); 
+% X_ss_f = reshape(X_ss(:,  2,:), [num_vars,  num_scen]); 
 
 % x-axis limits
 xlower = t0; xupper = tend; 
 
 % Convert minutes to days for longer simulations.
-t = t/1440; tchange = tchange/1440; 
+t_dy = t_dy/1440; tchange_dy = tchange_dy/1440; 
 xlower = xlower/1440; xupper = xupper/1440; 
 
 % y-axis limits
 ylower = zeros(num_vars,1); yupper = ylower; 
 for i = 1:length(ylower)
-    ylower(i) = 0.95*min( min(X_m(i,:,fixed_ss1)), min(X_f(i,:,fixed_ss1)) );
-    yupper(i) = 1.05*max( max(X_m(i,:,fixed_ss1)), max(X_f(i,:,fixed_ss1)) );
+    ylower(i) = 0.95*min( min(X_dy_m(i,:,fixed_ss1)), min(X_dy_f(i,:,fixed_ss1)) );
+    yupper(i) = 1.05*max( max(X_dy_m(i,:,fixed_ss1)), max(X_dy_f(i,:,fixed_ss1)) );
     if abs(yupper(i)) < eps*100
         ylower(i) = -10^(-5); yupper(i) = 10^(-5);
     end
@@ -216,14 +260,14 @@ for i = 1:7
         s(i,j) = subplot(3,5,j);
         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
         
-        plot(s(i,j), t,X_m((i-1)*15 + j,:,fixed_ss1),'b', ...
-                     t,X_f((i-1)*15 + j,:,fixed_ss1),'r');
+        plot(s(i,j), t_dy,X_dy_m((i-1)*15 + j,:,fixed_ss1),'b', ...
+                     t_dy,X_dy_f((i-1)*15 + j,:,fixed_ss1),'r');
         
         xlim([xlower, xupper])
         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
         
 %         Days
-        ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
+        ax.XTick = (tchange_dy+0*(1) : 2 : tchange_dy+days*(1));
         ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
 
 %         legend('Male', 'Female')
@@ -247,15 +291,15 @@ for j = 1:sub_var_num
     end
     s2(j).Position = s2(j).Position + [hshift 0 0.01 0.01];
 
-    plot(s2(j), t,X_m(var_ind(j),:,fixed_ss1), 'Color',[0.203, 0.592, 0.835], 'LineWidth',2.5);
+    plot(s2(j), t_dy,X_dy_m(var_ind(j),:,fixed_ss1), 'Color',[0.203, 0.592, 0.835], 'LineWidth',2.5);
     hold(s2(j), 'on')
-    plot(s2(j), t,X_f(var_ind(j),:,fixed_ss1), 'Color',[0.835, 0.203, 0.576], 'LineWidth',2.5);
+    plot(s2(j), t_dy,X_dy_f(var_ind(j),:,fixed_ss1), 'Color',[0.835, 0.203, 0.576], 'LineWidth',2.5);
     hold(s2(j), 'off')
 
     xlim([xlower, xupper])
     ylim([ylower(var_ind(j)), yupper(var_ind(j))])
     
-    set(s2(j), 'XTick', [tchange+0*(1) : 2 : tchange+days*(1)]);
+    set(s2(j), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
     set(s2(j), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
     
     if j == 10 || j == 11
@@ -275,22 +319,22 @@ xlh.Position(2) = xlh.Position(2) - 0.0005;
 % X_m/f = (variable, points, scenario)
 MAP_m = zeros(N,num_scen); MAP_f = zeros(N,num_scen);
 for i = 1:num_scen
-    MAP_m(:,i) = X_m(42,:,i) - X_m(42,1,i);
-    MAP_f(:,i) = X_f(42,:,i) - X_f(42,1,i);
+    MAP_m(:,i) = (X_dy_m(42,:,i) - X_dy_m(42,1,i)) ./ X_dy_m(42,1,i) * 100;
+    MAP_f(:,i) = (X_dy_f(42,:,i) - X_dy_f(42,1,i)) ./ X_dy_f(42,1,i) * 100;
 end
 % MAP_m = reshape(X_m(42,:,i) - X_m(42,1,i), [N,num_scen]);
 % MAP_f = reshape(X_f(42,:,i) - X_f(42,1,i), [N,num_scen]);
 
 g(1) = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
-plot(t,MAP_m(:,fixed_ss1),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+plot(t_dy,MAP_m(:,fixed_ss1),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 xlim([xlower, xupper]); %ylim([-20, 5]);
 ax = gca;
-ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
+ax.XTick = (tchange_dy+0*(1) : 2 : tchange_dy+days*(1));
 ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
 xlabel('Time (days)'); ylabel('\DeltaMAP (mmHg)');
 hold on
-plot(t,MAP_f(:,fixed_ss1),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+plot(t_dy,MAP_f(:,fixed_ss1),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 [~, hobj, ~, ~] = legend({'Male sim','Female sim'}, 'FontSize',7,'Location','Northwest');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
