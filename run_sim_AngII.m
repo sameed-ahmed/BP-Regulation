@@ -23,10 +23,11 @@ addpath(genpath(mypath))
 % m_RAS  - male RAS pars
 % m_Reab - male fractional sodium and water reabsorption
 % m_RAS_&_m_Reab - male RAS pars & fractional sodium and water reabsorption
+% m_RSNA_&_m_Reab - male RSNA & fractional sodium and water reabsorption
 % scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-%             'm_RSNA_m_Reab'};
+%             'm_RAS_m_Reab', 'm_RSNA_m_Reab'};
 scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-            'm_RSNA_m_Reab', ...
+            'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
             'Pri_Hyp'};
 num_scen = length(scenario);
 fixed_ss = 7;
