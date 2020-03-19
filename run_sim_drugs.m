@@ -34,7 +34,7 @@ fixed_ss1 = 1;
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
-% RSS    - Renin secretion stimulator (thiazide?) %
+% RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
 fixed_ss2 = [3];
 num_scen = length(scenario1);
@@ -44,6 +44,7 @@ spe_ind = 2;
 
 % Bootstrap replicate sample number
 sample_num = random('Discrete Uniform',1000)
+% sample_num = 42 % male and female MAP similar
 
 % Number of days to run simulation after change; Day at which to induce change;
 days = 14; day_change = 1;
