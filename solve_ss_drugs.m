@@ -37,7 +37,7 @@ num_scen = length(scenario1);
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
-fixed_ss2 = [7];
+fixed_ss2 = [3];
 
 
 % Species
@@ -45,8 +45,8 @@ spe_ind = 2;
 
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
-sample_num = 208
-% sample_num = 655
+% sample_num = 208
+sample_num = 655
 
 % Number of intervals for dose
 num_iter = 21;
