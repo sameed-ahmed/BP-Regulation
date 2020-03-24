@@ -43,11 +43,13 @@ num_scen = length(scenario1);
 spe_ind = 2;
 
 % Bootstrap replicate sample number
-sample_num = random('Discrete Uniform',1000)
+% sample_num = random('Discrete Uniform',1000)
 % sample_num = 42 % male and female MAP similar
+% sample_num = 208
+sample_num = 655
 
 % Number of days to run simulation after change; Day at which to induce change;
-days = 14; day_change = 1;
+days = 140; day_change = 1;
 % Number of points for plotting resolution
 % N = ((days+1)*1440) / 2;
 N = (days+1)*100 + 1;
