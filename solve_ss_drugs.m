@@ -46,12 +46,12 @@ spe_ind = 2;
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
 % sample_num = 208
-sample_num = 655
+% sample_num = 655
 
 % Number of intervals for dose
 num_iter = 21;
-% drug_dose = linspace(0,1.00,num_iter);
-drug_dose = linspace(0,0.95,num_iter);
+drug_dose = linspace(0,1.00,num_iter);
+% drug_dose = linspace(0,0.95,num_iter);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -73,12 +73,16 @@ for sex_ind = 1:2        % sex
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+%                               species{spe_ind},sex{sex_ind});
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1.mat', ...
                               species{spe_ind},sex{sex_ind});
-load(load_data_name_pars, 'pars_rep');
+% load(load_data_name_pars, 'pars_rep');
+load(load_data_name_pars, 'pars_rep', 'sample_num'); sample_num
 num_pars   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
-pars_rep = pars_rep(:,sample_num);
+% pars_rep = pars_rep(:,sample_num);
+pars_rep = pars_rep(:,1);
 
 % Variables
 load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...

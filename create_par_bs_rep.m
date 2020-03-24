@@ -18,6 +18,8 @@ fixed_ss = 1;
 % Species
 spe_ind = 2;
 
+sample_num = random('Discrete Uniform',1000)
+
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
@@ -65,8 +67,9 @@ pars_rep = zeros(152,num_sample);
 % random initial guess.
 
 tic
+for j = sample_num:sample_num
 % for j = 1:10
-for j = 1:num_sample
+% for j = 1:num_sample
 % parfor j = 1:10
 % [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data);
 

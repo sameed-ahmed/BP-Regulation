@@ -31,7 +31,7 @@ par_ind = [13;14;4;21;18;3];
 par_num = length(par_ind);
 % Range for parameters
 par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
-par_range_upper = [100;400;100;100;100;100]/100;
+par_range_upper = [200;600;200;200;200;200]/100;
 
 % Variables to check
 % P_ma      - var 42; +30,40, +40,50
@@ -45,8 +45,8 @@ par_range_upper = [100;400;100;100;100;100]/100;
 var_ind = [42;33;6;7;92;27;52];
 num_vars_check = length(var_ind);
 % Range for variables for each sex.
-var_range_lower_change_m = [40*100;5;5;5;5;5;2]/100;
-var_range_upper_change_m = [50*100;5;5;5;5;5;2]/100;
+var_range_lower_change_m = [60*100;5;5;5;5;5;2]/100;
+var_range_upper_change_m = [65*100;5;5;5;5;5;2]/100;
 var_range_lower_change_f = [30*100;5;5;5;5;5;2]/100;
 var_range_upper_change_f = [40*100;5;5;5;5;5;2]/100;
 
