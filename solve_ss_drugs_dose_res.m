@@ -78,7 +78,7 @@ spe_ind = 2;
 % Bootstrap replicate sample number
 % fixed_sample = random('Discrete Uniform',1000)
 % fixed_sample = 208
-fixed_sample = 1
+fixed_sample = 1;
 
 % Number of intervals for dose
 num_iter = 21;
@@ -353,7 +353,8 @@ title(s_map(3), 'C')
 
 % %% Save figures. -----------------------------------------------------------
 %  
-% save_data_name = sprintf('dose_response_%s%s.fig', scenario2{fixed_ss2},num2str(sample_num));
+% save_data_name = sprintf('dose_response_%s%s.fig', ...
+%                          scenario2{fixed_ss2},num2str(sample_num));
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([f1;f2;g], save_data_name)
 
