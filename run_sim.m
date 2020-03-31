@@ -26,8 +26,8 @@ scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
              'Pri_Hyp'};
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB'};
-fixed_ss1 = 8;
-fixed_ss2 = 1;
+fixed_ss1 = 1;
+fixed_ss2 = 3;
 
 % Species
 spe_ind = 2;
@@ -77,14 +77,14 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 % Ang II inf rate fmol/(ml min), ACEi target level (%), ARB target level (%)
 if     strcmp(scenario2{fixed_ss2}, 'AngII')
     if     strcmp(sex{sex_ind}, 'male')
-        varargin_input = {varargin_input{:}, 'AngII',2022}; % Sampson 2008
+        varargin_input = [varargin_input, 'AngII',2022]; % Sampson 2008
     elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = {varargin_input{:}, 'AngII',2060}; % Sampson 2008
+        varargin_input = [varargin_input, 'AngII',2060]; % Sampson 2008
     end
 elseif strcmp(scenario2{fixed_ss2}, 'ACEi')
-        varargin_input = {varargin_input{:}, 'ACEi',0.78}; % Leete 2018
+        varargin_input = [varargin_input, 'ACEi',0.95]; 
 elseif strcmp(scenario2{fixed_ss2}, 'ARB')
-        varargin_input = {varargin_input{:}, 'ARB',0.67}; % Leete 2018
+        varargin_input = [varargin_input, 'ARB',0.67]; % Leete 2018
 end
 
 %% Solve DAE

@@ -222,6 +222,7 @@ X_ss_f = reshape(X_ss(:,:,2,:), [num_vars,num_samples,num_scen]);
 X_bl_m = reshape(X_bl(:,:,1,:), [num_vars,num_samples,num_scen]); 
 X_bl_f = reshape(X_bl(:,:,2,:), [num_vars,num_samples,num_scen]); 
 
+% Compute relative change.
 X_rel_m = (X_ss_m(:,:,fixed_ss1) - X_bl_m(:,:,fixed_ss1)) ...
           ./ X_bl_m(:,:,fixed_ss1) * 100;
 X_rel_f = (X_ss_f(:,:,fixed_ss1) - X_bl_f(:,:,fixed_ss1)) ...
@@ -517,12 +518,22 @@ h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
 xlabel(s_map1(3), '% \DeltaMAP');
 title(s_map1(3), 'C')
 
-%% Save figures. -----------------------------------------------------------
+%% Save figures and data. -------------------------------------------------
  
 save_data_name = sprintf('dose_distribution_%s%s%%.fig', ...
                          scenario2{fixed_ss2},num2str(drug_dose*100));
 save_data_name = strcat('Figures/', save_data_name);
 savefig([f1;f2;f3;f4;g1;g2], save_data_name)
+
+save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s%s%%.mat'  , ...
+                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'X_ss_m', 'X_bl_m')
+
+save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s%s%%.mat', ...
+                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'X_ss_f', 'X_bl_f')
 
 end
 
