@@ -42,20 +42,17 @@ num_scen = length(scenario1);
 % Species
 spe_ind = 2;
 
-% Number of days to run simulation after change; Day at which to induce change;
-days = 14; day_change = 1;
-% Number of points for plotting resolution
-% N = ((days+1)*1440) / 2;
-N = (days+1)*100 + 1;
-
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
 % sample_num = 42 % male and female MAP similar
 % sample_num = 208
 sample_num = 655
 
-% Drug dose
-drug_dose = 0.95
+% Number of days to run simulation after change; Day at which to induce change;
+days = 140; day_change = 1;
+% Number of points for plotting resolution
+% N = ((days+1)*1440) / 2;
+N = (days+1)*100 + 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -105,17 +102,17 @@ for i = 1:length(fixed_ss2)
             varargin_input = [varargin_input, 'AngII',505]; % Sullivan 2010
         end
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ACEi' )
-            varargin_input = [varargin_input, 'ACEi' ,drug_dose]; % 
+            varargin_input = [varargin_input, 'ACEi' ,1.0]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB1' )
-            varargin_input = [varargin_input, 'ARB1' ,drug_dose]; % 
+            varargin_input = [varargin_input, 'ARB1' ,0.55]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
-            varargin_input = [varargin_input, 'ARB2' ,drug_dose]; % 
+            varargin_input = [varargin_input, 'ARB2' ,0.5]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'DRI'  )
-            varargin_input = [varargin_input, 'DRI'  ,drug_dose]; % 
+            varargin_input = [varargin_input, 'DRI'  ,0.5]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'MRB'  )
-            varargin_input = [varargin_input, 'MRB'  ,drug_dose]; % 
+            varargin_input = [varargin_input, 'MRB'  ,0.5]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'RSS'  )
-            varargin_input = [varargin_input, 'RSS'  ,drug_dose]; % 
+            varargin_input = [varargin_input, 'RSS'  ,0.5]; % 
     end
 end
 
