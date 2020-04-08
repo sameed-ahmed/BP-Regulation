@@ -69,7 +69,7 @@ num_scen = length(scenario1);
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
-fixed_ss2 = [3];
+fixed_ss2 = [4];
 
 % Species
 spe_ind = 2;
@@ -111,7 +111,7 @@ sex     = {'male' , 'female'};
 % Number of variables
 num_vars = 93;
 
-%% Load bootstrap replicate parameters & variables after drug dose.
+%% Load bootstrap replicate parameters & variables before and after drug dose.
 
 % Parameters
 load_data_name_pars = sprintf('%s_male_pars_scenario_Pri_Hyp_bs_rep1000.mat'  , ...
@@ -131,7 +131,7 @@ pars_bl_m = get_pars(species{spe_ind}, 'male'  , varargin_input{:});
 pars_bl_f = get_pars(species{spe_ind}, 'female', varargin_input{:});
 pars_bl_m = pars_bl_m(pars_ind); pars_bl_f = pars_bl_f(pars_ind); 
 
-% Variables after drug dose and baseline
+% Variables after drug dose and hypertensiv baseline before drug dose
 % X_m/f = (variable, sample, scenario)
 load_data_name_vars = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s%s%%.mat'  , ...
                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
@@ -182,132 +182,311 @@ X_failure_f = X_bl_f(:,MAP_failure_ind_f,fixed_ss1);
 [h_f,p_f] = ttest2(X_success_f',X_failure_f');
 sig_m = [p_m',h_m']; sig_f = [p_f',h_f'];
 
-%% Plot parameters
+%% % Plot hypertensive perturbed parameters success and failure
+% 
+% fp1 = figure('DefaultAxesFontSize',14);
+% sp1 = gobjects(pars_hyp_num);
+% for i = 1:pars_hyp_num
+%     sp1(i) = subplot(3,2,i);
+%     h1 = histogram(sp1(i),pars_success_m(i,:));
+%     hold(sp1(i), 'on')
+%     h2 = histogram(sp1(i),pars_failure_m(i,:));
+%     hold(sp1(i), 'off')
+%     
+%     h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+%     h1.BinWidth = 10; h2.BinWidth = 10; 
+%     h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+% 
+%     xlabel_name = strcat('$ \% \Delta ', {' '}, pars_names(i));
+%     xlabel(sp1(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)    
+% end
+% hist_title = sprintf('Male Parameters');
+% sgtitle(hist_title, 'FontSize',16)
+% 
+% fp2 = figure('DefaultAxesFontSize',14);
+% sp2 = gobjects(pars_hyp_num);
+% for i = 1:pars_hyp_num
+%     sp2(i) = subplot(3,2,i);
+%     h1 = histogram(sp2(i),pars_success_f(i,:));
+%     hold(sp2(i), 'on')
+%     h2 = histogram(sp2(i),pars_failure_f(i,:));
+%     hold(sp2(i), 'off')
+%     
+%     h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+%     h1.BinWidth = 10; h2.BinWidth = 10; 
+%     h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+% 
+%     xlabel_name = strcat('$ \% \Delta ', {' '}, pars_names(i));
+%     xlabel(sp2(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)    
+% end
+% hist_title = sprintf('Female Parameters');
+% sgtitle(hist_title, 'FontSize',16)
 
-fp1 = figure('DefaultAxesFontSize',14);
-sp1 = gobjects(pars_hyp_num);
-for i = 1:pars_hyp_num
-    sp1(i) = subplot(3,2,i);
-    h1 = histogram(sp1(i),pars_success_m(i,:));
-    hold(sp1(i), 'on')
-    h2 = histogram(sp1(i),pars_failure_m(i,:));
-    hold(sp1(i), 'off')
+%% % Plot all variables success and failure
+% 
+% fv1 = gobjects(7,1);
+% sv1 = gobjects(7,15);
+% % Loop through each set of subplots.
+% for i = 1:7
+%     fv1(i) = figure('pos',[750 500 650 450]);
+%     % This is to avoid the empty plots in the last subplot set.
+%     if i == 7
+%         last_plot = mod(num_vars, 15);
+%     else
+%         last_plot = 15;
+%     end
+%     % Loop through each subplot within a set of subplots.
+%     for j = 1:last_plot
+%         sv1(i,j) = subplot(3,5,j);
+% %         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
+%         
+%         h1 = histogram(sv1(i,j),X_success_m((i-1)*15 + j,:),10);
+%         hold on
+%         h2 = histogram(sv1(i,j),X_failure_m((i-1)*15 + j,:),10);
+%         hold off
+%         
+%         h1.Normalization = 'probability'; h2.Normalization = 'probability'; 
+% %         h1.BinWidth = 1.0; h2.BinWidth = 1.0; 
+%         h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+% 
+%         xlabel_name = strcat(var_names((i-1)*15 + j));
+%         xlabel(sv1(i,j), xlabel_name, 'Interpreter','latex', 'FontSize',16)
+% 
+% %         legend('Male', 'Female')
+%     end
+%     hist_title = sprintf('Male Variables %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
+%     sgtitle(hist_title, 'FontSize',14)
+% end
+% 
+% fv2 = gobjects(7,1);
+% sv2 = gobjects(7,15);
+% % Loop through each set of subplots.
+% for i = 1:7
+%     fv2(i) = figure('pos',[750 500 650 450]);
+%     % This is to avoid the empty plots in the last subplot set.
+%     if i == 7
+%         last_plot = mod(num_vars, 15);
+%     else
+%         last_plot = 15;
+%     end
+%     % Loop through each subplot within a set of subplots.
+%     for j = 1:last_plot
+%         sv2(i,j) = subplot(3,5,j);
+% %         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
+%         
+%         h1 = histogram(sv2(i,j),X_success_f((i-1)*15 + j,:),10);
+%         hold on
+%         h2 = histogram(sv2(i,j),X_failure_f((i-1)*15 + j,:),10);
+%         hold off
+%         
+%         h1.Normalization = 'probability'; h2.Normalization = 'probability'; 
+% %         h1.BinWidth = 1.0; h2.BinWidth = 1.0; 
+%         h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+% 
+%         xlabel_name = strcat(var_names((i-1)*15 + j));
+%         xlabel(sv2(i,j), xlabel_name, 'Interpreter','latex', 'FontSize',16)
+% 
+% %         legend('Male', 'Female')
+%     end
+%     hist_title = sprintf('Female Variables %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
+%     sgtitle(hist_title, 'FontSize',14)
+% end
+
+%% % Plot some interesting variables
+% 
+% R_bl_m = reshape(X_bl_m(74,:,:) ./ X_bl_m(4,:,:), [num_samples,num_scen]);
+% R_bl_f = reshape(X_bl_f(74,:,:) ./ X_bl_f(4,:,:), [num_samples,num_scen]);
+% size(R_bl_m(:,fixed_ss1))
+% 
+% FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:,:)) ./ X_bl_m(11,:,:), [num_samples,num_scen]) * 100;
+% FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:,:)) ./ X_bl_f(11,:,:), [num_samples,num_scen]) * 100;
+% 
+% FRW_bl_m = reshape((X_bl_m( 7,:,:) - X_bl_m(92,:,:)) ./ X_bl_m( 7,:,:), [num_samples,num_scen]) * 100;
+% FRW_bl_f = reshape((X_bl_f( 7,:,:) - X_bl_f(92,:,:)) ./ X_bl_f( 7,:,:), [num_samples,num_scen]) * 100;
+% 
+% g1 = figure('DefaultAxesFontSize',14);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
+% s_mech(1) = subplot(1,3,1); 
+% s_mech(2) = subplot(1,3,2); 
+% s_mech(3) = subplot(1,3,3); 
+% 
+% h1 = histogram(s_mech(1),R_bl_m(:,fixed_ss1),10);
+% hold(s_mech(1), 'on')
+% h2 = histogram(s_mech(1),R_bl_f(:,fixed_ss1),10);
+% hold(s_mech(1), 'off')
+% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+% h1.BinWidth = 0.01; h2.BinWidth = 0.01; 
+% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+% legend(s_mech(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northeast');
+% xlabel(s_mech(1), 'R_{EA}/R_R');
+% title(s_mech(1), 'A')
+% 
+% h1 = histogram(s_mech(2),FRNA_bl_m(:,fixed_ss1),10);
+% hold(s_mech(2), 'on')
+% h2 = histogram(s_mech(2),FRNA_bl_f(:,fixed_ss1),10);
+% hold(s_mech(2), 'off')
+% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+% h1.BinWidth = 0.01; h2.BinWidth = 0.01; 
+% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+% xlabel(s_mech(2), 'FR_{Na^+}');
+% title(s_mech(2), 'B')
+% 
+% h1 = histogram(s_mech(3),FRW_bl_m(:,fixed_ss1),10);
+% hold(s_mech(3), 'on')
+% h2 = histogram(s_mech(3),FRW_bl_f(:,fixed_ss1),10);
+% hold(s_mech(3), 'off')
+% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+% h1.BinWidth = 0.02; h2.BinWidth = 0.02; 
+% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+% xlabel(s_mech(3), 'FR_{U}');
+% title(s_mech(3), 'C')
+
+%% Plot variables that explain mechanims. ---------------------------------
+
+R_ss_m = reshape(X_ss_m(74,:,:) ./ X_ss_m(4,:,:), [num_samples,num_scen]);
+R_ss_f = reshape(X_ss_f(74,:,:) ./ X_ss_f(4,:,:), [num_samples,num_scen]);
+R_bl_m = reshape(X_bl_m(74,:,:) ./ X_bl_m(4,:,:), [num_samples,num_scen]);
+R_bl_f = reshape(X_bl_f(74,:,:) ./ X_bl_f(4,:,:), [num_samples,num_scen]);
+
+R_rel_m = (R_ss_m(:,fixed_ss1) - R_bl_m(:,fixed_ss1)) ...
+          ./ R_bl_m(:,fixed_ss1) * 100;
+R_rel_f = (R_ss_f(:,fixed_ss1) - R_bl_f(:,fixed_ss1)) ...
+          ./ R_bl_f(:,fixed_ss1) * 100;
+
+FRNA_ss_m = reshape((X_ss_m(11,:,:) - X_ss_m(27,:,:)) ./ X_ss_m(11,:,:), [num_samples,num_scen]) * 100;
+FRNA_ss_f = reshape((X_ss_f(11,:,:) - X_ss_f(27,:,:)) ./ X_ss_f(11,:,:), [num_samples,num_scen]) * 100;
+FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:,:)) ./ X_bl_m(11,:,:), [num_samples,num_scen]) * 100;
+FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:,:)) ./ X_bl_f(11,:,:), [num_samples,num_scen]) * 100;
+
+FRNA_rel_m = (FRNA_ss_m(:,fixed_ss1) - FRNA_bl_m(:,fixed_ss1)) ...
+             ./ FRNA_bl_m(:,fixed_ss1) * 100;
+FRNA_rel_f = (FRNA_ss_f(:,fixed_ss1) - FRNA_bl_f(:,fixed_ss1)) ...
+             ./ FRNA_bl_f(:,fixed_ss1) * 100;
+
+mean(FRNA_rel_m)
+mean(FRNA_rel_f)
+
+FRW_ss_m = reshape((X_ss_m( 7,:,:) - X_ss_m(92,:,:)) ./ X_ss_m( 7,:,:), [num_samples,num_scen]) * 100;
+FRW_ss_f = reshape((X_ss_f( 7,:,:) - X_ss_f(92,:,:)) ./ X_ss_f( 7,:,:), [num_samples,num_scen]) * 100;
+FRW_bl_m = reshape((X_bl_m( 7,:,:) - X_bl_m(92,:,:)) ./ X_bl_m( 7,:,:), [num_samples,num_scen]) * 100;
+FRW_bl_f = reshape((X_bl_f( 7,:,:) - X_bl_f(92,:,:)) ./ X_bl_f( 7,:,:), [num_samples,num_scen]) * 100;
+
+FRW_rel_m = (FRW_ss_m(:,fixed_ss1) - FRW_bl_m(:,fixed_ss1)) ...
+            ./ FRW_bl_m(:,fixed_ss1) * 100;
+FRW_rel_f = (FRW_ss_f(:,fixed_ss1) - FRW_bl_f(:,fixed_ss1)) ...
+            ./ FRW_bl_f(:,fixed_ss1) * 100;
+
+mean(FRW_rel_m)
+mean(FRW_rel_f)
+
+g1 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
+s_mech(1) = subplot(1,3,1); 
+s_mech(2) = subplot(1,3,2); 
+s_mech(3) = subplot(1,3,3); 
+
+h1 = histogram(s_mech(1),R_rel_m(:),10);
+hold(s_mech(1), 'on')
+h2 = histogram(s_mech(1),R_rel_f(:),10);
+hold(s_mech(1), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+legend(s_mech(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northeast');
+xlabel(s_mech(1), 'R_{EA}/R_R');
+title(s_mech(1), 'A')
+
+h1 = histogram(s_mech(2),FRNA_rel_m(:),10);
+hold(s_mech(2), 'on')
+h2 = histogram(s_mech(2),FRNA_rel_f(:),10);
+hold(s_mech(2), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 0.05; h2.BinWidth = 0.05; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_mech(2), 'FR_{Na^+}');
+title(s_mech(2), 'B')
+
+h1 = histogram(s_mech(3),FRW_rel_m(:),10);
+hold(s_mech(3), 'on')
+h2 = histogram(s_mech(3),FRW_rel_f(:),10);
+hold(s_mech(3), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 0.05; h2.BinWidth = 0.05; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_mech(3), 'FR_{W}');
+title(s_mech(3), 'C')
+
+%% Plot Mean Arterial Pressure distribution. ------------------------------
+
+% Actual, change, and % change in MAP.
+% X_m/f = (variable, sample, scenario)
+MAP_ac_m = zeros(num_samples,num_scen); MAP_ac_f = zeros(num_samples,num_scen);
+MAP_ch_m = zeros(num_samples,num_scen); MAP_ch_f = zeros(num_samples,num_scen);
+MAP_pc_m = zeros(num_samples,num_scen); MAP_pc_f = zeros(num_samples,num_scen);
+for i = 1:num_scen
+    MAP_ac_m(:,i) = (X_ss_m(42,:,i)                 )                        ;
+    MAP_ac_f(:,i) = (X_ss_f(42,:,i)                 )                        ;
     
-    h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-    h1.BinWidth = 10; h2.BinWidth = 10; 
-    h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
-
-    xlabel_name = strcat('$ \% \Delta ', {' '}, pars_names(i));
-    xlabel(sp1(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)    
-end
-hist_title = sprintf('Male Parameters');
-sgtitle(hist_title, 'FontSize',16)
-
-fp2 = figure('DefaultAxesFontSize',14);
-sp2 = gobjects(pars_hyp_num);
-for i = 1:pars_hyp_num
-    sp2(i) = subplot(3,2,i);
-    h1 = histogram(sp2(i),pars_success_f(i,:));
-    hold(sp2(i), 'on')
-    h2 = histogram(sp2(i),pars_failure_f(i,:));
-    hold(sp2(i), 'off')
+    MAP_ch_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i))                        ;
+    MAP_ch_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i))                        ;
     
-    h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-    h1.BinWidth = 10; h2.BinWidth = 10; 
-    h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
-
-    xlabel_name = strcat('$ \% \Delta ', {' '}, pars_names(i));
-    xlabel(sp2(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)    
-end
-hist_title = sprintf('Female Parameters');
-sgtitle(hist_title, 'FontSize',16)
-
-%% Plot variables
-
-fv1 = gobjects(7,1);
-sv1 = gobjects(7,15);
-% Loop through each set of subplots.
-for i = 1:7
-    fv1(i) = figure('pos',[750 500 650 450]);
-    % This is to avoid the empty plots in the last subplot set.
-    if i == 7
-        last_plot = mod(num_vars, 15);
-    else
-        last_plot = 15;
-    end
-    % Loop through each subplot within a set of subplots.
-    for j = 1:last_plot
-        sv1(i,j) = subplot(3,5,j);
-%         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
-        
-        h1 = histogram(sv1(i,j),X_success_m((i-1)*15 + j,:),10);
-        hold on
-        h2 = histogram(sv1(i,j),X_failure_m((i-1)*15 + j,:),10);
-        hold off
-        
-        h1.Normalization = 'probability'; h2.Normalization = 'probability'; 
-%         h1.BinWidth = 1.0; h2.BinWidth = 1.0; 
-        h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
-
-        xlabel_name = strcat(var_names((i-1)*15 + j));
-        xlabel(sv1(i,j), xlabel_name, 'Interpreter','latex', 'FontSize',16)
-
-%         legend('Male', 'Female')
-    end
-    hist_title = sprintf('Male Variables %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
-    sgtitle(hist_title, 'FontSize',14)
+    MAP_pc_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i)) ./ X_bl_m(42,1,i) * 100;
+    MAP_pc_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i)) ./ X_bl_f(42,1,i) * 100;
 end
 
-fv2 = gobjects(7,1);
-sv2 = gobjects(7,15);
-% Loop through each set of subplots.
-for i = 1:7
-    fv2(i) = figure('pos',[750 500 650 450]);
-    % This is to avoid the empty plots in the last subplot set.
-    if i == 7
-        last_plot = mod(num_vars, 15);
-    else
-        last_plot = 15;
-    end
-    % Loop through each subplot within a set of subplots.
-    for j = 1:last_plot
-        sv2(i,j) = subplot(3,5,j);
-%         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
-        
-        h1 = histogram(sv2(i,j),X_success_f((i-1)*15 + j,:),10);
-        hold on
-        h2 = histogram(sv2(i,j),X_failure_f((i-1)*15 + j,:),10);
-        hold off
-        
-        h1.Normalization = 'probability'; h2.Normalization = 'probability'; 
-%         h1.BinWidth = 1.0; h2.BinWidth = 1.0; 
-        h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+g2 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
+s_map1(1) = subplot(1,3,1); 
+s_map1(2) = subplot(1,3,2); 
+s_map1(3) = subplot(1,3,3);
 
-        xlabel_name = strcat(var_names((i-1)*15 + j));
-        xlabel(sv2(i,j), xlabel_name, 'Interpreter','latex', 'FontSize',16)
+h1 = histogram(s_map1(1),MAP_ac_m(:,fixed_ss1),10);
+hold(s_map1(1), 'on')
+h2 = histogram(s_map1(1),MAP_ac_f(:,fixed_ss1),10);
+hold(s_map1(1), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+legend(s_map1(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northwest');
+xlabel(s_map1(1), 'MAP (mmHg)');
+title(s_map1(1), 'A')
 
-%         legend('Male', 'Female')
-    end
-    hist_title = sprintf('Female Variables %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
-    sgtitle(hist_title, 'FontSize',14)
-end
+h1 = histogram(s_map1(2),MAP_ch_m(:,fixed_ss1),10);
+hold(s_map1(2), 'on')
+h2 = histogram(s_map1(2),MAP_ch_f(:,fixed_ss1),10);
+hold(s_map1(2), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_map1(2), '\DeltaMAP (mmHg)');
+title(s_map1(2), 'B')
+
+h1 = histogram(s_map1(3),MAP_pc_m(:,fixed_ss1),10);
+hold(s_map1(3), 'on')
+h2 = histogram(s_map1(3),MAP_pc_f(:,fixed_ss1),10);
+hold(s_map1(3), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_map1(3), '% \DeltaMAP');
+title(s_map1(3), 'C')
 
 %% Save figures and data.
 
-save_data_name = sprintf('success_failure_distribution_%s%s%%.fig', ...
-                         scenario2{fixed_ss2},num2str(drug_dose*100));
-save_data_name = strcat('Figures/', save_data_name);
-savefig([fp1;fp2;fv1;fv2], save_data_name)
-
-save_data_name = sprintf('%s_male_signif_scenario_Pri_Hyp_%s%s%%.mat'  , ...
-                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'sig_m', 'num_success_m', 'num_failure_m')
-
-save_data_name = sprintf('%s_female_signif_scenario_Pri_Hyp_%s%s%%.mat', ...
-                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'sig_f', 'num_success_f', 'num_failure_f')
+% save_data_name = sprintf('success_failure_distribution_%s%s%%.fig', ...
+%                          scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([fp1;fp2;fv1;fv2], save_data_name)
+% 
+% save_data_name = sprintf('%s_male_signif_scenario_Pri_Hyp_%s%s%%.mat'  , ...
+%                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'sig_m', 'num_success_m', 'num_failure_m')
+% 
+% save_data_name = sprintf('%s_female_signif_scenario_Pri_Hyp_%s%s%%.mat', ...
+%                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'sig_f', 'num_success_f', 'num_failure_f')
 
 end
 
