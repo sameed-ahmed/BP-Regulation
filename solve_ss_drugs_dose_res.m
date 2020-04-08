@@ -78,12 +78,14 @@ spe_ind = 2;
 % Bootstrap replicate sample number
 % fixed_sample = random('Discrete Uniform',1000)
 % fixed_sample = 208
-fixed_sample = 1;
+fixed_sample = 655
+% fixed_sample = 1;
 
 % Number of intervals for dose
-num_iter = 21;
-drug_dose = linspace(0,1.00,num_iter);
-% drug_dose = linspace(0,0.95,num_iter);
+% num_iter = 21;
+% drug_dose = linspace(0,1.00,num_iter);
+num_iter = 20;
+drug_dose = linspace(0,0.95,num_iter);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -351,10 +353,10 @@ plot(s_map(3), xscale,MAP_pc_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576]
 hold(s_map(3), 'off')
 title(s_map(3), 'C')
 
-% %% Save figures. -----------------------------------------------------------
-%  
+%% Save figures. -----------------------------------------------------------
+ 
 % save_data_name = sprintf('dose_response_%s%s.fig', ...
-%                          scenario2{fixed_ss2},num2str(sample_num));
+%                          scenario2{fixed_ss2},num2str(fixed_sample));
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([f1;f2;g], save_data_name)
 
