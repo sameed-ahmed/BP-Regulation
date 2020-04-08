@@ -36,7 +36,7 @@ fixed_ss1 = 1;
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
-fixed_ss2 = [3];
+fixed_ss2 = [4];
 num_scen = length(scenario1);
 
 % Species
@@ -49,10 +49,10 @@ days = 14; day_change = 1;
 N = (days+1)*100 + 1;
 
 % Bootstrap replicate sample number
-% sample_num = random('Discrete Uniform',1000)
+sample_num = random('Discrete Uniform',1000)
 % sample_num = 42 % male and female MAP similar
 % sample_num = 208
-sample_num = 655
+% sample_num = 655
 
 % Drug dose
 drug_dose = 0.95
@@ -245,10 +245,7 @@ for i = 1:length(ylower)
     end
 end
 
-% Interesting variables to plot.
-var_ind = [33;41;42;9;73;74;6;7;27;92;93;29]; sub_var_num = length(var_ind);
-
-% Plot all vars vs time. --------------------------------------------------
+%% Plot all vars vs time. -------------------------------------------------
 
 f = gobjects(7,1);
 s = gobjects(7,15);
@@ -281,7 +278,10 @@ for i = 1:7
     end
 end
 
-% Plot interesting variables. ---------------------------------------------
+%% Plot interesting variables. --------------------------------------------
+
+% Interesting variables to plot.
+var_ind = [33;41;42;9;73;74;6;7;27;92;93;29]; sub_var_num = length(var_ind);
 
 f2 = figure('pos',[000 000 600 600], 'DefaultAxesFontSize',12);
 s2 = gobjects(1,sub_var_num);
@@ -319,7 +319,7 @@ legend(s2(1),'Male','Female', 'Location','east')
 xlh = xlabel(s2(11),'Time (days)');
 xlh.Position(2) = xlh.Position(2) - 0.0005;
 
-% Plot Mean Arterial Pressure vs Time. ------------------------------------
+%% Plot Mean Arterial Pressure vs Time. -----------------------------------
 
 % Substract MAP by baseline for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
@@ -331,7 +331,7 @@ end
 % MAP_m = reshape(X_m(42,:,i) - X_m(42,1,i), [N,num_scen]);
 % MAP_f = reshape(X_f(42,:,i) - X_f(42,1,i), [N,num_scen]);
 
-g(1) = figure('DefaultAxesFontSize',14);
+g1 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(t_dy,MAP_m(:,fixed_ss1),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 xlim([xlower, xupper]); %ylim([-20, 5]);
@@ -344,6 +344,197 @@ plot(t_dy,MAP_f(:,fixed_ss1),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
 [~, hobj, ~, ~] = legend({'Male sim','Female sim'}, 'FontSize',7,'Location','Northwest');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
+
+%% Plot all other quantities of interest. ---------------------------------
+
+% GFR; BV; RSNA; REA/RR for each sex and all scenarios.
+% X_m/f = (variable, points, scenario)
+GFR_m  = reshape(X_dy_m( 7,:,:), [N,num_scen]);
+GFR_f  = reshape(X_dy_f( 7,:,:), [N,num_scen]);
+BV_m   = reshape(X_dy_m(30,:,:), [N,num_scen]);
+BV_f   = reshape(X_dy_f(30,:,:), [N,num_scen]);
+R_m    = reshape(X_dy_m(74,:,:) ./ X_dy_m( 4,:,:), [N,num_scen]);
+R_f    = reshape(X_dy_f(74,:,:) ./ X_dy_f( 4,:,:), [N,num_scen]);
+% Plot as relative change in order to compare male and female.
+GFR_m_bl = GFR_m(1,:);
+GFR_f_bl = GFR_f(1,:);
+BV_m_bl  = BV_m (1,:);
+BV_f_bl  = BV_f (1,:);
+R_m_bl   = R_m  (1,:);
+R_f_bl   = R_f  (1,:);
+for i = 1:N
+    GFR_m(i,:) = GFR_m(i,:) ./ GFR_m_bl;
+    GFR_f(i,:) = GFR_f(i,:) ./ GFR_f_bl;
+    BV_m (i,:) = BV_m (i,:) ./ BV_m_bl ;
+    BV_f (i,:) = BV_f (i,:) ./ BV_f_bl ;
+    R_m  (i,:) = R_m  (i,:) ./ R_m_bl  ;
+    R_f  (i,:) = R_f  (i,:) ./ R_f_bl  ;
+end
+
+% Filtration fraction for sodium and urine for each sex and all scenarios.
+FRNA_m = reshape((X_dy_m(11,:,:) - X_dy_m(27,:,:)) ./ X_dy_m(11,:,:), [N,num_scen]) * 100;
+FRNA_f = reshape((X_dy_f(11,:,:) - X_dy_f(27,:,:)) ./ X_dy_f(11,:,:), [N,num_scen]) * 100;
+FRW_m  = reshape((X_dy_m( 7,:,:) - X_dy_m(92,:,:)) ./ X_dy_m( 7,:,:), [N,num_scen]) * 100;
+FRW_f  = reshape((X_dy_f( 7,:,:) - X_dy_f(92,:,:)) ./ X_dy_f( 7,:,:), [N,num_scen]) * 100;
+% Plot as relative change in order to compare male and female.
+FRNA_m_bl = FRNA_m(1,:);
+FRNA_f_bl = FRNA_f(1,:);
+FRW_m_bl  = FRW_m (1,:);
+FRW_f_bl  = FRW_f (1,:);
+for i = 1:N
+    FRNA_m(i,:) = FRNA_m(i,:) ./ FRNA_m_bl;
+    FRNA_f(i,:) = FRNA_f(i,:) ./ FRNA_f_bl;
+    FRW_m (i,:) = FRW_m (i,:) ./ FRW_m_bl ;
+    FRW_f (i,:) = FRW_f (i,:) ./ FRW_f_bl ;
+end
+
+g2 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
+s_2(1) = subplot(2,2,1); 
+s_2(2) = subplot(2,2,2); 
+s_2(3) = subplot(2,2,3);
+s_2(4) = subplot(2,2,4); 
+
+plot(s_2(1), t_dy,R_m   (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_2(1), [xlower, xupper]);
+set(s_2(1), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
+set(s_2(1), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+% ylim(s_main(1), [0.75,1.05])
+xlabel(s_2(1), 'Time (days)'); ylabel(s_2(1), 'R_{EA}/R_R (relative)');
+hold(s_2(1), 'on')
+plot(s_2(1), t_dy,R_f   (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_2(1), 'off')
+[~, hobj, ~, ~] = legend(s_2(1), {'Male','Female'}, 'FontSize',7,'Location','Northeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+title(s_2(1), 'A')
+
+plot(s_2(2), t_dy,FRNA_m(:,fixed_ss1) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_2(2), [xlower, xupper]);
+set(s_2(2), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
+set(s_2(2), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+% ylim(s_main(2), [97,100])
+xlabel(s_2(2), 'Time (days)'); ylabel(s_2(2), 'FR (relative)');
+hold(s_2(2), 'on')
+plot(s_2(2), t_dy,FRW_m (:,fixed_ss1), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(s_2(2), t_dy,FRNA_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(s_2(2), t_dy,FRW_f (:,fixed_ss1), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+fakeplot = zeros(2, 1);
+fakeplot(1) = plot(s_2(2), NaN,NaN, 'k-' );
+fakeplot(2) = plot(s_2(2), NaN,NaN, 'k--');
+[~, hobj, ~, ~] = legend(fakeplot, {'FR_{Na^+}','FR_{U}'}, 'FontSize',7,'Location','Northeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+hold(s_2(2), 'off')
+title(s_2(2), 'B')
+
+plot(s_2(3), t_dy,GFR_m (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_2(3), [xlower, xupper]);
+set(s_2(3), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
+set(s_2(3), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+% ylim(s_main(3), [0.75,1.35])
+xlabel(s_2(3), 'Time (days)'); ylabel(s_2(3), 'GFR (relative)');
+hold(s_2(3), 'on')
+plot(s_2(3), t_dy,GFR_f (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_2(3), 'off')
+title(s_2(3), 'C')
+
+plot(s_2(4), t_dy,BV_m  (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_2(4), [xlower, xupper]);
+set(s_2(4), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
+set(s_2(4), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+% ylim(s_main(4), [1,1.25])
+xlabel(s_2(4), 'Time (days)'); ylabel(s_2(4), 'BV (relative)');
+hold(s_2(4), 'on')
+plot(s_2(4), t_dy,BV_f  (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_2(4), 'off')
+title(s_2(4), 'D')
+
+%% Plot all other quantities of interest. ---------------------------------
+
+% GFR; BV; RSNA; REA/RR for each sex and all scenarios.
+% X_m/f = (variable, points, scenario)
+MAP_m   = reshape(X_dy_m(42,:,:), [N,num_scen]);
+MAP_f   = reshape(X_dy_f(42,:,:), [N,num_scen]);
+PRA_m   = reshape(X_dy_m(66,:,:), [N,num_scen]);
+PRA_f   = reshape(X_dy_f(66,:,:), [N,num_scen]);
+ANGI_m  = reshape(X_dy_m(67,:,:), [N,num_scen]);
+ANGI_f  = reshape(X_dy_f(67,:,:), [N,num_scen]);
+ANGII_m = reshape(X_dy_m(68,:,:), [N,num_scen]);
+ANGII_f = reshape(X_dy_f(68,:,:), [N,num_scen]);
+% Plot as relative change in order to compare male and female.
+MAP_m_bl   = MAP_m  (1,:);
+MAP_f_bl   = MAP_f  (1,:);
+PRA_m_bl   = PRA_m  (1,:);
+PRA_f_bl   = PRA_f  (1,:);
+ANGI_m_bl  = ANGI_m (1,:);
+ANGI_f_bl  = ANGI_f (1,:);
+ANGII_m_bl = ANGII_m(1,:);
+ANGII_f_bl = ANGII_f(1,:);
+for i = 1:N
+    MAP_m  (i,:) = MAP_m  (i,:) ./ MAP_m_bl  ;
+    MAP_f  (i,:) = MAP_f  (i,:) ./ MAP_f_bl  ;
+    PRA_m  (i,:) = PRA_m  (i,:) ./ PRA_m_bl  ;
+    PRA_f  (i,:) = PRA_f  (i,:) ./ PRA_f_bl  ;
+    ANGI_m (i,:) = ANGI_m (i,:) ./ ANGI_m_bl ;
+    ANGI_f (i,:) = ANGI_f (i,:) ./ ANGI_f_bl ;
+    ANGII_m(i,:) = ANGII_m(i,:) ./ ANGII_m_bl;
+    ANGII_f(i,:) = ANGII_f(i,:) ./ ANGII_f_bl;
+end
+
+g3 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
+s_3(1) = subplot(2,2,1); 
+s_3(2) = subplot(2,2,2); 
+s_3(3) = subplot(2,2,3);
+s_3(4) = subplot(2,2,4); 
+
+plot(s_3(1), t_dy,MAP_m   (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_3(1), [xlower, xupper]);
+set(s_3(1), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
+set(s_3(1), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+% ylim(s_main(1), [0.75,1.05])
+xlabel(s_3(1), 'Time (days)'); ylabel(s_3(1), 'MAP (relative)');
+hold(s_3(1), 'on')
+plot(s_3(1), t_dy,MAP_f   (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_3(1), 'off')
+[~, hobj, ~, ~] = legend(s_3(1), {'Male','Female'}, 'FontSize',7,'Location','Northeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+title(s_3(1), 'A')
+
+plot(s_3(2), t_dy,PRA_m(:,fixed_ss1) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_3(2), [xlower, xupper]);
+set(s_3(2), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
+set(s_3(2), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+% ylim(s_main(2), [97,100])
+xlabel(s_3(2), 'Time (days)'); ylabel(s_3(2), 'PRA (relative)');
+hold(s_3(2), 'on')
+plot(s_3(2), t_dy,PRA_m (:,fixed_ss1), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+hold(s_3(2), 'off')
+title(s_3(2), 'B')
+
+plot(s_3(3), t_dy,ANGI_m (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_3(3), [xlower, xupper]);
+set(s_3(3), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
+set(s_3(3), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+% ylim(s_main(3), [0.75,1.35])
+xlabel(s_3(3), 'Time (days)'); ylabel(s_3(3), 'Ang I (relative)');
+hold(s_3(3), 'on')
+plot(s_3(3), t_dy,ANGI_f (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_3(3), 'off')
+title(s_3(3), 'C')
+
+plot(s_3(4), t_dy,ANGII_m  (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim(s_3(4), [xlower, xupper]);
+set(s_3(4), 'XTick', [tchange_dy+0*(1) : 2 : tchange_dy+days*(1)]);
+set(s_3(4), 'XTickLabel', {'0','2','4','6','8','10','12','14'});
+% ylim(s_main(4), [1,1.25])
+xlabel(s_3(4), 'Time (days)'); ylabel(s_3(4), 'Ang II (relative)');
+hold(s_3(4), 'on')
+plot(s_3(4), t_dy,ANGII_f  (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold(s_3(4), 'off')
+title(s_3(4), 'D')
 
 % % % Save figures. -----------------------------------------------------------
 % % 
