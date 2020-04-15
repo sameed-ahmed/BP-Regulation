@@ -2,21 +2,23 @@
 
 function run_sim
 
-% close all
+close all
 
 species = {'human', 'rat'   };
-gender  = {'male' , 'female'};
+sex     = {'male' , 'female'};
 X       = cell(1,2);
 T       = cell(1,2);
 
-for ss = 2:2 % species
-for gg = 1:2 % gender
+load('rat_ss_data.mat', 'SS_DATA')
+
+for spe_ind = 2:2 % species
+for sex_ind = 1:2 % gender
 
 %% Parameters
 
-if     strcmp(gender{gg}, 'male')
+if     strcmp(sex{sex_ind}, 'male')
     gen = 1;
-elseif strcmp(gender{gg}, 'female')
+elseif strcmp(sex{sex_ind}, 'female')
     gen = 0;
 end
 
@@ -31,9 +33,9 @@ h_AT1R   = 12;      % min
 h_AT2R   = 12;      % min
 
 % Male and female different parameters for RAS
-if     strcmp(species{ss}, 'human')
+if     strcmp(species{spe_ind}, 'human')
     X_PRCPRA = 18.02/17.72;
-    if     strcmp(gender{gg}, 'male')
+    if     strcmp(sex{sex_ind}, 'male')
         k_AGT   = 577.04;
         c_ACE   = 0.88492;
         c_Chym  = 0.09315;
@@ -44,7 +46,7 @@ if     strcmp(species{ss}, 'human')
         c_AT2R  = 0.065667;
         AT1R_eq = 13.99;
         AT2R_eq = 5.0854;
-    elseif strcmp(gender{gg}, 'female')
+    elseif strcmp(sex{sex_ind}, 'female')
         k_AGT   = 610.39;
         c_ACE   = 1.4079;
         c_Chym  = 0.1482;
@@ -56,8 +58,8 @@ if     strcmp(species{ss}, 'human')
         AT1R_eq = 3.78;
         AT2R_eq = 5.0854;
     end
-elseif strcmp(species{ss}, 'rat')
-    if     strcmp(gender{gg}, 'male')
+elseif strcmp(species{spe_ind}, 'rat')
+    if     strcmp(sex{sex_ind}, 'male')
         X_PRCPRA = 135.59/17.312;
         k_AGT   = 801.02;
         c_ACE   = 0.096833;
@@ -69,7 +71,7 @@ elseif strcmp(species{ss}, 'rat')
         c_AT2R  = 0.065667;
         AT1R_eq = 20.46;
         AT2R_eq = 6.82;
-    elseif strcmp(gender{gg}, 'female')
+    elseif strcmp(sex{sex_ind}, 'female')
         X_PRCPRA = 114.22/17.312;
         k_AGT   = 779.63;
         c_ACE   = 0.11600;
@@ -84,17 +86,25 @@ elseif strcmp(species{ss}, 'rat')
     end
 end
 
-% Ang II infustion rate fmol / ml min
+% Ang II infusion rate fmol / ml min
 k_AngII = 000;
+% ACEi blocking percentage
+% k_ACEi  = 0.95;
+% whole_title = sprintf('ACEi %s%%',num2str(k_ACEi*100));
+k_ACEi  = 0.0;
+% ARB  blocking percentage
+k_ARB   = 0.86;
+whole_title = sprintf('ARB %s%%',num2str(k_ARB*100));
+% k_ARB   = 0.0;
 
 pars = [X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
         h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
-        c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; k_AngII; gen];
+        c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; k_AngII; k_ACEi; k_ARB; gen];
 
 %% Variables
 
 names = {'$R_{sec}$'; '$PRC$'; '$AGT$'; '$AngI$'; '$AngII$'; '$AT1R$'; ...
-         '$AT2R$'; '$Ang17$'; '$AngIV$'};
+         '$AT2R$'; '$Ang(1-7)$'; '$AngIV$'};
 
 % Initialization value
 R_sec = 1; PRA = 1; PRC = 1; AGT = 1; 
@@ -102,20 +112,21 @@ AngI = 1; AngII = 1;
 AT1R = 10; AT2R = 1; 
 Ang17 = 1; AngIV = 1; 
 
-x0 = [R_sec; PRC; AGT; AngI; AngII; AT1R; AT2R; Ang17; AngIV];
+% x0 = [R_sec; PRC; AGT; AngI; AngII; AT1R; AT2R; Ang17; AngIV];
+x0 = SS_DATA(:,sex_ind); x0 = [R_sec; x0];
 
 %% Solve ode
 
 % Initial time; Final time;
-t0 = 0; tf = 6000;
+t0 = 0; tf = 200;
 % Points per minute; Number of points;
 ppm = 1; N = (tf-t0)*ppm+1;
 % Time vector;
 tspan = [t0, tf]; %linspace(t0,tf,N);
 
 [t,x] = ode15s(@RAS,tspan,x0,[],pars);
-T{gg} = t;
-X{gg} = x;
+T{sex_ind} = t;
+X{sex_ind} = x;
 
 end % gender
 
@@ -134,9 +145,10 @@ for j = 1:9
     plot(s(j), t1,x1(:,j), t2,x2(:,j));
 
     xlabel('Time (min)')
-    legend('Male', 'Female')
+%     legend('Male', 'Female')
     title(names(j), 'Interpreter','latex', 'FontSize',15)
 end
+sgtitle(whole_title, 'FontSize',16)
 
 % if     strcmp(species{ss}, 'human')
 %     whole_title = suptitle('Human');

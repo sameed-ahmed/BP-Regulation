@@ -22,76 +22,78 @@ c_AT2R   = pars(17);
 AT1R_eq  = pars(18);
 AT2R_eq  = pars(19);
 k_AngII  = pars(20);
+k_ACEi   = pars(21);
+k_ARB    = pars(22);
 
-gen      = pars(21);
-if     gen == 1
-    gender = 'male';
-elseif gen == 0
-    gender = 'female';
+sex_ind  = pars(end);
+if     sex_ind == 1
+    sex = 'male';
+elseif sex_ind == 0
+    sex = 'female';
 end
 
 %% Retrieve variables by name.
 
-% R_sec = x(1);  
-% PRC   = x(2); 
-% AGT   = x(3); 
-% AngI  = x(4); 
-% AngII = x(5); 
-% AT1R  = x(6); 
-% AT2R  = x(7); 
-% Ang17 = x(8); 
-% AngIV = x(9); 
+R_sec = x(1);  
+PRC   = x(2); 
+AGT   = x(3); 
+AngI  = x(4); 
+AngII = x(5); 
+AT1R  = x(6); 
+AT2R  = x(7); 
+Ang17 = x(8); 
+AngIV = x(9); 
 
-R_sec = pars(end);
-PRC   = x(1); 
-AGT   = x(2); 
-AngI  = x(3); 
-AngII = x(4); 
-AT1R  = x(5); 
-AT2R  = x(6); 
-Ang17 = x(7); 
-AngIV = x(8); 
+% R_sec = pars(end);
+% PRC   = x(1); 
+% AGT   = x(2); 
+% AngI  = x(3); 
+% AngII = x(4); 
+% AT1R  = x(5); 
+% AT2R  = x(6); 
+% Ang17 = x(7); 
+% AngIV = x(8); 
 
 %% Differential equation system dxdt = A(t,x).
 
 dx = zeros(length(x),1);
 
-% % R_sec
+% R_sec
 % dx(1) = 0;
-% % dx(1) = 10^(0.0102) * (-0.95) * (AT1R / AT1R_eq)^(-0.95-1) * ( c_AT1R * AngII - log(2)/h_AT1R * AT1R ) / AT1R_eq;
-% % PRC
-% dx(2) = R_sec - log(2)/h_renin * PRC;
-% % AGT
-% dx(3) = k_AGT - X_PRCPRA * PRC - log(2)/h_AGT * AGT;
-% % AngI
-% dx(4) = X_PRCPRA * PRC - (c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI;
-% % AngII
-% dx(5) = (c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII;
-% % AT1R
-% dx(6) = c_AT1R * AngII - log(2)/h_AT1R * AT1R;
-% % AT2R
-% dx(7) = c_AT2R * AngII - log(2)/h_AT2R * AT2R;
-% % Ang17
-% dx(8) = c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17;
-% % AngIV
-% dx(9) = c_IIIV * AngII - log(2)/h_AngIV * AngIV;
-
+dx(1) = (-0.95) * (AT1R / AT1R_eq)^(-0.95-1) * ( (1-k_ARB) * c_AT1R * AngII - log(2)/h_AT1R * AT1R ) / AT1R_eq;
 % PRC
-dx(1) = R_sec - log(2)/h_renin * PRC;
+dx(2) = R_sec - log(2)/h_renin * PRC;
 % AGT
-dx(2) = k_AGT - X_PRCPRA * PRC - log(2)/h_AGT * AGT;
+dx(3) = k_AGT - X_PRCPRA * PRC - log(2)/h_AGT * AGT;
 % AngI
-dx(3) = X_PRCPRA * PRC - (c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI;
+dx(4) = X_PRCPRA * PRC - ((1-k_ACEi) * c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI;
 % AngII
-dx(4) = k_AngII + (c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII;
+dx(5) = k_AngII + ((1-k_ACEi) * c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + (1-k_ARB) * c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII;
 % AT1R
-dx(5) = c_AT1R * AngII - log(2)/h_AT1R * AT1R;
+dx(6) = (1-k_ARB) * c_AT1R * AngII - log(2)/h_AT1R * AT1R;
 % AT2R
-dx(6) = c_AT2R * AngII - log(2)/h_AT2R * AT2R;
+dx(7) = c_AT2R * AngII - log(2)/h_AT2R * AT2R;
 % Ang17
-dx(7) = c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17;
+dx(8) = c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17;
 % AngIV
-dx(8) = c_IIIV * AngII - log(2)/h_AngIV * AngIV;
+dx(9) = c_IIIV * AngII - log(2)/h_AngIV * AngIV;
+
+% % PRC
+% dx(1) = R_sec - log(2)/h_renin * PRC;
+% % AGT
+% dx(2) = k_AGT - X_PRCPRA * PRC - log(2)/h_AGT * AGT;
+% % AngI
+% dx(3) = X_PRCPRA * PRC - ((1-k_ACEi) * c_ACE + c_Chym + c_NEP) * AngI - log(2)/h_AngI * AngI;
+% % AngII
+% dx(4) = k_AngII + ((1-k_ACEi) * c_ACE + c_Chym) * AngI - (c_ACE2 + c_IIIV + (1-k_ARB) * c_AT1R + c_AT2R) * AngII - log(2)/h_AngII * AngII;
+% % AT1R
+% dx(5) = (1-k_ARB) * c_AT1R * AngII - log(2)/h_AT1R * AT1R;
+% % AT2R
+% dx(6) = c_AT2R * AngII - log(2)/h_AT2R * AT2R;
+% % Ang17
+% dx(7) = c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17;
+% % AngIV
+% dx(8) = c_IIIV * AngII - log(2)/h_AngIV * AngIV;
 
 % b = zeros(8,1);
 % A = zeros(8,8);

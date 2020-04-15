@@ -90,12 +90,16 @@ end
 
 % Ang II infustion rate fmol / ml min
 k_AngII = 3000;
+% ACEi blocking percentage
+k_ACEi  = 000;
+% ARB  blocking percentage
+k_ARB   = 000;
 % Constant renin secretion rate
 R_sec = 1;
 
 pars = [X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
         h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
-        c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; k_AngII; gen; R_sec];
+        c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; k_AngII;  k_ACEi; k_ARB; gen; R_sec];
 
 %% Variables
 
