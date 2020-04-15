@@ -9,45 +9,6 @@ mypath = pwd;
 mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           Begin user input.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Species
-spe_ind = 2;
-
-% Bootstrap replicate sample number
-sample_num = random('Discrete Uniform',1000)
-% sample_num = 182
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           End user input.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-species = {'human', 'rat'   };
-sex     = {'male' , 'female'};
-
-PARS = cell(1,2); SSDATA = cell(1,2); 
-
-for sex_ind = 1:2 % sex
-
-%% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
-
-% Parameters
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
-                              species{spe_ind},sex{sex_ind});
-load(load_data_name_pars, 'pars_rep');
-num_pars   = size(pars_rep,1);
-num_sample = size(pars_rep,2);
-PARS{sex_ind} = pars_rep;
-
-% Variables
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
-                              species{spe_ind},sex{sex_ind});
-load(load_data_name_vars, 'SSdata_rep');
-num_vars   = size(SSdata_rep,1);
-SSDATA{sex_ind} = SSdata_rep;
-
 %% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
@@ -78,6 +39,56 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
           '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
           '$\Phi_{u}$'; '$\Phi_{win}$'};
+%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Begin user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Simulation scenarios
+% Baseline - no experiment
+% AngII    - Ang II infusion
+% Sodin    - sodium loading
+% RPP      - manipulate renal perfusion pressure
+sim_scenario = {'Baseline', 'AngII', 'Sodin', 'RPP'};
+exact_sim_scen = 3;
+
+% Species
+spe_ind = 2;
+
+% Bootstrap replicate sample number
+% sample_num = random('Discrete Uniform',1000)
+% sample_num = 42 % male and female MAP similar
+% sample_num = 208
+sample_num = 655
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           End user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+species = {'human', 'rat'   };
+sex     = {'male' , 'female'};
+
+PARS = cell(1,2); SSDATA = cell(1,2); 
+
+for sex_ind = 1:2 % sex
+
+%% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
+
+% Parameters
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                              species{spe_ind},sex{sex_ind});
+load(load_data_name_pars, 'pars_rep');
+num_pars   = size(pars_rep,1);
+num_sample = size(pars_rep,2);
+PARS{sex_ind} = pars_rep;
+
+% Variables
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                              species{spe_ind},sex{sex_ind});
+load(load_data_name_vars, 'SSdata_rep');
+num_vars   = size(SSdata_rep,1);
+SSDATA{sex_ind} = SSdata_rep;
 
 %% % Load baseline parameters and variables for comparison.
 % 
@@ -93,21 +104,30 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 
 end % sex
 
-%% Run some simulation 
+%% Run some simulation.
 
-% run_sim(PARS,SSDATA,sample_num)
+if     strcmp(sim_scenario{exact_sim_scen}, 'Baseline')
+    fig = run_sim(PARS,SSDATA,sample_num);
+elseif strcmp(sim_scenario{exact_sim_scen}, 'AngII')
+    fig = run_sim_AngII(PARS,SSDATA,sample_num);
+elseif strcmp(sim_scenario{exact_sim_scen}, 'Sodin')
+    fig = solve_ss_Phisodin(PARS,SSDATA,sample_num);
+elseif strcmp(sim_scenario{exact_sim_scen}, 'RPP')
+    fig = run_sim_RPP(PARS,SSDATA,sample_num);
+end
 
-% run_sim_AngII(PARS,SSDATA,sample_num)
+%% Save figures.
 
-% solve_ss_Phisodin(PARS,SSDATA,sample_num)
-
-run_sim_RPP(PARS,SSDATA,sample_num)
+% save_data_name = sprintf('Pri_hyp_sim_%s%s.fig', ...
+%                          sim_scenario{exact_sim_scen},num2str(sample_num));
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig(fig, save_data_name)
 
 % -------------------------------------------------------------------------
 % Steady state simulation
 % -------------------------------------------------------------------------
 
-function run_sim(PARS,SSDATA,sample_num)
+function f = run_sim(PARS,SSDATA,sample_num)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.
@@ -188,12 +208,12 @@ for i = 1:length(ylower)
     end
 end
 
-f = gobjects(7,1);
-s = gobjects(7,15);
+f1 = gobjects(7,1);
+s1 = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
 %     f(i) = figure();
-    f(i) = figure('pos',[750 500 650 450]);
+    f1(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
         last_plot = mod(num_vars, 15);
@@ -202,10 +222,10 @@ for i = 1:7
     end
     % Loop through each subplot within a set of subplots.
     for j = 1:last_plot
-        s(i,j) = subplot(3,5,j);
-        s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
+        s1(i,j) = subplot(3,5,j);
+        s1(i,j).Position = s1(i,j).Position + [0 0 0.01 0];
         
-        plot(s(i,j), t_m,X_m((i-1)*15 + j,:),'b', t_f,X_f((i-1)*15 + j,:),'r');
+        plot(s1(i,j), t_m,X_m((i-1)*15 + j,:),'b', t_f,X_f((i-1)*15 + j,:),'r');
         
         xlim([xlower, xupper])
         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
@@ -223,13 +243,15 @@ for i = 1:7
     end
 end
 
+f = [f1];
+
 end % run_sim
 
 % -------------------------------------------------------------------------
 % Ang II infusion
 % -------------------------------------------------------------------------
 
-function run_sim_AngII(PARS,SSDATA,sample_num)
+function f = run_sim_AngII(PARS,SSDATA,sample_num)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.
@@ -350,11 +372,11 @@ var_ind = [33;41;42;9;73;74;6;7;27;92;93;29]; sub_var_num = length(var_ind);
 
 % Plot all vars vs time. --------------------------------------------------
 
-f = gobjects(7,1);
-s = gobjects(7,15);
+f1 = gobjects(7,1);
+s1 = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
-    f(i) = figure('pos',[750 500 650 450]);
+    f1(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
         last_plot = mod(num_vars, 15);
@@ -363,10 +385,10 @@ for i = 1:7
     end
     % Loop through each subplot within a set of subplots.
     for j = 1:last_plot
-        s(i,j) = subplot(3,5,j);
-        s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
+        s1(i,j) = subplot(3,5,j);
+        s1(i,j).Position = s1(i,j).Position + [0 0 0.01 0];
         
-        plot(s(i,j), t,X_m((i-1)*15 + j,:,fixed_ss),'b', ...
+        plot(s1(i,j), t,X_m((i-1)*15 + j,:,fixed_ss),'b', ...
                      t,X_f((i-1)*15 + j,:,fixed_ss),'r');
         
         xlim([xlower, xupper])
@@ -429,8 +451,8 @@ load_data_name_AngII = sprintf('%s_female_AngII_data_bs_rep.mat', species{spe_in
 load(load_data_name_AngII, 'AngII_data_rep');
 MAPdata_f = AngII_data_rep(sample_num,:);
 
-tdata     = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
-             7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
+tdata = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
+         7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
 
 % Substract MAP by baseline for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
@@ -442,7 +464,7 @@ end
 % MAP_m = reshape(X_m(42,:,i) - X_m(42,1,i), [N,num_scen]);
 % MAP_f = reshape(X_f(42,:,i) - X_f(42,1,i), [N,num_scen]);
 
-g(1) = figure('DefaultAxesFontSize',14);
+f3 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
 plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 xlim([xlower, xupper]); ylim([-1, 60]);
@@ -503,21 +525,21 @@ for i = 1:N
     FRW_f (i,:) = FRW_f (i,:) ./ FRW_f_bl ;
 end
 
-h(1) = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
-plot(t,RSNA_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim([xlower, xupper]); ylim([0.50,1.05]);
-ax = gca;
-ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
-ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
-xlabel('Time (days)'); ylabel('RSNA');
-hold on
-plot(t,RSNA_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-[~, hobj, ~, ~] = legend({'Male','Female'}, 'FontSize',7,'Location','Northeast');
-hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
-% ---
-h(2) = figure('DefaultAxesFontSize',14);
+% h(1) = figure('DefaultAxesFontSize',14);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
+% plot(t,RSNA_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+% xlim([xlower, xupper]); ylim([0.50,1.05]);
+% ax = gca;
+% ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
+% ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
+% xlabel('Time (days)'); ylabel('RSNA');
+% hold on
+% plot(t,RSNA_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+% [~, hobj, ~, ~] = legend({'Male','Female'}, 'FontSize',7,'Location','Northeast');
+% hl = findobj(hobj,'type','line');
+% set(hl,'LineWidth',1.5);
+% % ---
+f4 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
 s_main(1) = subplot(2,2,1); 
 s_main(2) = subplot(2,2,2); 
@@ -579,47 +601,43 @@ plot(s_main(4), t,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'Line
 hold(s_main(4), 'off')
 title(s_main(4), 'D')
 
-% Plot male - female bar graph for each scenario --------------------------
-
-% Retrieve last MAP value for each sex and all scenarios.
-% X_m/f = (variable, points, scenario)
-deltaMAP_m = reshape(X_m(42,end,1:end) - X_m(42,1,1:end), [1,num_scen]);
-deltaMAP_f = reshape(X_f(42,end,1:end) - X_f(42,1,1:end), [1,num_scen]);
-% Substract all MAP values from all scenarios from normal male MAP.
-MAP_comp = deltaMAP_m(1) - [deltaMAP_m(1), deltaMAP_f];
-% String for bar graph labels.
-scen_comp = categorical({'M - M       ', 'M - F       ', ...
-                         'M - F M RSNA', 'M - F M AT2R', ...
-                         'M - F M RAS' , 'M - F M Reab', ...
-                         'M - F M RAS \newline& Reab'  , ...
-                         'M - F M RSNA\newline& Reab'  });
-% Horizontal bar graph
-scen_comp = reordercats(scen_comp,{'M - F M RSNA\newline& Reab'  , ...
-                                   'M - F M RAS \newline& Reab'  , ...
-                                   'M - F M Reab', 'M - F M RAS ', ...
-                                   'M - F M AT2R', 'M - F M RSNA', ...
-                                   'M - F       ', 'M - M       '});
-
-k = figure('DefaultAxesFontSize',10);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
-barh(scen_comp,MAP_comp,'k');
-% set(gca,'yticklabel',scen_comp_text);
-% ytickget = get(gca,'yticklabel');  
-% set(gca,'yticklabel',ytickget,'fontsize',6)
-% ylim([1-1,6+1])
-xlim([0,20])
-ylabel('Scenario', 'FontSize',14); xlabel('\DeltaMAP (mmHg)', 'FontSize',14);
-ytickangle(00)
-% hAxes.YAxis.FontSize = 6;
+% % Plot male - female bar graph for each scenario --------------------------
+% 
+% % Retrieve last MAP value for each sex and all scenarios.
+% % X_m/f = (variable, points, scenario)
+% deltaMAP_m = reshape(X_m(42,end,1:end) - X_m(42,1,1:end), [1,num_scen]);
+% deltaMAP_f = reshape(X_f(42,end,1:end) - X_f(42,1,1:end), [1,num_scen]);
+% % Substract all MAP values from all scenarios from normal male MAP.
+% MAP_comp = deltaMAP_m(1) - [deltaMAP_m(1), deltaMAP_f];
+% % String for bar graph labels.
+% scen_comp = categorical({'M - M       ', 'M - F       ', ...
+%                          'M - F M RSNA', 'M - F M AT2R', ...
+%                          'M - F M RAS' , 'M - F M Reab', ...
+%                          'M - F M RAS \newline& Reab'  , ...
+%                          'M - F M RSNA\newline& Reab'  });
+% % Horizontal bar graph
+% scen_comp = reordercats(scen_comp,{'M - F M RSNA\newline& Reab'  , ...
+%                                    'M - F M RAS \newline& Reab'  , ...
+%                                    'M - F M Reab', 'M - F M RAS ', ...
+%                                    'M - F M AT2R', 'M - F M RSNA', ...
+%                                    'M - F       ', 'M - M       '});
+% 
+% k = figure('DefaultAxesFontSize',10);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
+% barh(scen_comp,MAP_comp,'k');
+% % set(gca,'yticklabel',scen_comp_text);
+% % ytickget = get(gca,'yticklabel');  
+% % set(gca,'yticklabel',ytickget,'fontsize',6)
+% % ylim([1-1,6+1])
+% xlim([0,20])
+% ylabel('Scenario', 'FontSize',14); xlabel('\DeltaMAP (mmHg)', 'FontSize',14);
+% ytickangle(00)
+% % hAxes.YAxis.FontSize = 6;
 
 % % % BAR GRAPH IS PRODUCING NO CHANG BETWEEN M AND F SCENARIOS BECAUSE
 % PARS ARE NOT BEING RETREIVED FROM 'get_pars.m'. % % %
 
-% % Save figures. -----------------------------------------------------------
-% 
-% save_data_name = sprintf('all_vars_AngII_inf.fig');
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f;f2;g;h';k], save_data_name)
+f = [f1;f2;f3;f4];
 
 end % run_sim_AngII
 
@@ -627,7 +645,7 @@ end % run_sim_AngII
 % Sodium intake
 % -------------------------------------------------------------------------
 
-function solve_ss_Phisodin(PARS,SSDATA,sample_num)
+function f = solve_ss_Phisodin(PARS,SSDATA,sample_num)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.
@@ -804,12 +822,12 @@ var_ind = [33;41;42;9;73;74;6;7;27;92;93;29]; sub_var_num = length(var_ind);
 
 % Plot all variables vs sodium intake. ------------------------------------
 
-f = gobjects(7,1);
-s = gobjects(7,15);
+f1 = gobjects(7,1);
+s1 = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
 %     f(i) = figure();
-    f(i) = figure('pos',[750 500 650 450]);
+    f1(i) = figure('pos',[750 500 650 450]);
     % This is to avoid the empty plots in the last subplot set.
     if i == 7
         last_plot = mod(num_vars, 15);
@@ -818,9 +836,9 @@ for i = 1:7
     end
     % Loop through each subplot within a set of subplots.
     for j = 1:last_plot
-        s(i,j) = subplot(3,5,j);
+        s1(i,j) = subplot(3,5,j);
 
-        plot(s(i,j), xscale,X_m((i-1)*15 + j,:,fixed_ss),'b', ...
+        plot(s1(i,j), xscale,X_m((i-1)*15 + j,:,fixed_ss),'b', ...
                      xscale,X_f((i-1)*15 + j,:,fixed_ss),'r');
         
         xlim([lower, upper])
@@ -864,18 +882,28 @@ xlh.Position(2) = xlh.Position(2) - 0.005;
 
 % Plot Sodium Intake vs Mean Arterial Pressure. ---------------------------
 
-g(1) = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 3.5]);
-plot(X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+MAP_bl_m = X_m(42,iteration,fixed_ss);
+MAP_bl_f = X_f(42,iteration,fixed_ss);
+point_m = [15+MAP_bl_m,4; 25+MAP_bl_m,4];
+point_f = [ 5+MAP_bl_f,4; 10+MAP_bl_f,4];
+
+f3 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
+plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
 % xlim([90, 120])
-ylim([lower, upper])
+ylim([lower, upper+0.1])
 ax = gca;
 % ax.XTick = (80 : 10 : 120);
 xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 hold on
-plot(X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-legend('Male','Female', 'Location','Northwest')
+plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2, 'MarkerSize',6)
+plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2, 'MarkerSize',6)
+legend('Male sim','Female sim','Male data','Female data', 'Location','Southeast')
+[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
 hold off
 
 % Plot all other quantities of interest. ----------------------------------
@@ -921,7 +949,7 @@ for i = 1:2*iteration-1
     FRW_f(i,:)  = FRW_f(i,:)  ./ FRW_f_bl ;
 end
 
-g(3) = figure('DefaultAxesFontSize',14);
+f4 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
 s_main(1) = subplot(2,2,1); 
 s_main(2) = subplot(2,2,2); 
@@ -932,7 +960,7 @@ plot(s_main(1), xscale,CSOD_m(:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(1), [lower, upper]);
 set(s_main(1), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(1), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-ylim(s_main(1), [0.99,1.03])
+% ylim(s_main(1), [0.99,1.03])
 xlabel(s_main(1), 'Na^+ Intake (relative)'); ylabel(s_main(1), 'C_{Na^+} (relative)');
 hold(s_main(1), 'on')
 plot(s_main(1), xscale,CSOD_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -946,7 +974,7 @@ plot(s_main(2), xscale,CADH_m(:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(2), [lower, upper]);
 set(s_main(2), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(2), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-ylim(s_main(2), [0.6,2.2])
+% ylim(s_main(2), [0.6,2.2])
 xlabel(s_main(2), 'Na^+ Intake (relative)'); ylabel(s_main(2), 'C_{ADH} (relative)');
 hold(s_main(2), 'on')
 plot(s_main(2), xscale,CADH_f(:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -957,7 +985,7 @@ plot(s_main(3), xscale,BV_m  (:,fixed_ss), '-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(3), [lower, upper]);
 set(s_main(3), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(3), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-ylim(s_main(3), [0.985,1.015])
+% ylim(s_main(3), [0.985,1.015])
 xlabel(s_main(3), 'Na^+ Intake (relative)'); ylabel(s_main(3), 'BV (relative)');
 hold(s_main(3), 'on')
 plot(s_main(3), xscale,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
@@ -968,7 +996,7 @@ plot(s_main(4), xscale,FRNA_m(:,fixed_ss) ,'-' , 'Color',[0.203, 0.592, 0.835], 
 xlim(s_main(4), [lower, upper]);
 set(s_main(4), 'XTick', [1/5, 1, 2, 3, 4, 5]);
 set(s_main(4), 'XTickLabel', {'^{1}/_{5}','1','2','3','4','5'});
-ylim(s_main(4), [0.95,1.02])
+% ylim(s_main(4), [0.95,1.02])
 xlabel(s_main(4), 'Na^+ Intake (relative)'); ylabel(s_main(4), 'FR (relative)');
 hold(s_main(4), 'on')
 plot(s_main(4), xscale,FRW_m (:,fixed_ss), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
@@ -983,101 +1011,100 @@ set(hl,'LineWidth',1.5);
 hold(s_main(4), 'off')
 title(s_main(4), 'D')
 
-% Plot with different scenarios. ------------------------------------------
-
-h(1) = figure('pos',[100 100 675 450]);
-plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
-% xlim([80, 160])
-ylim([lower, upper])
-set(gca,'FontSize',14)
-xlabel(names(42)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-ylabel('$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-legend('-DynamicLegend');
-hold all
-plot(X_f(42,:,1),xscale,'r-', 'LineWidth',3, 'DisplayName','F Normal')
-legend('-DynamicLegend');
-
-scen_linestyle_m = {'b-x', 'b-o', 'b-+', 'b-*',};
-scen_linestyle_f = {'r-x', 'r-o', 'r-+', 'r-*',};
-scen_legend = {'RSNA', 'AT2R', 'RAS', 'Reab'};
-for sce_ind = 2:num_scen-2
-    hold all
-    plot(X_m(42,:,sce_ind),xscale,scen_linestyle_m{sce_ind-1}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-1})
-    legend('-DynamicLegend');
-    hold all
-    plot(X_f(42,:,sce_ind),xscale,scen_linestyle_f{sce_ind-1}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-1})
-    legend('-DynamicLegend');
-end
-
-h(2) = figure('pos',[100 100 675 450]);
-plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
-% xlim([80, 160])
-ylim([lower, upper])
-set(gca,'FontSize',14)
-xlabel(names(42)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-ylabel('$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
-legend('-DynamicLegend');
-hold all
-plot(X_f(42,:,1),xscale,'r-', 'LineWidth',3, 'DisplayName','F Normal')
-legend('-DynamicLegend');
-
-scen_linestyle_m = {'b--', 'b:'};
-scen_linestyle_f = {'r--', 'r:'};
-scen_legend = {'ACEi', 'Ang II'};
-for sce_ind = num_scen-1:num_scen
-    hold all
-    plot(X_m(42,:,sce_ind),xscale,scen_linestyle_m{sce_ind-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-(num_scen-2)})
-    legend('-DynamicLegend');
-    hold all
-    plot(X_f(42,:,sce_ind),xscale,scen_linestyle_f{sce_ind-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-(num_scen-2)})
-    legend('-DynamicLegend');
-end
-
-% Plot male - female bar graph for each scenario. -------------------------
-
-% X_m/f = (variable, iteration, scenario)
-deltaMAP_m = reshape(X_m(42,end,1:end-2) - X_m(42,iteration,1:end-2), [1,num_scen-2]);
-deltaMAP_f = reshape(X_f(42,end,1:end-2) - X_f(42,iteration,1:end-2), [1,num_scen-2]);
-MAP_comp = deltaMAP_m(1) - [deltaMAP_m(1), deltaMAP_f];
-scen_comp = categorical({'M - M'       , 'M - F'       , ...
-                         'M - F M RSNA', 'M - F M AT2R', ...
-                         'M - F M RAS' , 'M - F M Reab'});
-scen_comp = reordercats(scen_comp,{'M - M'       , 'M - F'       , ...
-                                   'M - F M RSNA', 'M - F M AT2R', ...
-                                   'M - F M RAS' , 'M - F M Reab'});
-
-k = figure('DefaultAxesFontSize',10);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 3.5]);
-s1(1) = subplot(1,2,1); 
-s1(2) = subplot(1,2,2); 
-
-plot(s1(1), X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim(s1(1), [90, 120]); 
-% set(s1(1),'XTick', [80,100,120]);
-ylim(s1(1), [lower, upper])
-xlabel(s1(1), 'MAP (mmHg)', 'FontSize',14*1.1); ylabel(s1(1), {'Fold change in'; 'sodium excretion'}, 'FontSize',14);
-hold(s1(1), 'on')
-plot(s1(1), X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-legend(s1(1), {'Male','Female'}, 'Location','Southeast', 'FontSize',14)
-hold(s1(1), 'off')
-title(s1(1), 'A', 'FontSize',14)
-
-bar(s1(2), scen_comp,MAP_comp,'k');
-% set(gca,'xticklabel',scen_comp_text);
-% xtickget = get(gca,'xticklabel');  
-% set(gca,'xticklabel',xtickget,'fontsize',6)
-% xtickangle(s1(2),90)
-% xlim(s1(2), [1-1,6+1])
-ylim(s1(2), [-2,5])
-xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
-% hAxes.XAxis.FontSize = 6;
-title(s1(2), 'B', 'FontSize',14)
-
-% % Save figures. -----------------------------------------------------------
+% % Plot with different scenarios. ------------------------------------------
 % 
-% save_data_name = sprintf('all_vars_vs_Phisodin.fig');
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f',f2,g,h,k], save_data_name)
+% f5 = figure('pos',[100 100 675 450]);
+% plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
+% % xlim([80, 160])
+% ylim([lower, upper])
+% set(gca,'FontSize',14)
+% xlabel(names(42)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+% ylabel('$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+% legend('-DynamicLegend');
+% hold all
+% plot(X_f(42,:,1),xscale,'r-', 'LineWidth',3, 'DisplayName','F Normal')
+% legend('-DynamicLegend');
+% 
+% scen_linestyle_m = {'b-x', 'b-o', 'b-+', 'b-*',};
+% scen_linestyle_f = {'r-x', 'r-o', 'r-+', 'r-*',};
+% scen_legend = {'RSNA', 'AT2R', 'RAS', 'Reab'};
+% for sce_ind = 2:num_scen-2
+%     hold all
+%     plot(X_m(42,:,sce_ind),xscale,scen_linestyle_m{sce_ind-1}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-1})
+%     legend('-DynamicLegend');
+%     hold all
+%     plot(X_f(42,:,sce_ind),xscale,scen_linestyle_f{sce_ind-1}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-1})
+%     legend('-DynamicLegend');
+% end
+% 
+% f6 = figure('pos',[100 100 675 450]);
+% plot(X_m(42,:,1),xscale,'b-' , 'LineWidth',3, 'DisplayName','M Normal')
+% % xlim([80, 160])
+% ylim([lower, upper])
+% set(gca,'FontSize',14)
+% xlabel(names(42)       , 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+% ylabel('$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',22, 'FontWeight','bold')
+% legend('-DynamicLegend');
+% hold all
+% plot(X_f(42,:,1),xscale,'r-', 'LineWidth',3, 'DisplayName','F Normal')
+% legend('-DynamicLegend');
+% 
+% scen_linestyle_m = {'b--', 'b:'};
+% scen_linestyle_f = {'r--', 'r:'};
+% scen_legend = {'ACEi', 'Ang II'};
+% for sce_ind = num_scen-1:num_scen
+%     hold all
+%     plot(X_m(42,:,sce_ind),xscale,scen_linestyle_m{sce_ind-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-(num_scen-2)})
+%     legend('-DynamicLegend');
+%     hold all
+%     plot(X_f(42,:,sce_ind),xscale,scen_linestyle_f{sce_ind-(num_scen-2)}, 'LineWidth',3, 'DisplayName',scen_legend{sce_ind-(num_scen-2)})
+%     legend('-DynamicLegend');
+% end
+% 
+% % Plot male - female bar graph for each scenario. -------------------------
+% 
+% % X_m/f = (variable, iteration, scenario)
+% deltaMAP_m = reshape(X_m(42,end,1:end-2) - X_m(42,iteration,1:end-2), [1,num_scen-2]);
+% deltaMAP_f = reshape(X_f(42,end,1:end-2) - X_f(42,iteration,1:end-2), [1,num_scen-2]);
+% MAP_comp = deltaMAP_m(1) - [deltaMAP_m(1), deltaMAP_f];
+% scen_comp = categorical({'M - M'       , 'M - F'       , ...
+%                          'M - F M RSNA', 'M - F M AT2R', ...
+%                          'M - F M RAS' , 'M - F M Reab'});
+% scen_comp = reordercats(scen_comp,{'M - M'       , 'M - F'       , ...
+%                                    'M - F M RSNA', 'M - F M AT2R', ...
+%                                    'M - F M RAS' , 'M - F M Reab'});
+% 
+% f7 = figure('DefaultAxesFontSize',10);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 3.5]);
+% s1(1) = subplot(1,2,1); 
+% s1(2) = subplot(1,2,2); 
+% 
+% plot(s1(1), X_m(42,:,fixed_ss),xscale,'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+% xlim(s1(1), [90, 120]); 
+% % set(s1(1),'XTick', [80,100,120]);
+% ylim(s1(1), [lower, upper])
+% xlabel(s1(1), 'MAP (mmHg)', 'FontSize',14*1.1); ylabel(s1(1), {'Fold change in'; 'sodium excretion'}, 'FontSize',14);
+% hold(s1(1), 'on')
+% plot(s1(1), X_f(42,:,fixed_ss),xscale,'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
+% legend(s1(1), {'Male','Female'}, 'Location','Southeast', 'FontSize',14)
+% hold(s1(1), 'off')
+% title(s1(1), 'A', 'FontSize',14)
+% 
+% bar(s1(2), scen_comp,MAP_comp,'k');
+% % set(gca,'xticklabel',scen_comp_text);
+% % xtickget = get(gca,'xticklabel');  
+% % set(gca,'xticklabel',xtickget,'fontsize',6)
+% % xtickangle(s1(2),90)
+% % xlim(s1(2), [1-1,6+1])
+% ylim(s1(2), [-2,5])
+% xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'FontSize',14);
+% % hAxes.XAxis.FontSize = 6;
+% title(s1(2), 'B', 'FontSize',14)
+
+% % % BAR GRAPH IS PRODUCING NO CHANG BETWEEN M AND F SCENARIOS BECAUSE
+% PARS ARE NOT BEING RETREIVED FROM 'get_pars.m'. % % %
+
+f = [f1;f2;f3;f4];
 
 end % solve_ss_Phisodin
 
@@ -1085,7 +1112,7 @@ end % solve_ss_Phisodin
 % Renal perfusion pressure
 % -------------------------------------------------------------------------
 
-function run_sim_RPP(PARS,SSDATA,sample_num)
+function f = run_sim_RPP(PARS,SSDATA,sample_num)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.
@@ -1195,45 +1222,45 @@ for i = 1:num_vars
     end
 end
 
-% Plot all variables vs time. ---------------------------------------------
-
-f  = gobjects(7,1);
-ss1 = gobjects(7,15);
-% Loop through each set of subplots.
-for i = 1:7
-    f(i) = figure('pos',[750 500 650 450]);
-    % This is to avoid the empty plots in the last subplot set.
-    if i == 7
-        last_plot = mod(num_vars, 15);
-    else
-        last_plot = 15;
-    end
-    % Loop through each subplot within a set of subplots.
-    for j = 1:last_plot
-        ss1(i,j) = subplot(3,5,j);
-        ss1(i,j).Position = ss1(i,j).Position + [0 0 0.01 0];
-        
-        plot(ss1(i,j), t,X_m((i-1)*15+j,:,exact_per,exact_scen),'b' , ...
-                      t,X_f((i-1)*15+j,:,exact_per,exact_scen),'r');
-        
-%         xlim([xlower, xupper])
-        ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
-
-%         legend('Male', 'Female')
-        title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
-    end
-end
-
-% Plot renal perfusion pressure input vs time. ----------------------------
-
-tplot   = [t0:1:tend];
-RPPplot = zeros(1,length(tplot));
-RPPplot(1        :tchange) = RPP(1,exact_scen);
-RPPplot(tchange+1:tend+1 ) = RPP(1,exact_scen) + RPP_per(exact_per);
-g = figure('pos',[100 100 675 450]);
-plot(tplot,RPPplot, 'LineWidth',3)
-xlabel('$t$ (min)', 'Interpreter','latex')
-ylabel('$RPP$'    , 'Interpreter','latex')
+% % Plot all variables vs time. ---------------------------------------------
+% 
+% f1  = gobjects(7,1);
+% s1 = gobjects(7,15);
+% % Loop through each set of subplots.
+% for i = 1:7
+%     f1(i) = figure('pos',[750 500 650 450]);
+%     % This is to avoid the empty plots in the last subplot set.
+%     if i == 7
+%         last_plot = mod(num_vars, 15);
+%     else
+%         last_plot = 15;
+%     end
+%     % Loop through each subplot within a set of subplots.
+%     for j = 1:last_plot
+%         s1(i,j) = subplot(3,5,j);
+%         s1(i,j).Position = s1(i,j).Position + [0 0 0.01 0];
+%         
+%         plot(s1(i,j), t,X_m((i-1)*15+j,:,exact_per,exact_scen),'b' , ...
+%                       t,X_f((i-1)*15+j,:,exact_per,exact_scen),'r');
+%         
+% %         xlim([xlower, xupper])
+%         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
+% 
+% %         legend('Male', 'Female')
+%         title(names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
+%     end
+% end
+% 
+% % Plot renal perfusion pressure input vs time. ----------------------------
+% 
+% tplot   = [t0:1:tend];
+% RPPplot = zeros(1,length(tplot));
+% RPPplot(1        :tchange) = RPP(1,exact_scen);
+% RPPplot(tchange+1:tend+1 ) = RPP(1,exact_scen) + RPP_per(exact_per);
+% g = figure('pos',[100 100 675 450]);
+% plot(tplot,RPPplot, 'LineWidth',3)
+% xlabel('$t$ (min)', 'Interpreter','latex')
+% ylabel('$RPP$'    , 'Interpreter','latex')
 
 % Plot data as in Hilliard 2011. ------------------------------------------
 
@@ -1302,7 +1329,7 @@ USODdata_rel_f = [zeros(3,1), USODdata_yes_at2r_rel_f, USODdata_blk_at2r_rel_f];
 
 % Subplot -----------------------------------------------------------------
 
-h(1) = figure('DefaultAxesFontSize',14);
+f3 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
 s_rel1(1) = subplot(2,2,1); 
 s_rel1(2) = subplot(2,2,2); 
@@ -1356,11 +1383,7 @@ plot(s_rel1(4), RPP_f,USODdata_rel_f(:,2         ) ,'o--', 'Color',[0.835, 0.203
 hold(s_rel1(4), 'off')
 title(s_rel1(4), 'D')
 
-% % Save figures. -----------------------------------------------------------
-% 
-% save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig(h, save_data_name)
+f = [f3];
 
 end
 
