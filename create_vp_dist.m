@@ -81,7 +81,7 @@ num_vars   = size(SSdata_rep,1);
 % Parameters
 varargin_input = {scenario{1},true};
 pars_bl = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
-pars_hyp_bl = pars_bl(pars_ind,:);
+pars_hyp_bl = pars_bl(pars_ind);
 
 % Variables
 load_data_name_vars_bl = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
@@ -156,11 +156,49 @@ sgtitle(hist_title, 'FontSize',16)
 
 end % sex
 
+%% Plot parameters male and female together.
+
+% Load hypertensive and baseline parameters.
+load_data_name_pars = sprintf(  '%s_male_pars_scenario_Pri_Hyp_bs_rep1000.mat', species{spe_ind});
+load(load_data_name_pars, 'pars_rep');
+pars_bl_m = get_pars(species{spe_ind}, sex{1}, varargin_input{:});
+pars_hyp_m    = pars_rep (pars_ind,:);
+pars_hyp_bl_m = pars_bl_m(pars_ind  );
+load_data_name_pars = sprintf('%s_female_pars_scenario_Pri_Hyp_bs_rep1000.mat', species{spe_ind});
+load(load_data_name_pars, 'pars_rep');
+pars_bl_f = get_pars(species{spe_ind}, sex{2}, varargin_input{:});
+pars_hyp_f    = pars_rep (pars_ind,:);
+pars_hyp_bl_f = pars_bl_m(pars_ind  );
+
+% Compute relative change in hypertensive parameters.
+pars_hyp_m = pars_hyp_m ./ pars_hyp_bl_m;
+pars_hyp_f = pars_hyp_f ./ pars_hyp_bl_f;
+
+par_bin_width = [0.1,0.4,0.2,0.15,0.15,0.1];
+
+% Plot parameters.
+g = figure('DefaultAxesFontSize',14);
+ss1   = gobjects(pars_hyp_num);
+for i = 1:pars_hyp_num
+    ss1(i) = subplot(3,2,i);
+    h1 = histogram(ss1(i),pars_hyp_m(i,:),10);
+    hold(ss1(i), 'on')
+    h2 = histogram(ss1(i),pars_hyp_f(i,:),10);
+    hold(ss1(i), 'off')
+    h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+    h1.BinWidth = par_bin_width(i); h2.BinWidth = par_bin_width(i); 
+    h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+
+    xlabel_name = strcat(pars_names(i));
+    xlabel(ss1(i), xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+end
+legend(ss1(1), 'Male','Female', 'FontSize',10,'Location','Northeast');
+
 %% Save figures.
 
 save_data_name = sprintf('par_var_dist1000.fig');
 save_data_name = strcat('Figures/', save_data_name);
-savefig([f(1,:),f(2,:)], save_data_name)
+savefig([f(1,:),f(2,:),g], save_data_name)
 
 end % create_vp_dist
 
