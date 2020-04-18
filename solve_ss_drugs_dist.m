@@ -212,25 +212,38 @@ end % samples
 end % sex
 end % scenario
 
-%% Plot
+%% Post processing
+
+% Retrieve male and female data. Find relative change, mean, standard
+% deviation, etc. in order to save data for loading in post 
+% processing script.
 
 % Retrieve male and female.
 % X_m/f = (variable, sample, scenario)
-X_ss_m = reshape(X_ss(:,:,1,:), [num_vars,num_samples,num_scen]); 
-X_ss_f = reshape(X_ss(:,:,2,:), [num_vars,num_samples,num_scen]); 
-X_bl_m = reshape(X_bl(:,:,1,:), [num_vars,num_samples,num_scen]); 
-X_bl_f = reshape(X_bl(:,:,2,:), [num_vars,num_samples,num_scen]); 
+% X_ss_m = reshape(X_ss(:,:,1,:), [num_vars,num_samples,num_scen]); 
+% X_ss_f = reshape(X_ss(:,:,2,:), [num_vars,num_samples,num_scen]); 
+% X_bl_m = reshape(X_bl(:,:,1,:), [num_vars,num_samples,num_scen]); 
+% X_bl_f = reshape(X_bl(:,:,2,:), [num_vars,num_samples,num_scen]); 
+% Delete other scenarios for now.
+X_ss_m = reshape(X_ss(:,:,1,1), [num_vars,num_samples]); 
+X_ss_f = reshape(X_ss(:,:,2,1), [num_vars,num_samples]); 
+X_bl_m = reshape(X_bl(:,:,1,1), [num_vars,num_samples]); 
+X_bl_f = reshape(X_bl(:,:,2,1), [num_vars,num_samples]); 
 
 % Compute relative change.
-X_rel_m = (X_ss_m(:,:,fixed_ss1) - X_bl_m(:,:,fixed_ss1)) ...
-          ./ X_bl_m(:,:,fixed_ss1) * 100;
-X_rel_f = (X_ss_f(:,:,fixed_ss1) - X_bl_f(:,:,fixed_ss1)) ...
-          ./ X_bl_f(:,:,fixed_ss1) * 100;
+X_rel_m = (X_ss_m - X_bl_m) ./ X_bl_m * 100;
+X_rel_f = (X_ss_f - X_bl_f) ./ X_bl_f * 100;
 
-% X_bl_m(7,:,fixed_ss1)'
-% X_ss_m(7,:,fixed_ss1)'
-% X_bl_f(7,:,fixed_ss1)'
-% X_ss_f(7,:,fixed_ss1)'
+% Compute mean and standard deviation.
+X_bl_mean_m  = mean(X_bl_m ,  2); X_bl_mean_f  = mean(X_bl_f ,  2);
+X_ss_mean_m  = mean(X_ss_m ,  2); X_ss_mean_f  = mean(X_ss_f ,  2);
+X_rel_mean_m = mean(X_rel_m,  2); X_rel_mean_f = mean(X_rel_f,  2);
+X_bl_std_m   = std (X_bl_m ,0,2); X_bl_std_f   = std (X_bl_f ,0,2);
+X_ss_std_m   = std (X_ss_m ,0,2); X_ss_std_f   = std (X_ss_f ,0,2);
+X_rel_std_m  = std (X_rel_m,0,2); X_rel_std_f  = std (X_rel_f,0,2);
+
+
+%% Plot
 
 % x-axis
 xscale = drug_dose * 100;
@@ -395,35 +408,53 @@ sgtitle(hist_title, 'FontSize',14)
 
 %% Plot variables that explain mechanims. ---------------------------------
 
-R_ss_m = reshape(X_ss_m(74,:,:) ./ X_ss_m(4,:,:), [num_samples,num_scen]);
-R_ss_f = reshape(X_ss_f(74,:,:) ./ X_ss_f(4,:,:), [num_samples,num_scen]);
-R_bl_m = reshape(X_bl_m(74,:,:) ./ X_bl_m(4,:,:), [num_samples,num_scen]);
-R_bl_f = reshape(X_bl_f(74,:,:) ./ X_bl_f(4,:,:), [num_samples,num_scen]);
+% R_ss_m = reshape(X_ss_m(74,:,:) ./ X_ss_m(4,:,:), [num_samples,num_scen]);
+% R_ss_f = reshape(X_ss_f(74,:,:) ./ X_ss_f(4,:,:), [num_samples,num_scen]);
+% R_bl_m = reshape(X_bl_m(74,:,:) ./ X_bl_m(4,:,:), [num_samples,num_scen]);
+% R_bl_f = reshape(X_bl_f(74,:,:) ./ X_bl_f(4,:,:), [num_samples,num_scen]);
+R_ss_m = reshape(X_ss_m(74,:) ./ X_ss_m(4,:), [num_samples,1]);
+R_ss_f = reshape(X_ss_f(74,:) ./ X_ss_f(4,:), [num_samples,1]);
+R_bl_m = reshape(X_bl_m(74,:) ./ X_bl_m(4,:), [num_samples,1]);
+R_bl_f = reshape(X_bl_f(74,:) ./ X_bl_f(4,:), [num_samples,1]);
 
-R_rel_m = (R_ss_m(:,fixed_ss1) - R_bl_m(:,fixed_ss1)) ...
-          ./ R_bl_m(:,fixed_ss1) * 100;
-R_rel_f = (R_ss_f(:,fixed_ss1) - R_bl_f(:,fixed_ss1)) ...
-          ./ R_bl_f(:,fixed_ss1) * 100;
+% R_rel_m = (R_ss_m(:,fixed_ss1) - R_bl_m(:,fixed_ss1)) ...
+%           ./ R_bl_m(:,fixed_ss1) * 100;
+% R_rel_f = (R_ss_f(:,fixed_ss1) - R_bl_f(:,fixed_ss1)) ...
+%           ./ R_bl_f(:,fixed_ss1) * 100;
+R_rel_m = (R_ss_m - R_bl_m) ./ R_bl_m * 100;
+R_rel_f = (R_ss_f - R_bl_f) ./ R_bl_f * 100;
 
-FRNA_ss_m = reshape((X_ss_m(11,:,:) - X_ss_m(27,:,:)) ./ X_ss_m(11,:,:), [num_samples,num_scen]) * 100;
-FRNA_ss_f = reshape((X_ss_f(11,:,:) - X_ss_f(27,:,:)) ./ X_ss_f(11,:,:), [num_samples,num_scen]) * 100;
-FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:,:)) ./ X_bl_m(11,:,:), [num_samples,num_scen]) * 100;
-FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:,:)) ./ X_bl_f(11,:,:), [num_samples,num_scen]) * 100;
+% FRNA_ss_m = reshape((X_ss_m(11,:,:) - X_ss_m(27,:,:)) ./ X_ss_m(11,:,:), [num_samples,num_scen]) * 100;
+% FRNA_ss_f = reshape((X_ss_f(11,:,:) - X_ss_f(27,:,:)) ./ X_ss_f(11,:,:), [num_samples,num_scen]) * 100;
+% FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:,:)) ./ X_bl_m(11,:,:), [num_samples,num_scen]) * 100;
+% FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:,:)) ./ X_bl_f(11,:,:), [num_samples,num_scen]) * 100;
+FRNA_ss_m = reshape((X_ss_m(11,:,:) - X_ss_m(27,:)) ./ X_ss_m(11,:), [num_samples,1]) * 100;
+FRNA_ss_f = reshape((X_ss_f(11,:,:) - X_ss_f(27,:)) ./ X_ss_f(11,:), [num_samples,1]) * 100;
+FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:)) ./ X_bl_m(11,:), [num_samples,1]) * 100;
+FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:)) ./ X_bl_f(11,:), [num_samples,1]) * 100;
 
-FRNA_rel_m = (FRNA_ss_m(:,fixed_ss1) - FRNA_bl_m(:,fixed_ss1)) ...
-             ./ FRNA_bl_m(:,fixed_ss1) * 100;
-FRNA_rel_f = (FRNA_ss_f(:,fixed_ss1) - FRNA_bl_f(:,fixed_ss1)) ...
-             ./ FRNA_bl_f(:,fixed_ss1) * 100;
+% FRNA_rel_m = (FRNA_ss_m(:,fixed_ss1) - FRNA_bl_m(:,fixed_ss1)) ...
+%              ./ FRNA_bl_m(:,fixed_ss1) * 100;
+% FRNA_rel_f = (FRNA_ss_f(:,fixed_ss1) - FRNA_bl_f(:,fixed_ss1)) ...
+%              ./ FRNA_bl_f(:,fixed_ss1) * 100;
+FRNA_rel_m = (FRNA_ss_m - FRNA_bl_m) ./ FRNA_bl_m * 100;
+FRNA_rel_f = (FRNA_ss_f - FRNA_bl_f) ./ FRNA_bl_f * 100;
 
-FRW_ss_m = reshape((X_ss_m( 7,:,:) - X_ss_m(92,:,:)) ./ X_ss_m( 7,:,:), [num_samples,num_scen]) * 100;
-FRW_ss_f = reshape((X_ss_f( 7,:,:) - X_ss_f(92,:,:)) ./ X_ss_f( 7,:,:), [num_samples,num_scen]) * 100;
-FRW_bl_m = reshape((X_bl_m( 7,:,:) - X_bl_m(92,:,:)) ./ X_bl_m( 7,:,:), [num_samples,num_scen]) * 100;
-FRW_bl_f = reshape((X_bl_f( 7,:,:) - X_bl_f(92,:,:)) ./ X_bl_f( 7,:,:), [num_samples,num_scen]) * 100;
+% FRW_ss_m = reshape((X_ss_m( 7,:,:) - X_ss_m(92,:,:)) ./ X_ss_m( 7,:,:), [num_samples,num_scen]) * 100;
+% FRW_ss_f = reshape((X_ss_f( 7,:,:) - X_ss_f(92,:,:)) ./ X_ss_f( 7,:,:), [num_samples,num_scen]) * 100;
+% FRW_bl_m = reshape((X_bl_m( 7,:,:) - X_bl_m(92,:,:)) ./ X_bl_m( 7,:,:), [num_samples,num_scen]) * 100;
+% FRW_bl_f = reshape((X_bl_f( 7,:,:) - X_bl_f(92,:,:)) ./ X_bl_f( 7,:,:), [num_samples,num_scen]) * 100;
+FRW_ss_m = reshape((X_ss_m( 7,:) - X_ss_m(92,:)) ./ X_ss_m( 7,:), [num_samples,1]) * 100;
+FRW_ss_f = reshape((X_ss_f( 7,:) - X_ss_f(92,:)) ./ X_ss_f( 7,:), [num_samples,1]) * 100;
+FRW_bl_m = reshape((X_bl_m( 7,:) - X_bl_m(92,:)) ./ X_bl_m( 7,:), [num_samples,1]) * 100;
+FRW_bl_f = reshape((X_bl_f( 7,:) - X_bl_f(92,:)) ./ X_bl_f( 7,:), [num_samples,1]) * 100;
 
-FRW_rel_m = (FRW_ss_m(:,fixed_ss1) - FRW_bl_m(:,fixed_ss1)) ...
-            ./ FRW_bl_m(:,fixed_ss1) * 100;
-FRW_rel_f = (FRW_ss_f(:,fixed_ss1) - FRW_bl_f(:,fixed_ss1)) ...
-            ./ FRW_bl_f(:,fixed_ss1) * 100;
+% FRW_rel_m = (FRW_ss_m(:,fixed_ss1) - FRW_bl_m(:,fixed_ss1)) ...
+%             ./ FRW_bl_m(:,fixed_ss1) * 100;
+% FRW_rel_f = (FRW_ss_f(:,fixed_ss1) - FRW_bl_f(:,fixed_ss1)) ...
+%             ./ FRW_bl_f(:,fixed_ss1) * 100;
+FRW_rel_m = (FRW_ss_m - FRW_bl_m) ./ FRW_bl_m * 100;
+FRW_rel_f = (FRW_ss_f - FRW_bl_f) ./ FRW_bl_f * 100;
 
 g1 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
@@ -466,19 +497,27 @@ title(s_mech(3), 'C')
 
 % Actual, change, and % change in MAP.
 % X_m/f = (variable, sample, scenario)
-MAP_ac_m = zeros(num_samples,num_scen); MAP_ac_f = zeros(num_samples,num_scen);
-MAP_ch_m = zeros(num_samples,num_scen); MAP_ch_f = zeros(num_samples,num_scen);
-MAP_pc_m = zeros(num_samples,num_scen); MAP_pc_f = zeros(num_samples,num_scen);
-for i = 1:num_scen
-    MAP_ac_m(:,i) = (X_ss_m(42,:,i)                 )                        ;
-    MAP_ac_f(:,i) = (X_ss_f(42,:,i)                 )                        ;
-    
-    MAP_ch_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i))                        ;
-    MAP_ch_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i))                        ;
-    
-    MAP_pc_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i)) ./ X_bl_m(42,1,i) * 100;
-    MAP_pc_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i)) ./ X_bl_f(42,1,i) * 100;
-end
+% MAP_ac_m = zeros(num_samples,num_scen); MAP_ac_f = zeros(num_samples,num_scen);
+% MAP_ch_m = zeros(num_samples,num_scen); MAP_ch_f = zeros(num_samples,num_scen);
+% MAP_pc_m = zeros(num_samples,num_scen); MAP_pc_f = zeros(num_samples,num_scen);
+% for i = 1:num_scen
+%     MAP_ac_m(:,i) = (X_ss_m(42,:,i)                 )                        ;
+%     MAP_ac_f(:,i) = (X_ss_f(42,:,i)                 )                        ;
+%     
+%     MAP_ch_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i))                        ;
+%     MAP_ch_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i))                        ;
+%     
+%     MAP_pc_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i)) ./ X_bl_m(42,:,i) * 100;
+%     MAP_pc_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i)) ./ X_bl_f(42,:,i) * 100;
+% end
+MAP_ac_m(:,1) = (X_ss_m(42,:)               )                    ;
+MAP_ac_f(:,1) = (X_ss_f(42,:)               )                    ;
+
+MAP_ch_m(:,1) = (X_ss_m(42,:) - X_bl_m(42,:))                      ;
+MAP_ch_f(:,1) = (X_ss_f(42,:) - X_bl_f(42,:))                      ;
+
+MAP_pc_m(:,1) = (X_ss_m(42,:) - X_bl_m(42,:)) ./ X_bl_m(42,:) * 100;
+MAP_pc_f(:,1) = (X_ss_f(42,:) - X_bl_f(42,:)) ./ X_bl_f(42,:) * 100;
 
 g2 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 4]);
@@ -525,15 +564,19 @@ save_data_name = sprintf('dose_distribution_%s%s%%.fig', ...
 save_data_name = strcat('Figures/', save_data_name);
 savefig([f1;f2;f3;f4;g1;g2], save_data_name)
 
-% save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s%s%%.mat'  , ...
-%                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'X_ss_m', 'X_bl_m')
-% 
-% save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s%s%%.mat', ...
-%                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'X_ss_f', 'X_bl_f')
+save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s%s%%.mat'  , ...
+                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'X_bl_m' , 'X_bl_mean_m' , 'X_bl_std_m' , ...
+                     'X_ss_m' , 'X_ss_mean_m' , 'X_ss_std_m' , ...
+                     'X_rel_m', 'X_rel_mean_m', 'X_rel_std_m')
+
+save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s%s%%.mat', ...
+                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'X_bl_f' , 'X_bl_mean_f' , 'X_bl_std_f' , ...
+                     'X_ss_f' , 'X_ss_mean_f' , 'X_ss_std_f' , ...
+                     'X_rel_f', 'X_rel_mean_f', 'X_rel_std_f')
 
 end
 
