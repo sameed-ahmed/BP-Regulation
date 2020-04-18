@@ -69,7 +69,7 @@ num_scen = length(scenario1);
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
-fixed_ss2 = [3];
+fixed_ss2 = [4];
 
 
 % Species
@@ -77,14 +77,14 @@ spe_ind = 2;
 
 % Bootstrap replicate sample number
 % fixed_sample = random('Discrete Uniform',1000)
-% fixed_sample = 208
-fixed_sample = 655
+fixed_sample = 208
+% fixed_sample = 655
 % fixed_sample = 1;
 
 % Number of intervals for dose
 % num_iter = 21;
 % drug_dose = linspace(0,1.00,num_iter);
-num_iter = 20;
+num_iter = 96;
 drug_dose = linspace(0,0.95,num_iter);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -355,10 +355,10 @@ title(s_map(3), 'C')
 
 %% Save figures. -----------------------------------------------------------
  
-% save_data_name = sprintf('dose_response_%s%s.fig', ...
-%                          scenario2{fixed_ss2},num2str(fixed_sample));
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f1;f2;g], save_data_name)
+save_data_name = sprintf('dose_response_%s%s.fig', ...
+                         scenario2{fixed_ss2},num2str(fixed_sample));
+save_data_name = strcat('Figures/', save_data_name);
+savefig([f1;f2;g], save_data_name)
 
 end
 

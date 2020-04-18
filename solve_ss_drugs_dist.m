@@ -71,7 +71,6 @@ num_scen = length(scenario1);
 scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
 fixed_ss2 = [4];
 
-
 % Species
 spe_ind = 2;
 
@@ -93,7 +92,7 @@ fixed_sample = 1;
 % fixed_dose = round((inhibit - 0) / ((1-0)/(21-1)));
 
 % Drug dose
-drug_dose = 0.95;
+drug_dose = 0.94;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -161,7 +160,7 @@ end
 
 %% Solve system steady state
 
-%% Initialization
+% Initialization
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
@@ -482,41 +481,42 @@ for i = 1:num_scen
 end
 
 g2 = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
-s_map1(1) = subplot(1,3,1); 
-s_map1(2) = subplot(1,3,2); 
-s_map1(3) = subplot(1,3,3);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 4]);
+t = tiledlayout(1,3,'TileSpacing','Normal','Padding','Compact');
 
-h1 = histogram(s_map1(1),MAP_ac_m(:,fixed_ss1),10);
-hold(s_map1(1), 'on')
-h2 = histogram(s_map1(1),MAP_ac_f(:,fixed_ss1),10);
-hold(s_map1(1), 'off')
+nexttile
+h1 = histogram(MAP_ac_m(:,fixed_ss1),10);
+hold on
+h2 = histogram(MAP_ac_f(:,fixed_ss1),10);
+hold off
 h1.Normalization = 'probability'; h2.Normalization = 'probability';  
 h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
 h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-legend(s_map1(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northwest');
-xlabel(s_map1(1), 'MAP (mmHg)');
-title(s_map1(1), 'A')
+legend([h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northwest');
+xlabel('MAP (mmHg)');
+title('A')
 
-h1 = histogram(s_map1(2),MAP_ch_m(:,fixed_ss1),10);
-hold(s_map1(2), 'on')
-h2 = histogram(s_map1(2),MAP_ch_f(:,fixed_ss1),10);
-hold(s_map1(2), 'off')
+nexttile
+h1 = histogram(MAP_ch_m(:,fixed_ss1),10);
+hold on
+h2 = histogram(MAP_ch_f(:,fixed_ss1),10);
+hold off
 h1.Normalization = 'probability'; h2.Normalization = 'probability';  
 h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
 h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-xlabel(s_map1(2), '\DeltaMAP (mmHg)');
-title(s_map1(2), 'B')
+xlabel('\DeltaMAP (mmHg)');
+title('B')
 
-h1 = histogram(s_map1(3),MAP_pc_m(:,fixed_ss1),10);
-hold(s_map1(3), 'on')
-h2 = histogram(s_map1(3),MAP_pc_f(:,fixed_ss1),10);
-hold(s_map1(3), 'off')
+nexttile
+h1 = histogram(MAP_pc_m(:,fixed_ss1),10);
+hold on
+h2 = histogram(MAP_pc_f(:,fixed_ss1),10);
+hold off
 h1.Normalization = 'probability'; h2.Normalization = 'probability';  
 h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
 h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-xlabel(s_map1(3), '% \DeltaMAP');
-title(s_map1(3), 'C')
+xlabel('% \DeltaMAP');
+title('C')
 
 %% Save figures and data. -------------------------------------------------
  
@@ -525,15 +525,15 @@ save_data_name = sprintf('dose_distribution_%s%s%%.fig', ...
 save_data_name = strcat('Figures/', save_data_name);
 savefig([f1;f2;f3;f4;g1;g2], save_data_name)
 
-save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s%s%%.mat'  , ...
-                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'X_ss_m', 'X_bl_m')
-
-save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s%s%%.mat', ...
-                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'X_ss_f', 'X_bl_f')
+% save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s%s%%.mat'  , ...
+%                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'X_ss_m', 'X_bl_m')
+% 
+% save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s%s%%.mat', ...
+%                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'X_ss_f', 'X_bl_f')
 
 end
 

@@ -175,24 +175,30 @@ pars_hyp_m = pars_hyp_m ./ pars_hyp_bl_m;
 pars_hyp_f = pars_hyp_f ./ pars_hyp_bl_f;
 
 par_bin_width = [0.1,0.4,0.2,0.15,0.15,0.1];
+par_title = {'A', 'B', 'C', 'D', 'E', 'F'};
 
 % Plot parameters.
 g = figure('DefaultAxesFontSize',14);
-ss1   = gobjects(pars_hyp_num);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 8]);
+t = tiledlayout(3,2,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
-    ss1(i) = subplot(3,2,i);
-    h1 = histogram(ss1(i),pars_hyp_m(i,:),10);
-    hold(ss1(i), 'on')
-    h2 = histogram(ss1(i),pars_hyp_f(i,:),10);
-    hold(ss1(i), 'off')
+    nexttile
+    h1 = histogram(pars_hyp_m(i,:),10);
+    hold on
+    h2 = histogram(pars_hyp_f(i,:),10);
+    hold off
     h1.Normalization = 'probability'; h2.Normalization = 'probability';  
     h1.BinWidth = par_bin_width(i); h2.BinWidth = par_bin_width(i); 
     h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
 
     xlabel_name = strcat(pars_names(i));
-    xlabel(ss1(i), xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+    xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+    title(par_title{i})
+    
+    if i == 1
+        legend('Male','Female', 'FontSize',10,'Location','Northeast');
+    end
 end
-legend(ss1(1), 'Male','Female', 'FontSize',10,'Location','Northeast');
 
 %% Save figures.
 

@@ -51,7 +51,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % Sodin    - sodium loading
 % RPP      - manipulate renal perfusion pressure
 sim_scenario = {'Baseline', 'AngII', 'Sodin', 'RPP'};
-exact_sim_scen = 2;
+exact_sim_scen = 3;
 
 % Species
 spe_ind = 2;
@@ -479,6 +479,7 @@ plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.
 [~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
+title('A')
 
 % Plot all other quantities of interest. ----------------------------------
 
@@ -905,6 +906,7 @@ legend('Male sim','Female sim','Male data','Female data', 'Location','Southeast'
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 hold off
+title('B')
 
 % Plot all other quantities of interest. ----------------------------------
 

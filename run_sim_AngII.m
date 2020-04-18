@@ -188,9 +188,6 @@ for i = 1:length(ylower)
     end
 end
 
-% Interesting variables to plot.
-var_ind = [33;41;42;9;73;74;6;7;27;92;93;29]; sub_var_num = length(var_ind);
-
 % Plot all vars vs time. --------------------------------------------------
 
 f = gobjects(7,1);
@@ -225,6 +222,9 @@ for i = 1:7
 end
 
 % Plot interesting variables. ---------------------------------------------
+
+% Interesting variables to plot.
+var_ind = [33;41;42;9;73;74;6;7;27;92;93;29]; sub_var_num = length(var_ind);
 
 f2 = figure('pos',[000 000 600 600], 'DefaultAxesFontSize',12);
 s2 = gobjects(1,sub_var_num);
