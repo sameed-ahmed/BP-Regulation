@@ -94,11 +94,13 @@ GFR_th = 25;
 % Pathophysiologically perturbed parameters
 pars_ind     = [13;14;4;21;18;3];
 pars_hyp_num = length(pars_ind);
-pars_names   = {'K_{bar}$'            , 'R_{bv}$'             , ...
-                'R_{aa-ss}$'          , 'N_{rs}$'             , ...
-                'N_{als}^{eq}$'       , 'N_{rsna}$'           };
+pars_names   = {'$K_{bar}$'            , '$R_{bv}$'             , ...
+                '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
+                '$N_{als}^{eq}$'       , '$N_{rsna}$'           , ...
+                '$N_{adh}^{eq}$'       , '$B_{myo}$'            };
 pars_units   = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
                 '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
+                '$-$'                  , '$-$'                  , ...
                 '$-$'                  , '$-$'                  };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -438,7 +440,7 @@ pars_failure_f = pars_rel_f(:,MAP_failure_ind_f);
 fp1 = figure('DefaultAxesFontSize',14);
 sp1 = gobjects(pars_hyp_num);
 for i = 1:pars_hyp_num
-    sp1(i) = subplot(3,2,i);
+    sp1(i) = subplot(4,2,i);
     h1 = histogram(sp1(i),pars_success_m(i,:));
     hold(sp1(i), 'on')
     h2 = histogram(sp1(i),pars_failure_m(i,:));
@@ -457,7 +459,7 @@ sgtitle(hist_title, 'FontSize',14)
 fp2 = figure('DefaultAxesFontSize',14);
 sp2 = gobjects(pars_hyp_num);
 for i = 1:pars_hyp_num
-    sp2(i) = subplot(3,2,i);
+    sp2(i) = subplot(4,2,i);
     h1 = histogram(sp2(i),pars_success_f(i,:));
     hold(sp2(i), 'on')
     h2 = histogram(sp2(i),pars_failure_f(i,:));

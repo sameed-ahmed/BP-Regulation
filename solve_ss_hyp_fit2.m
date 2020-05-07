@@ -26,12 +26,14 @@ function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,S
 % N_rs             - par 21; - 0%, +100%
 % N_als_eq         - par 18; - 0%, +100%
 % N_rsna           - par 3 ; - 0%, +100%
+% N_adhs_eq        - par 15; - 0%, +100%
+% sigmamyo_b       - par 41; - 0%, +900%
 % Indices
-par_ind = [13;14;4;21;18;3];
+par_ind = [13;14;4;21;18;3;15;41];
 par_num = length(par_ind);
 % Range for parameters
-par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
-par_range_upper = [200;600;200;200;200;200]/100;
+par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
+par_range_upper = [200;600;200;100;100;100;100;900]/100;
 
 % Variables to check
 % P_ma      - var 42; +30,40, +40,50
@@ -45,8 +47,8 @@ par_range_upper = [200;600;200;200;200;200]/100;
 var_ind = [42;33;6;7;92;27;52];
 num_vars_check = length(var_ind);
 % Range for variables for each sex.
-var_range_lower_change_m = [60*100;5;5;5;5;5;2]/100;
-var_range_upper_change_m = [65*100;5;5;5;5;5;2]/100;
+var_range_lower_change_m = [40*100;5;5;5;5;5;2]/100;
+var_range_upper_change_m = [50*100;5;5;5;5;5;2]/100;
 var_range_lower_change_f = [30*100;5;5;5;5;5;2]/100;
 var_range_upper_change_f = [40*100;5;5;5;5;5;2]/100;
 
@@ -58,15 +60,12 @@ scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_m_Reab'};
 % Index of scenario to fix.
 fixed_ss = 1;
 
-% Species
-spe_ind = 2;
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Number of variables; number of parameters; 
-num_vars = 93; num_pars = 46; % + SF + fixed_var_pars + SSdata
+num_vars = 93; num_pars = 47; % + SF + fixed_var_pars + SSdata
 
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};

@@ -1,6 +1,8 @@
+% 
+
 function create_par_bs_rep
 
-% clc
+clc
 
 % Add directory containing data.
 mypath = pwd;
@@ -43,14 +45,6 @@ load(load_data_name_IG, 'SSdata');
 
 %% Load bootstrap replicate data created by create_data_bs_rep.m.
 
-% if     strcmp(sex{sex_ind}, 'male'  )
-%     AngII_MAP_data = [0   , 1.1 , 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
-%                28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
-% elseif strcmp(sex{sex_ind}, 'female')
-%     AngII_MAP_data = [0   , 5.2 ,  5.3,  3.9,  3.6,  5.9,    8,   13, ...
-%                15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
-% end
-
 load_data_name_data = sprintf('%s_%s_AngII_data_bs_rep.mat', species{spe_ind},sex{sex_ind});
 load(load_data_name_data, 'AngII_data_rep');
 
@@ -60,16 +54,16 @@ num_sample = size(AngII_data_rep,1);
 %% Find fitted parameters for given data set.
 
 % Initialize parameter replicates corresponding to data replicates.
-pars_rep = zeros(152,num_sample);
+pars_rep = zeros(153,num_sample);
 % Intialize exitflag. Need this because solver gets stuck for certain bad
 % initial guesses. So a maximum time is set in the solver options. If
 % reached, exitflag = 0. Then this script reruns the solver with a new
 % random initial guess.
 
 tic
-for j = sample_num:sample_num
+% for j = sample_num:sample_num
 % for j = 1:10
-% for j = 1:num_sample
+for j = 801:1000
 % parfor j = 1:10
 % [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data);
 
@@ -96,8 +90,26 @@ for j = sample_num:sample_num
 end
 bs_rep_fit_time = toc
 
-% %% Save data.
+%% % Find steady state soltuion if single individual. 
+% % Comment out if entire population.
 % 
+% % Number of variables.
+% num_vars = 93;
+% % Initial guess for the variables.
+% % Find the steady state solution, so the derivative is 0.
+% % Arbitrary value for time to input, greater than tchange + deltat.
+% % Time at which to change place holder.
+% x0 = SSdata; x_p0 = zeros(num_vars,1); t = 30; tchange = 0;
+% clear SSdata
+% 
+% options_ss = optimset('Display','off', 'MaxFunEvals',2000);
+% [SSdata, ~, ~, ~] = ...
+%     fsolve(@(x) ...
+%            bp_reg_mod(t,x,x_p0,pars_rep(:,sample_num),tchange,varargin_input{:}), ...
+%            x0, options_ss);
+
+%% Save data.
+
 % save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp.mat', ...
 %                          species{spe_ind},sex{sex_ind});
 % save_data_name = strcat('Data/', save_data_name);
@@ -105,9 +117,9 @@ bs_rep_fit_time = toc
 % save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
 %                          species{spe_ind},sex{sex_ind});
 % save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'pars')
-% 
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep.mat', ...
+% save(save_data_name, 'pars_rep', 'sample_num', 'bs_rep_fit_time')
+
+save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'pars_rep', 'num_sample', 'bs_rep_fit_time')
@@ -115,9 +127,6 @@ save(save_data_name, 'pars_rep', 'num_sample', 'bs_rep_fit_time')
 end % sex
 delete(gcp)
 % delete(myCluster.Jobs)
-
-
-
 
 end
 

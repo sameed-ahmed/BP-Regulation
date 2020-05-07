@@ -1,3 +1,7 @@
+% This script loads the bootstrap parameter replicates created for the
+% virtual population. It then solves the corresponding steady state
+% solution of the system for each parameter set and saves the result.
+
 function create_vp
 
 close all
@@ -19,15 +23,17 @@ addpath(genpath(mypath))
 % N_rs             - par 21; - 0%, +100%
 % N_als_eq         - par 18; - 0%, +100%
 % N_rsna           - par 3 ; - 0%, +100%
+% N_adhs_eq        - par 15; - 0%, +100%
+% sigmamyo_b       - par 41; - 0%, +900%
 % Indices
-pars_ind = [13;14;4;21;18;3];
-pars_hyp_num = length(pars_ind);
+par_ind = [13;14;4;21;18;3;15;41];
+par_num = length(par_ind);
 % Range for parameters
-pars_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
-pars_range_upper = [200;200;100;100;100;100]/100;
+par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
+par_range_upper = [200;600;200;100;100;100;100;900]/100;
 
-pars_names = {'$K_{bar}$', '$R_{bv}$'      , '$R_{aa-ss}$', ...
-              '$N_{rs}$' , '$N_{als}^{eq}$', '$N_{rsna}$' };
+pars_names = {'$K_{bar}$'     , '$R_{bv}$'  , '$R_{aa-ss}$'   , '$N_{rs}$' , ...
+              '$N_{als}^{eq}$', '$N_{rsna}$', '$N_{adh}^{eq}$', '$B_{myo}$'};
 
 % Scenario
 scenario = {'Normal'};

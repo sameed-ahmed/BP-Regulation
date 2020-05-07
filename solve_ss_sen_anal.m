@@ -31,8 +31,8 @@ addpath(genpath(mypath))
 % c_ACE        - par 32; -50%, +50%
 % c_AT1R       - par 37; -50%, +50%
 % c_AT2R       - par 38; -50%, +50%
-% % Psi_AT2RAA - par 41; -50%, +50%
-% % Psi_AT2REA - par 42; -50%, +50%
+% % Psi_AT2RAA - par 42; -50%, +50%
+% % Psi_AT2REA - par 43; -50%, +50%
 % Parameter indices
 in_ind      = [3;18;21;4;5;32;37;38];
 % Range for percent change

@@ -1389,7 +1389,7 @@ f = [f3];
 
 end
 
-end % create_vp_dist
+end % sim_hyp_vp
 
 
 

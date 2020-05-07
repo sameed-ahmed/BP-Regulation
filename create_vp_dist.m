@@ -1,3 +1,7 @@
+% This script loads the bootstrap replicate parameters and steady state
+% variables for the virtual population. It then plots the distribution for
+% each and saves the figures.
+
 function create_vp_dist
 
 close all
@@ -19,18 +23,22 @@ addpath(genpath(mypath))
 % N_rs             - par 21; - 0%, +100%
 % N_als_eq         - par 18; - 0%, +100%
 % N_rsna           - par 3 ; - 0%, +100%
-
-% Range for parameters
-pars_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
-pars_range_upper = [200;200;100;100;100;100]/100;
-
-pars_ind     = [13;14;4;21;18;3];
+% N_adhs_eq        - par 15; - 0%, +100%
+% sigmamyo_b       - par 41; - 0%, +900%
+% Indices
+pars_ind = [13;14;4;21;18;3;15;41];
 pars_hyp_num = length(pars_ind);
+% Range for parameters
+par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
+par_range_upper = [200;600;200;100;100;100;100;900]/100;
+
 pars_names   = {'$K_{bar}$'            , '$R_{bv}$'             , ...
                 '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
-                '$N_{als}^{eq}$'       , '$N_{rsna}$'           };
+                '$N_{als}^{eq}$'       , '$N_{rsna}$'           , ...
+                '$N_{adh}^{eq}$'       , '$B_{myo}$'            };
 pars_units   = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
                 '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
+                '$-$'                  , '$-$'                  , ...
                 '$-$'                  , '$-$'                  };
 
 vars_ind     = [42;33;41;29;30;52;6;7;92];
@@ -99,7 +107,7 @@ vars_hyp_bl = SSdata_bl(vars_ind,:);
 f(sex_ind,1) = figure('DefaultAxesFontSize',14);
 s1   = gobjects(pars_hyp_num);
 for i = 1:pars_hyp_num
-    s1(i) = subplot(3,2,i);
+    s1(i) = subplot(4,2,i);
     histogram(s1(i),pars_hyp(i,:),10)
 
     xlabel_name = strcat(pars_names(i), ' (', num2str(pars_hyp_bl(i),3), pars_units(i), ')');
@@ -175,12 +183,12 @@ pars_hyp_m = pars_hyp_m ./ pars_hyp_bl_m;
 pars_hyp_f = pars_hyp_f ./ pars_hyp_bl_f;
 
 par_bin_width = [0.1,0.4,0.2,0.15,0.15,0.1];
-par_title = {'A', 'B', 'C', 'D', 'E', 'F'};
+par_title = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
 
 % Plot parameters.
 g = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 8]);
-t = tiledlayout(3,2,'TileSpacing','Compact','Padding','Compact');
+t = tiledlayout(4,2,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
     nexttile
     h1 = histogram(pars_hyp_m(i,:),10);

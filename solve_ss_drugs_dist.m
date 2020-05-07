@@ -1,6 +1,4 @@
-% This simulates the blood pressure regulation model bp_reg.m for drug administration.
 % 
-% Steady state data is calculated by solve_ss_scenario.m.
 
 function solve_ss_drugs_dist
 
