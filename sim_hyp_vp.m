@@ -51,16 +51,39 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % Sodin    - sodium loading
 % RPP      - manipulate renal perfusion pressure
 sim_scenario = {'Baseline', 'AngII', 'Sodin', 'RPP'};
-exact_sim_scen = 3;
+exact_sim_scen = 2;
 
 % Species
 spe_ind = 2;
 
 % Bootstrap replicate sample number
-% sample_num = random('Discrete Uniform',1000)
+sample_num = random('Discrete Uniform',1000)
 % sample_num = 42 % male and female MAP similar
 % sample_num = 208
-sample_num = 655
+% sample_num = 655
+
+% female bad fit for new
+% sample_num = 239 
+% sample_num = 723 
+% sample_num = 261 
+% sample_num = 823 
+%   male bad fit for new ~
+% sample_num = 975 
+% sample_num = 080 
+%   both bad fit for new ~
+% sample_num = 003 
+%  both good fit for old
+% sample_num = 206 
+% female bad fit for old
+% sample_num = 212 
+% sample_num = 463 
+% sample_num = 167 
+%  both good fit for old
+% sample_num = 573 
+% sample_num = 742 
+% sample_num = 077 
+% sample_num = 207 
+% sample_num = 862
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -76,7 +99,7 @@ for sex_ind = 1:2 % sex
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 num_pars   = size(pars_rep,1);
@@ -84,7 +107,7 @@ num_sample = size(pars_rep,2);
 PARS{sex_ind} = pars_rep;
 
 % Variables
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 num_vars   = size(SSdata_rep,1);
@@ -118,7 +141,7 @@ end
 
 %% Save figures.
 
-% save_data_name = sprintf('Pri_hyp_sim_%s_VI%s.fig', ...
+% save_data_name = sprintf('Pri_hyp_sim_%s_VI%sNEW.fig', ...
 %                          sim_scenario{exact_sim_scen},num2str(sample_num));
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig(fig, save_data_name)
@@ -329,7 +352,7 @@ t0 = 0*1440; tend = tchange + days*1440;
 tspan = linspace(t0,tend,N);
 
 % ode options
-options = odeset('MaxStep',100); % default MaxStep is 0.1*abs(t0-tf)
+options = odeset('MaxStep',1000); % default MaxStep is 0.1*abs(t0-tf)
 
 % Solve dae
 [t,x] = ode15i(@(t,x,x_p) ...
@@ -440,46 +463,6 @@ end
 legend(s2(1),'Male','Female', 'Location','east')
 xlh = xlabel(s2(11),'Time (days)');
 xlh.Position(2) = xlh.Position(2) - 0.0005;
-
-% Plot Mean Arterial Pressure vs Time. ------------------------------------
-
-% Data from Sullivan 2010. MAP is in difference from baseline.
-load_data_name_AngII = sprintf('%s_male_AngII_data_bs_rep.mat'  , species{spe_ind});
-load(load_data_name_AngII, 'AngII_data_rep');
-MAPdata_m = AngII_data_rep(sample_num,:);
-load_data_name_AngII = sprintf('%s_female_AngII_data_bs_rep.mat', species{spe_ind});
-load(load_data_name_AngII, 'AngII_data_rep');
-MAPdata_f = AngII_data_rep(sample_num,:);
-
-tdata = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
-         7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
-
-% Substract MAP by baseline for each sex and all scenarios.
-% X_m/f = (variable, points, scenario)
-MAP_m = zeros(N,num_scen); MAP_f = zeros(N,num_scen);
-for i = 1:num_scen
-    MAP_m(:,i) = X_m(42,:,i) - X_m(42,1,i);
-    MAP_f(:,i) = X_f(42,:,i) - X_f(42,1,i);
-end
-% MAP_m = reshape(X_m(42,:,i) - X_m(42,1,i), [N,num_scen]);
-% MAP_f = reshape(X_f(42,:,i) - X_f(42,1,i), [N,num_scen]);
-
-f3 = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
-plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
-xlim([xlower, xupper]); ylim([-1, 60]);
-ax = gca;
-ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
-ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
-xlabel('Time (days)'); ylabel('\DeltaMAP (mmHg)');
-hold on
-plot(t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
-plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6, 'LineWidth',2)
-[~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');
-hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
-title('A')
 
 % Plot all other quantities of interest. ----------------------------------
 
@@ -601,6 +584,46 @@ hold(s_main(4), 'on')
 plot(s_main(4), t,BV_f  (:,fixed_ss), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold(s_main(4), 'off')
 title(s_main(4), 'D')
+
+% Plot Mean Arterial Pressure vs Time. ------------------------------------
+
+% Data from Sullivan 2010. MAP is in difference from baseline.
+load_data_name_AngII = sprintf('%s_male_AngII_data_bs_rep.mat'  , species{spe_ind});
+load(load_data_name_AngII, 'AngII_data_rep');
+MAPdata_m = AngII_data_rep(sample_num,:);
+load_data_name_AngII = sprintf('%s_female_AngII_data_bs_rep.mat', species{spe_ind});
+load(load_data_name_AngII, 'AngII_data_rep');
+MAPdata_f = AngII_data_rep(sample_num,:);
+
+tdata = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
+         7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1];
+
+% Substract MAP by baseline for each sex and all scenarios.
+% X_m/f = (variable, points, scenario)
+MAP_m = zeros(N,num_scen); MAP_f = zeros(N,num_scen);
+for i = 1:num_scen
+    MAP_m(:,i) = X_m(42,:,i) - X_m(42,1,i);
+    MAP_f(:,i) = X_f(42,:,i) - X_f(42,1,i);
+end
+% MAP_m = reshape(X_m(42,:,i) - X_m(42,1,i), [N,num_scen]);
+% MAP_f = reshape(X_f(42,:,i) - X_f(42,1,i), [N,num_scen]);
+
+f3 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 5]);
+plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',4.5);
+xlim([xlower, xupper]); ylim([-1, 60]);
+ax = gca;
+ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
+ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
+xlabel('Time (days)'); ylabel('\DeltaMAP (mmHg)');
+hold on
+plot(t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',4.5)
+plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',9, 'LineWidth',3)
+plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',9, 'LineWidth',3)
+[~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',10,'Location','Northwest');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',2.25);
+title('A')
 
 % % Plot male - female bar graph for each scenario --------------------------
 % 
