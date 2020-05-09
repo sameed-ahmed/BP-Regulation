@@ -26,7 +26,7 @@ species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
 parpool
-for sex_ind = 1:2 % sex
+for sex_ind = 1:1 % sex
 
 %% Parameters
 
@@ -63,7 +63,7 @@ pars_rep = zeros(153,num_sample);
 tic
 % for j = sample_num:sample_num
 % for j = 1:10
-for j = 801:1000
+for j = 751:751
 % parfor j = 1:10
 % [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data);
 
@@ -119,7 +119,7 @@ bs_rep_fit_time = toc
 % save_data_name = strcat('Data/', save_data_name);
 % save(save_data_name, 'pars_rep', 'sample_num', 'bs_rep_fit_time')
 
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep751.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'pars_rep', 'num_sample', 'bs_rep_fit_time')

@@ -477,6 +477,7 @@ options_dae = odeset('MaxStep',1000, 'Events',@(t,x,xp) myevent(t,x,xp));
                bp_reg_mod(t,x,x_p,pars0,tchange_angII,varargin_input_angII{:}), ...
                tspan, x0_angII, x_p0, options_dae);
 % toc2 = toc
+size(x)
 
 % Return if simulation crashed.
 if size(x,1) < N
@@ -522,6 +523,8 @@ err = AngII_MAP_err;
 %% Event function
 
 function [values,isterminal,direction] = myevent(t,x,xp)
+
+% pause(2)
 
 %  Don't let integration go for more than 1.2 seconds.
 if toc(odestart) > 1

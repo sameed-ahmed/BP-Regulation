@@ -26,11 +26,11 @@ addpath(genpath(mypath))
 % N_adhs_eq        - par 15; - 0%, +100%
 % sigmamyo_b       - par 41; - 0%, +900%
 % Indices
-par_ind = [13;14;4;21;18;3;15;41];
-par_num = length(par_ind);
+pars_ind = [13;14;4;21;18;3;15;41];
+pars_num = length(pars_ind);
 % Range for parameters
-par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
-par_range_upper = [200;600;200;100;100;100;100;900]/100;
+pars_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
+pars_range_upper = [200;600;200;100;100;100;100;900]/100;
 
 pars_names = {'$K_{bar}$'     , '$R_{bv}$'  , '$R_{aa-ss}$'   , '$N_{rs}$' , ...
               '$N_{als}^{eq}$', '$N_{rsna}$', '$N_{adh}^{eq}$', '$B_{myo}$'};
@@ -55,7 +55,7 @@ for sex_ind = 1:2 % sex
 
 %% Load bootstrap replicate parameters created by create_par_bs_rep.m.
 
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_hyp = pars_rep(pars_ind,:);
@@ -63,6 +63,15 @@ pars_hyp = pars_rep(pars_ind,:);
 pars_num   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
 % num_sample = 10;
+
+%% Load data for steady state initial guess. 
+
+% Set name for data file to be loaded based upon sex.
+load_data_name_SSdata = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+                                species{spe_ind},sex{sex_ind},scenario{1});
+load(load_data_name_SSdata, 'SSdata');
+SSdataIG     = SSdata;
+clear SSdata
 
 %% % Plot parameter distribution.
 % 
@@ -84,9 +93,10 @@ tic
 SSdata_rep = zeros(num_vars, num_sample);
 for j = 1:num_sample
 % for j = 1:10
+% for j = 750:750
     SSdata_rep(:,j) = solve_ss_scenario(pars_rep(:,j));
-%     fprintf('%s iteration = %s out of %s \n', ...
-%             sex{sex_ind},num2str(j),num2str(num_sample))
+    fprintf('%s iteration = %s out of %s \n', ...
+            sex{sex_ind},num2str(j),num2str(num_sample))
 end
 bs_rep_solve_time = toc
 
@@ -113,7 +123,7 @@ bs_rep_solve_time = toc
 
 %% Save data.
 
-save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata_rep', 'num_sample', 'bs_rep_solve_time')
@@ -131,15 +141,6 @@ function SSdata = solve_ss_scenario(pars)
 varargin_input = {scenario{1},true};
 
 %% Variables initial guess
-
-% Load data for steady state initial guess. 
-% Set name for data file to be loaded based upon sex.
-
-load_data_name_SSdata = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                                species{spe_ind},sex{sex_ind},scenario{1});
-load(load_data_name_SSdata, 'SSdata');
-SSdataIG     = SSdata;
-clear SSdata
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
