@@ -61,14 +61,16 @@ fixed_ss1 = 1;
 num_scen = length(scenario1);
 % Drug scenarios
 % Normal - Normal conditions
-% AngII  - Ang II infusion fmol/(ml min)
-% ACEi   - Angiotensin converting enzyme inhibitor %
-% ARB1   - Angiotensin receptor 1 blocker %
+% ACEi   - Angiotensin converting enzyme inhibitor % 95
+% ARB1   - Angiotensin receptor 1 blocker % 94
+% CCB    - Calcium channel blocker % 84? 70?
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
-scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
+% AngII  - Ang II infusion fmol/(ml min)
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', ...
+             'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
 fixed_ss2 = [4];
 
 % Species
@@ -92,7 +94,7 @@ fixed_sample = 1;
 % fixed_dose = round((inhibit - 0) / ((1-0)/(21-1)));
 
 % Drug dose
-drug_dose = 0.94;
+drug_dose = 0.84;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -137,16 +139,12 @@ for sam_iter = 1:num_samples % samples
 varargin_input = {scenario1{sce_ind},true};
 
 for i = 1:length(fixed_ss2)
-    if     strcmp(scenario2{fixed_ss2(i)}, 'AngII')
-        if     strcmp(sex{sex_ind}, 'male')
-            varargin_input = [varargin_input, 'AngII',910]; % Sullivan 2010
-        elseif strcmp(sex{sex_ind}, 'female')
-            varargin_input = [varargin_input, 'AngII',505]; % Sullivan 2010
-        end
-    elseif strcmp(scenario2{fixed_ss2(i)}, 'ACEi' )
+    if     strcmp(scenario2{fixed_ss2(i)}, 'ACEi' )
             varargin_input = [varargin_input, 'ACEi' ,drug_dose]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB1' )
             varargin_input = [varargin_input, 'ARB1' ,drug_dose]; % 
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'CCB'  )
+            varargin_input = [varargin_input, 'CCB'  ,[drug_dose,(2/3)]]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
             varargin_input = [varargin_input, 'ARB2' ,drug_dose]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'DRI'  )
@@ -155,6 +153,13 @@ for i = 1:length(fixed_ss2)
             varargin_input = [varargin_input, 'MRB'  ,drug_dose]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'RSS'  )
             varargin_input = [varargin_input, 'RSS'  ,drug_dose]; % 
+
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'AngII')
+        if     strcmp(sex{sex_ind}, 'male')
+            varargin_input = [varargin_input, 'AngII',910]; % Sullivan 2010
+        elseif strcmp(sex{sex_ind}, 'female')
+            varargin_input = [varargin_input, 'AngII',505]; % Sullivan 2010
+        end
     end
 end
 
@@ -241,7 +246,6 @@ X_rel_mean_m = mean(X_rel_m,  2); X_rel_mean_f = mean(X_rel_f,  2);
 X_bl_std_m   = std (X_bl_m ,0,2); X_bl_std_f   = std (X_bl_f ,0,2);
 X_ss_std_m   = std (X_ss_m ,0,2); X_ss_std_f   = std (X_ss_f ,0,2);
 X_rel_std_m  = std (X_rel_m,0,2); X_rel_std_f  = std (X_rel_f,0,2);
-
 
 %% Plot
 

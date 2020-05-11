@@ -56,8 +56,11 @@ SF_V = pars(end  ); % volume
 
 % Drugs
 kappa_AngII_inp = 0; % Ang II infusion rate fmol/ml/min
+
 kappa_ACEi_inp  = 0; % ACE inhibitor %
 kappa_ARB1_inp  = 0; % Angiotensin receptor 1 blocker %
+kappa_CCB_inp   = 0; % Calcium channel blocker %
+CCB_less        = 1; % Calcium channel blocker factor decrease for certain arteries
 kappa_ARB2_inp  = 0; % Angiotensin receptor 2 blocker %
 kappa_DRI_inp   = 0; % Direct renin inhibitor %
 kappa_MRB_inp   = 0; % Aldosterone blocker %
@@ -97,10 +100,14 @@ for i = 1:2:length(varargin)
     % Drugs
     if     strcmp(varargin{i},'AngII')
         kappa_AngII_inp = varargin{i + 1};
+
     elseif strcmp(varargin{i},'ACEi')
         kappa_ACEi_inp  = varargin{i + 1};
     elseif strcmp(varargin{i},'ARB1')
         kappa_ARB1_inp  = varargin{i + 1};
+    elseif strcmp(varargin{i},'CCB' )
+        kappa_CCB_inp   = varargin{i + 1}(1);
+        CCB_less        = varargin{i + 1}(2);
     elseif strcmp(varargin{i},'ARB2')
         kappa_ARB2_inp  = varargin{i + 1};
     elseif strcmp(varargin{i},'DRI' )
@@ -228,6 +235,7 @@ if     t <  tchange
     kappa_AngII = 0; 
     kappa_ACEi  = 0;
     kappa_ARB1  = 0;
+    kappa_CCB   = 0;
     kappa_ARB2  = 0;
     kappa_DRI   = 0;
     kappa_MRB   = 0;
@@ -238,6 +246,7 @@ elseif t >= tchange
     kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
+    kappa_CCB   = kappa_CCB_inp   * tanh(alpha * (t-tchange));
     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
     kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
     kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
@@ -626,7 +635,8 @@ f(36) = vas_f - ( (11.312 * exp(-Phi_co * vasf_a)) / 100 );
 % vas_d
 f(37) = vas_d - ( vas * K_vd );
 % R_a
-f(38) = R_a - ( R_ba * epsilon_aum );
+f(38) = R_a - ( R_ba * epsilon_aum * (1-kappa_CCB*CCB_less) );
+% f(38) = R_a - ( R_ba * epsilon_aum * (1-kappa_CCB) );
 % R_ba
 f(39) = R_ba - ( K_bar / vas );
 % R_vr
@@ -756,9 +766,11 @@ f(71) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
 % AngIV
 f(72) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
 % R_aa
-f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA);
+f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA * (1-kappa_CCB));
+% f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA * (1-0*kappa_CCB));
 % R_ea
-f(74) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
+f(74) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA * (1-kappa_CCB*CCB_less) );
+% f(74) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA * (1-0*kappa_CCB) );
 % Sigma_myo
 if     strcmp(species, 'human')
     if imp_Myo_ind

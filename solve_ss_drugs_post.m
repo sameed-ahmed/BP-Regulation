@@ -61,14 +61,16 @@ fixed_ss1 = 1;
 num_scen = length(scenario1);
 % Drug scenarios
 % Normal - Normal conditions
-% AngII  - Ang II infusion fmol/(ml min)
-% ACEi   - Angiotensin converting enzyme inhibitor %
-% ARB1   - Angiotensin receptor 1 blocker %
+% ACEi   - Angiotensin converting enzyme inhibitor % 95
+% ARB1   - Angiotensin receptor 1 blocker % 94
+% CCB    - Calcium channel blocker % 84? 70?
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
-scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
+% AngII  - Ang II infusion fmol/(ml min)
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', ...
+             'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
 fixed_ss2 = [4];
 
 % Species
@@ -84,7 +86,7 @@ num_samples = 1000;
 fixed_sample = 1;
 
 % Drug dose
-drug_dose = 0.94
+drug_dose = 0.84
 
 % Mean arterial pressure threshold
 MAP_th = -25
