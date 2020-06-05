@@ -63,15 +63,16 @@ num_scen = length(scenario1);
 % Normal - Normal conditions
 % ACEi   - Angiotensin converting enzyme inhibitor % 95
 % ARB1   - Angiotensin receptor 1 blocker % 94
-% CCB    - Calcium channel blocker % 84? 70?
+% CCB    - Calcium channel blocker % 84
+% DIU    - Thiazide diuretic % 0.5 1?
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 % AngII  - Ang II infusion fmol/(ml min)
-scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', ...
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [4];
+fixed_ss2 = [5];
 
 % Species
 spe_ind = 2;
@@ -86,7 +87,9 @@ num_samples = 1000;
 fixed_sample = 1;
 
 % Drug dose
-drug_dose = 0.84
+drug_dose = 0.5
+drug_dose_vaso = 0           % DIU
+drug_dose_rsec = 2*drug_dose % DIU
 
 % Mean arterial pressure threshold
 MAP_th = -25
@@ -581,186 +584,186 @@ b1(2).CData = [1, 0, 0];
 xlabel('MAP (mmHg)');
 title('B')
 
-%% % Plot some interesting variables
-% 
-% R_bl_m = reshape(X_bl_m(74,:,:) ./ X_bl_m(4,:,:), [num_samples,num_scen]);
-% R_bl_f = reshape(X_bl_f(74,:,:) ./ X_bl_f(4,:,:), [num_samples,num_scen]);
-% size(R_bl_m(:,fixed_ss1))
-% 
-% FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:,:)) ./ X_bl_m(11,:,:), [num_samples,num_scen]) * 100;
-% FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:,:)) ./ X_bl_f(11,:,:), [num_samples,num_scen]) * 100;
-% 
-% FRW_bl_m = reshape((X_bl_m( 7,:,:) - X_bl_m(92,:,:)) ./ X_bl_m( 7,:,:), [num_samples,num_scen]) * 100;
-% FRW_bl_f = reshape((X_bl_f( 7,:,:) - X_bl_f(92,:,:)) ./ X_bl_f( 7,:,:), [num_samples,num_scen]) * 100;
-% 
-% g1 = figure('DefaultAxesFontSize',14);
-% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
-% s_mech(1) = subplot(1,3,1); 
-% s_mech(2) = subplot(1,3,2); 
-% s_mech(3) = subplot(1,3,3); 
-% 
-% h1 = histogram(s_mech(1),R_bl_m(:,fixed_ss1),10);
-% hold(s_mech(1), 'on')
-% h2 = histogram(s_mech(1),R_bl_f(:,fixed_ss1),10);
-% hold(s_mech(1), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 0.01; h2.BinWidth = 0.01; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% legend(s_mech(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northeast');
-% xlabel(s_mech(1), 'R_{EA}/R_R');
-% title(s_mech(1), 'A')
-% 
-% h1 = histogram(s_mech(2),FRNA_bl_m(:,fixed_ss1),10);
-% hold(s_mech(2), 'on')
-% h2 = histogram(s_mech(2),FRNA_bl_f(:,fixed_ss1),10);
-% hold(s_mech(2), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 0.01; h2.BinWidth = 0.01; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% xlabel(s_mech(2), 'FR_{Na^+}');
-% title(s_mech(2), 'B')
-% 
-% h1 = histogram(s_mech(3),FRW_bl_m(:,fixed_ss1),10);
-% hold(s_mech(3), 'on')
-% h2 = histogram(s_mech(3),FRW_bl_f(:,fixed_ss1),10);
-% hold(s_mech(3), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 0.02; h2.BinWidth = 0.02; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% xlabel(s_mech(3), 'FR_{U}');
-% title(s_mech(3), 'C')
+%% Plot some interesting variables
 
-%% % Plot variables that explain mechanims. ---------------------------------
-% 
-% R_ss_m = reshape(X_ss_m(74,:,:) ./ X_ss_m(4,:,:), [num_samples,num_scen]);
-% R_ss_f = reshape(X_ss_f(74,:,:) ./ X_ss_f(4,:,:), [num_samples,num_scen]);
-% R_bl_m = reshape(X_bl_m(74,:,:) ./ X_bl_m(4,:,:), [num_samples,num_scen]);
-% R_bl_f = reshape(X_bl_f(74,:,:) ./ X_bl_f(4,:,:), [num_samples,num_scen]);
-% 
-% R_rel_m = (R_ss_m(:,fixed_ss1) - R_bl_m(:,fixed_ss1)) ...
-%           ./ R_bl_m(:,fixed_ss1) * 100;
-% R_rel_f = (R_ss_f(:,fixed_ss1) - R_bl_f(:,fixed_ss1)) ...
-%           ./ R_bl_f(:,fixed_ss1) * 100;
-% 
-% FRNA_ss_m = reshape((X_ss_m(11,:,:) - X_ss_m(27,:,:)) ./ X_ss_m(11,:,:), [num_samples,num_scen]) * 100;
-% FRNA_ss_f = reshape((X_ss_f(11,:,:) - X_ss_f(27,:,:)) ./ X_ss_f(11,:,:), [num_samples,num_scen]) * 100;
-% FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:,:)) ./ X_bl_m(11,:,:), [num_samples,num_scen]) * 100;
-% FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:,:)) ./ X_bl_f(11,:,:), [num_samples,num_scen]) * 100;
-% 
-% FRNA_rel_m = (FRNA_ss_m(:,fixed_ss1) - FRNA_bl_m(:,fixed_ss1)) ...
-%              ./ FRNA_bl_m(:,fixed_ss1) * 100;
-% FRNA_rel_f = (FRNA_ss_f(:,fixed_ss1) - FRNA_bl_f(:,fixed_ss1)) ...
-%              ./ FRNA_bl_f(:,fixed_ss1) * 100;
-% 
-% mean(FRNA_rel_m)
-% mean(FRNA_rel_f)
-% 
-% FRW_ss_m = reshape((X_ss_m( 7,:,:) - X_ss_m(92,:,:)) ./ X_ss_m( 7,:,:), [num_samples,num_scen]) * 100;
-% FRW_ss_f = reshape((X_ss_f( 7,:,:) - X_ss_f(92,:,:)) ./ X_ss_f( 7,:,:), [num_samples,num_scen]) * 100;
-% FRW_bl_m = reshape((X_bl_m( 7,:,:) - X_bl_m(92,:,:)) ./ X_bl_m( 7,:,:), [num_samples,num_scen]) * 100;
-% FRW_bl_f = reshape((X_bl_f( 7,:,:) - X_bl_f(92,:,:)) ./ X_bl_f( 7,:,:), [num_samples,num_scen]) * 100;
-% 
-% FRW_rel_m = (FRW_ss_m(:,fixed_ss1) - FRW_bl_m(:,fixed_ss1)) ...
-%             ./ FRW_bl_m(:,fixed_ss1) * 100;
-% FRW_rel_f = (FRW_ss_f(:,fixed_ss1) - FRW_bl_f(:,fixed_ss1)) ...
-%             ./ FRW_bl_f(:,fixed_ss1) * 100;
-% 
-% mean(FRW_rel_m)
-% mean(FRW_rel_f)
-% 
-% g1 = figure('DefaultAxesFontSize',14);
-% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
-% s_mech(1) = subplot(1,3,1); 
-% s_mech(2) = subplot(1,3,2); 
-% s_mech(3) = subplot(1,3,3); 
-% 
-% h1 = histogram(s_mech(1),R_rel_m(:),10);
-% hold(s_mech(1), 'on')
-% h2 = histogram(s_mech(1),R_rel_f(:),10);
-% hold(s_mech(1), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% legend(s_mech(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northeast');
-% xlabel(s_mech(1), 'R_{EA}/R_R');
-% title(s_mech(1), 'A')
-% 
-% h1 = histogram(s_mech(2),FRNA_rel_m(:),10);
-% hold(s_mech(2), 'on')
-% h2 = histogram(s_mech(2),FRNA_rel_f(:),10);
-% hold(s_mech(2), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 0.05; h2.BinWidth = 0.05; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% xlabel(s_mech(2), 'FR_{Na^+}');
-% title(s_mech(2), 'B')
-% 
-% h1 = histogram(s_mech(3),FRW_rel_m(:),10);
-% hold(s_mech(3), 'on')
-% h2 = histogram(s_mech(3),FRW_rel_f(:),10);
-% hold(s_mech(3), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 0.05; h2.BinWidth = 0.05; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% xlabel(s_mech(3), 'FR_{W}');
-% title(s_mech(3), 'C')
+R_bl_m = reshape(X_bl_m(74,:,:) ./ X_bl_m(4,:,:), [num_samples,num_scen]);
+R_bl_f = reshape(X_bl_f(74,:,:) ./ X_bl_f(4,:,:), [num_samples,num_scen]);
+size(R_bl_m(:,fixed_ss1))
 
-%% % Plot Mean Arterial Pressure distribution. ------------------------------
-% 
-% % Actual, change, and % change in MAP.
-% % X_m/f = (variable, sample, scenario)
-% MAP_ac_m = zeros(num_samples,num_scen); MAP_ac_f = zeros(num_samples,num_scen);
-% MAP_ch_m = zeros(num_samples,num_scen); MAP_ch_f = zeros(num_samples,num_scen);
-% MAP_pc_m = zeros(num_samples,num_scen); MAP_pc_f = zeros(num_samples,num_scen);
-% for i = 1:num_scen
-%     MAP_ac_m(:,i) = (X_ss_m(42,:,i)                 )                        ;
-%     MAP_ac_f(:,i) = (X_ss_f(42,:,i)                 )                        ;
-%     
-%     MAP_ch_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i))                        ;
-%     MAP_ch_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i))                        ;
-%     
-%     MAP_pc_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i)) ./ X_bl_m(42,1,i) * 100;
-%     MAP_pc_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i)) ./ X_bl_f(42,1,i) * 100;
-% end
-% 
-% g2 = figure('DefaultAxesFontSize',14);
-% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
-% s_map1(1) = subplot(1,3,1); 
-% s_map1(2) = subplot(1,3,2); 
-% s_map1(3) = subplot(1,3,3);
-% 
-% h1 = histogram(s_map1(1),MAP_ac_m(:,fixed_ss1),10);
-% hold(s_map1(1), 'on')
-% h2 = histogram(s_map1(1),MAP_ac_f(:,fixed_ss1),10);
-% hold(s_map1(1), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% legend(s_map1(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northwest');
-% xlabel(s_map1(1), 'MAP (mmHg)');
-% title(s_map1(1), 'A')
-% 
-% h1 = histogram(s_map1(2),MAP_ch_m(:,fixed_ss1),10);
-% hold(s_map1(2), 'on')
-% h2 = histogram(s_map1(2),MAP_ch_f(:,fixed_ss1),10);
-% hold(s_map1(2), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% xlabel(s_map1(2), '\DeltaMAP (mmHg)');
-% title(s_map1(2), 'B')
-% 
-% h1 = histogram(s_map1(3),MAP_pc_m(:,fixed_ss1),10);
-% hold(s_map1(3), 'on')
-% h2 = histogram(s_map1(3),MAP_pc_f(:,fixed_ss1),10);
-% hold(s_map1(3), 'off')
-% h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-% h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
-% h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
-% xlabel(s_map1(3), '% \DeltaMAP');
-% title(s_map1(3), 'C')
+FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:,:)) ./ X_bl_m(11,:,:), [num_samples,num_scen]) * 100;
+FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:,:)) ./ X_bl_f(11,:,:), [num_samples,num_scen]) * 100;
 
-%% Save figures and data.
+FRW_bl_m = reshape((X_bl_m( 7,:,:) - X_bl_m(92,:,:)) ./ X_bl_m( 7,:,:), [num_samples,num_scen]) * 100;
+FRW_bl_f = reshape((X_bl_f( 7,:,:) - X_bl_f(92,:,:)) ./ X_bl_f( 7,:,:), [num_samples,num_scen]) * 100;
+
+g1 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
+s_mech(1) = subplot(1,3,1); 
+s_mech(2) = subplot(1,3,2); 
+s_mech(3) = subplot(1,3,3); 
+
+h1 = histogram(s_mech(1),R_bl_m(:,fixed_ss1),10);
+hold(s_mech(1), 'on')
+h2 = histogram(s_mech(1),R_bl_f(:,fixed_ss1),10);
+hold(s_mech(1), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 0.01; h2.BinWidth = 0.01; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+legend(s_mech(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northeast');
+xlabel(s_mech(1), 'R_{EA}/R_R');
+title(s_mech(1), 'A')
+
+h1 = histogram(s_mech(2),FRNA_bl_m(:,fixed_ss1),10);
+hold(s_mech(2), 'on')
+h2 = histogram(s_mech(2),FRNA_bl_f(:,fixed_ss1),10);
+hold(s_mech(2), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 0.01; h2.BinWidth = 0.01; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_mech(2), 'FR_{Na^+}');
+title(s_mech(2), 'B')
+
+h1 = histogram(s_mech(3),FRW_bl_m(:,fixed_ss1),10);
+hold(s_mech(3), 'on')
+h2 = histogram(s_mech(3),FRW_bl_f(:,fixed_ss1),10);
+hold(s_mech(3), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 0.02; h2.BinWidth = 0.02; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_mech(3), 'FR_{U}');
+title(s_mech(3), 'C')
+
+%% Plot variables that explain mechanims. ---------------------------------
+
+R_ss_m = reshape(X_ss_m(74,:,:) ./ X_ss_m(4,:,:), [num_samples,num_scen]);
+R_ss_f = reshape(X_ss_f(74,:,:) ./ X_ss_f(4,:,:), [num_samples,num_scen]);
+R_bl_m = reshape(X_bl_m(74,:,:) ./ X_bl_m(4,:,:), [num_samples,num_scen]);
+R_bl_f = reshape(X_bl_f(74,:,:) ./ X_bl_f(4,:,:), [num_samples,num_scen]);
+
+R_rel_m = (R_ss_m(:,fixed_ss1) - R_bl_m(:,fixed_ss1)) ...
+          ./ R_bl_m(:,fixed_ss1) * 100;
+R_rel_f = (R_ss_f(:,fixed_ss1) - R_bl_f(:,fixed_ss1)) ...
+          ./ R_bl_f(:,fixed_ss1) * 100;
+
+FRNA_ss_m = reshape((X_ss_m(11,:,:) - X_ss_m(27,:,:)) ./ X_ss_m(11,:,:), [num_samples,num_scen]) * 100;
+FRNA_ss_f = reshape((X_ss_f(11,:,:) - X_ss_f(27,:,:)) ./ X_ss_f(11,:,:), [num_samples,num_scen]) * 100;
+FRNA_bl_m = reshape((X_bl_m(11,:,:) - X_bl_m(27,:,:)) ./ X_bl_m(11,:,:), [num_samples,num_scen]) * 100;
+FRNA_bl_f = reshape((X_bl_f(11,:,:) - X_bl_f(27,:,:)) ./ X_bl_f(11,:,:), [num_samples,num_scen]) * 100;
+
+FRNA_rel_m = (FRNA_ss_m(:,fixed_ss1) - FRNA_bl_m(:,fixed_ss1)) ...
+             ./ FRNA_bl_m(:,fixed_ss1) * 100;
+FRNA_rel_f = (FRNA_ss_f(:,fixed_ss1) - FRNA_bl_f(:,fixed_ss1)) ...
+             ./ FRNA_bl_f(:,fixed_ss1) * 100;
+
+mean(FRNA_rel_m)
+mean(FRNA_rel_f)
+
+FRW_ss_m = reshape((X_ss_m( 7,:,:) - X_ss_m(92,:,:)) ./ X_ss_m( 7,:,:), [num_samples,num_scen]) * 100;
+FRW_ss_f = reshape((X_ss_f( 7,:,:) - X_ss_f(92,:,:)) ./ X_ss_f( 7,:,:), [num_samples,num_scen]) * 100;
+FRW_bl_m = reshape((X_bl_m( 7,:,:) - X_bl_m(92,:,:)) ./ X_bl_m( 7,:,:), [num_samples,num_scen]) * 100;
+FRW_bl_f = reshape((X_bl_f( 7,:,:) - X_bl_f(92,:,:)) ./ X_bl_f( 7,:,:), [num_samples,num_scen]) * 100;
+
+FRW_rel_m = (FRW_ss_m(:,fixed_ss1) - FRW_bl_m(:,fixed_ss1)) ...
+            ./ FRW_bl_m(:,fixed_ss1) * 100;
+FRW_rel_f = (FRW_ss_f(:,fixed_ss1) - FRW_bl_f(:,fixed_ss1)) ...
+            ./ FRW_bl_f(:,fixed_ss1) * 100;
+
+mean(FRW_rel_m)
+mean(FRW_rel_f)
+
+g1 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
+s_mech(1) = subplot(1,3,1); 
+s_mech(2) = subplot(1,3,2); 
+s_mech(3) = subplot(1,3,3); 
+
+h1 = histogram(s_mech(1),R_rel_m(:),10);
+hold(s_mech(1), 'on')
+h2 = histogram(s_mech(1),R_rel_f(:),10);
+hold(s_mech(1), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+legend(s_mech(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northeast');
+xlabel(s_mech(1), 'R_{EA}/R_R');
+title(s_mech(1), 'A')
+
+h1 = histogram(s_mech(2),FRNA_rel_m(:),10);
+hold(s_mech(2), 'on')
+h2 = histogram(s_mech(2),FRNA_rel_f(:),10);
+hold(s_mech(2), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 0.05; h2.BinWidth = 0.05; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_mech(2), 'FR_{Na^+}');
+title(s_mech(2), 'B')
+
+h1 = histogram(s_mech(3),FRW_rel_m(:),10);
+hold(s_mech(3), 'on')
+h2 = histogram(s_mech(3),FRW_rel_f(:),10);
+hold(s_mech(3), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 0.05; h2.BinWidth = 0.05; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_mech(3), 'FR_{W}');
+title(s_mech(3), 'C')
+
+%% Plot Mean Arterial Pressure distribution. ------------------------------
+
+% Actual, change, and % change in MAP.
+% X_m/f = (variable, sample, scenario)
+MAP_ac_m = zeros(num_samples,num_scen); MAP_ac_f = zeros(num_samples,num_scen);
+MAP_ch_m = zeros(num_samples,num_scen); MAP_ch_f = zeros(num_samples,num_scen);
+MAP_pc_m = zeros(num_samples,num_scen); MAP_pc_f = zeros(num_samples,num_scen);
+for i = 1:num_scen
+    MAP_ac_m(:,i) = (X_ss_m(42,:,i)                 )                        ;
+    MAP_ac_f(:,i) = (X_ss_f(42,:,i)                 )                        ;
+    
+    MAP_ch_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i))                        ;
+    MAP_ch_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i))                        ;
+    
+    MAP_pc_m(:,i) = (X_ss_m(42,:,i) - X_bl_m(42,:,i)) ./ X_bl_m(42,1,i) * 100;
+    MAP_pc_f(:,i) = (X_ss_f(42,:,i) - X_bl_f(42,:,i)) ./ X_bl_f(42,1,i) * 100;
+end
+
+g2 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
+s_map1(1) = subplot(1,3,1); 
+s_map1(2) = subplot(1,3,2); 
+s_map1(3) = subplot(1,3,3);
+
+h1 = histogram(s_map1(1),MAP_ac_m(:,fixed_ss1),10);
+hold(s_map1(1), 'on')
+h2 = histogram(s_map1(1),MAP_ac_f(:,fixed_ss1),10);
+hold(s_map1(1), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+legend(s_map1(1), [h1, h2],{'Male','Female'}, 'FontSize',10,'Location','Northwest');
+xlabel(s_map1(1), 'MAP (mmHg)');
+title(s_map1(1), 'A')
+
+h1 = histogram(s_map1(2),MAP_ch_m(:,fixed_ss1),10);
+hold(s_map1(2), 'on')
+h2 = histogram(s_map1(2),MAP_ch_f(:,fixed_ss1),10);
+hold(s_map1(2), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_map1(2), '\DeltaMAP (mmHg)');
+title(s_map1(2), 'B')
+
+h1 = histogram(s_map1(3),MAP_pc_m(:,fixed_ss1),10);
+hold(s_map1(3), 'on')
+h2 = histogram(s_map1(3),MAP_pc_f(:,fixed_ss1),10);
+hold(s_map1(3), 'off')
+h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+h1.BinWidth = 5.0; h2.BinWidth = 5.0; 
+h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+xlabel(s_map1(3), '% \DeltaMAP');
+title(s_map1(3), 'C')
+
+%% % Save figures and data.
 
 % save_data_name = sprintf('success_failure_distribution_%s%s%%.fig', ...
 %                          scenario2{fixed_ss2},num2str(drug_dose*100));

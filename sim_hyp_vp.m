@@ -51,7 +51,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % Sodin    - sodium loading
 % RPP      - manipulate renal perfusion pressure
 sim_scenario = {'Baseline', 'AngII', 'Sodin', 'RPP'};
-exact_sim_scen = 3;
+exact_sim_scen = 2;
 
 % Species
 spe_ind = 2;
@@ -464,21 +464,21 @@ end
 % MAP_m = reshape(X_m(42,:,i) - X_m(42,1,i), [N,num_scen]);
 % MAP_f = reshape(X_f(42,:,i) - X_f(42,1,i), [N,num_scen]);
 
-f3 = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
-plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+f3 = figure('DefaultAxesFontSize',14*1.5);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5*2, 2.5*2]);
+plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3*1.5);
 xlim([xlower, xupper]); ylim([-1, 60]);
 ax = gca;
 ax.XTick = (tchange+0*(1) : 2 : tchange+days*(1));
 ax.XTickLabel = {'0','2','4','6','8','10','12','14'};
 xlabel('Time (days)'); ylabel('\DeltaMAP (mmHg)');
 hold on
-plot(t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6, 'LineWidth',2)
-plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6, 'LineWidth',2)
-[~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',7,'Location','Northwest');
+plot(t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3*1.5)
+plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',6*1.5, 'LineWidth',2*1.5)
+plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',6*1.5, 'LineWidth',2*1.5)
+[~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',7*1.5,'Location','Northwest');
 hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
+set(hl,'LineWidth',1.5*1.5);
 title('A')
 
 % Plot all other quantities of interest. ----------------------------------
@@ -888,9 +888,9 @@ MAP_bl_f = X_f(42,iteration,fixed_ss);
 point_m = [15+MAP_bl_m,4; 25+MAP_bl_m,4];
 point_f = [ 5+MAP_bl_f,4; 10+MAP_bl_f,4];
 
-f3 = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
-plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+f3 = figure('DefaultAxesFontSize',14*1.5);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5*2, 2.5*2]);
+plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3*1.5);
 % xlim([90, 120])
 ylim([lower, upper+0.1])
 ax = gca;
@@ -898,13 +898,13 @@ ax = gca;
 xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 hold on
-plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2, 'MarkerSize',6)
-plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2, 'MarkerSize',6)
+plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
+plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3*1.5)
+plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
 legend('Male sim','Female sim','Male data','Female data', 'Location','Southeast')
-[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
+[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',7*1.5,'Location','Southeast');
 hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
+set(hl,'LineWidth',1.5*1.5);
 hold off
 title('B')
 

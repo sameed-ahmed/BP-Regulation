@@ -63,15 +63,16 @@ num_scen = length(scenario1);
 % Normal - Normal conditions
 % ACEi   - Angiotensin converting enzyme inhibitor % 95
 % ARB1   - Angiotensin receptor 1 blocker % 94
-% CCB    - Calcium channel blocker % 84?
+% CCB    - Calcium channel blocker % 84
+% DIU    - Thiazide diuretic % 0.5 1?
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 % AngII  - Ang II infusion fmol/(ml min)
-scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', ...
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [4];
+fixed_ss2 = [5];
 
 % Species
 spe_ind = 2;
@@ -87,6 +88,8 @@ fixed_sample = 655
 % drug_dose = linspace(0,1.00,num_iter);
 num_iter = 100;
 drug_dose = linspace(0,0.99,num_iter);
+drug_dose_vaso = 0;           % DIU
+drug_dose_rsec = 2*drug_dose; % DIU
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -138,7 +141,13 @@ for i = 1:length(fixed_ss2)
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB1' )
             varargin_input = [varargin_input, 'ARB1' ,drug_dose(iter)]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'CCB'  )
-            varargin_input = [varargin_input, 'CCB'  ,[drug_dose(iter),(0.69)]]; % 
+            varargin_input = [varargin_input, 'CCB'  ,[drug_dose(iter),2/3]]; % 
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'DIU'  )
+        if     strcmp(sex{sex_ind}, 'male')
+            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(iter)/1.0,drug_dose_vaso,drug_dose_rsec(iter)]]; % 
+        elseif strcmp(sex{sex_ind}, 'female')
+            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(iter)/1.0,drug_dose_vaso,drug_dose_rsec(iter)]]; % 
+        end
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
             varargin_input = [varargin_input, 'ARB2' ,drug_dose(iter)]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'DRI'  )
@@ -359,10 +368,10 @@ title(s_map(3), 'C')
 
 %% Save figures. -----------------------------------------------------------
  
-save_data_name = sprintf('dose_response_%s%s.fig', ...
-                         scenario2{fixed_ss2},num2str(fixed_sample));
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f1;f2;g], save_data_name)
+% save_data_name = sprintf('dose_response_%s%s.fig', ...
+%                          scenario2{fixed_ss2},num2str(fixed_sample));
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f1;f2;g], save_data_name)
 
 end
 

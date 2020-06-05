@@ -61,6 +61,9 @@ kappa_ACEi_inp  = 0; % ACE inhibitor %
 kappa_ARB1_inp  = 0; % Angiotensin receptor 1 blocker %
 kappa_CCB_inp   = 0; % Calcium channel blocker %
 CCB_less        = 1; % Calcium channel blocker factor decrease for certain arteries
+kappa_DI_S_inp  = 0; % Thiazide diuretic DT sodium reabsorption reduction %
+kappa_DI_V_inp  = 0; % Thiazide diuretic vasodilation %
+kappa_DI_R_inp  = 0; % Thiazide diuretic renin secretion %
 kappa_ARB2_inp  = 0; % Angiotensin receptor 2 blocker %
 kappa_DRI_inp   = 0; % Direct renin inhibitor %
 kappa_MRB_inp   = 0; % Aldosterone blocker %
@@ -108,6 +111,10 @@ for i = 1:2:length(varargin)
     elseif strcmp(varargin{i},'CCB' )
         kappa_CCB_inp   = varargin{i + 1}(1);
         CCB_less        = varargin{i + 1}(2);
+    elseif strcmp(varargin{i},'DIU' )
+        kappa_DI_S_inp  = varargin{i + 1}(1);
+        kappa_DI_V_inp  = varargin{i + 1}(2);
+        kappa_DI_R_inp  = varargin{i + 1}(3);
     elseif strcmp(varargin{i},'ARB2')
         kappa_ARB2_inp  = varargin{i + 1};
     elseif strcmp(varargin{i},'DRI' )
@@ -229,13 +236,27 @@ end
 % %     pars(17) = (pars(17)   *(alpha+1-1)) * tanh(5 * (t-tchange)) + pars(17);
 % end
 
+% k = 100;
+% if     t <  tchange
+% %     SAL = (k-1) * tanh(5 * (t-      0))+1;
+%     SAL = 1;
+% elseif t >= tchange
+% %     SAL = (k-1) * tanh(5 * (t-tchange))+k;
+%     SAL = (k-1) * tanh(5 * (t-tchange))+1;
+% end
+SAL = 1;
+
 % Drugs
 alpha = 0.005; % slope for parameter increase
+% alpha = 0.002; % slope for parameter increase
 if     t <  tchange
     kappa_AngII = 0; 
     kappa_ACEi  = 0;
     kappa_ARB1  = 0;
     kappa_CCB   = 0;
+    kappa_DI_S  = 0;
+    kappa_DI_V  = 0;
+    kappa_DI_R  = 0;
     kappa_ARB2  = 0;
     kappa_DRI   = 0;
     kappa_MRB   = 0;
@@ -247,6 +268,9 @@ elseif t >= tchange
     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
     kappa_CCB   = kappa_CCB_inp   * tanh(alpha * (t-tchange));
+    kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-tchange));
+    kappa_DI_V  = kappa_DI_V_inp  * tanh(alpha * (t-tchange));
+    kappa_DI_R  = kappa_DI_R_inp  * tanh(alpha * (t-tchange));
     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
     kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
     kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
@@ -254,6 +278,21 @@ elseif t >= tchange
     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
 end
+
+% % Repeated drug dose
+% alpha = 0.01; beta  = 0.0005; 
+% if     t <  tchange
+%     kappa_DI_S  = 0;
+% elseif t >= tchange && t < 2*tchange
+%     kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-tchange)) * exp(-beta * (t-tchange));
+% elseif t >= 2*tchange && t < 3*tchange
+%     kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-  tchange)) * exp(-beta * (t-  tchange)) + ...
+%                   kappa_DI_S_inp  * tanh(alpha * (t-2*tchange)) * exp(-beta * (t-2*tchange));
+% elseif t >= 3*tchange 
+%     kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-  tchange)) * exp(-beta * (t-  tchange)) + ...
+%                   kappa_DI_S_inp  * tanh(alpha * (t-2*tchange)) * exp(-beta * (t-2*tchange)) + ...
+%                   kappa_DI_S_inp  * tanh(alpha * (t-3*tchange)) * exp(-beta * (t-3*tchange));
+% end
 
 % deltat = 30; % minutes over which to continuously increase drug dose
 % if     t < tchange
@@ -534,7 +573,7 @@ f(17) = Phi_mdsod - ( Phi_filsod - Phi_ptsodreab );
 % Phi_dtsodreab
 f(18) = Phi_dtsodreab - ( Phi_mdsod * eta_dtsodreab );
 % eta_dtsodreab
-f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al );
+f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al * (1-kappa_DI_S) );
 % psi_al
 if     strcmp(species, 'human')
     f(20) = psi_al - (0.17 + 0.94/(1+exp((0.48 - 1.2*log(C_al))/0.88)));
@@ -593,7 +632,7 @@ if     strcmp(species, 'human')
     sodin_A = (0.126-sodin_E)*(sodin_B+sodin_C*ALD_eq^sodin_D);
     f(28) = Phi_sodin - max(0,sodin_A/(sodin_B+sodin_C*C_al^sodin_D)+sodin_E);
 elseif strcmp(species, 'rat')
-    f(28) = Phi_sodin - ( Phi_sodin_const );
+    f(28) = Phi_sodin - ( Phi_sodin_const * SAL );
 end
 % V_ecf
 f(29) = V_ecf_p - ( Phi_win - Phi_u );
@@ -635,7 +674,7 @@ f(36) = vas_f - ( (11.312 * exp(-Phi_co * vasf_a)) / 100 );
 % vas_d
 f(37) = vas_d - ( vas * K_vd );
 % R_a
-f(38) = R_a - ( R_ba * epsilon_aum * (1-kappa_CCB*CCB_less) );
+f(38) = R_a - ( R_ba * epsilon_aum * (1-kappa_CCB*CCB_less) * (1-kappa_DI_V) );
 % f(38) = R_a - ( R_ba * epsilon_aum * (1-kappa_CCB) );
 % R_ba
 f(39) = R_ba - ( K_bar / vas );
@@ -748,7 +787,7 @@ elseif strcmp(species, 'rat')
     f(63) = nu_AT1 - ( (AT1R / AT1R_eq)^(-0.95) );
 end
 % R_sec
-f(64) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 * (1+kappa_RSS) );
+f(64) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 * (1+kappa_RSS) * (1+kappa_DI_R) );
 % PRC
 f(65) = PRC_p - ( R_sec - log(2)/h_renin * PRC );
 % PRA
@@ -766,7 +805,7 @@ f(71) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
 % AngIV
 f(72) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
 % R_aa
-f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA * (1-kappa_CCB));
+f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA * (1-kappa_CCB) * (1-kappa_DI_V));
 % f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA * (1-0*kappa_CCB));
 % R_ea
 f(74) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA * (1-kappa_CCB*CCB_less) );
@@ -895,9 +934,12 @@ elseif strcmp(species, 'rat')
 %         phiwin_a = 0.8; phiwin_c = 0.002313;
 %         phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.030 - 1);
 %         f(93) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
-        phiwin_a = 0.45; phiwin_c = 0.006;
-        phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.030 - 1);
-        f(93) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
+%         phiwin_a = 0.45; phiwin_c = 0.006; phiwin_d = 0.000;
+        phiwin_a = 0.94; phiwin_c = 0.0027; phiwin_d = 0.025;
+        phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / (0.030 - phiwin_d) - 1);
+        f(93) = Phi_win - ( (phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) + phiwin_d) * SAL );
+%         f(93) = Phi_win - ( 0.03 );
+%         f(93) = Phi_win - ( 0.03 * Phi_sodin_const/2.4424/2 + (0.03-0.03/2) );
     end
 end
 

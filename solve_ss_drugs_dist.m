@@ -63,15 +63,16 @@ num_scen = length(scenario1);
 % Normal - Normal conditions
 % ACEi   - Angiotensin converting enzyme inhibitor % 95
 % ARB1   - Angiotensin receptor 1 blocker % 94
-% CCB    - Calcium channel blocker % 84? 70?
+% CCB    - Calcium channel blocker % 84
+% DIU    - Thiazide diuretic % 0.5 1?
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 % AngII  - Ang II infusion fmol/(ml min)
-scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', ...
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [4];
+fixed_ss2 = [5];
 
 % Species
 spe_ind = 2;
@@ -94,7 +95,9 @@ fixed_sample = 1;
 % fixed_dose = round((inhibit - 0) / ((1-0)/(21-1)));
 
 % Drug dose
-drug_dose = 0.84;
+drug_dose = 0.5
+drug_dose_vaso = 0           % DIU
+drug_dose_rsec = 2*drug_dose % DIU
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -144,7 +147,13 @@ for i = 1:length(fixed_ss2)
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB1' )
             varargin_input = [varargin_input, 'ARB1' ,drug_dose]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'CCB'  )
-            varargin_input = [varargin_input, 'CCB'  ,[drug_dose,(2/3)]]; % 
+            varargin_input = [varargin_input, 'CCB'  ,[drug_dose,2/3]]; % 
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'DIU'  )
+        if     strcmp(sex{sex_ind}, 'male')
+            varargin_input = [varargin_input, 'DIU'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
+        elseif strcmp(sex{sex_ind}, 'female')
+            varargin_input = [varargin_input, 'DIU'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
+        end
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
             varargin_input = [varargin_input, 'ARB2' ,drug_dose]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'DRI'  )
@@ -563,24 +572,24 @@ title('C')
 
 %% Save figures and data. -------------------------------------------------
  
-save_data_name = sprintf('dose_distribution_%s%s%%.fig', ...
-                         scenario2{fixed_ss2},num2str(drug_dose*100));
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f1;f2;f3;f4;g1;g2], save_data_name)
-
-save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s%s%%.mat'  , ...
-                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'X_bl_m' , 'X_bl_mean_m' , 'X_bl_std_m' , ...
-                     'X_ss_m' , 'X_ss_mean_m' , 'X_ss_std_m' , ...
-                     'X_rel_m', 'X_rel_mean_m', 'X_rel_std_m')
-
-save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s%s%%.mat', ...
-                         species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'X_bl_f' , 'X_bl_mean_f' , 'X_bl_std_f' , ...
-                     'X_ss_f' , 'X_ss_mean_f' , 'X_ss_std_f' , ...
-                     'X_rel_f', 'X_rel_mean_f', 'X_rel_std_f')
+% save_data_name = sprintf('dose_distribution_%s%s%%.fig', ...
+%                          scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f1;f2;f3;f4;g1;g2], save_data_name)
+% 
+% save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s%s%%.mat'  , ...
+%                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'X_bl_m' , 'X_bl_mean_m' , 'X_bl_std_m' , ...
+%                      'X_ss_m' , 'X_ss_mean_m' , 'X_ss_std_m' , ...
+%                      'X_rel_m', 'X_rel_mean_m', 'X_rel_std_m')
+% 
+% save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s%s%%.mat', ...
+%                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'X_bl_f' , 'X_bl_mean_f' , 'X_bl_std_f' , ...
+%                      'X_ss_f' , 'X_ss_mean_f' , 'X_ss_std_f' , ...
+%                      'X_rel_f', 'X_rel_mean_f', 'X_rel_std_f')
 
 end
 
