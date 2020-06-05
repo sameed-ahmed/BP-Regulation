@@ -78,7 +78,7 @@ fixed_ss2 = [5];
 spe_ind = 2;
 
 % Number of days to run simulation after change; Day at which to induce change;
-days = 200; day_change = 1;
+days = 7; day_change = 1;
 % Number of points for plotting resolution
 % N = ((days+1)*1440) / 2;
 N = (days+1)*100 + 1;
@@ -394,22 +394,40 @@ BV_m   = reshape(X_dy_m(30,:,:), [N,num_scen]);
 BV_f   = reshape(X_dy_f(30,:,:), [N,num_scen]);
 R_m    = reshape(X_dy_m(74,:,:) ./ X_dy_m( 4,:,:), [N,num_scen]);
 R_f    = reshape(X_dy_f(74,:,:) ./ X_dy_f( 4,:,:), [N,num_scen]);
+CO_m   = reshape(X_dy_m(33,:,:), [N,num_scen]);
+CO_f   = reshape(X_dy_f(33,:,:), [N,num_scen]);
 TPR_m  = reshape(X_dy_m(41,:,:), [N,num_scen]);
 TPR_f  = reshape(X_dy_f(41,:,:), [N,num_scen]);
+UNA_m  = reshape(X_dy_m(27,:,:), [N,num_scen]);
+UNA_f  = reshape(X_dy_f(27,:,:), [N,num_scen]);
+UW_m   = reshape(X_dy_m(92,:,:), [N,num_scen]);
+UW_f   = reshape(X_dy_f(92,:,:), [N,num_scen]);
 % Plot as relative change in order to compare male and female.
 BV_m_bl  = BV_m (1,:);
 BV_f_bl  = BV_f (1,:);
 R_m_bl   = R_m  (1,:);
 R_f_bl   = R_f  (1,:);
-RTP_m_bl = TPR_m(1,:);
-RTP_f_bl = TPR_f(1,:);
+CO_m_bl  = CO_m (1,:);
+CO_f_bl  = CO_f (1,:);
+TPR_m_bl = TPR_m(1,:);
+TPR_f_bl = TPR_f(1,:);
+UNA_m_bl = UNA_m(1,:);
+UNA_f_bl = UNA_f(1,:);
+UW_m_bl  = UW_m (1,:);
+UW_f_bl  = UW_f (1,:);
 for i = 1:N
     BV_m (i,:) = BV_m (i,:) ./ BV_m_bl ;
     BV_f (i,:) = BV_f (i,:) ./ BV_f_bl ;
     R_m  (i,:) = R_m  (i,:) ./ R_m_bl  ;
     R_f  (i,:) = R_f  (i,:) ./ R_f_bl  ;
-    TPR_m(i,:) = TPR_m(i,:) ./ RTP_m_bl;
-    TPR_f(i,:) = TPR_f(i,:) ./ RTP_f_bl;
+    CO_m (i,:) = CO_m (i,:) ./ CO_m_bl ;
+    CO_f (i,:) = CO_f (i,:) ./ CO_f_bl ;
+    TPR_m(i,:) = TPR_m(i,:) ./ TPR_m_bl;
+    TPR_f(i,:) = TPR_f(i,:) ./ TPR_f_bl;
+    UNA_m(i,:) = UNA_m(i,:) ./ UNA_m_bl;
+    UNA_f(i,:) = UNA_f(i,:) ./ UNA_f_bl;
+    UW_m (i,:) = UW_m (i,:) ./ UW_m_bl ;
+    UW_f (i,:) = UW_f (i,:) ./ UW_f_bl ;
 end
 
 % Filtration fraction for sodium and urine for each sex and all scenarios.
@@ -429,6 +447,7 @@ for i = 1:N
     FRW_f (i,:) = FRW_f (i,:) ./ FRW_f_bl ;
 end
 
+% ACEi, ARB
 g1 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 3]);
 t1 = tiledlayout(1,3,'TileSpacing','Normal','Padding','Compact');
@@ -479,6 +498,7 @@ plot(t_dy,BV_f  (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',
 hold off
 title('C')
 
+% CCB
 g2 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 3]);
 % set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10*2/3, 3]);
@@ -529,6 +549,76 @@ hold on
 plot(t_dy,TPR_f  (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
 hold off
 title('C')
+
+% DIU
+g3 = figure('DefaultAxesFontSize',14);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 3]);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10*3/3, 3*2]);
+t3 = tiledlayout(2,2,'TileSpacing','Normal','Padding','Compact');
+
+nexttile
+plot(t_dy,FRNA_m(:,fixed_ss1) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+xlim([xlower+0.75, xupper]);
+xticks([tchange_dy+0*(1) : 1 : tchange_dy+days*(1)]);
+xticklabels({'0','1','2','3','4','5','6','7','8'});
+% ylim(s_main(2), [97,100])
+xlabel('Time (days)'); ylabel('FR (relative)');
+hold on
+plot(t_dy,FRW_m (:,fixed_ss1), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(t_dy,FRNA_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(t_dy,FRW_f (:,fixed_ss1), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+fakeplot = zeros(2, 1);
+fakeplot(1) = plot(NaN,NaN, 'k-' );
+fakeplot(2) = plot(NaN,NaN, 'k--');
+[~, hobj, ~, ~] = legend(fakeplot, {'FR_{Na^+}','FR_{W}'}, 'FontSize',7,'Location','Southeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+hold off
+title('A')
+
+nexttile
+plot(t_dy,UNA_m (:,fixed_ss1) ,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+xlim([xlower+0.75, xupper]);
+xticks([tchange_dy+0*(1) : 1 : tchange_dy+days*(1)]);
+xticklabels({'0','1','2','3','4','5','6','7','8'});
+% ylim(s_main(2), [97,100])
+xlabel('Time (days)'); ylabel('UF (relative)');
+hold on
+plot(t_dy,UW_m  (:,fixed_ss1), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(t_dy,UNA_f (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(t_dy,UW_f  (:,fixed_ss1), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+fakeplot = zeros(2, 1);
+fakeplot(1) = plot(NaN,NaN, 'k-' );
+fakeplot(2) = plot(NaN,NaN, 'k--');
+[~, hobj, ~, ~] = legend(fakeplot, {'UF_{Na^+}','UF_{W}'}, 'FontSize',7,'Location','Northeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5);
+hold off
+title('B')
+
+nexttile
+plot(t_dy,CO_m   (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+xlim([xlower+0.75, xupper]);
+xticks([tchange_dy+0*(1) : 1 : tchange_dy+days*(1)]);
+xticklabels({'0','1','2','3','4','5','6','7','8'});
+% ylim(s_main(4), [1,1.25])
+xlabel('Time (days)'); ylabel('CO (relative)');
+hold on
+plot(t_dy,CO_f  (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+title('C')
+
+nexttile
+plot(t_dy,TPR_m (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+xlim([xlower+0.75, xupper]);
+xticks([tchange_dy+0*(1) : 1 : tchange_dy+days*(1)]);
+xticklabels({'0','1','2','3','4','5','6','7','8'});
+% ylim(s_main(4), [1,1.25])
+xlabel('Time (days)'); ylabel('TPR (relative)');
+hold on
+plot(t_dy,TPR_f (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+title('D')
 
 %% Plot quantities for calibration/validation. ----------------------------
 
@@ -638,7 +728,7 @@ title('E')
 % save_data_name = sprintf('Pri_hyp_sim_%s%s%%_VI%s.fig', ...
 %                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
 % save_data_name = strcat('Figures/', save_data_name);
-% savefig([f1;f2;g1;g2;h1], save_data_name)
+% savefig([f1;f2;g1;g2;g3;h1], save_data_name)
 
 end
 
