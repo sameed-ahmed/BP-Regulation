@@ -79,8 +79,8 @@ spe_ind = 2;
 
 % Bootstrap replicate sample number
 % fixed_sample = random('Discrete Uniform',1000)
-% fixed_sample = 208
-fixed_sample = 655
+fixed_sample = 208
+% fixed_sample = 655
 % fixed_sample = 1;
 
 % Number of intervals for dose
@@ -88,8 +88,14 @@ fixed_sample = 655
 % drug_dose = linspace(0,1.00,num_iter);
 num_iter = 100;
 drug_dose = linspace(0,0.99,num_iter);
-drug_dose_vaso = 0;           % DIU
-drug_dose_rsec = 2*drug_dose; % DIU
+drug_dose_vaso = 0;               % DIU
+% a = 3; b = 1;
+a = 11/9; b = 1/9;
+% drug_dose_rsec = drug_dose + 0.5 % DIU
+% drug_dose_rsec = 2*drug_dose
+drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
+% drug_dose_rsec = zeros(1,num_iter)
+% drug_dose_rsec = ones(1,num_iter)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.

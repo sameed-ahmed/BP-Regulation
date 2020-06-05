@@ -78,7 +78,7 @@ fixed_ss2 = [5];
 spe_ind = 2;
 
 % Number of days to run simulation after change; Day at which to induce change;
-days = 2; day_change = 1;
+days = 200; day_change = 1;
 % Number of points for plotting resolution
 % N = ((days+1)*1440) / 2;
 N = (days+1)*100 + 1;
@@ -92,7 +92,13 @@ sample_num = 655
 % Drug dose
 drug_dose = 0.5
 drug_dose_vaso = 0           % DIU
-drug_dose_rsec = 2*drug_dose % DIU
+% a = 3; b = 1;
+a = 11/9; b = 1/9;
+% drug_dose_rsec = drug_dose + 0.5 % DIU
+% drug_dose_rsec = 2*drug_dose
+drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
+% drug_dose_rsec = 0
+% drug_dose_rsec = 1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.

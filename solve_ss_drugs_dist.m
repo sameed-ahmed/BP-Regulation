@@ -97,7 +97,13 @@ fixed_sample = 1;
 % Drug dose
 drug_dose = 0.5
 drug_dose_vaso = 0           % DIU
-drug_dose_rsec = 2*drug_dose % DIU
+% a = 3; b = 1;
+a = 11/9; b = 1/9;
+% drug_dose_rsec = drug_dose + 0.5 % DIU
+% drug_dose_rsec = 2*drug_dose
+drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
+% drug_dose_rsec = 0
+% drug_dose_rsec = 1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
