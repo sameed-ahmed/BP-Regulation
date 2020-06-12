@@ -58,9 +58,11 @@ spe_ind = 2;
 
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
-% sample_num = 42 % male and female MAP similar
+% sample_num = 42  % male and female MAP similar
+% sample_num = 707 % bad female fit for Ang II
 % sample_num = 208
-sample_num = 655
+% sample_num = 655
+sample_num = 47  % good fits for Ang II
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.

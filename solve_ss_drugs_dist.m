@@ -95,8 +95,9 @@ fixed_sample = 1;
 % fixed_dose = round((inhibit - 0) / ((1-0)/(21-1)));
 
 % Drug dose
-drug_dose = 0.5
-drug_dose_vaso = 0           % DIU
+drug_dose = 0.99
+% drug_dose_vaso = 0.2 * drug_dose;
+% drug_dose_vaso = 0
 % a = 3; b = 1;
 a = 11/9; b = 1/9;
 % drug_dose_rsec = drug_dose + 0.5 % DIU

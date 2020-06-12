@@ -72,7 +72,7 @@ num_scen = length(scenario1);
 % AngII  - Ang II infusion fmol/(ml min)
 scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [5];
+fixed_ss2 = [4];
 
 % Species
 spe_ind = 2;
@@ -90,7 +90,7 @@ N = (days+1)*100 + 1;
 sample_num = 655
 
 % Drug dose
-drug_dose = 0.5
+drug_dose = 0.81
 drug_dose_vaso = 0           % DIU
 % a = 3; b = 1;
 a = 11/9; b = 1/9;

@@ -78,22 +78,25 @@ fixed_ss2 = [5];
 spe_ind = 2;
 
 % Bootstrap replicate sample number
-% fixed_sample = random('Discrete Uniform',1000)
-fixed_sample = 208
+fixed_sample = random('Discrete Uniform',1000)
+% fixed_sample = 208
 % fixed_sample = 655
 % fixed_sample = 1;
+% fixed_sample = 36 ; ACEi female eventually better than male
+% fixed_sample = 934; ARB  female eventually better than male
+% fixed_sample = 744; CCB  female eventually better than male
 
 % Number of intervals for dose
 % num_iter = 21;
 % drug_dose = linspace(0,1.00,num_iter);
 num_iter = 100;
 drug_dose = linspace(0,0.99,num_iter);
-drug_dose_vaso = 0;               % DIU
+% drug_dose_vaso = 0.2 * drug_dose;
+drug_dose_vaso = zeros(1,num_iter)
 % a = 3; b = 1;
 a = 11/9; b = 1/9;
-% drug_dose_rsec = drug_dose + 0.5 % DIU
 % drug_dose_rsec = 2*drug_dose
-drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
+drug_dose_rsec = a * drug_dose ./ (b + drug_dose);
 % drug_dose_rsec = zeros(1,num_iter)
 % drug_dose_rsec = ones(1,num_iter)
 
@@ -150,9 +153,9 @@ for i = 1:length(fixed_ss2)
             varargin_input = [varargin_input, 'CCB'  ,[drug_dose(iter),2/3]]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'DIU'  )
         if     strcmp(sex{sex_ind}, 'male')
-            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(iter)/1.0,drug_dose_vaso,drug_dose_rsec(iter)]]; % 
+            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(iter)/1.0,drug_dose_vaso(iter),drug_dose_rsec(iter)]]; % 
         elseif strcmp(sex{sex_ind}, 'female')
-            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(iter)/1.0,drug_dose_vaso,drug_dose_rsec(iter)]]; % 
+            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(iter)/1.0,drug_dose_vaso(iter),drug_dose_rsec(iter)]]; % 
         end
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
             varargin_input = [varargin_input, 'ARB2' ,drug_dose(iter)]; % 
@@ -333,7 +336,7 @@ for i = 1:num_scen
     MAP_pc_f(:,i) = (X_ss_f(42,:,i) - X_ss_f(42,1,i)) ./ X_ss_f(42,1,i) * 100;
 end
 
-g = figure('DefaultAxesFontSize',14);
+g1 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
 s_map(1) = subplot(1,3,1); 
 s_map(2) = subplot(1,3,2); 
@@ -372,12 +375,26 @@ plot(s_map(3), xscale,MAP_pc_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576]
 hold(s_map(3), 'off')
 title(s_map(3), 'C')
 
+g2 = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 6, 5]);
+plot(xscale,MAP_pc_m(:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5,'MarkerSize',10);
+xticks([0:10:100]);
+xlabel(xlabel_name); ylabel('% \DeltaMAP');
+hold 'on'
+plot(xscale,MAP_pc_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',10);
+hold 'off'
+
 %% Save figures. -----------------------------------------------------------
  
 % save_data_name = sprintf('dose_response_%s%s.fig', ...
 %                          scenario2{fixed_ss2},num2str(fixed_sample));
 % save_data_name = strcat('Figures/', save_data_name);
-% savefig([f1;f2;g], save_data_name)
+% savefig([f1;f2;g1], save_data_name)
+% ---
+save_data_name = sprintf('dose_response_%s%s.png', ...
+                         scenario2{fixed_ss2},num2str(fixed_sample));
+save_data_name = strcat('Figures/', save_data_name);
+exportgraphics(g2, save_data_name)
 
 end
 

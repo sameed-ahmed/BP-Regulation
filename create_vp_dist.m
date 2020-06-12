@@ -26,12 +26,15 @@ pars_range_upper = [200;200;100;100;100;100]/100;
 
 pars_ind     = [13;14;4;21;18;3];
 pars_hyp_num = length(pars_ind);
-pars_names   = {'$K_{bar}$'            , '$R_{bv}$'             , ...
-                '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
-                '$N_{als}^{eq}$'       , '$N_{rsna}$'           };
-pars_units   = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
-                '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
-                '$-$'                  , '$-$'                  };
+pars_names     = {'$K_{bar}$'            , '$R_{bv}$'             , ...
+                  '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
+                  '$N_{als}^{eq}$'       , '$N_{rsna}$'           };
+pars_units     = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
+                  '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
+                  '$-$'                  , '$-$'                  };
+pars_names_des = {'Arterial resist.'           , 'Venous resist.'              , ...
+                  'Afferent arteriolar resist.', 'Renin sec. rate'             , ...
+                  'Aldosterone sec. rate'      , 'Renal sympathetic nerve act.'};
 
 vars_ind     = [42;33;41;29;30;52;6;7;92];
 vars_hyp_num = length(vars_ind);
@@ -178,9 +181,9 @@ par_bin_width = [0.1,0.4,0.2,0.15,0.15,0.1];
 par_title = {'A', 'B', 'C', 'D', 'E', 'F'};
 
 % Plot parameters.
-g = figure('DefaultAxesFontSize',14);
+g1 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 8]);
-t = tiledlayout(3,2,'TileSpacing','Compact','Padding','Compact');
+t1 = tiledlayout(3,2,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
     nexttile
     h1 = histogram(pars_hyp_m(i,:),10);
@@ -199,12 +202,40 @@ for i = 1:pars_hyp_num
         legend('Male','Female', 'FontSize',10,'Location','Northeast');
     end
 end
+% ---
+g2 = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 5]);
+t2 = tiledlayout(2,3,'TileSpacing','Compact','Padding','Compact');
+for i = 1:pars_hyp_num
+    nexttile
+    h1 = histogram(pars_hyp_m(i,:),10);
+    hold on
+    h2 = histogram(pars_hyp_f(i,:),10);
+    hold off
+    h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+    h1.BinWidth = par_bin_width(i); h2.BinWidth = par_bin_width(i); 
+    h1.FaceColor = [0.203, 0.592, 0.835]; h2.FaceColor = [0.835, 0.203, 0.576];
+
+    xlabel_name = strcat(pars_names_des(i));
+%     xlabel(xlabel_name, 'FontSize',16) 
+    xlabel(xlabel_name) 
+    title(par_title{i})
+    
+    if i == 1
+%         legend('Male','Female', 'FontSize',10,'Location','Northeast');
+        legend('Male','Female', 'Location','Northeast');
+    end
+end
 
 %% Save figures.
 
-save_data_name = sprintf('par_var_dist1000.fig');
+% save_data_name = sprintf('par_var_dist1000.fig');
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f(1,:),f(2,:),g1], save_data_name)
+% ---
+save_data_name = sprintf('par_var_dist1000.png');
 save_data_name = strcat('Figures/', save_data_name);
-savefig([f(1,:),f(2,:),g], save_data_name)
+exportgraphics(g2, save_data_name)
 
 end % create_vp_dist
 
