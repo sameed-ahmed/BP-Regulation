@@ -20,13 +20,13 @@ fixed_ss = 1;
 % Species
 spe_ind = 2;
 
-sample_num = random('Discrete Uniform',1000)
+% sample_num = random('Discrete Uniform',1000)
 
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
 parpool
-for sex_ind = 1:1 % sex
+for sex_ind = 1:2 % sex
 
 %% Parameters
 
@@ -55,6 +55,8 @@ num_sample = size(AngII_data_rep,1);
 
 % Initialize parameter replicates corresponding to data replicates.
 pars_rep = zeros(153,num_sample);
+% Initialize residual error.
+residual_pars = zeros(1,num_sample);
 % Intialize exitflag. Need this because solver gets stuck for certain bad
 % initial guesses. So a maximum time is set in the solver options. If
 % reached, exitflag = 0. Then this script reruns the solver with a new
@@ -63,17 +65,18 @@ pars_rep = zeros(153,num_sample);
 tic
 % for j = sample_num:sample_num
 % for j = 1:10
-for j = 751:751
+for j = 801:1000
 % parfor j = 1:10
 % [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data);
 
     iter = 0;
     exitflag_pars = 0;
-    while exitflag_pars <= 0
+%     residual_pars = 0.35;
+    while exitflag_pars <= 0 %|| residual_pars >= 0.35
         iter = iter + 1;
 %         [pars_rep(:,j),exitflag_pars] = ...
 %             solve_ss_hyp_fit2(sex_ind,AngII_data_rep(j,:));
-        [pars_rep(:,j),exitflag_pars] = ...
+        [pars_rep(:,j),residual_pars(j),exitflag_pars] = ...
             solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_data_rep(j,:));
         fprintf('********** %s while loop iteration = %s ********** \n', ...
                 sex{sex_ind},num2str(iter))
@@ -119,10 +122,10 @@ bs_rep_fit_time = toc
 % save_data_name = strcat('Data/', save_data_name);
 % save(save_data_name, 'pars_rep', 'sample_num', 'bs_rep_fit_time')
 
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep751.mat', ...
+save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'pars_rep', 'num_sample', 'bs_rep_fit_time')
+save(save_data_name, 'pars_rep', 'residual_pars', 'num_sample', 'bs_rep_fit_time')
 
 end % sex
 delete(gcp)

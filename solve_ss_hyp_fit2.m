@@ -7,7 +7,7 @@
 % function solve_ss_hyp_fit 
 % function [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
 % function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
-function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_MAP_data)
+function [pars, residual_pars, exitflag_pars] = solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_MAP_data)
 
 % % Add directory containing data.
 % mypath = pwd;
@@ -67,7 +67,7 @@ fixed_ss = 1;
 % Number of variables; number of parameters; 
 num_vars = 93; num_pars = 47; % + SF + fixed_var_pars + SSdata
 
-species = {'human', 'rat'   };
+% species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
 % parpool
@@ -477,7 +477,6 @@ options_dae = odeset('MaxStep',1000, 'Events',@(t,x,xp) myevent(t,x,xp));
                bp_reg_mod(t,x,x_p,pars0,tchange_angII,varargin_input_angII{:}), ...
                tspan, x0_angII, x_p0, options_dae);
 % toc2 = toc
-size(x)
 
 % Return if simulation crashed.
 if size(x,1) < N
