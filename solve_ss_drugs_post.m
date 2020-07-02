@@ -61,15 +61,18 @@ fixed_ss1 = 1;
 num_scen = length(scenario1);
 % Drug scenarios
 % Normal - Normal conditions
-% AngII  - Ang II infusion fmol/(ml min)
-% ACEi   - Angiotensin converting enzyme inhibitor %
-% ARB1   - Angiotensin receptor 1 blocker %
+% ACEi   - Angiotensin converting enzyme inhibitor % 95
+% ARB1   - Angiotensin receptor 1 blocker % 94
+% CCB    - Calcium channel blocker % 84
+% DIU    - Thiazide diuretic % 0.5 1?
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
-scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB1', 'ARB2', 'DRI', 'MRB', 'RSS'};
-fixed_ss2 = [4];
+% AngII  - Ang II infusion fmol/(ml min)
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
+             'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
+fixed_ss2 = [5];
 
 % Species
 spe_ind = 2;
@@ -84,10 +87,11 @@ num_samples = 1000;
 fixed_sample = 1;
 
 % Drug dose
-drug_dose = 0.94
+drug_dose = 0.85
 
 % Mean arterial pressure threshold
-MAP_th = -25
+MAP_th = -15
+% MAP_th = -20
 % Glomerular filtration rate threshold
 GFR_th = 25;
 
@@ -545,24 +549,24 @@ for i = 1:7
     sgtitle(hist_title, 'FontSize',14)
 end
 
-% Plot mean arterial pressure success and failure. ------------------------
+%% Plot mean arterial pressure success and failure. ------------------------
 
 g1 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 4]);
 t1 = tiledlayout(1,2,'TileSpacing','Compact','Padding','Compact');
 
-edges_m = categorical(        {'142-146','146-150','150-154'});
-edges_m = reordercats(edges_m,{'142-146','146-150','150-154'});
+edges_m = categorical(        {'142-154', '142-146','146-150','150-154'});
+edges_m = reordercats(edges_m,{'142-154', '142-146','146-150','150-154'});
 % ---
-edges_f = categorical(        {'132-136','136-140','140-144'});
-edges_f = reordercats(edges_f,{'132-136','136-140','140-144'});
+edges_f = categorical(        {'132-144', '132-136','136-140','140-144'});
+edges_f = reordercats(edges_f,{'132-144', '132-136','136-140','140-144'});
 
-succ_bar_m = [num_success_low_m; num_success_med_m; num_success_hii_m];
-fail_bar_m = [num_failure_low_m; num_failure_med_m; num_failure_hii_m];
+succ_bar_m = [num_success_m; num_success_low_m; num_success_med_m; num_success_hii_m];
+fail_bar_m = [num_failure_m; num_failure_low_m; num_failure_med_m; num_failure_hii_m];
 bar_m = [succ_bar_m, fail_bar_m];
 % ---
-succ_bar_f = [num_success_low_f; num_success_med_f; num_success_hii_f];
-fail_bar_f = [num_failure_low_f; num_failure_med_f; num_failure_hii_f];
+succ_bar_f = [num_success_f; num_success_low_f; num_success_med_f; num_success_hii_f];
+fail_bar_f = [num_failure_f; num_failure_low_f; num_failure_med_f; num_failure_hii_f];
 bar_f = [succ_bar_f, fail_bar_f];
 
 nexttile
@@ -570,7 +574,7 @@ b1 = bar(edges_m,bar_m, 1, 'FaceColor','flat');
 b1(1).CData = [0, 1, 0];
 b1(2).CData = [1, 0, 0];
 xlabel('MAP (mmHg)');
-ylim([0,500]);
+% ylim([0,500]);
 legend('Success','Failure')
 title('A')
 
@@ -580,6 +584,33 @@ b1(1).CData = [0, 1, 0];
 b1(2).CData = [1, 0, 0];
 xlabel('MAP (mmHg)');
 title('B')
+
+g2 = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 4, 4]);
+t2 = tiledlayout(1,1,'TileSpacing','Compact','Padding','Compact');
+
+edges = categorical(      {'M', 'F'});
+edges = reordercats(edges,{'M', 'F'});
+
+succ_bar = [num_success_m; num_success_f];
+fail_bar = [num_failure_m; num_failure_f];
+bar_ = [succ_bar, fail_bar];
+
+nexttile
+b1 = bar(edges,bar_, 1, 'FaceColor','flat');
+b1(1).CData = [0, 1, 0];
+b1(2).CData = [1, 0, 0];
+% ylabel('No. of Patients');
+ylim([0,1050]);
+% legend('Success','Failure', 'Location', 'north')
+% title('A')
+
+% nexttile
+% b1 = bar(edges_f,bar_f, 1, 'FaceColor','flat');
+% b1(1).CData = [0, 1, 0];
+% b1(2).CData = [1, 0, 0];
+% xlabel('MAP (mmHg)');
+% title('B')
 
 %% % Plot some interesting variables
 % 
@@ -760,12 +791,17 @@ title('B')
 % xlabel(s_map1(3), '% \DeltaMAP');
 % title(s_map1(3), 'C')
 
-%% Save figures and data.
+%% % Save figures and data.
 
-% save_data_name = sprintf('success_failure_distribution_%s%s%%.fig', ...
+% save_data_name = sprintf('success_failure_MAP_%s%s%%.fig', ...
 %                          scenario2{fixed_ss2},num2str(drug_dose*100));
 % save_data_name = strcat('Figures/', save_data_name);
-% savefig([fp1;fp2;fv1;fv2;g1], save_data_name)
+% savefig([g1;g2], save_data_name)
+% % ---
+% save_data_name = sprintf('success_failure_MAP_%s%s%%.png', ...
+%                          scenario2{fixed_ss2},num2str(drug_dose*100));
+% save_data_name = strcat('Figures/', save_data_name);
+% exportgraphics(g2, save_data_name)
 
 % save_data_name = sprintf('%s_male_succfail_scenario_Pri_Hyp_%s%s%%.mat'  , ...
 %                          species{spe_ind},scenario2{fixed_ss2},num2str(drug_dose*100));

@@ -35,7 +35,7 @@ scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
             'Pri_Hyp'};
 num_scen = length(scenario);
 % Index of scenario to plot for all variables
-fixed_ss = 8;
+fixed_ss = 1;
 
 % Species
 spe_ind = 2;

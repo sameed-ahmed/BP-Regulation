@@ -65,9 +65,13 @@ dataset = 'particular';
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
 sample_num = 80
+% ---
+% Old remarkable samples
 % sample_num = 42 % male and female MAP similar
+% sample_num = 707 % bad female fit for Ang II
 % sample_num = 208
 % sample_num = 655
+sample_num = 47  % good fits for Ang II
 % ---
 % female bad fit for new
 % sample_num = 239 
@@ -954,9 +958,9 @@ MAP_bl_f = X_f(42,iteration,fixed_ss);
 point_m = [15+MAP_bl_m,4; 25+MAP_bl_m,4];
 point_f = [ 5+MAP_bl_f,4; 10+MAP_bl_f,4];
 
-f3 = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5, 2.5]);
-plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3);
+f3 = figure('DefaultAxesFontSize',14*1.5);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5*2, 2.5*2]);
+plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3*1.5);
 % xlim([90, 120])
 ylim([lower, upper+0.1])
 ax = gca;
@@ -964,13 +968,13 @@ ax = gca;
 xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 hold on
-plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2, 'MarkerSize',6)
-plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3)
-plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2, 'MarkerSize',6)
+plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
+plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3*1.5)
+plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
 legend('Male sim','Female sim','Male data','Female data', 'Location','Southeast')
-[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',7,'Location','Southeast');
+[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',7*1.5,'Location','Southeast');
 hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
+set(hl,'LineWidth',1.5*1.5);
 hold off
 title('B')
 
