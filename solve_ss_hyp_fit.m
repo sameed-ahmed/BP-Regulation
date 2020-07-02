@@ -63,7 +63,7 @@ spe_ind = 2;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Number of variables; number of parameters; 
-num_vars = 93; num_pars = 46; % + SF + fixed_var_pars + SSdata
+num_vars = 93; num_pars = 47; % + SF + fixed_var_pars + SSdata
 
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};

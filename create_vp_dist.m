@@ -1,3 +1,7 @@
+% This script loads the bootstrap replicate parameters and steady state
+% variables for the virtual population. It then plots the distribution for
+% each and saves the figures.
+
 function create_vp_dist
 
 close all
@@ -19,31 +23,38 @@ addpath(genpath(mypath))
 % N_rs             - par 21; - 0%, +100%
 % N_als_eq         - par 18; - 0%, +100%
 % N_rsna           - par 3 ; - 0%, +100%
-
-% Range for parameters
-pars_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
-pars_range_upper = [200;200;100;100;100;100]/100;
-
-pars_ind     = [13;14;4;21;18;3];
+% N_adhs_eq        - par 15; - 0%, +100%
+% sigmamyo_b       - par 41; - 0%, +900%
+% Indices
+pars_ind = [13;14;4;21;18;3;15;41];
 pars_hyp_num = length(pars_ind);
-pars_names     = {'$K_{bar}$'            , '$R_{bv}$'             , ...
-                  '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
-                  '$N_{als}^{eq}$'       , '$N_{rsna}$'           };
-pars_units     = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
-                  '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
-                  '$-$'                  , '$-$'                  };
+% Range for parameters
+par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
+par_range_upper = [200;600;200;100;100;100;100;900]/100;
+%% par names + units
+pars_names   = {'$K_{bar}$'            , '$R_{bv}$'             , ...
+                '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
+                '$N_{als}^{eq}$'       , '$N_{rsna}$'           , ...
+                '$N_{adh}^{eq}$'       , '$B_{myo}$'            };
+pars_units   = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
+                '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
+                '$-$'                  , '$-$'                  , ...
+                '$-$'                  , '$-$'                  };
 pars_names_des = {'Arterial resist.'           , 'Venous resist.'              , ...
                   'Afferent arteriolar resist.', 'Renin sec. rate'             , ...
-                  'Aldosterone sec. rate'      , 'Renal sympathetic nerve act.'};
+                  'Aldosterone sec. rate'      , 'Renal sympathetic nerve act.', ...
+                  'Antidiuretic hor. sec. rate', 'Myogenic effect strength'.   };
 
 vars_ind     = [42;33;41;29;30;52;6;7;92];
 vars_hyp_num = length(vars_ind);
+%% var names + units
 vars_names   = {'$P_{ma}$'        , '$\Phi_{co}$'     , '$R_{tp}$'             , ...
                 '$V_{ecf}$'       , '$V_{b}$'         , '$C_{sod}$'            , ...
                 '$\Phi_{rb}$'     , '$\Phi_{gfilt}$'  , '$\Phi_{u}$'           };
 vars_units   = {'$mmHg$'          , '$\frac{ml}{min}$', '$\frac{mmHg}{ml/min}$', ...
                 '$ml$'            , '$ml$'            , '$\frac{\mu eq}{ml}$'  , ...
                 '$\frac{ml}{min}$', '$\frac{ml}{min}$', '$\frac{ml}{min}$'     };
+%%
 
 % Scenario
 scenario = {'Normal'};
@@ -63,7 +74,9 @@ for sex_ind = 1:2 % sex
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
+%                               species{spe_ind},sex{sex_ind});
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_hyp = pars_rep(pars_ind,:);
@@ -72,7 +85,9 @@ num_pars   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
 
 % Variables
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+% load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
+%                               species{spe_ind},sex{sex_ind});
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 vars_hyp = SSdata_rep(vars_ind,:);
@@ -99,17 +114,17 @@ vars_hyp_bl = SSdata_bl(vars_ind,:);
 % edges_pars = [];
 
 % Plot parameters
-f(sex_ind,1) = figure('DefaultAxesFontSize',14);
-s1   = gobjects(pars_hyp_num);
+f(sex_ind,1) = figure('DefaultAxesFontSize',14);%, 'pos',[750 500 500 600]);
+set(gcf, 'Units', 'Inches', 'Position', [7, 0, 8, 10]);
+t1 = tiledlayout(4,2,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
-    s1(i) = subplot(3,2,i);
-    histogram(s1(i),pars_hyp(i,:),10)
-
-    xlabel_name = strcat(pars_names(i), ' (', num2str(pars_hyp_bl(i),3), pars_units(i), ')');
-    xlabel(s1(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)
+    nexttile
+    histogram(pars_hyp(i,:),10)
     
+    xlabel_name = strcat(pars_names(i), ' (', num2str(pars_hyp_bl(i),3), pars_units(i), ')');
+    xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16)
 end
-hist_title = sprintf('%s',sex{sex_ind});
+hist_title = sprintf('%s pars',sex{sex_ind});
 sgtitle(hist_title, 'FontSize',16)
 
 % % Variable bin edges.
@@ -154,7 +169,7 @@ for i = 1:vars_hyp_num
     xlabel_name = strcat(vars_names(i), ' (', num2str(vars_hyp_bl(i),3), vars_units(i), ')');
     xlabel(s2(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)
 end
-hist_title = sprintf('%s',sex{sex_ind});
+hist_title = sprintf('%s vars',sex{sex_ind});
 sgtitle(hist_title, 'FontSize',16)
 
 end % sex
@@ -162,12 +177,12 @@ end % sex
 %% Plot parameters male and female together.
 
 % Load hypertensive and baseline parameters.
-load_data_name_pars = sprintf(  '%s_male_pars_scenario_Pri_Hyp_bs_rep1000.mat', species{spe_ind});
+load_data_name_pars = sprintf(  '%s_male_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_bl_m = get_pars(species{spe_ind}, sex{1}, varargin_input{:});
 pars_hyp_m    = pars_rep (pars_ind,:);
 pars_hyp_bl_m = pars_bl_m(pars_ind  );
-load_data_name_pars = sprintf('%s_female_pars_scenario_Pri_Hyp_bs_rep1000.mat', species{spe_ind});
+load_data_name_pars = sprintf('%s_female_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_bl_f = get_pars(species{spe_ind}, sex{2}, varargin_input{:});
 pars_hyp_f    = pars_rep (pars_ind,:);
@@ -177,13 +192,13 @@ pars_hyp_bl_f = pars_bl_m(pars_ind  );
 pars_hyp_m = pars_hyp_m ./ pars_hyp_bl_m;
 pars_hyp_f = pars_hyp_f ./ pars_hyp_bl_f;
 
-par_bin_width = [0.1,0.4,0.2,0.15,0.15,0.1];
-par_title = {'A', 'B', 'C', 'D', 'E', 'F'};
+par_bin_width = [0.1,0.4,0.2,0.15,0.15,0.1, 0.1,2];
+par_title = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
 
 % Plot parameters.
-g1 = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 8]);
-t1 = tiledlayout(3,2,'TileSpacing','Compact','Padding','Compact');
+g = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 11]);
+t = tiledlayout(4,2,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
     nexttile
     h1 = histogram(pars_hyp_m(i,:),10);
@@ -229,7 +244,7 @@ end
 
 %% Save figures.
 
-% save_data_name = sprintf('par_var_dist1000.fig');
+% save_data_name = sprintf('par_var_dist1000NEW.fig');
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([f(1,:),f(2,:),g1], save_data_name)
 % ---

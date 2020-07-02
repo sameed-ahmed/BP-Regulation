@@ -98,11 +98,13 @@ GFR_th = 25;
 % Pathophysiologically perturbed parameters
 pars_ind     = [13;14;4;21;18;3];
 pars_hyp_num = length(pars_ind);
-pars_names   = {'K_{bar}$'            , 'R_{bv}$'             , ...
-                'R_{aa-ss}$'          , 'N_{rs}$'             , ...
-                'N_{als}^{eq}$'       , 'N_{rsna}$'           };
+pars_names   = {'$K_{bar}$'            , '$R_{bv}$'             , ...
+                '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
+                '$N_{als}^{eq}$'       , '$N_{rsna}$'           , ...
+                '$N_{adh}^{eq}$'       , '$B_{myo}$'            };
 pars_units   = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
                 '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
+                '$-$'                  , '$-$'                  , ...
                 '$-$'                  , '$-$'                  };
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -435,117 +437,117 @@ pars_failure_m = pars_rel_m(:,MAP_failure_ind_m);
 pars_success_f = pars_rel_f(:,MAP_success_ind_f);
 pars_failure_f = pars_rel_f(:,MAP_failure_ind_f);
 
-%% % Plot success and failure.
-% 
-% % Plot hypertensive perturbed parameters success and failure. -------------
-% 
-% fp1 = figure('DefaultAxesFontSize',14);
-% sp1 = gobjects(pars_hyp_num);
-% for i = 1:pars_hyp_num
-%     sp1(i) = subplot(3,2,i);
-%     h1 = histogram(sp1(i),pars_success_m(i,:));
-%     hold(sp1(i), 'on')
-%     h2 = histogram(sp1(i),pars_failure_m(i,:));
-%     hold(sp1(i), 'off')
-%     
-%     h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-%     h1.BinWidth = 10; h2.BinWidth = 10; 
-%     h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
-% 
-%     xlabel_name = strcat('$ \% \Delta ', {' '}, pars_names(i));
-%     xlabel(sp1(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)    
-% end
-% hist_title = sprintf('Male Parameters %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
-% sgtitle(hist_title, 'FontSize',14)
-% 
-% fp2 = figure('DefaultAxesFontSize',14);
-% sp2 = gobjects(pars_hyp_num);
-% for i = 1:pars_hyp_num
-%     sp2(i) = subplot(3,2,i);
-%     h1 = histogram(sp2(i),pars_success_f(i,:));
-%     hold(sp2(i), 'on')
-%     h2 = histogram(sp2(i),pars_failure_f(i,:));
-%     hold(sp2(i), 'off')
-%     
-%     h1.Normalization = 'probability'; h2.Normalization = 'probability';  
-%     h1.BinWidth = 10; h2.BinWidth = 10; 
-%     h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
-% 
-%     xlabel_name = strcat('$ \% \Delta ', {' '}, pars_names(i));
-%     xlabel(sp2(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)    
-% end
-% hist_title = sprintf('Female Parameters %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
-% sgtitle(hist_title, 'FontSize',14)
-% 
-% % Plot all variables success and failure. ---------------------------------
-% 
-% fv1 = gobjects(7,1);
-% sv1 = gobjects(7,15);
-% % Loop through each set of subplots.
-% for i = 1:7
-%     fv1(i) = figure('pos',[750 500 650 450]);
-% %     This is to avoid the empty plots in the last subplot set.
-%     if i == 7
-%         last_plot = mod(num_vars, 15);
-%     else
-%         last_plot = 15;
-%     end
-% %     Loop through each subplot within a set of subplots.
-%     for j = 1:last_plot
-%         sv1(i,j) = subplot(3,5,j);
-% %         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
-%         
-%         h1 = histogram(sv1(i,j),X_success_m((i-1)*15 + j,:),3);
-%         hold on
-%         h2 = histogram(sv1(i,j),X_failure_m((i-1)*15 + j,:),3);
-%         hold off
-%         
-%         h1.Normalization = 'probability'; h2.Normalization = 'probability'; 
-% %         h1.BinWidth = 1.0; h2.BinWidth = 1.0; 
-%         h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
-% 
-%         xlabel_name = strcat(var_names((i-1)*15 + j));
-%         xlabel(sv1(i,j), xlabel_name, 'Interpreter','latex', 'FontSize',16)
-% 
-% %         legend('Male', 'Female')
-%     end
-%     hist_title = sprintf('Male Variables %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
-%     sgtitle(hist_title, 'FontSize',14)
-% end
-% 
-% fv2 = gobjects(7,1);
-% sv2 = gobjects(7,15);
-% % Loop through each set of subplots.
-% for i = 1:7
-%     fv2(i) = figure('pos',[750 500 650 450]);
-% %     This is to avoid the empty plots in the last subplot set.
-%     if i == 7
-%         last_plot = mod(num_vars, 15);
-%     else
-%         last_plot = 15;
-%     end
-% %     Loop through each subplot within a set of subplots.
-%     for j = 1:last_plot
-%         sv2(i,j) = subplot(3,5,j);
-% %         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
-%         
-%         h1 = histogram(sv2(i,j),X_success_f((i-1)*15 + j,:),3);
-%         hold on
-%         h2 = histogram(sv2(i,j),X_failure_f((i-1)*15 + j,:),3);
-%         hold off
-%         
-%         h1.Normalization = 'probability'; h2.Normalization = 'probability'; 
-% %         h1.BinWidth = 1.0; h2.BinWidth = 1.0; 
-%         h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
-% 
-%         xlabel_name = strcat(var_names((i-1)*15 + j));
-%         xlabel(sv2(i,j), xlabel_name, 'Interpreter','latex', 'FontSize',16)
-% 
-% %         legend('Male', 'Female')
-%     end
-%     hist_title = sprintf('Female Variables %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
-%     sgtitle(hist_title, 'FontSize',14)
-% end
+%% Plot success and failure.
+
+% Plot hypertensive perturbed parameters success and failure. -------------
+
+fp1 = figure('DefaultAxesFontSize',14);
+sp1 = gobjects(pars_hyp_num);
+for i = 1:pars_hyp_num
+    sp1(i) = subplot(4,2,i);
+    h1 = histogram(sp1(i),pars_success_m(i,:));
+    hold(sp1(i), 'on')
+    h2 = histogram(sp1(i),pars_failure_m(i,:));
+    hold(sp1(i), 'off')
+    
+    h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+    h1.BinWidth = 10; h2.BinWidth = 10; 
+    h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+
+    xlabel_name = strcat('$ \% \Delta ', {' '}, pars_names(i));
+    xlabel(sp1(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)    
+end
+hist_title = sprintf('Male Parameters %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
+sgtitle(hist_title, 'FontSize',14)
+
+fp2 = figure('DefaultAxesFontSize',14);
+sp2 = gobjects(pars_hyp_num);
+for i = 1:pars_hyp_num
+    sp2(i) = subplot(4,2,i);
+    h1 = histogram(sp2(i),pars_success_f(i,:));
+    hold(sp2(i), 'on')
+    h2 = histogram(sp2(i),pars_failure_f(i,:));
+    hold(sp2(i), 'off')
+    
+    h1.Normalization = 'probability'; h2.Normalization = 'probability';  
+    h1.BinWidth = 10; h2.BinWidth = 10; 
+    h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+
+    xlabel_name = strcat('$ \% \Delta ', {' '}, pars_names(i));
+    xlabel(sp2(i), xlabel_name, 'Interpreter','latex', 'FontSize',16)    
+end
+hist_title = sprintf('Female Parameters %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
+sgtitle(hist_title, 'FontSize',14)
+
+% Plot all variables success and failure. ---------------------------------
+
+fv1 = gobjects(7,1);
+sv1 = gobjects(7,15);
+% Loop through each set of subplots.
+for i = 1:7
+    fv1(i) = figure('pos',[750 500 650 450]);
+%     This is to avoid the empty plots in the last subplot set.
+    if i == 7
+        last_plot = mod(num_vars, 15);
+    else
+        last_plot = 15;
+    end
+%     Loop through each subplot within a set of subplots.
+    for j = 1:last_plot
+        sv1(i,j) = subplot(3,5,j);
+%         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
+        
+        h1 = histogram(sv1(i,j),X_success_m((i-1)*15 + j,:),3);
+        hold on
+        h2 = histogram(sv1(i,j),X_failure_m((i-1)*15 + j,:),3);
+        hold off
+        
+        h1.Normalization = 'probability'; h2.Normalization = 'probability'; 
+%         h1.BinWidth = 1.0; h2.BinWidth = 1.0; 
+        h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+
+        xlabel_name = strcat(var_names((i-1)*15 + j));
+        xlabel(sv1(i,j), xlabel_name, 'Interpreter','latex', 'FontSize',16)
+
+%         legend('Male', 'Female')
+    end
+    hist_title = sprintf('Male Variables %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
+    sgtitle(hist_title, 'FontSize',14)
+end
+
+fv2 = gobjects(7,1);
+sv2 = gobjects(7,15);
+% Loop through each set of subplots.
+for i = 1:7
+    fv2(i) = figure('pos',[750 500 650 450]);
+%     This is to avoid the empty plots in the last subplot set.
+    if i == 7
+        last_plot = mod(num_vars, 15);
+    else
+        last_plot = 15;
+    end
+%     Loop through each subplot within a set of subplots.
+    for j = 1:last_plot
+        sv2(i,j) = subplot(3,5,j);
+%         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
+        
+        h1 = histogram(sv2(i,j),X_success_f((i-1)*15 + j,:),3);
+        hold on
+        h2 = histogram(sv2(i,j),X_failure_f((i-1)*15 + j,:),3);
+        hold off
+        
+        h1.Normalization = 'probability'; h2.Normalization = 'probability'; 
+%         h1.BinWidth = 1.0; h2.BinWidth = 1.0; 
+        h1.FaceColor = [0.070, 0.886, 0.333]; h2.FaceColor = [0.917, 0.121, 0.121];
+
+        xlabel_name = strcat(var_names((i-1)*15 + j));
+        xlabel(sv2(i,j), xlabel_name, 'Interpreter','latex', 'FontSize',16)
+
+%         legend('Male', 'Female')
+    end
+    hist_title = sprintf('Female Variables %s %s%%',scenario2{fixed_ss2},num2str(drug_dose*100));
+    sgtitle(hist_title, 'FontSize',14)
+end
 
 %% Plot mean arterial pressure success and failure. ------------------------
 

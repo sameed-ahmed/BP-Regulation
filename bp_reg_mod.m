@@ -230,10 +230,21 @@ end
 % if     t <  tchange
 %     
 % elseif t >= tchange %&& t < 2*tchange
-%     alpha = 8;
-%     pars(17) = (pars(17)   *(alpha-1)) * tanh(5 * (t-tchange)) + pars(17);
+%     alpha = 2;
+%     beta = 0.1;beta = 0.1;
+%     pars(17) = (pars(17)   *(alpha-1)) * tanh(beta * (t-tchange)) + pars(17);
 % % elseif t >= 2*tchange %&& t < 3*tchange
-% %     pars(17) = (pars(17)   *(alpha+1-1)) * tanh(5 * (t-tchange)) + pars(17);
+% %     pars(17) = (pars(17)   *(alpha+1-1)) * tanh(beta * (t-tchange)) + pars(17);
+% end
+% 
+% if     t <  tchange
+%     
+% elseif t >= tchange %&& t < 2*tchange
+%     alpha = 1.0;
+%     beta = 0.1;
+%     pars(15) = (pars(15)   *(alpha-1)) * tanh(beta * (t-tchange)) + pars(15);
+% % elseif t >= 2*tchange %&& t < 3*tchange
+% %     pars(15) = (pars(15)   *(alpha+1-1)) * tanh(beta * (t-tchange)) + pars(15);
 % end
 
 % k = 100;
@@ -355,20 +366,23 @@ c_AT1R           = pars(37);
 c_AT2R           = pars(38);
 AT1R_eq          = pars(39);
 AT2R_eq          = pars(40);
-Psi_AT2RAA_eq    = pars(41);
-Psi_AT2REA_eq    = pars(42);
-ALD_eq           = pars(43);
+
+sigmamyo_b       = pars(41);
+
+Psi_AT2RAA_eq    = pars(42);
+Psi_AT2REA_eq    = pars(43);
+ALD_eq           = pars(44);
 
 % Species specific parameters for water transport
 if     strcmp(species, 'human')
-pt_sod_reab_EQ   = pars(44);
-dt_sod_reab_EQ   = pars(45);
-cd_sod_reab_EQ   = pars(46);
-A_twreab         = pars(47);
+pt_sod_reab_EQ   = pars(45);
+dt_sod_reab_EQ   = pars(46);
+cd_sod_reab_EQ   = pars(47);
+A_twreab         = pars(48);
 elseif strcmp(species, 'rat')
-eta_ptwreab_eq   = pars(44);
-eta_dtwreab_eq   = pars(45);
-eta_cdwreab_eq   = pars(46);
+eta_ptwreab_eq   = pars(45);
+eta_dtwreab_eq   = pars(46);
+eta_cdwreab_eq   = pars(47);
 end
 
 %% Retrieve variables by name.
@@ -821,7 +835,7 @@ if     strcmp(species, 'human')
     sigmamyo_c = 9;
     sigmamyo_e = 62;
 elseif strcmp(species, 'rat')
-    sigmamyo_a = 0.75; sigmamyo_b = 1.2; 
+    sigmamyo_a = 0.75; %sigmamyo_b = 1.2; 
     sigmamyo_d = 0.6;
     sigmamyo_c = sigmamyo_b / (1-sigmamyo_a) - 1;
     sigmamyo_e = fixed_var_pars(9);

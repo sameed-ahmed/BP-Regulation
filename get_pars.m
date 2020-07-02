@@ -70,6 +70,7 @@ h_Ang17       = 30  ; % min
 h_AngIV       = 0.5 ; % min
 h_AT1R        = 12  ; % min
 h_AT2R        = 12  ; % min
+sigmamyo_b    = 1.2 ; % - % rat
 Psi_AT2RAA_eq = 1   ; % -
 Psi_AT2REA_eq = 1   ; % -
 
@@ -280,7 +281,7 @@ pars = [spe_par; sex_par; ...
         X_PRCPRA; h_renin; h_AGT; h_AngI; h_AngII; h_Ang17; h_AngIV; ...
         h_AT1R; h_AT2R; k_AGT; c_ACE; c_Chym; c_NEP; c_ACE2; c_IIIV; ...
         c_AT1R; c_AT2R; AT1R_eq; AT2R_eq; ...
-        Psi_AT2RAA_eq; Psi_AT2REA_eq; ALD_eq];
+        sigmamyo_b; Psi_AT2RAA_eq; Psi_AT2REA_eq; ALD_eq];
 % Species model specific parameters
 if     strcmp(species, 'human')
     pars = [pars; ...

@@ -7,7 +7,7 @@
 % function solve_ss_hyp_fit 
 % function [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
 % function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
-function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_MAP_data)
+function [pars, residual_pars, exitflag_pars] = solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_MAP_data)
 
 % % Add directory containing data.
 % mypath = pwd;
@@ -26,12 +26,14 @@ function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,S
 % N_rs             - par 21; - 0%, +100%
 % N_als_eq         - par 18; - 0%, +100%
 % N_rsna           - par 3 ; - 0%, +100%
+% N_adhs_eq        - par 15; - 0%, +100%
+% sigmamyo_b       - par 41; - 0%, +900%
 % Indices
-par_ind = [13;14;4;21;18;3];
+par_ind = [13;14;4;21;18;3;15;41];
 par_num = length(par_ind);
 % Range for parameters
-par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
-par_range_upper = [200;600;200;200;200;200]/100;
+par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
+par_range_upper = [200;600;200;100;100;100;100;900]/100;
 
 % Variables to check
 % P_ma      - var 42; +30,40, +40,50
@@ -45,8 +47,8 @@ par_range_upper = [200;600;200;200;200;200]/100;
 var_ind = [42;33;6;7;92;27;52];
 num_vars_check = length(var_ind);
 % Range for variables for each sex.
-var_range_lower_change_m = [60*100;5;5;5;5;5;2]/100;
-var_range_upper_change_m = [65*100;5;5;5;5;5;2]/100;
+var_range_lower_change_m = [40*100;5;5;5;5;5;2]/100;
+var_range_upper_change_m = [50*100;5;5;5;5;5;2]/100;
 var_range_lower_change_f = [30*100;5;5;5;5;5;2]/100;
 var_range_upper_change_f = [40*100;5;5;5;5;5;2]/100;
 
@@ -58,17 +60,14 @@ scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_m_Reab'};
 % Index of scenario to fix.
 fixed_ss = 1;
 
-% Species
-spe_ind = 2;
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Number of variables; number of parameters; 
-num_vars = 93; num_pars = 46; % + SF + fixed_var_pars + SSdata
+num_vars = 93; num_pars = 47; % + SF + fixed_var_pars + SSdata
 
-species = {'human', 'rat'   };
+% species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
 % parpool
@@ -510,7 +509,8 @@ MAP = X(42,tdata) - X(42,1);
 AngII_MAP_err        = (MAP - AngII_MAP_data).^2;
 AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ AngII_MAP_data(2:end).^2;
 % AngII_MAP_err        = sqrt(sum(AngII_MAP_err(8:end)) / (num_points-7));
-AngII_MAP_err        = sqrt(mean(AngII_MAP_err(8:end)));
+% AngII_MAP_err        = sqrt(mean(AngII_MAP_err(8:end)));
+AngII_MAP_err        = sqrt(mean(AngII_MAP_err(12:end)));
 % toc3 = toc
 
 % Error
@@ -523,6 +523,8 @@ err = AngII_MAP_err;
 %% Event function
 
 function [values,isterminal,direction] = myevent(t,x,xp)
+
+% pause(2)
 
 %  Don't let integration go for more than 1.2 seconds.
 if toc(odestart) > 1
