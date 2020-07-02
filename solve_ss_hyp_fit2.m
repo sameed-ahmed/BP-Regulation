@@ -509,7 +509,8 @@ MAP = X(42,tdata) - X(42,1);
 AngII_MAP_err        = (MAP - AngII_MAP_data).^2;
 AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ AngII_MAP_data(2:end).^2;
 % AngII_MAP_err        = sqrt(sum(AngII_MAP_err(8:end)) / (num_points-7));
-AngII_MAP_err        = sqrt(mean(AngII_MAP_err(8:end)));
+% AngII_MAP_err        = sqrt(mean(AngII_MAP_err(8:end)));
+AngII_MAP_err        = sqrt(mean(AngII_MAP_err(12:end)));
 % toc3 = toc
 
 % Error

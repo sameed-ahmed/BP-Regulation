@@ -55,10 +55,10 @@ for sex_ind = 1:2 % sex
 
 %% Load bootstrap replicate parameters created by create_par_bs_rep.m.
 
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
-                              species{spe_ind},sex{sex_ind});
-% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep751_.mat', ...
+% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
 %                               species{spe_ind},sex{sex_ind});
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep80.mat', ...
+                              species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_hyp = pars_rep(pars_ind,:);
 
@@ -93,9 +93,9 @@ clear SSdata
 
 tic
 SSdata_rep = zeros(num_vars, num_sample);
-for j = 1:num_sample
+% for j = 1:num_sample
 % for j = 1:5
-% for j = 750:750
+for j = 80:80
     SSdata_rep(:,j) = solve_ss_scenario(pars_rep(:,j));
     fprintf('%s iteration = %s out of %s \n', ...
             sex{sex_ind},num2str(j),num2str(num_sample))
@@ -125,10 +125,10 @@ bs_rep_solve_time = toc
 
 %% Save data.
 
-save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
-                         species{spe_ind},sex{sex_ind});
-% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep751_.mat', ...
+% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
 %                          species{spe_ind},sex{sex_ind});
+save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep80.mat', ...
+                         species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata_rep', 'num_sample', 'bs_rep_solve_time')
 

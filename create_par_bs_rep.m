@@ -65,7 +65,8 @@ residual_pars = zeros(1,num_sample);
 tic
 % for j = sample_num:sample_num
 % for j = 1:10
-for j = 801:1000
+% for j = 801:1000
+for j = 80:80
 % parfor j = 1:10
 % [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data);
 
@@ -122,7 +123,9 @@ bs_rep_fit_time = toc
 % save_data_name = strcat('Data/', save_data_name);
 % save(save_data_name, 'pars_rep', 'sample_num', 'bs_rep_fit_time')
 
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+%                          species{spe_ind},sex{sex_ind});
+save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep80.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'pars_rep', 'residual_pars', 'num_sample', 'bs_rep_fit_time')
