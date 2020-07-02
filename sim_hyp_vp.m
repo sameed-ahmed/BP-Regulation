@@ -56,34 +56,53 @@ exact_sim_scen = 2;
 % Species
 spe_ind = 2;
 
+% Dataset
+% dataset = 'old';
+% dataset = 'new';
+% dataset = 'newnew';
+dataset = 'particular';
+
 % Bootstrap replicate sample number
-sample_num = random('Discrete Uniform',1000)
+% sample_num = random('Discrete Uniform',1000)
+sample_num = 80
 % sample_num = 42 % male and female MAP similar
 % sample_num = 208
 % sample_num = 655
-
+% ---
 % female bad fit for new
 % sample_num = 239 
 % sample_num = 723 
 % sample_num = 261 
 % sample_num = 823 
+% sample_num = 098 
 %   male bad fit for new ~
 % sample_num = 975 
 % sample_num = 080 
 %   both bad fit for new ~
 % sample_num = 003 
-%  both good fit for old
-% sample_num = 206 
+%  both good fit for new
+% sample_num = 318 
+% sample_num = 951 
+% sample_num = 035 
+% ---
 % female bad fit for old
 % sample_num = 212 
 % sample_num = 463 
 % sample_num = 167 
 %  both good fit for old
+% sample_num = 206 
 % sample_num = 573 
 % sample_num = 742 
 % sample_num = 077 
 % sample_num = 207 
 % sample_num = 862
+% sample_num = 695
+% ---
+% sample_num = 001
+% sample_num = 002
+% sample_num = 003 % *      AngII male
+% sample_num = 004 % ***    AngII female
+% sample_num = 005 % *      AngII female
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -99,16 +118,38 @@ for sex_ind = 1:2 % sex
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
-                              species{spe_ind},sex{sex_ind});
+if     strcmp(dataset, 'old')
+    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
+                                  species{spe_ind},sex{sex_ind});
+elseif strcmp(dataset, 'new')
+    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
+                                  species{spe_ind},sex{sex_ind});
+elseif strcmp(dataset, 'newnew')
+    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
+                                  species{spe_ind},sex{sex_ind});
+elseif strcmp(dataset, 'particular')
+    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep80.mat', ...
+                                  species{spe_ind},sex{sex_ind});
+end
 load(load_data_name_pars, 'pars_rep');
 num_pars   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
 PARS{sex_ind} = pars_rep;
 
 % Variables
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
+if     strcmp(dataset, 'old')
+    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
+                                  species{spe_ind},sex{sex_ind});
+elseif strcmp(dataset, 'new')
+    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
+                                  species{spe_ind},sex{sex_ind});
+elseif strcmp(dataset, 'newnew')
+    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
+                                  species{spe_ind},sex{sex_ind});
+elseif strcmp(dataset, 'particular')
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep80.mat', ...
                               species{spe_ind},sex{sex_ind});
+end
 load(load_data_name_vars, 'SSdata_rep');
 num_vars   = size(SSdata_rep,1);
 SSDATA{sex_ind} = SSdata_rep;
@@ -328,10 +369,12 @@ if     strcmp(sex{sex_ind_AngII}, 'male')
 %     kappa_AngII = 2022; % Sampson 2008
     kappa_AngII = 910; % Sullivan 2010
 %     kappa_AngII = 630; % Sullivan 2010
+%     kappa_AngII = 0;
 elseif strcmp(sex{sex_ind_AngII}, 'female')
 %     kappa_AngII = 2060; % Sampson 2008
     kappa_AngII = 505; % Sullivan 2010
 %     kappa_AngII = 630; % Sullivan 2010
+%     kappa_AngII = 0;
 end
 
 varargin_input = [varargin_input, 'AngII',kappa_AngII];
