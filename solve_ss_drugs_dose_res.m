@@ -13,34 +13,34 @@ addpath(genpath(mypath))
 
 %% Variable names for plotting.
 var_names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
-             '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
-             '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
-             '$\Phi_{pt-sodreab}$'; '$\eta_{pt-sodreab}$'; ...
-             '$\gamma_{filsod}$'; '$\gamma_{at}$'; '$\gamma_{rsna}$'; ...
-             '$\Phi_{md-sod}$'; '$\Phi_{dt-sodreab}$'; ...
-             '$\eta_{dt-sodreab}$'; '$\psi_{al}$'; '$\Phi_{dt-sod}$'; ...
-             '$\Phi_{cd-sodreab}$'; '$\eta_{cd-sodreab}$'; ...
-             '$\lambda_{dt}$'; '$\lambda_{anp}$'; '$\lambda_{al}$'; ...
-             '$\Phi_{u-sod}$'; '$\Phi_{sodin}$'; '$V_{ecf}$'; '$V_{b}$'; ...
-             '$P_{mf}$'; '$\Phi_{vr}$'; '$\Phi_{co}$'; '$P_{ra}$'; ...
-             '$vas$'; '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; ...
-             '$R_{vr}$'; '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; ...
-             '$a_{auto}$'; '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; ...
-             '$N_{adh}$'; '$N_{adhs}$'; '$\delta_{ra}$'; ...
-             '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; '$\nu_{rsna}$'; ...
-             '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; '$\xi_{k/sod}$'; ...
-             '$\xi_{map}$'; '$\xi_{at}$'; '$\hat{C}_{anp}$'; '$AGT$'; ...
-             '$\nu_{AT1}$'; '$R_{sec}$'; '$PRC$'; '$PRA$'; '$Ang I$'; ...
-             '$Ang II$'; '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
-             '$Ang (1-7)$'; '$Ang IV$'; '$R_{aa}$'; '$R_{ea}$'; ...
-             '$\Sigma_{myo}$'; '$\Psi_{AT1R-AA}$'; '$\Psi_{AT1R-EA}$'; ...
-             '$\Psi_{AT2R-AA}$'; '$\Psi_{AT2R-EA}$'; ...
-             '$\Phi_{pt-wreab}$'; '$\eta_{pt-wreab}$'; ...
-             '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; '$\Phi_{dt-wreab}$'; ...
-             '$\eta_{dt-wreab}$'; '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; ...
-             '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
-             '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
-             '$\Phi_{u}$'; '$\Phi_{win}$'};
+              '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
+              '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
+              '$\Phi_{pt-sodreab}$'; '$\eta_{pt-sodreab}$'; ...
+              '$\gamma_{filsod}$'; '$\gamma_{at}$'; '$\gamma_{rsna}$'; ...
+              '$\Phi_{md-sod}$'; '$\Phi_{dt-sodreab}$'; ...
+              '$\eta_{dt-sodreab}$'; '$\psi_{al}$'; '$\Phi_{dt-sod}$'; ...
+              '$\Phi_{cd-sodreab}$'; '$\eta_{cd-sodreab}$'; ...
+              '$\lambda_{dt}$'; '$\lambda_{anp}$'; '$\lambda_{al}$'; ...
+              '$\Phi_{u-sod}$'; '$\Phi_{sodin}$'; '$V_{ecf}$'; '$V_{b}$'; ...
+              '$P_{mf}$'; '$\Phi_{vr}$'; '$\Phi_{co}$'; '$P_{ra}$'; ...
+              '$vas$'; '$vas_{f}$'; '$vas_{d}$'; '$R_{a}$'; '$R_{ba}$'; ...
+              '$R_{vr}$'; '$R_{tp}$'; '$P_{ma}$'; '$\epsilon_{aum}$'; ...
+              '$a_{auto}$'; '$a_{chemo}$'; '$a_{baro}$'; '$C_{adh}$'; ...
+              '$N_{adh}$'; '$N_{adhs}$'; '$\delta_{ra}$'; ...
+              '$M_{sod}$'; '$C_{sod}$'; '$\nu_{md-sod}$'; '$\nu_{rsna}$'; ...
+              '$C_{al}$'; '$N_{al}$'; '$N_{als}$'; '$\xi_{k/sod}$'; ...
+              '$\xi_{map}$'; '$\xi_{at}$'; '$\hat{C}_{anp}$'; '$AGT$'; ...
+              '$\nu_{AT1}$'; '$R_{sec}$'; '$PRC$'; '$PRA$'; '$Ang I$'; ...
+              '$Ang II$'; '$Ang II_{AT1R-bound}$'; '$Ang II_{AT2R-bound}$'; ...
+              '$Ang (1-7)$'; '$Ang IV$'; '$R_{aa}$'; '$R_{ea}$'; ...
+              '$\Sigma_{myo}$'; '$\Psi_{AT1R-AA}$'; '$\Psi_{AT1R-EA}$'; ...
+              '$\Psi_{AT2R-AA}$'; '$\Psi_{AT2R-EA}$'; ...
+              '$\Phi_{pt-wreab}$'; '$\eta_{pt-wreab}$'; ...
+              '$\mu_{pt-sodreab}$'; '$\Phi_{md-u}$'; '$\Phi_{dt-wreab}$'; ...
+              '$\eta_{dt-wreab}$'; '$\mu_{dt-sodreab}$'; '$\Phi_{dt-u}$'; ...
+              '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
+              '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
+              '$\Phi_{u}$'; '$\Phi_{win}$'; '$R_{ea}/R_{r}$'};
 %%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,21 +78,23 @@ fixed_ss2 = [5];
 spe_ind = 2;
 
 % Bootstrap replicate sample number
-fixed_sample = random('Discrete Uniform',1000)
-% fixed_sample = 208
-% fixed_sample = 655
+% sample_num = random('Discrete Uniform',1000)
+% sample_num = 208
+% sample_num = 655
+% fixed_sample = 655;
+% num_sample = 1000;
+% num_sample = 5;
 % fixed_sample = 1;
-% fixed_sample = 36 ; ACEi female eventually better than male
-% fixed_sample = 934; ARB  female eventually better than male
-% fixed_sample = 744; CCB  female eventually better than male
+num_sample = 1000;
 
 % Number of intervals for dose
 % num_iter = 21;
 % drug_dose = linspace(0,1.00,num_iter);
-num_iter = 100;
-drug_dose = linspace(0,0.99,num_iter);
+num_dose = 100;
+% num_dose = 5;
+drug_dose = linspace(0,0.99,num_dose);
 % drug_dose_vaso = 0.2 * drug_dose;
-drug_dose_vaso = zeros(1,num_iter)
+drug_dose_vaso = zeros(1,num_dose);
 % a = 3; b = 1;
 a = 11/9; b = 1/9;
 % drug_dose_rsec = 2*drug_dose
@@ -111,8 +113,9 @@ sex     = {'male' , 'female'};
 num_vars = 93;
 
 % Initialize variables.
-% X = (variable, iteration, sex, scenario)
-X_ss = zeros(num_vars,num_iter,2,num_scen);
+% X = (variable, sample, iteration, sex, scenario)
+X_ss = zeros(num_vars,num_sample,num_dose,2,num_scen);
+X_bl = zeros(num_vars,num_sample,2,num_scen);
 
 for sce_ind = fixed_ss1:fixed_ss1 % scenario
 for sex_ind = 1:2        % sex
@@ -123,22 +126,20 @@ for sex_ind = 1:2        % sex
 load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
-% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1.mat', ...
-%                               species{spe_ind},sex{sex_ind});
-% load(load_data_name_pars, 'pars_rep', 'sample_num'); sample_num
 num_pars   = size(pars_rep,1);
-num_sample = size(pars_rep,2);
-pars_rep = pars_rep(:,fixed_sample);
-% pars_rep = pars_rep(:,1);
 
 % Variables
 load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
-num_vars   = size(SSdata_rep,1);
-SSdata_rep = SSdata_rep(:,fixed_sample);
+num_vars = size(SSdata_rep,1);
+% Store baseline value to compute relative change.
+X_bl(:,:,sex_ind,sce_ind) = SSdata_rep(:,1:num_sample);
 
-for iter = 1:num_iter % range
+for sam_iter = 1:num_sample % samples
+% for sam_iter = 1:10
+
+for dose_iter = 1:num_dose % range
 
 %% Drugs
 
@@ -146,25 +147,25 @@ varargin_input = {scenario1{sce_ind},true};
 
 for i = 1:length(fixed_ss2)
     if     strcmp(scenario2{fixed_ss2(i)}, 'ACEi' )
-            varargin_input = [varargin_input, 'ACEi' ,drug_dose(iter)]; % 
+            varargin_input = [varargin_input, 'ACEi' ,drug_dose(dose_iter)]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB1' )
-            varargin_input = [varargin_input, 'ARB1' ,drug_dose(iter)]; % 
+            varargin_input = [varargin_input, 'ARB1' ,drug_dose(dose_iter)]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'CCB'  )
-            varargin_input = [varargin_input, 'CCB'  ,[drug_dose(iter),2/3]]; % 
+            varargin_input = [varargin_input, 'CCB'  ,[drug_dose(dose_iter),2/3]]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'DIU'  )
         if     strcmp(sex{sex_ind}, 'male')
-            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(iter)/1.0,drug_dose_vaso(iter),drug_dose_rsec(iter)]]; % 
+            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(dose_iter)/1.0,drug_dose_vaso(dose_iter),drug_dose_rsec(dose_iter)]]; % 
         elseif strcmp(sex{sex_ind}, 'female')
-            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(iter)/1.0,drug_dose_vaso(iter),drug_dose_rsec(iter)]]; % 
+            varargin_input = [varargin_input, 'DIU'  ,[drug_dose(dose_iter)/1.0,drug_dose_vaso(dose_iter),drug_dose_rsec(dose_iter)]]; % 
         end
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
-            varargin_input = [varargin_input, 'ARB2' ,drug_dose(iter)]; % 
+            varargin_input = [varargin_input, 'ARB2' ,drug_dose(dose_iter)]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'DRI'  )
-            varargin_input = [varargin_input, 'DRI'  ,drug_dose(iter)]; % 
+            varargin_input = [varargin_input, 'DRI'  ,drug_dose(dose_iter)]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'MRB'  )
-            varargin_input = [varargin_input, 'MRB'  ,drug_dose(iter)]; % 
+            varargin_input = [varargin_input, 'MRB'  ,drug_dose(dose_iter)]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'RSS'  )
-            varargin_input = [varargin_input, 'RSS'  ,drug_dose(iter)]; % 
+            varargin_input = [varargin_input, 'RSS'  ,drug_dose(dose_iter)]; % 
 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'AngII')
         if     strcmp(sex{sex_ind}, 'male')
@@ -177,11 +178,13 @@ end
 
 %% Solve system steady state
 
+% Initialization
+
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
 % Arbitrary value for time to input, sufficiently greater than tchange so
 % that drug dose reaches steady state value (tanh).
-x0_ss = SSdata_rep; x_p0_ss = zeros(num_vars,1); t_ss = 2000;
+x0_ss = SSdata_rep(:,sam_iter); x_p0_ss = zeros(num_vars,1); t_ss = 2000;
 
 % Time at which to change place holder.
 tchange_ss = 0;
@@ -192,7 +195,8 @@ options_ss = optimset('Display','off');
 [SSdata, residual, ...
  exitflag, output] = fsolve(@(x) ...
                             bp_reg_mod(t_ss,x,x_p0_ss,...
-                            pars_rep,tchange_ss,varargin_input{:}), ...
+                                       pars_rep(:,sam_iter),tchange_ss,...
+                                       varargin_input{:}), ...
                             x0_ss, options_ss);
 
 % Check for solver convergence.
@@ -214,45 +218,93 @@ for i = 1:length(SSdata)
 end
 
 % Store solution.
-% X = (variable, iteration, sex, scenario)
-X_ss(:,iter,sex_ind,sce_ind) = SSdata;
+% X = (variable, sample, iteration, sex, scenario)
+X_ss(:,sam_iter,dose_iter,sex_ind,sce_ind) = SSdata;
 
-SSdata_rep = SSdata;
+end % range
 
 % Sanity check to see script's progress. Also a check for where to
 % troubleshoot in case the solver does not converge.
-fprintf('%s %s iteration = %s out of %s \n', ...
-        scenario1{sce_ind},sex{sex_ind},num2str(iter),num2str(num_iter))
+fprintf('%s %s sample = %s out of %s \n', ...
+        scenario1{sce_ind},sex{sex_ind},num2str(sam_iter),num2str(num_sample))
 
-end % range
+end % samples
 end % sex
 end % scenario
 
-%% Plot
+%% Post processing
+
+% Retrieve male and female data. Find relative change, mean, standard
+% deviation, etc. in order to save data for loading in post 
+% processing script.
 
 % Retrieve male and female.
-% X_m/f = (variable, iteration, scenario)
-X_ss_m = reshape(X_ss(:,:,1,:), [num_vars,num_iter,num_scen]); 
-X_ss_f = reshape(X_ss(:,:,2,:), [num_vars,num_iter,num_scen]); 
+% Delete other scenarios for now.
+X_ss_m = reshape(X_ss(:,:,:,1,1), [num_vars,num_sample,num_dose]); 
+X_ss_f = reshape(X_ss(:,:,:,2,1), [num_vars,num_sample,num_dose]); 
+X_bl_m = reshape(X_bl(:,:,  1,1), [num_vars,num_sample         ]); 
+X_bl_f = reshape(X_bl(:,:,  2,1), [num_vars,num_sample         ]); 
+% X_ss_m = reshape(X_ss(:,1:10,:,1,1), [num_vars,10,num_dose]); 
+% X_ss_f = reshape(X_ss(:,1:10,:,2,1), [num_vars,10,num_dose]); 
+% X_bl_m = reshape(X_bl(:,1:10,  1,1), [num_vars,10         ]); 
+% X_bl_f = reshape(X_bl(:,1:10,  2,1), [num_vars,10         ]); 
+
+% Compute relative change.
+X_rel_m = zeros(num_vars,num_sample,num_dose);
+X_rel_f = zeros(num_vars,num_sample,num_dose);
+% X_rel_m = zeros(num_vars,10,num_dose);
+% X_rel_f = zeros(num_vars,10,num_dose);
+for i = 1:num_dose
+    X_rel_m(:,:,i) = (X_ss_m(:,:,i) - X_bl_m) ./ X_bl_m * 100;
+    X_rel_f(:,:,i) = (X_ss_f(:,:,i) - X_bl_f) ./ X_bl_f * 100;
+end
+
+% Compute mean and standard deviation.
+X_bl_mean_m  = mean(X_bl_m ,  2); 
+X_bl_mean_f  = mean(X_bl_f ,  2);
+X_bl_std_m   = std (X_bl_m ,0,2); 
+X_bl_std_f   = std (X_bl_f ,0,2);
+% ---
+X_ss_mean_m  = reshape(mean(X_ss_m ,  2), [num_vars,num_dose]); 
+X_ss_mean_f  = reshape(mean(X_ss_f ,  2), [num_vars,num_dose]); 
+X_ss_std_m   = reshape(std (X_ss_m ,0,2), [num_vars,num_dose]); 
+X_ss_std_f   = reshape(std (X_ss_f ,0,2), [num_vars,num_dose]); 
+% ---
+X_rel_mean_m = reshape(mean(X_rel_m,  2), [num_vars,num_dose]); 
+X_rel_mean_f = reshape(mean(X_rel_f,  2), [num_vars,num_dose]); 
+X_rel_std_m  = reshape(std (X_rel_m,0,2), [num_vars,num_dose]); 
+X_rel_std_f  = reshape(std (X_rel_f,0,2), [num_vars,num_dose]); 
+
+% Compute confidence interval
+X_bl_lower_m  = X_bl_mean_m  - X_bl_std_m ; X_bl_upper_m  = X_bl_mean_m  + X_bl_std_m ;
+X_bl_lower_f  = X_bl_mean_f  - X_bl_std_f ; X_bl_upper_f  = X_bl_mean_f  + X_bl_std_f ;
+% ---
+X_ss_lower_m  = X_ss_mean_m  - X_ss_std_m ; X_ss_upper_m  = X_ss_mean_m  + X_ss_std_m ;
+X_ss_lower_f  = X_ss_mean_f  - X_ss_std_f ; X_ss_upper_f  = X_ss_mean_f  + X_ss_std_f ;
+% ---
+X_rel_lower_m = X_rel_mean_m - X_rel_std_m; X_rel_upper_m = X_rel_mean_m + X_rel_std_m;
+X_rel_lower_f = X_rel_mean_f - X_rel_std_f; X_rel_upper_f = X_rel_mean_f + X_rel_std_f;
+
+%% Plot
 
 % x-axis
 xscale = drug_dose * 100;
-xlower = drug_dose(1); xupper = drug_dose(end); 
+xlower = drug_dose(1) * 100; xupper = drug_dose(end) * 100; 
 
 % y-axis limits
 ylower = zeros(num_vars,1); yupper = ylower; 
 for i = 1:length(ylower)
-    ylower(i) = 0.95*min( min(X_ss_m(i,:,fixed_ss1)), min(X_ss_f(i,:,fixed_ss1)) );
-    yupper(i) = 1.05*max( max(X_ss_m(i,:,fixed_ss1)), max(X_ss_f(i,:,fixed_ss1)) );
+    ylower(i) = 0.95*min( min(X_ss_mean_m(i,:)), min(X_ss_mean_f(i,:)) );
+    yupper(i) = 1.05*max( max(X_ss_mean_m(i,:)), max(X_ss_mean_f(i,:)) );
     if abs(yupper(i)) < eps*100
         ylower(i) = -10^(-5); yupper(i) = 10^(-5);
     end
 end
 
-% Plot all vars vs time. --------------------------------------------------
+%% Plot all vars vs dose. 
 
 f1 = gobjects(7,1);
-s = gobjects(7,15);
+s1 = gobjects(7,15);
 % Loop through each set of subplots.
 for i = 1:7
     f1(i) = figure('pos',[750 500 650 450]);
@@ -264,14 +316,20 @@ for i = 1:7
     end
     % Loop through each subplot within a set of subplots.
     for j = 1:last_plot
-        s(i,j) = subplot(3,5,j);
+        s1(i,j) = subplot(3,5,j);
 %         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
         
-        plot(s(i,j), xscale,X_ss_m((i-1)*15 + j,:,fixed_ss1),'b', ...
-                     xscale,X_ss_f((i-1)*15 + j,:,fixed_ss1),'r');
+        plot(s1(i,j), xscale,X_ss_mean_m ((i-1)*15 + j,:),'b-' , ...
+                      xscale,X_ss_mean_f ((i-1)*15 + j,:),'r-' );
+        hold(s1(i,j), 'on')
+        plot(s1(i,j), xscale,X_ss_lower_m((i-1)*15 + j,:),'b--', ...
+                      xscale,X_ss_lower_f((i-1)*15 + j,:),'r--');
+        plot(s1(i,j), xscale,X_ss_upper_m((i-1)*15 + j,:),'b--', ...
+                      xscale,X_ss_upper_f((i-1)*15 + j,:),'r--');
+        hold(s1(i,j), 'off')
         
 %         xlim([xlower, xupper])
-        ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
+%         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
 
         xlabel_name = strcat(scenario2{fixed_ss2}, ' %');
         xlabel(xlabel_name, 'FontSize',12)
@@ -280,121 +338,274 @@ for i = 1:7
     end
 end
 
-% Plot interesting variables. ---------------------------------------------
+%% Plot interesting variables. 
 
 % Interesting variables to plot.
-var_ind = [33;41;42;9;73;74;6;7;27;92;93;29]; num_vars_sub = length(var_ind);
+var_ind = [30;33;41;42;9;73;74;6;7;92;69;70]; num_vars_sub = length(var_ind);
 
 f2 = figure('pos',[000 000 600 600], 'DefaultAxesFontSize',12);
 s2 = gobjects(1,num_vars_sub);
 % Loop through each subplot within a set of subplots.
 for j = 1:num_vars_sub
     s2(j) = subplot(4,3,j);
-    if     mod(j,3) == 1
-        hshift = -0.05;
-    elseif mod(j,3) == 0
-        hshift = 0.05;
-    else
-        hshift = 0;
-    end
-    s2(j).Position = s2(j).Position + [hshift 0 0.01 0.01];
+%     if     mod(j,3) == 1
+%         hshift = -0.05;
+%     elseif mod(j,3) == 0
+%         hshift = 0.05;
+%     else
+%         hshift = 0;
+%     end
+%     s3(j).Position = s3(j).Position + [hshift 0 0.01 0.01];
 
-    plot(s2(j), xscale,X_ss_m(var_ind(j),:,fixed_ss1), 'Color',[0.203, 0.592, 0.835], 'LineWidth',2.5);
+    plot(s2(j), xscale,X_ss_mean_m (var_ind(j),:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',2.5);
     hold(s2(j), 'on')
-    plot(s2(j), xscale,X_ss_f(var_ind(j),:,fixed_ss1), 'Color',[0.835, 0.203, 0.576], 'LineWidth',2.5);
+    plot(s2(j), xscale,X_ss_mean_f (var_ind(j),:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',2.5);
+    plot(s2(j), xscale,X_ss_lower_m(var_ind(j),:,fixed_ss1), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2.5);
+    plot(s2(j), xscale,X_ss_lower_f(var_ind(j),:,fixed_ss1), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2.5);
+    plot(s2(j), xscale,X_ss_upper_m(var_ind(j),:,fixed_ss1), '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2.5);
+    plot(s2(j), xscale,X_ss_upper_f(var_ind(j),:,fixed_ss1), '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2.5);
     hold(s2(j), 'off')
 
-%     xlim([xlower, xupper])
-    ylim([ylower(var_ind(j)), yupper(var_ind(j))])
-    
-%     if j == 10 || j == 11
-%         ax = gca;
-%         ax.YAxis.Exponent = -3;
-%     end
-
-    ylabel(var_names(var_ind(j)), 'Interpreter','latex', 'FontSize',16)
+    xlabel(xlabel_name)
+%     ylabel(var_names(var_ind(j)), 'Interpreter','latex')
+    title(var_names(var_ind(j)), 'Interpreter','latex', 'FontSize',16)
+        
+%     xlabel(s2(j), var_names(var_ind(j)), 'Interpreter','latex', 'FontSize',16)
 end
-legend(s2(1),'Male','Female', 'Location','east')
-xlh = xlabel(s2(11),xlabel_name);
-xlh.Position(2) = xlh.Position(2) - 0.0005;
 
-% Plot Mean Arterial Pressure vs Dose. ------------------------------------
+%% Plot variables that explain mechanims. 
 
-% Actual, change, and % change in MAP.
-% X_m/f = (variable, points, scenario)
-MAP_ac_m = zeros(num_iter,num_scen); MAP_ac_f = zeros(num_iter,num_scen);
-MAP_ch_m = zeros(num_iter,num_scen); MAP_ch_f = zeros(num_iter,num_scen);
-MAP_pc_m = zeros(num_iter,num_scen); MAP_pc_f = zeros(num_iter,num_scen);
-for i = 1:num_scen
-    MAP_ac_m(:,i) = (X_ss_m(42,:,i)                 )                        ;
-    MAP_ac_f(:,i) = (X_ss_f(42,:,i)                 )                        ;
-    
-    MAP_ch_m(:,i) = (X_ss_m(42,:,i) - X_ss_m(42,1,i))                        ;
-    MAP_ch_f(:,i) = (X_ss_f(42,:,i) - X_ss_f(42,1,i))                        ;
-    
-    MAP_pc_m(:,i) = (X_ss_m(42,:,i) - X_ss_m(42,1,i)) ./ X_ss_m(42,1,i) * 100;
-    MAP_pc_f(:,i) = (X_ss_f(42,:,i) - X_ss_f(42,1,i)) ./ X_ss_f(42,1,i) * 100;
-end
+% Efferent to total arteriolar resistance ---------------------------------
+R_ss_m = reshape(X_ss_m(74,:,:) ./ X_ss_m(4,:,:), [num_sample,num_dose]);
+R_ss_f = reshape(X_ss_f(74,:,:) ./ X_ss_f(4,:,:), [num_sample,num_dose]);
+R_bl_m = reshape(X_bl_m(74,:  ) ./ X_bl_m(4,:  ), [num_sample,1       ]);
+R_bl_f = reshape(X_bl_f(74,:  ) ./ X_bl_f(4,:  ), [num_sample,1       ]);
+% R_ss_m = reshape(X_ss_m(74,:,:) ./ X_ss_m(4,:,:), [10,num_dose]);
+% R_ss_f = reshape(X_ss_f(74,:,:) ./ X_ss_f(4,:,:), [10,num_dose]);
+% R_bl_m = reshape(X_bl_m(74,:  ) ./ X_bl_m(4,:  ), [10,1       ]);
+% R_bl_f = reshape(X_bl_f(74,:  ) ./ X_bl_f(4,:  ), [10,1       ]);
+% ---
+R_rel_m = (R_ss_m - R_bl_m) ./ R_bl_m * 100;
+R_rel_f = (R_ss_f - R_bl_f) ./ R_bl_f * 100;
+% ---
+R_rel_mean_m  = reshape(mean(R_rel_m,  1), [1,num_dose]); 
+R_rel_mean_f  = reshape(mean(R_rel_f,  1), [1,num_dose]); 
+R_rel_std_m   = reshape(std (R_rel_m,0,1), [1,num_dose]); 
+R_rel_std_f   = reshape(std (R_rel_f,0,1), [1,num_dose]); 
+% Compute confidence interval
+R_rel_lower_m = R_rel_mean_m - R_rel_std_m; R_rel_upper_m = R_rel_mean_m + R_rel_std_m;
+R_rel_lower_f = R_rel_mean_f - R_rel_std_f; R_rel_upper_f = R_rel_mean_f + R_rel_std_f;
+
+% Total fractional sodium reabsorption ------------------------------------
+FRNA_ss_m = reshape((X_ss_m(11,:,:) - X_ss_m(27,:,:)) ./ X_ss_m(11,:,:), [num_sample,num_dose]) * 100;
+FRNA_ss_f = reshape((X_ss_f(11,:,:) - X_ss_f(27,:,:)) ./ X_ss_f(11,:,:), [num_sample,num_dose]) * 100;
+FRNA_bl_m = reshape((X_bl_m(11,:  ) - X_bl_m(27,:  )) ./ X_bl_m(11,:  ), [num_sample,1       ]) * 100;
+FRNA_bl_f = reshape((X_bl_f(11,:  ) - X_bl_f(27,:  )) ./ X_bl_f(11,:  ), [num_sample,1       ]) * 100;
+% FRNA_ss_m = reshape((X_ss_m(11,:,:) - X_ss_m(27,:,:)) ./ X_ss_m(11,:,:), [10,num_dose]) * 100;
+% FRNA_ss_f = reshape((X_ss_f(11,:,:) - X_ss_f(27,:,:)) ./ X_ss_f(11,:,:), [10,num_dose]) * 100;
+% FRNA_bl_m = reshape((X_bl_m(11,:  ) - X_bl_m(27,:  )) ./ X_bl_m(11,:  ), [10,1       ]) * 100;
+% FRNA_bl_f = reshape((X_bl_f(11,:  ) - X_bl_f(27,:  )) ./ X_bl_f(11,:  ), [10,1       ]) * 100;
+% ---
+FRNA_rel_m = (FRNA_ss_m - FRNA_bl_m) ./ FRNA_bl_m * 100;
+FRNA_rel_f = (FRNA_ss_f - FRNA_bl_f) ./ FRNA_bl_f * 100;
+% ---
+FRNA_rel_mean_m  = reshape(mean(FRNA_rel_m,  1), [1,num_dose]); 
+FRNA_rel_mean_f  = reshape(mean(FRNA_rel_f,  1), [1,num_dose]); 
+FRNA_rel_std_m   = reshape(std (FRNA_rel_m,0,1), [1,num_dose]); 
+FRNA_rel_std_f   = reshape(std (FRNA_rel_f,0,1), [1,num_dose]); 
+% Compute confidence interval
+FRNA_rel_lower_m = FRNA_rel_mean_m - FRNA_rel_std_m; FRNA_rel_upper_m = FRNA_rel_mean_m + FRNA_rel_std_m;
+FRNA_rel_lower_f = FRNA_rel_mean_f - FRNA_rel_std_f; FRNA_rel_upper_f = FRNA_rel_mean_f + FRNA_rel_std_f;
+
+% Total fractional water reabsorption -------------------------------------
+FRW_ss_m = reshape((X_ss_m(7,:,:) - X_ss_m(92,:,:)) ./ X_ss_m(7,:,:), [num_sample,num_dose]) * 100;
+FRW_ss_f = reshape((X_ss_f(7,:,:) - X_ss_f(92,:,:)) ./ X_ss_f(7,:,:), [num_sample,num_dose]) * 100;
+FRW_bl_m = reshape((X_bl_m(7,:  ) - X_bl_m(92,:  )) ./ X_bl_m(7,:  ), [num_sample,1       ]) * 100;
+FRW_bl_f = reshape((X_bl_f(7,:  ) - X_bl_f(92,:  )) ./ X_bl_f(7,:  ), [num_sample,1       ]) * 100;
+% FRW_ss_m = reshape((X_ss_m(7,:,:) - X_ss_m(92,:,:)) ./ X_ss_m(7,:,:), [10,num_dose]) * 100;
+% FRW_ss_f = reshape((X_ss_f(7,:,:) - X_ss_f(92,:,:)) ./ X_ss_f(7,:,:), [10,num_dose]) * 100;
+% FRW_bl_m = reshape((X_bl_m(7,:  ) - X_bl_m(92,:  )) ./ X_bl_m(7,:  ), [10,1       ]) * 100;
+% FRW_bl_f = reshape((X_bl_f(7,:  ) - X_bl_f(92,:  )) ./ X_bl_f(7,:  ), [10,1       ]) * 100;
+% ---
+FRW_rel_m = (FRW_ss_m - FRW_bl_m) ./ FRW_bl_m * 100;
+FRW_rel_f = (FRW_ss_f - FRW_bl_f) ./ FRW_bl_f * 100;
+% ---
+FRW_rel_mean_m  = reshape(mean(FRW_rel_m,  1), [1,num_dose]); 
+FRW_rel_mean_f  = reshape(mean(FRW_rel_f,  1), [1,num_dose]); 
+FRW_rel_std_m   = reshape(std (FRW_rel_m,0,1), [1,num_dose]); 
+FRW_rel_std_f   = reshape(std (FRW_rel_f,0,1), [1,num_dose]); 
+% Compute confidence interval
+FRW_rel_lower_m = FRW_rel_mean_m - FRW_rel_std_m; FRW_rel_upper_m = FRW_rel_mean_m + FRW_rel_std_m;
+FRW_rel_lower_f = FRW_rel_mean_f - FRW_rel_std_f; FRW_rel_upper_f = FRW_rel_mean_f + FRW_rel_std_f;
 
 g1 = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 12, 4]);
-s_map(1) = subplot(1,3,1); 
-s_map(2) = subplot(1,3,2); 
-s_map(3) = subplot(1,3,3);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 4]);
+t1 = tiledlayout(1,3,'TileSpacing','Normal','Padding','Compact');
 
-plot(s_map(1), xscale,MAP_ac_m(:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-% xlim(s_map(1), [lower, upper]);
-set(s_map(1), 'XTick', [0, 20, 40, 60, 80, 100]);
-% ylim(s_map(1), [0.99,1.03])
-xlabel(s_map(1), xlabel_name); ylabel(s_map(1), 'MAP (mmHg)');
-hold(s_map(1), 'on')
-plot(s_map(1), xscale,MAP_ac_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-hold(s_map(1), 'off')
-[~, hobj, ~, ~] = legend(s_map(1), {'Male','Female'}, 'FontSize',10,'Location','Southwest');
-hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5);
-title(s_map(1), 'A')
+nexttile
+plot(xscale,R_rel_mean_m , '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('EAR/RVR (relative)');
+hold on
+plot(xscale,R_rel_mean_f , '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,R_rel_lower_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,R_rel_lower_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,R_rel_upper_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,R_rel_upper_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+legend('Male', 'Female')
+% [~, hobj, ~, ~] = legend({'Male','Female'}, 'FontSize',7,'Location','Southeast');
+% hl = findobj(hobj,'type','line');
+% set(hl,'LineWidth',1.5);
+title('A')
 
-plot(s_map(2), xscale,MAP_ch_m(:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-% xlim(s_map(2), [lower, upper]);
-set(s_map(2), 'XTick', [0, 20, 40, 60, 80, 100]);
-% ylim(s_map(2), [0.99,1.03])
-xlabel(s_map(2), xlabel_name); ylabel(s_map(2), '\DeltaMAP (mmHg)');
-hold(s_map(2), 'on')
-plot(s_map(2), xscale,MAP_ch_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-hold(s_map(2), 'off')
-title(s_map(2), 'B')
+nexttile
+plot(xscale,FRNA_rel_mean_m , '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('FR_{Na^+} (relative)');
+hold on
+plot(xscale,FRNA_rel_mean_f , '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,FRNA_rel_lower_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,FRNA_rel_lower_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,FRNA_rel_upper_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,FRNA_rel_upper_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+title('B')
 
-plot(s_map(3), xscale,MAP_pc_m(:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
-% xlim(s_map(3), [lower, upper]);
-set(s_map(3), 'XTick', [0, 20, 40, 60, 80, 100]);
-% ylim(s_map(3), [0.99,1.03])
-xlabel(s_map(3), xlabel_name); ylabel(s_map(3), '% \DeltaMAP');
-hold(s_map(3), 'on')
-plot(s_map(3), xscale,MAP_pc_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-hold(s_map(3), 'off')
-title(s_map(3), 'C')
+nexttile
+plot(xscale,FRW_rel_mean_m , '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('FR_{W} (relative)');
+hold on
+plot(xscale,FRW_rel_mean_f , '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,FRW_rel_lower_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,FRW_rel_lower_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,FRW_rel_upper_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,FRW_rel_upper_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+title('C')
 
-g2 = figure('DefaultAxesFontSize',18);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 6, 5]);
-plot(xscale,MAP_pc_m(:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',5,'MarkerSize',10);
-xticks([0:10:100]);
-xlabel(xlabel_name); ylabel('% \DeltaMAP');
-hold 'on'
-plot(xscale,MAP_pc_f(:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',5, 'MarkerSize',10);
-hold 'off'
+%% Plot Mean Arterial Pressure distribution. 
 
-%% Save figures. -----------------------------------------------------------
- 
-% save_data_name = sprintf('dose_response_%s%s.fig', ...
-%                          scenario2{fixed_ss2},num2str(fixed_sample));
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f1;f2;g1], save_data_name)
+% Actual, change, and % change in MAP. ------------------------------------
+MAP_ac_m = reshape((X_ss_m(42,:,:)               )                      , ...
+    [num_sample,num_dose]);
+%     [10,num_dose]);
+MAP_ac_f = reshape((X_ss_f(42,:,:)               )                      , ...
+    [num_sample,num_dose]);
+%     [10,num_dose]);
 % ---
-save_data_name = sprintf('dose_response_%s%s.png', ...
-                         scenario2{fixed_ss2},num2str(fixed_sample));
+MAP_ch_m = reshape((X_ss_m(42,:,:) - X_bl_m(42,:))                      , ...
+    [num_sample,num_dose]);
+%     [10,num_dose]);
+MAP_ch_f = reshape((X_ss_f(42,:,:) - X_bl_f(42,:))                      , ...
+    [num_sample,num_dose]);
+%     [10,num_dose]);
+% ---
+MAP_pc_m = reshape((X_ss_m(42,:,:) - X_bl_m(42,:)) ./ X_bl_m(42,:) * 100, ...
+    [num_sample,num_dose]);
+%     [10,num_dose]);
+MAP_pc_f = reshape((X_ss_f(42,:,:) - X_bl_f(42,:)) ./ X_bl_f(42,:) * 100, ...
+    [num_sample,num_dose]);
+%     [10,num_dose]);
+% ---
+MAP_ac_mean_m  = reshape(mean(MAP_ac_m,  1), [1,num_dose]); 
+MAP_ac_mean_f  = reshape(mean(MAP_ac_f,  1), [1,num_dose]); 
+MAP_ac_std_m   = reshape(std (MAP_ac_m,0,1), [1,num_dose]); 
+MAP_ac_std_f   = reshape(std (MAP_ac_f,0,1), [1,num_dose]); 
+% ---
+MAP_ch_mean_m  = reshape(mean(MAP_ch_m,  1), [1,num_dose]); 
+MAP_ch_mean_f  = reshape(mean(MAP_ch_f,  1), [1,num_dose]); 
+MAP_ch_std_m   = reshape(std (MAP_ch_m,0,1), [1,num_dose]); 
+MAP_ch_std_f   = reshape(std (MAP_ch_f,0,1), [1,num_dose]); 
+% ---
+MAP_pc_mean_m  = reshape(mean(MAP_pc_m,  1), [1,num_dose]); 
+MAP_pc_mean_f  = reshape(mean(MAP_pc_f,  1), [1,num_dose]); 
+MAP_pc_std_m   = reshape(std (MAP_pc_m,0,1), [1,num_dose]); 
+MAP_pc_std_f   = reshape(std (MAP_pc_f,0,1), [1,num_dose]); 
+% Compute confidence interval
+MAP_ac_lower_m = MAP_ac_mean_m - MAP_ac_std_m; MAP_ac_upper_m = MAP_ac_mean_m + MAP_ac_std_m;
+MAP_ac_lower_f = MAP_ac_mean_f - MAP_ac_std_f; MAP_ac_upper_f = MAP_ac_mean_f + MAP_ac_std_f;
+% ---
+MAP_ch_lower_m = MAP_ch_mean_m - MAP_ch_std_m; MAP_ch_upper_m = MAP_ch_mean_m + MAP_ch_std_m;
+MAP_ch_lower_f = MAP_ch_mean_f - MAP_ch_std_f; MAP_ch_upper_f = MAP_ch_mean_f + MAP_ch_std_f;
+% ---
+MAP_pc_lower_m = MAP_pc_mean_m - MAP_pc_std_m; MAP_pc_upper_m = MAP_pc_mean_m + MAP_pc_std_m;
+MAP_pc_lower_f = MAP_pc_mean_f - MAP_pc_std_f; MAP_pc_upper_f = MAP_pc_mean_f + MAP_pc_std_f;
+
+g2 = figure('DefaultAxesFontSize',14);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 4]);
+t2 = tiledlayout(1,3,'TileSpacing','Normal','Padding','Compact');
+
+nexttile
+plot(xscale,MAP_ac_mean_m , '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('MAP (mmHg)');
+hold on
+plot(xscale,MAP_ac_mean_f , '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ac_lower_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ac_lower_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ac_upper_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ac_upper_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+legend('Male', 'Female')
+% [~, hobj, ~, ~] = legend({'Male','Female'}, 'FontSize',7,'Location','Southeast');
+% hl = findobj(hobj,'type','line');
+% set(hl,'LineWidth',1.5);
+title('A')
+
+nexttile
+plot(xscale,MAP_ch_mean_m , '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('\DeltaMAP (mmHg)');
+hold on
+plot(xscale,MAP_ch_mean_f , '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ch_lower_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ch_lower_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ch_upper_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ch_upper_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+title('B')
+
+nexttile
+plot(xscale,MAP_pc_mean_m , '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('% \DeltaMAP');
+hold on
+plot(xscale,MAP_pc_mean_f , '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_pc_lower_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_pc_lower_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_pc_upper_m, '--', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_pc_upper_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+title('C')
+
+%% Save figures and data. 
+ 
+save_data_name = sprintf('dose_response_%s.fig', ...
+                         scenario2{fixed_ss2});
 save_data_name = strcat('Figures/', save_data_name);
-exportgraphics(g2, save_data_name)
+savefig([f1;f2;g1;g2], save_data_name)
+
+save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s.mat'  , ...
+                         species{spe_ind},scenario2{fixed_ss2});
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'X_bl_m' , 'X_bl_mean_m' , 'X_bl_std_m' , ...
+                     'X_ss_m' , 'X_ss_mean_m' , 'X_ss_std_m' , ...
+                     'X_rel_m', 'X_rel_mean_m', 'X_rel_std_m')
+
+save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s.mat', ...
+                         species{spe_ind},scenario2{fixed_ss2});
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'X_bl_f' , 'X_bl_mean_f' , 'X_bl_std_f' , ...
+                     'X_ss_f' , 'X_ss_mean_f' , 'X_ss_std_f' , ...
+                     'X_rel_f', 'X_rel_mean_f', 'X_rel_std_f')
 
 end
 
