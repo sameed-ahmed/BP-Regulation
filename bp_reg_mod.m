@@ -274,7 +274,7 @@ if     t <  tchange
     kappa_RSS   = 0;
     kappa_f     = 0;
     kappa_f_md  = 0; 
-elseif t >= tchange 
+elseif t >= tchange %&& t < 2*tchange
     kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
@@ -288,6 +288,96 @@ elseif t >= tchange
     kappa_RSS   = kappa_RSS_inp   * tanh(alpha * (t-tchange)); 
     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
+% elseif t >= 2*tchange && t < 3*tchange
+%     kappa_CCB   = kappa_CCB_inp   * tanh(alpha * (t-  tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-2*tchange));
+% 
+%     kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
+%     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_V  = kappa_DI_V_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_R  = kappa_DI_R_inp  * tanh(alpha * (t-tchange));
+%     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_RSS   = kappa_RSS_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
+%     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
+% elseif t >= 3*tchange && t < 4*tchange
+%     kappa_CCB   = kappa_CCB_inp   * tanh(alpha * (t-  tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-2*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-3*tchange));
+% 
+%     kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
+%     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_V  = kappa_DI_V_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_R  = kappa_DI_R_inp  * tanh(alpha * (t-tchange));
+%     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_RSS   = kappa_RSS_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
+%     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
+% elseif t >= 4*tchange && t < 5*tchange
+%     kappa_CCB   = kappa_CCB_inp   * tanh(alpha * (t-  tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-2*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-3*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-4*tchange));
+% 
+%     kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
+%     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_V  = kappa_DI_V_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_R  = kappa_DI_R_inp  * tanh(alpha * (t-tchange));
+%     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_RSS   = kappa_RSS_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
+%     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
+% elseif t >= 5*tchange && t < 6*tchange
+%     kappa_CCB   = kappa_CCB_inp   * tanh(alpha * (t-  tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-2*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-3*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-4*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-5*tchange));
+% 
+%     kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
+%     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_V  = kappa_DI_V_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_R  = kappa_DI_R_inp  * tanh(alpha * (t-tchange));
+%     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_RSS   = kappa_RSS_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
+%     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
+% elseif t >= 6*tchange %&& t < 4*tchange
+%     kappa_CCB   = kappa_CCB_inp   * tanh(alpha * (t-  tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-2*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-3*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-4*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-5*tchange)) ...
+%                 + 0.05            * tanh(alpha * (t-6*tchange));
+% 
+%     kappa_AngII = kappa_AngII_inp * tanh(alpha * (t-tchange)); 
+%     kappa_ACEi  = kappa_ACEi_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_ARB1  = kappa_ARB1_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DI_S  = kappa_DI_S_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_V  = kappa_DI_V_inp  * tanh(alpha * (t-tchange));
+%     kappa_DI_R  = kappa_DI_R_inp  * tanh(alpha * (t-tchange));
+%     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
+%     kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_RSS   = kappa_RSS_inp   * tanh(alpha * (t-tchange)); 
+%     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
+%     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
 end
 
 % % Repeated drug dose

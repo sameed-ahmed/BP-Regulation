@@ -90,7 +90,7 @@ N = (days+1)*100 + 1;
 sample_num = 655
 
 % Drug dose
-drug_dose = 0.81
+drug_dose = 0.60
 drug_dose_vaso = 0           % DIU
 % a = 3; b = 1;
 a = 11/9; b = 1/9;
@@ -124,7 +124,7 @@ varargin_input = {scenario1{sce_ind},true};
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 num_pars   = size(pars_rep,1);
@@ -132,7 +132,7 @@ num_sample = size(pars_rep,2);
 pars_rep = pars_rep(:,sample_num);
 
 % Variables
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 num_vars   = size(SSdata_rep,1);
@@ -729,6 +729,11 @@ title('E')
 %                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([f1;f2;g1;g2;g3;h1], save_data_name)
+% ---
+% save_data_name = sprintf('Pri_hyp_sim_all_vars_%s%s%%_VI%s.fig', ...
+%                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f1], save_data_name)
 
 end
 
