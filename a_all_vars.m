@@ -101,6 +101,104 @@ Phi_win       = x(93);
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
+rsna
+alpha_map
+alpha_rap
+R_r
+beta_rsna
+Phi_rb
+Phi_gfilt
+P_f
+P_gh
+Sigma_tgf
+Phi_filsod
+Phi_ptsodreab
+eta_ptsodreab
+gamma_filsod
+gamma_at
+gamma_rsna
+Phi_mdsod
+Phi_dtsodreab
+eta_dtsodreab
+psi_al
+Phi_dtsod
+Phi_cdsodreab
+eta_cdsodreab
+lambda_dt
+lambda_anp
+lambda_al
+Phi_usod
+Phi_sodin
+V_ecf
+V_b
+P_mf
+Phi_vr
+Phi_co
+P_ra
+vas
+vas_f
+vas_d
+R_a
+R_ba
+R_vr
+R_tp
+P_ma
+epsilon_aum
+a_auto
+a_chemo
+a_baro
+C_adh
+N_adh
+N_adhs
+delta_ra
+M_sod
+C_sod
+nu_mdsod
+nu_rsna
+C_al
+N_al
+N_als
+xi_ksod
+xi_map
+xi_at
+hatC_anp
+AGT
+nu_AT1
+R_sec
+PRC
+PRA
+AngI
+AngII
+AT1R
+AT2R
+Ang17
+AngIV
+R_aa
+R_ea
+Sigma_myo
+Psi_AT1RAA
+Psi_AT1REA
+Psi_AT2RAA
+Psi_AT2REA
+Phi_ptwreab
+eta_ptwreab
+mu_ptsodreab
+Phi_mdu
+Phi_dtwreab
+eta_dtwreab
+mu_dtsodreab
+Phi_dtu
+Phi_cdwreab
+eta_cdwreab
+mu_cdsodreab
+mu_adh
+Phi_u
+Phi_win
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
 % Order in which they appear in the manuscript.
 % Cardiovascular function
 P_mf          = x(31);
