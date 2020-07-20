@@ -117,26 +117,28 @@ num_vars = 93;
 X_ss = zeros(num_vars,num_sample,num_dose,2,num_scen);
 X_bl = zeros(num_vars,num_sample,2,num_scen);
 
+parpool
 for sce_ind = fixed_ss1:fixed_ss1 % scenario
 for sex_ind = 1:2        % sex
 
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 num_pars   = size(pars_rep,1);
 
 % Variables
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 num_vars = size(SSdata_rep,1);
 % Store baseline value to compute relative change.
 X_bl(:,:,sex_ind,sce_ind) = SSdata_rep(:,1:num_sample);
 
-for sam_iter = 1:num_sample % samples
+parfor sam_iter = 1:num_sample % samples
+% for sam_iter = 1:num_sample % samples
 % for sam_iter = 1:10
 
 for dose_iter = 1:num_dose % range
@@ -231,6 +233,7 @@ fprintf('%s %s sample = %s out of %s \n', ...
 end % samples
 end % sex
 end % scenario
+delete(gcp)
 
 %% Post processing
 
@@ -588,19 +591,19 @@ title('C')
 
 %% Save figures and data. 
  
-save_data_name = sprintf('dose_response_%s.fig', ...
+save_data_name = sprintf('dose_response_%sNEW.fig', ...
                          scenario2{fixed_ss2});
 save_data_name = strcat('Figures/', save_data_name);
 savefig([f1;f2;g1;g2], save_data_name)
 
-save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s.mat'  , ...
+save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%sNEW.mat'  , ...
                          species{spe_ind},scenario2{fixed_ss2});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'X_bl_m' , 'X_bl_mean_m' , 'X_bl_std_m' , ...
                      'X_ss_m' , 'X_ss_mean_m' , 'X_ss_std_m' , ...
                      'X_rel_m', 'X_rel_mean_m', 'X_rel_std_m')
 
-save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s.mat', ...
+save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%sNEW.mat', ...
                          species{spe_ind},scenario2{fixed_ss2});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'X_bl_f' , 'X_bl_mean_f' , 'X_bl_std_f' , ...
