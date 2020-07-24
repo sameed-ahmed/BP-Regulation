@@ -59,32 +59,36 @@ spe_ind = 2;
 % Dataset
 % dataset = 'old';
 % dataset = 'new';
-% dataset = 'newnew';
-dataset = 'particular';
+dataset = 'newnew';
+% dataset = 'particular';
+% dataset = 'particular range';
+
+fixed_sex_ind = 1
 
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
-sample_num = 80
+sample_num = 974
+% sample_num_range = 010;
 % ---
 % Old remarkable samples
 % sample_num = 42 % male and female MAP similar
 % sample_num = 707 % bad female fit for Ang II
 % sample_num = 208
 % sample_num = 655
-sample_num = 47  % good fits for Ang II
+% sample_num = 47  % good fits for Ang II
 % ---
-% female bad fit for new
+% female bad fit for new1
 % sample_num = 239 
 % sample_num = 723 
 % sample_num = 261 
 % sample_num = 823 
 % sample_num = 098 
-%   male bad fit for new ~
+%   male bad fit for new1 ~
 % sample_num = 975 
 % sample_num = 080 
-%   both bad fit for new ~
+%   both bad fit for new1 ~
 % sample_num = 003 
-%  both good fit for new
+%  both good fit for new1
 % sample_num = 318 
 % sample_num = 951 
 % sample_num = 035 
@@ -102,6 +106,7 @@ sample_num = 47  % good fits for Ang II
 % sample_num = 862
 % sample_num = 695
 % ---
+% new2?
 % sample_num = 001
 % sample_num = 002
 % sample_num = 003 % *      AngII male
@@ -118,6 +123,7 @@ sex     = {'male' , 'female'};
 PARS = cell(1,2); SSDATA = cell(1,2); 
 
 for sex_ind = 1:2 % sex
+% for sex_ind = fixed_sex_ind:fixed_sex_ind % sex 
 
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
@@ -132,13 +138,20 @@ elseif strcmp(dataset, 'newnew')
     load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                                   species{spe_ind},sex{sex_ind});
 elseif strcmp(dataset, 'particular')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep80.mat', ...
-                                  species{spe_ind},sex{sex_ind});
+    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
+                                  species{spe_ind},sex{sex_ind},num2str(sample_num));
+elseif strcmp(dataset, 'particular range')
+    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
+                                  species{spe_ind},sex{sex_ind},num2str(sample_num_range));
 end
 load(load_data_name_pars, 'pars_rep');
 num_pars   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
 PARS{sex_ind} = pars_rep;
+
+% pars0_est = [24.5664; 11.9122; 3.2875; 1.9027; 1.9448; 1.4909; 1.4893; 4.8474]; % diverges for j = 076
+% par_ind   = [13     ; 14     ; 4     ; 21    ; 18    ; 3     ; 15    ; 41    ];
+% PARS{sex_ind}(par_ind,sample_num) = pars0_est;
 
 % Variables
 if     strcmp(dataset, 'old')
@@ -151,8 +164,11 @@ elseif strcmp(dataset, 'newnew')
     load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                                   species{spe_ind},sex{sex_ind});
 elseif strcmp(dataset, 'particular')
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep80.mat', ...
-                              species{spe_ind},sex{sex_ind});
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
+                              species{spe_ind},sex{sex_ind},num2str(sample_num));
+elseif strcmp(dataset, 'particular range')
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
+                              species{spe_ind},sex{sex_ind},num2str(sample_num_range));
 end
 load(load_data_name_vars, 'SSdata_rep');
 num_vars   = size(SSdata_rep,1);
@@ -191,6 +207,8 @@ end
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig(fig, save_data_name)
 
+%% Subfunctions
+
 % -------------------------------------------------------------------------
 % Steady state simulation
 % -------------------------------------------------------------------------
@@ -216,6 +234,7 @@ days = 10; day_change = 1;
 X = cell(1,2); T = cell(1,2);
 
 for sex_ind_run_sim = 1:2 % sex
+% for sex_ind_run_sim = fixed_sex_ind:fixed_sex_ind % sex 
 
 varargin_input = {scenario{fixed_ss},true};
 
@@ -345,7 +364,7 @@ fixed_ss = 1;
 days = 14; day_change = 1;
 % Number of points for plotting resolution
 % N = ((days+1)*1440) / 2;
-N = (days+1)*10 + 1;
+N = (days+1)*1 + 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -356,7 +375,8 @@ N = (days+1)*10 + 1;
 X = zeros(num_vars,N,2,num_scen);
 
 for sce_ind               = 1:num_scen % scenario
-for sex_ind_AngII = 1:2        % sex
+% for sex_ind_AngII = 1:2        % sex
+for sex_ind_AngII = fixed_sex_ind:fixed_sex_ind        % sex
 
 varargin_input = {scenario{sce_ind},true};
 
@@ -951,33 +971,6 @@ legend(s2(1),'Male','Female', 'Location','east')
 xlh = xlabel(s2(11),'$\Phi_{sodin}$', 'Interpreter','latex', 'FontSize',16);
 xlh.Position(2) = xlh.Position(2) - 0.005;
 
-% Plot Sodium Intake vs Mean Arterial Pressure. ---------------------------
-
-MAP_bl_m = X_m(42,iteration,fixed_ss);
-MAP_bl_f = X_f(42,iteration,fixed_ss);
-point_m = [15+MAP_bl_m,4; 25+MAP_bl_m,4];
-point_f = [ 5+MAP_bl_f,4; 10+MAP_bl_f,4];
-
-f3 = figure('DefaultAxesFontSize',14*1.5);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5*2, 2.5*2]);
-plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3*1.5);
-% xlim([90, 120])
-ylim([lower, upper+0.1])
-ax = gca;
-% ax.XTick = (80 : 10 : 120);
-xlabel('MAP (mmHg)')
-ylabel({'Fold change in'; 'sodium excretion'})
-hold on
-plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
-plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3*1.5)
-plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
-legend('Male sim','Female sim','Male data','Female data', 'Location','Southeast')
-[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',7*1.5,'Location','Southeast');
-hl = findobj(hobj,'type','line');
-set(hl,'LineWidth',1.5*1.5);
-hold off
-title('B')
-
 % Plot all other quantities of interest. ----------------------------------
 
 % CSOD; CADH; BV; for each sex and all scenarios.
@@ -1082,6 +1075,33 @@ hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 hold(s_main(4), 'off')
 title(s_main(4), 'D')
+
+% Plot Sodium Intake vs Mean Arterial Pressure. ---------------------------
+
+MAP_bl_m = X_m(42,iteration,fixed_ss);
+MAP_bl_f = X_f(42,iteration,fixed_ss);
+point_m = [15+MAP_bl_m,4; 25+MAP_bl_m,4];
+point_f = [ 5+MAP_bl_f,4; 10+MAP_bl_f,4];
+
+f3 = figure('DefaultAxesFontSize',14*1.5);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5*2, 2.5*2]);
+plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3*1.5);
+% xlim([90, 120])
+ylim([lower, upper+0.1])
+ax = gca;
+% ax.XTick = (80 : 10 : 120);
+xlabel('MAP (mmHg)')
+ylabel({'Fold change in'; 'sodium excretion'})
+hold on
+plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
+plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3*1.5)
+plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
+legend('Male sim','Female sim','Male data','Female data', 'Location','Southeast')
+[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',7*1.5,'Location','Southeast');
+hl = findobj(hobj,'type','line');
+set(hl,'LineWidth',1.5*1.5);
+hold off
+title('B')
 
 % % Plot with different scenarios. ------------------------------------------
 % 
