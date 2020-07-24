@@ -23,25 +23,27 @@ fixed_ss = 1;
 % Dataset
 % dataset = 'old';
 % dataset = 'new';
-% dataset = 'newnew';
-dataset = 'particular';
+dataset = 'newnew';
+% dataset = 'particular';
+% dataset = 'particular range';
 
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
-sample_num = 80
+sample_num = 974
+% sample_num_range = 010;
 % ---
-% female bad fit for new
+% female bad fit for new1
 % sample_num = 239 
 % sample_num = 723 
 % sample_num = 261 
 % sample_num = 823 
 % sample_num = 098 
-%   male bad fit for new ~
+%   male bad fit for new1 ~
 % sample_num = 975 
 % sample_num = 080 
-%   both bad fit for new ~
+%   both bad fit for new1 ~
 % sample_num = 003 
-%  both good fit for new
+%  both good fit for new1
 % sample_num = 318 
 % sample_num = 951 
 % sample_num = 035 
@@ -59,6 +61,7 @@ sample_num = 80
 % sample_num = 862
 % sample_num = 695
 % ---
+% new?
 % sample_num = 001
 % sample_num = 002
 % sample_num = 003 % *      male
@@ -95,8 +98,11 @@ elseif strcmp(dataset, 'newnew')
     load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                                   species{spe_ind},sex{sex_ind});
 elseif strcmp(dataset, 'particular')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep80.mat', ...
-                                  species{spe_ind},sex{sex_ind});
+    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
+                                  species{spe_ind},sex{sex_ind},num2str(sample_num));
+elseif strcmp(dataset, 'particular range')
+    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
+                                  species{spe_ind},sex{sex_ind},num2str(sample_num_range));
 end
 load(load_data_name_pars, 'pars_rep');
 
@@ -111,14 +117,18 @@ elseif strcmp(dataset, 'newnew')
     load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                                   species{spe_ind},sex{sex_ind});
 elseif strcmp(dataset, 'particular')
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep80.mat', ...
-                              species{spe_ind},sex{sex_ind});
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
+                              species{spe_ind},sex{sex_ind},num2str(sample_num));
+elseif strcmp(dataset, 'particular range')
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
+                              species{spe_ind},sex{sex_ind},num2str(sample_num_range));
 end
 load(load_data_name_vars, 'SSdata_rep');
 
 %% Load bootstrap replicate data created by create_data_bs_rep.m.
 
-load_data_name_data = sprintf('%s_%s_AngII_data_bs_rep.mat', species{spe_ind},sex{sex_ind});
+load_data_name_data = sprintf('%s_%s_AngII_data_bs_rep.mat', ...
+                              species{spe_ind},sex{sex_ind});
 load(load_data_name_data, 'AngII_data_rep');
 AngII_MAP_data = AngII_data_rep(sample_num,:);
 

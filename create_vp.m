@@ -41,6 +41,8 @@ scenario = {'Normal'};
 % Species
 spe_ind = 2;
 
+sample_num = 010
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -55,12 +57,15 @@ for sex_ind = 1:2 % sex
 
 %% Load bootstrap replicate parameters created by create_par_bs_rep.m.
 
-% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
-%                               species{spe_ind},sex{sex_ind});
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep80.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                               species{spe_ind},sex{sex_ind});
+% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
+%                               species{spe_ind},sex{sex_ind},num2str(sample_num));
 load(load_data_name_pars, 'pars_rep');
 pars_hyp = pars_rep(pars_ind,:);
+
+% pars0_est = [24.5664; 11.9122; 3.2875; 1.9027; 1.9448; 1.4909; 1.4893; 4.8474]; % diverges for j = 076
+% pars_rep(pars_ind,sample_num) = pars0_est;
 
 pars_num   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
@@ -93,9 +98,10 @@ clear SSdata
 
 tic
 SSdata_rep = zeros(num_vars, num_sample);
-% for j = 1:num_sample
+for j = 1:num_sample
 % for j = 1:5
-for j = 80:80
+% for j = 1:sample_num
+% for j = sample_num:sample_num
     SSdata_rep(:,j) = solve_ss_scenario(pars_rep(:,j));
     fprintf('%s iteration = %s out of %s \n', ...
             sex{sex_ind},num2str(j),num2str(num_sample))
@@ -125,10 +131,10 @@ bs_rep_solve_time = toc
 
 %% Save data.
 
-% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
-%                          species{spe_ind},sex{sex_ind});
-save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep80.mat', ...
+save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                          species{spe_ind},sex{sex_ind});
+% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
+%                          species{spe_ind},sex{sex_ind},num2str(sample_num));
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'SSdata_rep', 'num_sample', 'bs_rep_solve_time')
 

@@ -1,13 +1,10 @@
-% This script calculates the steady state values of the blood pressure 
-% regulation model bp_reg_solve_baseline.m by using fsolve.
-% It is adopted with modifications from Karaaslan 2005 and Leete 2018.
 % 
-% Steady state data for the intial guess is inputted by solver_initial_guess_data.m.
 
 % function solve_ss_hyp_fit 
 % function [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
 % function [pars,exitflag_pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data)
-function [pars, residual_pars, exitflag_pars] = solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_MAP_data)
+function [pars, residual_pars, exitflag_pars] = ...
+    solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_MAP_data,iter)
 
 % % Add directory containing data.
 % mypath = pwd;
@@ -130,7 +127,7 @@ var_range_upper = [MAP_upper; var_range_upper];
 
 clear SSdata
 
-% Order
+%% Order
 % x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
 %       P_f; P_gh; Sigma_tgf; Phi_filsod; Phi_ptsodreab; eta_ptsodreab; ...
 %       gamma_filsod; gamma_at; gamma_rsna; Phi_mdsod; Phi_dtsodreab; ...
@@ -146,6 +143,7 @@ clear SSdata
 %       Phi_ptwreab; eta_ptwreab; mu_ptsodreab; ...
 %       Phi_mdu; Phi_dtwreab; eta_dtwreab; mu_dtsodreab; Phi_dtu; ...
 %       Phi_cdwreab; eta_cdwreab; mu_cdsodreab; mu_adh; Phi_u; Phi_win];
+%%
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
@@ -165,8 +163,14 @@ ran_vec = lower + ran_vec .* (upper - lower);
 % Replace input parameters with newly sampled parameter.
 pars0(par_ind) = ran_vec;
 pars0_est = ran_vec
+% pars0_est = [24.5664; 11.9122; 3.2875; 1.9027; 1.9448; 1.4909; 1.4893; 4.8474] % diverges for j = 076
 % pars0_est = [30.2589; 12.5101; 3.6061; 1.19  ; 1.50  ; 1.12  ] % diverges for j = 15?
 % pars0_est = [17.9423; 13.9705; 5.6973; 1.5338; 1.1092; 1.8258] % mycon get stuck for j = 15
+% if iter == 1
+%     pars0_est = [24.5664; 11.9122; 3.2875; 1.9027; 1.9448; 1.4909; 1.4893; 4.8474]
+% else
+%     pars0_est = ran_vec
+% end
 
 % options_pre_ss = optimset('Display','iter', 'MaxFunEvals',2000);
 % [~, ~, exitflag_pre_ss, ~] = ...
@@ -344,9 +348,9 @@ function tot_err = cost_fun(pars_est)
 % alpha = 0.0; % beta  = 2.0 - alpha;
 % tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
 % tot_err = (0.0*range_err + 2.0*AngII_MAP_err) / 2;
-% tot_err = AngII_err(pars_est);
+tot_err = AngII_err(pars_est);
 % tot_err = range_err;
-tot_err = (AngII_err(pars_est) + Sodin_err(pars_est)) / 2;
+% tot_err = (AngII_err(pars_est) + Sodin_err(pars_est)) / 2;
 % tot_err = 0;
 
 end % tot err
@@ -540,84 +544,84 @@ end
 
 end % Ang II err
 
-% -------------------------------------------------------------------------
+%% ------------------------------------------------------------------------
 % Sodium intake error
 % -------------------------------------------------------------------------
 
-function err = Sodin_err(pars_est)
+% function err = Sodin_err(pars_est)
+% 
+% % Place estimated pars in proper location.
+% pars0(par_ind) = pars_est;
+% 
+% % 4-fold increase in sodium intake.
+% pars_sodin = pars0;
+% pars_sodin(17) = 4 * pars_sodin(17);
+% 
+% %% Find steady state solution ---------------------------------------------
+% 
+% % tic
+% % Check if computation is necessary for baseine SSdata.
+% if ~isequal(pars_est,pars_est_last)
+%     options_ss = optimset('Display','off');
+%     [SSdata_iter, ~, ~, ~] = ...
+%         fsolve(@(x) ...
+%                bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
+%                x0, options_ss);
+%     pars_est_last = pars_est;
+% end
+% % toc1 = toc
+% 
+% % tic
+% % Compute SSdata for increased sodium intake.
+% options_ss = optimset('Display','off');
+% [SSdata_sodin, ~, exitflag, ~] = ...
+%     fsolve(@(x) ...
+%            bp_reg_mod(t,x,x_p0,pars_sodin,tchange,varargin_input{:}), ...
+%            x0, options_ss);
+% 
+% % Check for solver convergence.
+% if exitflag == 0
+%     err = 5;
+%     return
+% end
+% 
+% % Check for imaginary solution.
+% if not (isreal(SSdata_sodin))
+%     err = 5;
+%     return
+% end
+% % toc2 = toc
+% 
+% %% Compute error.
+% 
+% % Data from several sources. See 'change in MAP.xlsx'.
+% if     strcmp(sex{sex_ind}, 'male'  )
+%     sodin_MAP_data = [15,25];
+% %     MAPdata = [0,100];
+% %     MAPdata = 20;
+% elseif strcmp(sex{sex_ind}, 'female')
+%     sodin_MAP_data = [ 5,10];
+% %     MAPdata = [0,100];
+% %     MAPdata = 7;
+% end
+% 
+% % tic
+% % Substract MAP by baseline.
+% % X = (variable, points)
+% MAP = SSdata_sodin(42) - SSdata_iter(42);
+% 
+% % Sodin error
+% err = max( ( (MAP - (sodin_MAP_data(1) + sodin_MAP_data(2))/2)^2 -  ...
+%              (      (sodin_MAP_data(2) - sodin_MAP_data(1))/2)^2 ), ...
+%          0 );
+% err = err / mean(sodin_MAP_data)^2;
+% err = sqrt(err);
+% % err = abs(MAP - MAPdata) / MAPdata;
+% % toc3 = toc
+% 
+% end % Sodin err
 
-% Place estimated pars in proper location.
-pars0(par_ind) = pars_est;
-
-% 4-fold increase in sodium intake.
-pars_sodin = pars0;
-pars_sodin(17) = 4 * pars_sodin(17);
-
-%% Find steady state solution ---------------------------------------------
-
-% tic
-% Check if computation is necessary for baseine SSdata.
-if ~isequal(pars_est,pars_est_last)
-    options_ss = optimset('Display','off');
-    [SSdata_iter, ~, ~, ~] = ...
-        fsolve(@(x) ...
-               bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
-               x0, options_ss);
-    pars_est_last = pars_est;
-end
-% toc1 = toc
-
-% tic
-% Compute SSdata for increased sodium intake.
-options_ss = optimset('Display','off');
-[SSdata_sodin, ~, exitflag, ~] = ...
-    fsolve(@(x) ...
-           bp_reg_mod(t,x,x_p0,pars_sodin,tchange,varargin_input{:}), ...
-           x0, options_ss);
-
-% Check for solver convergence.
-if exitflag == 0
-    err = 5;
-    return
-end
-
-% Check for imaginary solution.
-if not (isreal(SSdata_sodin))
-    err = 5;
-    return
-end
-% toc2 = toc
-
-%% Compute error.
-
-% Data from several sources. See 'change in MAP.xlsx'.
-if     strcmp(sex{sex_ind}, 'male'  )
-    sodin_MAP_data = [15,25];
-%     MAPdata = [0,100];
-%     MAPdata = 20;
-elseif strcmp(sex{sex_ind}, 'female')
-    sodin_MAP_data = [ 5,10];
-%     MAPdata = [0,100];
-%     MAPdata = 7;
-end
-
-% tic
-% Substract MAP by baseline.
-% X = (variable, points)
-MAP = SSdata_sodin(42) - SSdata_iter(42);
-
-% Sodin error
-err = max( ( (MAP - (sodin_MAP_data(1) + sodin_MAP_data(2))/2)^2 -  ...
-             (      (sodin_MAP_data(2) - sodin_MAP_data(1))/2)^2 ), ...
-         0 );
-err = err / mean(sodin_MAP_data)^2;
-err = sqrt(err);
-% err = abs(MAP - MAPdata) / MAPdata;
-% toc3 = toc
-
-end % Sodin err
-
-% -------------------------------------------------------------------------
+%% ------------------------------------------------------------------------
 % Nonlinear constraints
 % -------------------------------------------------------------------------
 
@@ -675,21 +679,75 @@ pars_est;
 % end
 
 % tic
-% Nonlinear inequalities.
+%% Nonlinear inequalities steady state. -----------------------------------
+
 % num_vars_check = length(var_ind);
-c = zeros(2*num_vars_check,1);
+% c = zeros(2*num_vars_check,1);
+c = zeros(2*num_vars_check+2,1);
 for i = 1:num_vars_check
     c(2*i-1) =    SSdata_iter(var_ind(i)) - var_range_upper(i)  ;
     c(2*i)   = -( SSdata_iter(var_ind(i)) - var_range_lower(i) );
 end
 % toc2 = toc
 
+%% Find steady state solution sodin ---------------------------------------
+
+% 4-fold increase in sodium intake.
+pars_sodin = pars0;
+pars_sodin(17) = 4 * pars_sodin(17);
+
+% tic
+% Compute SSdata for increased sodium intake.
+options_ss = optimset('Display','off', 'MaxFunEvals',2000);
+[SSdata_sodin, ~, exitflag, ~] = ...
+    fsolve(@(x) ...
+           bp_reg_mod(t,x,x_p0,pars_sodin,tchange,varargin_input{:}), ...
+           x0, options_ss);
+
+% Check for solver convergence.
+if exitflag == 0
+    c(end) = 1;
+    ceq = [];
+%     err = 5;
+    return
+end
+
+% Check for imaginary solution.
+if not (isreal(SSdata_sodin))
+    c(end) = 1;
+    ceq = [];
+%     err = 5;
+    return
+end
+% toc2 = toc
+
+%% Nonlinear inequalities sodin. ------------------------------------------
+
+% Data from several sources. See 'change in MAP.xlsx'.
+if     strcmp(sex{sex_ind}, 'male'  )
+    sodin_MAP_data = [15,25];
+%     MAPdata = [0,100];
+%     MAPdata = 20;
+elseif strcmp(sex{sex_ind}, 'female')
+    sodin_MAP_data = [ 5,10];
+%     MAPdata = [0,100];
+%     MAPdata = 7;
+end
+
+% tic
+% Substract MAP by baseline.
+% X = (variable, points)
+MAP = SSdata_sodin(42) - SSdata_iter(42);
+
+c(end-1) =    MAP - sodin_MAP_data(2)  ;
+c(end)   = -( MAP - sodin_MAP_data(1) );
+
 % Nonlinear equalities.
 ceq = [];
 
 end % mycon
 
-% % -------------------------------------------------------------------------
+%% -------------------------------------------------------------------------
 % % Output function
 % % -------------------------------------------------------------------------
 % 

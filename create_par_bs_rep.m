@@ -21,6 +21,10 @@ fixed_ss = 1;
 spe_ind = 2;
 
 % sample_num = random('Discrete Uniform',1000)
+sample_num = 1000
+
+% ind_vec = {[140 154 155 187 248 299 475 500 624 653 755 867 921 944 974]; ...
+%            [004 082 186 360 550 596 862 928]};
 
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
@@ -64,21 +68,24 @@ residual_pars = zeros(1,num_sample);
 
 tic
 % for j = sample_num:sample_num
+% for j = 1:sample_num 
 % for j = 1:10
-% for j = 801:1000
-for j = 80:80
+for j = sample_num-250+1:sample_num
+% for j = 1:250
+% for j = 80:80
+% for j = ind_vec{sex_ind}
 % parfor j = 1:10
 % [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data);
 
     iter = 0;
     exitflag_pars = 0;
-%     residual_pars = 0.35;
-    while exitflag_pars <= 0 %|| residual_pars >= 0.35
+    residual_pars(j) = 0.40;
+    while exitflag_pars <= 0 || residual_pars(j) >= 0.40
         iter = iter + 1;
 %         [pars_rep(:,j),exitflag_pars] = ...
 %             solve_ss_hyp_fit2(sex_ind,AngII_data_rep(j,:));
         [pars_rep(:,j),residual_pars(j),exitflag_pars] = ...
-            solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_data_rep(j,:));
+            solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_data_rep(j,:),iter);
         fprintf('********** %s while loop iteration = %s ********** \n', ...
                 sex{sex_ind},num2str(iter))
     end
@@ -125,7 +132,9 @@ bs_rep_fit_time = toc
 
 % save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
 %                          species{spe_ind},sex{sex_ind});
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep80.mat', ...
+% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
+%                          species{spe_ind},sex{sex_ind},num2str(sample_num));
+save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_repSUB_IND.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'pars_rep', 'residual_pars', 'num_sample', 'bs_rep_fit_time')
