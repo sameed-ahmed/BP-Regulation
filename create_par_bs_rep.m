@@ -21,7 +21,7 @@ fixed_ss = 1;
 spe_ind = 2;
 
 % sample_num = random('Discrete Uniform',1000)
-sample_num = 1000
+sample_num = 158
 
 % ind_vec = {[140 154 155 187 248 299 475 500 624 653 755 867 921 944 974]; ...
 %            [004 082 186 360 550 596 862 928]};
@@ -30,7 +30,7 @@ species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
 parpool
-for sex_ind = 1:2 % sex
+for sex_ind = 2:2 % sex
 
 %% Parameters
 
@@ -67,10 +67,10 @@ residual_pars = zeros(1,num_sample);
 % random initial guess.
 
 tic
-% for j = sample_num:sample_num
+for j = sample_num:sample_num
 % for j = 1:sample_num 
 % for j = 1:10
-for j = sample_num-250+1:sample_num
+% for j = sample_num-250+1:sample_num
 % for j = 1:250
 % for j = 80:80
 % for j = ind_vec{sex_ind}

@@ -63,11 +63,11 @@ dataset = 'newnew';
 % dataset = 'particular';
 % dataset = 'particular range';
 
-fixed_sex_ind = 1
+fixed_sex_ind = 2
 
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
-sample_num = 974
+sample_num = 119
 % sample_num_range = 010;
 % ---
 % Old remarkable samples
@@ -206,6 +206,11 @@ end
 %                          sim_scenario{exact_sim_scen},num2str(sample_num));
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig(fig, save_data_name)
+% % ---
+% save_data_name = sprintf('Pri_hyp_sim_%s_VI%sNEW.png', ...
+%                          sim_scenario{exact_sim_scen},num2str(sample_num));
+% save_data_name = strcat('Figures/', save_data_name);
+% exportgraphics(fig(end), save_data_name)
 
 %% Subfunctions
 
@@ -364,7 +369,7 @@ fixed_ss = 1;
 days = 14; day_change = 1;
 % Number of points for plotting resolution
 % N = ((days+1)*1440) / 2;
-N = (days+1)*1 + 1;
+N = (days+1)*10 + 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -375,8 +380,8 @@ N = (days+1)*1 + 1;
 X = zeros(num_vars,N,2,num_scen);
 
 for sce_ind               = 1:num_scen % scenario
-% for sex_ind_AngII = 1:2        % sex
-for sex_ind_AngII = fixed_sex_ind:fixed_sex_ind        % sex
+for sex_ind_AngII = 1:2        % sex
+% for sex_ind_AngII = fixed_sex_ind:fixed_sex_ind        % sex
 
 varargin_input = {scenario{sce_ind},true};
 
@@ -590,7 +595,7 @@ end
 % hl = findobj(hobj,'type','line');
 % set(hl,'LineWidth',1.5);
 % % ---
-f4 = figure('DefaultAxesFontSize',14);
+f3 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
 s_main(1) = subplot(2,2,1); 
 s_main(2) = subplot(2,2,2); 
@@ -675,7 +680,7 @@ end
 % MAP_m = reshape(X_m(42,:,i) - X_m(42,1,i), [N,num_scen]);
 % MAP_f = reshape(X_f(42,:,i) - X_f(42,1,i), [N,num_scen]);
 
-f3 = figure('DefaultAxesFontSize',14);
+f4 = figure('DefaultAxesFontSize',16*1.5);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 5]);
 plot(t,MAP_m(:,fixed_ss),'-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',4.5);
 xlim([xlower, xupper]); ylim([-1, 60]);
@@ -687,10 +692,10 @@ hold on
 plot(t,MAP_f(:,fixed_ss),'-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',4.5)
 plot(tdata,MAPdata_m,'o', 'DisplayName',  'Male data', 'Color',[0.203, 0.592, 0.835], 'MarkerSize',9, 'LineWidth',3)
 plot(tdata,MAPdata_f,'o', 'DisplayName','Female data', 'Color',[0.835, 0.203, 0.576], 'MarkerSize',9, 'LineWidth',3)
-[~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',10,'Location','Northwest');
+[~, hobj, ~, ~] = legend({'Male sim','Female sim','Male data','Female data'}, 'FontSize',8*1.5,'Location','Northwest');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',2.25);
-title('A')
+title('A', 'FontWeight','normal')
 
 % % Plot male - female bar graph for each scenario --------------------------
 % 
@@ -1014,7 +1019,7 @@ for i = 1:2*iteration-1
     FRW_f(i,:)  = FRW_f(i,:)  ./ FRW_f_bl ;
 end
 
-f4 = figure('DefaultAxesFontSize',14);
+f3 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7.15, 5]);
 s_main(1) = subplot(2,2,1); 
 s_main(2) = subplot(2,2,2); 
@@ -1083,13 +1088,13 @@ MAP_bl_f = X_f(42,iteration,fixed_ss);
 point_m = [15+MAP_bl_m,4; 25+MAP_bl_m,4];
 point_f = [ 5+MAP_bl_f,4; 10+MAP_bl_f,4];
 
-f3 = figure('DefaultAxesFontSize',14*1.5);
+f4 = figure('DefaultAxesFontSize',16*1.5);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5*2, 2.5*2]);
 plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3*1.5);
-% xlim([90, 120])
+xlim([125, 175])
 ylim([lower, upper+0.1])
 ax = gca;
-% ax.XTick = (80 : 10 : 120);
+ax.XTick = (130 : 10 : 170);
 xlabel('MAP (mmHg)')
 ylabel({'Fold change in'; 'sodium excretion'})
 hold on
@@ -1097,11 +1102,11 @@ plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',
 plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3*1.5)
 plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
 legend('Male sim','Female sim','Male data','Female data', 'Location','Southeast')
-[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',7*1.5,'Location','Southeast');
+[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',8*1.5,'Location','Southeast');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5*1.5);
 hold off
-title('B')
+title('B', 'FontWeight','normal')
 
 % % Plot with different scenarios. ------------------------------------------
 % 

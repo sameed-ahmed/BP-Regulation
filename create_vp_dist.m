@@ -76,7 +76,7 @@ for sex_ind = 1:2 % sex
 % Parameters
 % load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
 %                               species{spe_ind},sex{sex_ind});
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_hyp = pars_rep(pars_ind,:);
@@ -87,7 +87,7 @@ num_sample = size(pars_rep,2);
 % Variables
 % load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
 %                               species{spe_ind},sex{sex_ind});
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 vars_hyp = SSdata_rep(vars_ind,:);
@@ -177,28 +177,28 @@ end % sex
 %% Plot parameters male and female together.
 
 % Load hypertensive and baseline parameters.
-load_data_name_pars = sprintf(  '%s_male_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', species{spe_ind});
+load_data_name_pars = sprintf(  '%s_male_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_bl_m = get_pars(species{spe_ind}, sex{1}, varargin_input{:});
 pars_hyp_m    = pars_rep (pars_ind,:);
 pars_hyp_bl_m = pars_bl_m(pars_ind  );
-load_data_name_pars = sprintf('%s_female_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', species{spe_ind});
+load_data_name_pars = sprintf('%s_female_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_bl_f = get_pars(species{spe_ind}, sex{2}, varargin_input{:});
 pars_hyp_f    = pars_rep (pars_ind,:);
-pars_hyp_bl_f = pars_bl_m(pars_ind  );
+pars_hyp_bl_f = pars_bl_f(pars_ind  );
 
 % Compute relative change in hypertensive parameters.
 pars_hyp_m = pars_hyp_m ./ pars_hyp_bl_m;
 pars_hyp_f = pars_hyp_f ./ pars_hyp_bl_f;
 
-par_bin_width = [0.1,0.4,0.2,0.15,0.15,0.1, 0.1,2];
+par_bin_width = [0.2,0.4,0.35,0.2,0.2,0.2,0.2,2];
 par_title = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
 
 % Plot parameters.
-g = figure('DefaultAxesFontSize',14);
+g1 = figure('DefaultAxesFontSize',14);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 11]);
-t = tiledlayout(4,2,'TileSpacing','Compact','Padding','Compact');
+t1 = tiledlayout(4,2,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
     nexttile
     h1 = histogram(pars_hyp_m(i,:),10);
@@ -219,8 +219,8 @@ for i = 1:pars_hyp_num
 end
 % ---
 g2 = figure('DefaultAxesFontSize',18);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 5]);
-t2 = tiledlayout(2,3,'TileSpacing','Compact','Padding','Compact');
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 15, 7]);
+t2 = tiledlayout(2,4,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
     nexttile
     h1 = histogram(pars_hyp_m(i,:),10);
@@ -234,21 +234,23 @@ for i = 1:pars_hyp_num
     xlabel_name = strcat(pars_names_des(i));
 %     xlabel(xlabel_name, 'FontSize',16) 
     xlabel(xlabel_name) 
-    title(par_title{i})
+    title(par_title{i}, 'FontWeight','normal')
     
     if i == 1
 %         legend('Male','Female', 'FontSize',10,'Location','Northeast');
         legend('Male','Female', 'Location','Northeast');
     end
 end
+ylabel(t2, 'Frequency', 'FontSize',18)
+xlabel(t2, 'Fold Change', 'FontSize',18)
 
 %% Save figures.
 
-% save_data_name = sprintf('par_var_dist1000NEW.fig');
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f(1,:),f(2,:),g1], save_data_name)
+save_data_name = sprintf('par_var_dist1000NEW.fig');
+save_data_name = strcat('Figures/', save_data_name);
+savefig([f(1,:),f(2,:),g1], save_data_name)
 % ---
-save_data_name = sprintf('par_var_dist1000.png');
+save_data_name = sprintf('par_var_dist1000NEW.png');
 save_data_name = strcat('Figures/', save_data_name);
 exportgraphics(g2, save_data_name)
 

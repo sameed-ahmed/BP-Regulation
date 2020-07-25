@@ -75,7 +75,7 @@ num_scen = length(scenario1);
 % AngII  - Ang II infusion fmol/(ml min)
 scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [4];
+fixed_ss2 = [2];
 
 % Species
 spe_ind = 2;
@@ -106,6 +106,7 @@ GFR_th = 25;
 % Pathophysiologically perturbed parameters
 pars_ind = [13;14;4;21;18;3;15;41];
 pars_hyp_num = length(pars_ind);
+%% par names + units
 pars_names   = {'$K_{bar}$'            , '$R_{bv}$'             , ...
                 '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
                 '$N_{als}^{eq}$'       , '$N_{rsna}$'           , ...
@@ -114,6 +115,11 @@ pars_units   = {'$\frac{mmHg}{ml/min}$', '$\frac{mmHg}{ml/min}$', ...
                 '$\frac{mmHg}{ml/min}$', '$-$'                  , ...
                 '$-$'                  , '$-$'                  , ...
                 '$-$'                  , '$-$'                  };
+pars_names_des = {'Arterial resist.'           , 'Venous resist.'              , ...
+                  'Afferent arteriolar resist.', 'Renin sec. rate'             , ...
+                  'Aldosterone sec. rate'      , 'Renal sympathetic nerve act.', ...
+                  'Antidiuretic hor. sec. rate', 'Myogenic effect strength'    };
+%%
 
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
@@ -127,14 +133,14 @@ num_vars = 93;
 % load_data_name_pars = sprintf(...
 %     '%s_male_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', species{spe_ind});
 load_data_name_pars = sprintf(...
-      '%s_male_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', species{spe_ind});
+      '%s_male_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 num_pars = size(pars_rep,1);
 pars_hyp_m = pars_rep(pars_ind,:);
 % load_data_name_pars = sprintf(...
 %     '%s_female_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', species{spe_ind});
 load_data_name_pars = sprintf(...
-    '%s_female_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', species{spe_ind});
+    '%s_female_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 num_pars = size(pars_rep,1);
 pars_hyp_f = pars_rep(pars_ind,:);
@@ -513,7 +519,7 @@ load(load_data_name_vars, ...
 
 %% Success Failure Overall
 
-% MAP success threshold indices
+% MAP success threshold indices - % change
 % X_rel_mean = X(var,         dose)
 % X_rel      = X(var, sample, dose)
 MAP_rel_mean_m = X_rel_mean_m(42,:);
@@ -548,7 +554,7 @@ num_succ_f = length(MAP_succ_ind_f); num_fail_f = length(MAP_fail_ind_f);
 % mean(MAP_target_f(MAP_succ_ind_f))
 % mean(MAP_target_f(MAP_fail_ind_f))
 
-% % MAP success threshold indices
+% % MAP success threshold indices - abs change
 % % X_ss_mean = X(var,         dose)
 % % X_ss      = X(var, sample, dose)
 % MAP_ss_mean_m = X_ss_mean_m(42,:);
@@ -643,6 +649,74 @@ pars_fail_m = pars_rel_m(:,MAP_fail_ind_m);
 % ---
 pars_succ_f = pars_rel_f(:,MAP_succ_ind_f);
 pars_fail_f = pars_rel_f(:,MAP_fail_ind_f);
+
+%% Success failure linear regression
+
+% Linear regression parameters
+r_par_reg_m = zeros(pars_hyp_num,1);
+p_par_reg_m = zeros(pars_hyp_num,1);
+b_par_reg_m = zeros(pars_hyp_num,2);
+y_par_reg_m = zeros(pars_hyp_num,num_samples);
+% r_par_reg2_m = zeros(pars_hyp_num,1);
+% SSres        = zeros(pars_hyp_num,1);
+% ybar_m = mean(MAP_target_m);
+% SStot = sum((MAP_target_m - ybar_m).^2);
+for i = 1:pars_hyp_num    
+    [b_par_reg_m(i,:),~,~,~,stats_par_reg_m] = ...
+        regress(MAP_target_m,[ones(num_samples,1),pars_rel_m(i,:)']);
+    r_par_reg_m(i) = stats_par_reg_m(1);
+    p_par_reg_m(i) = stats_par_reg_m(3);
+    
+    y_par_reg_m(i,:) = b_par_reg_m(i,1) + b_par_reg_m(i,2)*pars_rel_m(i,:);
+    
+%     SSres(i) = sum((MAP_target_m' - y_par_reg_m(i,:)).^2);
+%     r_par_reg2_m(i) = 1 - SSres(i)/SStot;
+end
+% [b_par_multi_reg_m,~,~,~,stats_par_multi_reg_m] = ...
+%     regress(MAP_target_m,[ones(num_samples,1),pars_rel_m(3:end,:)']);
+% r_par_multi_reg_m = stats_par_multi_reg_m(1);
+% p_par_multi_reg_m = stats_par_multi_reg_m(3);
+
+% ---
+r_par_reg_f = zeros(pars_hyp_num,1);
+p_par_reg_f = zeros(pars_hyp_num,1);
+b_par_reg_f = zeros(pars_hyp_num,2);
+y_par_reg_f = zeros(pars_hyp_num,num_samples);
+for i = 1:pars_hyp_num
+    [b_par_reg_f(i,:),~,~,~,stats_par_reg_f] = ...
+        regress(MAP_target_f, [ones(num_samples,1),pars_rel_f(i,:)']);
+    r_par_reg_f(i) = stats_par_reg_f(1);
+    p_par_reg_f(i) = stats_par_reg_f(3);
+    
+    y_par_reg_f(i,:) = b_par_reg_f(i,1) + b_par_reg_f(i,2)*pars_rel_f(i,:);
+end
+
+% Linear regression variables
+r_var_reg_m = zeros(num_vars,1);
+p_var_reg_m = zeros(num_vars,1);
+b_var_reg_m = zeros(num_vars,2);
+y_var_reg_m = zeros(num_vars,num_samples);
+for i = 1:num_vars
+    [b_var_reg_m(i,:),~,~,~,stats_var_reg_m] = ...
+        regress(MAP_target_m, [ones(num_samples,1),X_bl_m(i,:)']);
+    r_var_reg_m(i) = stats_var_reg_m(1);
+    p_var_reg_m(i) = stats_var_reg_m(3);
+    
+    y_var_reg_m(i,:) = b_var_reg_m(i,1) + b_var_reg_m(i,2)*X_bl_m(i,:);
+end
+% ---
+r_var_reg_f = zeros(num_vars,1);
+p_var_reg_f = zeros(num_vars,1);
+b_var_reg_f = zeros(num_vars,2);
+y_var_reg_f = zeros(num_vars,num_samples);
+for i = 1:num_vars
+    [b_var_reg_f(i,:),~,~,~,stats_var_reg_f] = ...
+        regress(MAP_target_f, [ones(num_samples,1),X_bl_f(i,:)']);
+    r_var_reg_f(i) = stats_var_reg_f(1);
+    p_var_reg_f(i) = stats_var_reg_f(3);
+    
+    y_var_reg_f(i,:) = b_var_reg_f(i,1) + b_var_reg_f(i,2)*X_bl_f(i,:);
+end
 
 %% % Plot success and failure.
 % 
@@ -1000,108 +1074,11 @@ pars_fail_f = pars_rel_f(:,MAP_fail_ind_f);
 
 %% Plot scatter plot of resulting target MAP vs predrug pars/vars.---------
 
-% Linear regression parameters
-r_par_reg_m = zeros(pars_hyp_num,1);
-p_par_reg_m = zeros(pars_hyp_num,1);
-b_par_reg_m = zeros(pars_hyp_num,2);
-y_par_reg_m = zeros(pars_hyp_num,num_samples);
-% r_par_reg2_m = zeros(pars_hyp_num,1);
-% SSres        = zeros(pars_hyp_num,1);
-% ybar_m = mean(MAP_target_m);
-% SStot = sum((MAP_target_m - ybar_m).^2);
-for i = 1:pars_hyp_num    
-    [b_par_reg_m(i,:),~,~,~,stats_par_reg_m] = ...
-        regress(MAP_target_m,[ones(num_samples,1),pars_rel_m(i,:)']);
-    r_par_reg_m(i) = stats_par_reg_m(1);
-    p_par_reg_m(i) = stats_par_reg_m(3);
-    
-    y_par_reg_m(i,:) = b_par_reg_m(i,1) + b_par_reg_m(i,2)*pars_rel_m(i,:);
-    
-%     SSres(i) = sum((MAP_target_m' - y_par_reg_m(i,:)).^2);
-%     r_par_reg2_m(i) = 1 - SSres(i)/SStot;
-end
-% [b_par_multi_reg_m,~,~,~,stats_par_multi_reg_m] = ...
-%     regress(MAP_target_m,[ones(num_samples,1),pars_rel_m(3:end,:)']);
-% r_par_multi_reg_m = stats_par_multi_reg_m(1);
-% p_par_multi_reg_m = stats_par_multi_reg_m(3);
-
-% ---
-r_par_reg_f = zeros(pars_hyp_num,1);
-p_par_reg_f = zeros(pars_hyp_num,1);
-b_par_reg_f = zeros(pars_hyp_num,2);
-y_par_reg_f = zeros(pars_hyp_num,num_samples);
-for i = 1:pars_hyp_num
-    [b_par_reg_f(i,:),~,~,~,stats_par_reg_f] = ...
-        regress(MAP_target_f, [ones(num_samples,1),pars_rel_f(i,:)']);
-    r_par_reg_f(i) = stats_par_reg_f(1);
-    p_par_reg_f(i) = stats_par_reg_f(3);
-    
-    y_par_reg_f(i,:) = b_par_reg_f(i,1) + b_par_reg_f(i,2)*pars_rel_f(i,:);
-end
-
-% Linear regression variables
-r_var_reg_m = zeros(num_vars,1);
-p_var_reg_m = zeros(num_vars,1);
-b_var_reg_m = zeros(num_vars,2);
-y_var_reg_m = zeros(num_vars,num_samples);
-for i = 1:num_vars
-    [b_var_reg_m(i,:),~,~,~,stats_var_reg_m] = ...
-        regress(MAP_target_m, [ones(num_samples,1),X_bl_m(i,:)']);
-    r_var_reg_m(i) = stats_var_reg_m(1);
-    p_var_reg_m(i) = stats_var_reg_m(3);
-    
-    y_var_reg_m(i,:) = b_var_reg_m(i,1) + b_var_reg_m(i,2)*X_bl_m(i,:);
-end
-% ---
-r_var_reg_f = zeros(num_vars,1);
-p_var_reg_f = zeros(num_vars,1);
-b_var_reg_f = zeros(num_vars,2);
-y_var_reg_f = zeros(num_vars,num_samples);
-for i = 1:num_vars
-    [b_var_reg_f(i,:),~,~,~,stats_var_reg_f] = ...
-        regress(MAP_target_f, [ones(num_samples,1),X_bl_f(i,:)']);
-    r_var_reg_f(i) = stats_var_reg_f(1);
-    p_var_reg_f(i) = stats_var_reg_f(3);
-    
-    y_var_reg_f(i,:) = b_var_reg_f(i,1) + b_var_reg_f(i,2)*X_bl_f(i,:);
-end
-
 par_title = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
 
-% legend(s2(1),'Male','Female', 'Location','east')
-% xlh = xlabel(s2(11),'Time (days)');
-% xlh.Position(2) = xlh.Position(2) - 0.0005;
-
-% scat_par_plot_m = figure('DefaultAxesFontSize',14);
-% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 7, 11]);
-% ssp_m = gobjects(1,pars_hyp_num);
-% for i = 1:pars_hyp_num
-%     ssp_m(i) = subplot(4,2,i);
-%     scatter(ssp_m(i), ...
-%         pars_rel_m(i,:),MAP_target_m,'MarkerEdgeColor',[0.203, 0.592, 0.835]);
-%     hold(ssp_m(i), 'on')
-%     plot(ssp_m(i), ...
-%         pars_rel_m(i,:),y_par_reg_m(i,:),'Color',[0.835, 0.203, 0.576])
-%     hold(ssp_m(i), 'off')
-% 
-%     reg_str = sprintf('r = %s', num2str(r_par_reg_m(i)));
-% %     annotation(scat_par_t_m(i), 'textbox',[0 0 0.1 0.1],'String',reg_str)
-%     annotation('textbox','String',reg_str)
-% 
-%     xlabel_name = strcat(pars_names(i));
-%     xlabel(ssp_m(i), xlabel_name, 'Interpreter','latex', 'FontSize',16) 
-%     ylabel(ssp_m(i), 'MAP');% (mmHg)')
-%     
-% %     reg_str = sprintf(', r1 = %s, r2 = %s', ...
-% %         num2str(r_par_reg1_m(i)), num2str(r_par_reg2_m(i)));
-%     reg_str = sprintf(', r = %s', num2str(r_par_reg_m(i)));
-%     reg_str = strcat(par_title{i}, reg_str);
-%     title(reg_str)
-% end
-
 % Plot parameters.
-scat_par_plot_m = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 11, 7]);
+scat_par_plot_m = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 15, 7]);
 scat_par_t_m = tiledlayout(2,4,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
     nexttile
@@ -1110,26 +1087,28 @@ for i = 1:pars_hyp_num
     plot(pars_rel_m(i,:),y_par_reg_m(i,:),'Color','k')
     hold off
 
-    reg_str = sprintf('r = %s', num2str(r_par_reg_m(i)));
-    text(0.05,0.05, reg_str, 'Units','normalized', 'FontWeight','bold')
+    reg_str = sprintf('$r^{2} = %s$', num2str(r_par_reg_m(i)));
+    text(0.05,0.05, reg_str, 'Units','normalized', ...
+        'Interpreter','latex', 'FontSize',16)
 
-    xlabel_name = strcat(pars_names(i));
-    xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+    xlabel_name = strcat(pars_names_des(i));
+%     xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+    xlabel(xlabel_name) 
 %     ylabel('MAP (mmHg)')
 %     ylabel('% \DeltaMAP')
     
 %     reg_str = sprintf(', r = %s', num2str(r_par_reg_m(i)));
 %     reg_str = strcat(par_title{i}, reg_str);
 %     title(reg_str)
-    title(par_title{i})
+    title(par_title{i}, 'FontWeight','normal')
 end
-ylabel(scat_par_t_m, '% \DeltaMAP', 'FontSize',16)
-whole_title = sprintf('Male Variables %s %s%%', ...
+ylabel(scat_par_t_m, '% \DeltaMAP', 'FontSize',18)
+whole_title = sprintf('Male Parameters %s %s%%', ...
     scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_m)*100));
-sgtitle(scat_par_t_m, whole_title, 'FontSize',16)
+sgtitle(scat_par_t_m, whole_title, 'FontSize',18)
 % ---
-scat_par_plot_f = figure('DefaultAxesFontSize',14);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 11, 7]);
+scat_par_plot_f = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 15, 7]);
 scat_par_t_f = tiledlayout(2,4,'TileSpacing','Compact','Padding','Compact');
 for i = 1:pars_hyp_num
     nexttile
@@ -1138,23 +1117,25 @@ for i = 1:pars_hyp_num
     plot(pars_rel_f(i,:),y_par_reg_f(i,:),'Color','k')
     hold off
 
-    reg_str = sprintf('r = %s', num2str(r_par_reg_f(i)));
-    text(0.05,0.05, reg_str, 'Units','normalized', 'FontWeight','bold')
+    reg_str = sprintf('$r^{2} = %s$', num2str(r_par_reg_f(i)));
+    text(0.05,0.05, reg_str, 'Units','normalized', ...
+        'Interpreter','latex', 'FontSize',16)
 
-    xlabel_name = strcat(pars_names(i));
-    xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+    xlabel_name = strcat(pars_names_des(i));
+%     xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+    xlabel(xlabel_name) 
 %     ylabel('MAP (mmHg)')
 %     ylabel('% \DeltaMAP')
     
 %     reg_str = sprintf(', r = %s', num2str(r_par_reg_f(i)));
 %     reg_str = strcat(par_title{i}, reg_str);
 %     title(reg_str)
-    title(par_title{i})
+    title(par_title{i}, 'FontWeight','normal')
 end
-ylabel(scat_par_t_f, '% \DeltaMAP', 'FontSize',16)
-whole_title = sprintf('Female Variables %s %s%%', ...
+ylabel(scat_par_t_f, '% \DeltaMAP', 'FontSize',18)
+whole_title = sprintf('Female Parameters %s %s%%', ...
     scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_f)*100));
-sgtitle(scat_par_t_f, whole_title, 'FontSize',16)
+sgtitle(scat_par_t_f, whole_title, 'FontSize',18)
 
 % Plot variables
 scat_var_plot_m = gobjects(7,1);
@@ -1182,8 +1163,8 @@ for i = 1:7
         xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16)
         ylabel('MAP')
 
-        reg_str = sprintf('r = %s', num2str(r_var_reg_m((i-1)*15 + j)));
-        title(reg_str)
+        reg_str = sprintf('$r^{2} = %s$', num2str(r_var_reg_m((i-1)*15 + j)));
+        title(reg_str,'Interpreter','latex')
 %         legend('Male', 'Female')
     end
     hist_title = sprintf('Male Variables %s %s%%', ...
@@ -1216,8 +1197,8 @@ for i = 1:7
         xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16)
         ylabel('MAP')
 
-        reg_str = sprintf('r = %s', num2str(r_var_reg_f((i-1)*15 + j)));
-        title(reg_str)
+        reg_str = sprintf('$r^{2} = %s$', num2str(r_var_reg_f((i-1)*15 + j)));
+        title(reg_str,'Interpreter','latex')
 %         legend('Male', 'Female')
     end
     hist_title = sprintf('Female Variables %s %s%%', ...
@@ -1227,6 +1208,12 @@ end
 
 %% % Save figures and data.
 
+% % Save all vars rel change vs dose --------------------------------------
+% save_data_name = sprintf('dose_response_rel_%s.fig', scenario2{fixed_ss2});
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig(f_dose_res_rel, save_data_name)
+
+% % Save ? ----------------------------------------------------------------
 % save_data_name = sprintf('success_failure_MAP_%s%s%%.fig', ...
 %                          scenario2{fixed_ss2},num2str(drug_dose*100));
 % save_data_name = strcat('Figures/', save_data_name);
@@ -1290,14 +1277,21 @@ end
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([f_dose_res_rel], save_data_name)
 
-% % Save regression -------------------------------------------------------
-% save_data_name = sprintf('scat_plot_%s_MAP%s.fig', ...
-%                          scenario2{fixed_ss2}, num2str(MAP_th));
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([scat_par_plot_m; scat_par_plot_f; ...
-%          scat_var_plot_m; scat_var_plot_f], save_data_name)
-
-
+% Save regression -------------------------------------------------------
+save_data_name = sprintf('scat_plot_%s_MAP%s.fig', ...
+                         scenario2{fixed_ss2}, num2str(MAP_th));
+save_data_name = strcat('Figures/', save_data_name);
+savefig([scat_par_plot_m; scat_par_plot_f; ...
+         scat_var_plot_m; scat_var_plot_f], save_data_name)
+% ---
+save_data_name = sprintf('scat_plot_m_%s_MAP%s.png', ...
+                         scenario2{fixed_ss2}, num2str(MAP_th));
+save_data_name = strcat('Figures/', save_data_name);
+exportgraphics(scat_par_plot_m, save_data_name)
+save_data_name = sprintf('scat_plot_f_%s_MAP%s.png', ...
+                         scenario2{fixed_ss2}, num2str(MAP_th));
+save_data_name = strcat('Figures/', save_data_name);
+exportgraphics(scat_par_plot_f, save_data_name)
 
 end
 

@@ -72,7 +72,7 @@ num_scen = length(scenario1);
 % AngII  - Ang II infusion fmol/(ml min)
 scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [2];
+fixed_ss2 = [5];
 
 % Species
 spe_ind = 2;
@@ -86,11 +86,11 @@ N = (days+1)*100 + 1;
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
 % sample_num = 42 % male and female MAP similar
-sample_num = 208
+sample_num = 119
 % sample_num = 655
 
 % Drug dose
-drug_dose = 0.5
+drug_dose = 0.50
 drug_dose_vaso = 0           % DIU
 % a = 3; b = 1;
 a = 11/9; b = 1/9;
