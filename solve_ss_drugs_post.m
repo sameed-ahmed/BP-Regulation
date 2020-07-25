@@ -75,7 +75,7 @@ num_scen = length(scenario1);
 % AngII  - Ang II infusion fmol/(ml min)
 scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [2];
+fixed_ss2 = [5];
 
 % Species
 spe_ind = 2;
@@ -170,59 +170,117 @@ load(load_data_name_vars, ...
      'X_bl_f' , 'X_bl_mean_f' , 'X_bl_std_f' , ...
      'X_rel_f', 'X_rel_mean_f', 'X_rel_std_f');
 
-%% % Plot all vars vs dose. 
-% 
-% % x-axis
-% xscale = drug_dose * 100;
-% xlower = drug_dose(1) * 100; xupper = drug_dose(end) * 100; 
-% 
-% % y-axis limits
-% ylower = zeros(num_vars,1); yupper = ylower; 
-% for i = 1:length(ylower)
-%     ylower(i) = 0.95*min( min(X_rel_mean_m(i,:)), min(X_rel_mean_f(i,:)) );
-%     yupper(i) = 1.05*max( max(X_rel_mean_m(i,:)), max(X_rel_mean_f(i,:)) );
-%     if abs(yupper(i)) < eps*100
-%         ylower(i) = -10^(-5); yupper(i) = 10^(-5);
-%     end
-% end
-% 
-% f_dose_res_rel = gobjects(7,1);
-% s1 = gobjects(7,15);
-% % Loop through each set of subplots.
-% for i = 1:7
-%     f_dose_res_rel(i) = figure('pos',[750 500 650 450]);
-%     % This is to avoid the empty plots in the last subplot set.
-%     if i == 7
-%         last_plot = mod(num_vars, 15);
-%     else
-%         last_plot = 15;
-%     end
-%     % Loop through each subplot within a set of subplots.
-%     for j = 1:last_plot
-%         s1(i,j) = subplot(3,5,j);
-% %         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
-%         
-% %         plot(s1(i,j), xscale,X_ss_mean_m ((i-1)*15 + j,:),'b-' , ...
-% %                       xscale,X_ss_mean_f ((i-1)*15 + j,:),'r-' );
-% %         hold(s1(i,j), 'on')
-% %         plot(s1(i,j), xscale,X_ss_lower_m((i-1)*15 + j,:),'b--', ...
-% %                       xscale,X_ss_lower_f((i-1)*15 + j,:),'r--');
-% %         plot(s1(i,j), xscale,X_ss_upper_m((i-1)*15 + j,:),'b--', ...
-% %                       xscale,X_ss_upper_f((i-1)*15 + j,:),'r--');
-% %         hold(s1(i,j), 'off')
-% 
-%         plot(s1(i,j), xscale,X_rel_mean_m ((i-1)*15 + j,:),'b-' , ...
-%                       xscale,X_rel_mean_f ((i-1)*15 + j,:),'r-' );
-%         
-% %         xlim([xlower, xupper])
-% %         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
-% 
-%         xlabel_name = strcat(scenario2{fixed_ss2}, ' %');
-%         xlabel(xlabel_name, 'FontSize',12)
-%         title(var_names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
-% %         legend('Male', 'Female')
-%     end
-% end
+% Compute 95% confidence interval
+X_bl_lower_m  = X_bl_mean_m  - 2*X_bl_std_m ; X_bl_upper_m  = X_bl_mean_m  + 2*X_bl_std_m ;
+X_ss_lower_m  = X_ss_mean_m  - 2*X_ss_std_m ; X_ss_upper_m  = X_ss_mean_m  + 2*X_ss_std_m ;
+X_rel_lower_m = X_rel_mean_m - 2*X_rel_std_m; X_rel_upper_m = X_rel_mean_m + 2*X_rel_std_m;
+% ---
+X_bl_lower_f  = X_bl_mean_f  - 2*X_bl_std_f ; X_bl_upper_f  = X_bl_mean_f  + 2*X_bl_std_f ;
+X_ss_lower_f  = X_ss_mean_f  - 2*X_ss_std_f ; X_ss_upper_f  = X_ss_mean_f  + 2*X_ss_std_f ;
+X_rel_lower_f = X_rel_mean_f - 2*X_rel_std_f; X_rel_upper_f = X_rel_mean_f + 2*X_rel_std_f;
+
+%% Plot all vars vs dose. 
+
+% x-axis
+xscale = drug_dose * 100;
+xlower = drug_dose(1) * 100; xupper = drug_dose(end) * 100; 
+
+% y-axis limits
+ylower = zeros(num_vars,1); yupper = ylower; 
+for i = 1:length(ylower)
+    ylower(i) = 0.95*min( min(X_rel_mean_m(i,:)), min(X_rel_mean_f(i,:)) );
+    yupper(i) = 1.05*max( max(X_rel_mean_m(i,:)), max(X_rel_mean_f(i,:)) );
+    if abs(yupper(i)) < eps*100
+        ylower(i) = -10^(-5); yupper(i) = 10^(-5);
+    end
+end
+
+f_dose_res_rel = gobjects(7,1);
+s1 = gobjects(7,15);
+% Loop through each set of subplots.
+for i = 1:7
+    f_dose_res_rel(i) = figure('pos',[750 500 650 450]);
+    % This is to avoid the empty plots in the last subplot set.
+    if i == 7
+        last_plot = mod(num_vars, 15);
+    else
+        last_plot = 15;
+    end
+    % Loop through each subplot within a set of subplots.
+    for j = 1:last_plot
+        s1(i,j) = subplot(3,5,j);
+%         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
+        
+%         plot(s1(i,j), xscale,X_ss_mean_m ((i-1)*15 + j,:),'b-' , ...
+%                       xscale,X_ss_mean_f ((i-1)*15 + j,:),'r-' );
+%         hold(s1(i,j), 'on')
+%         plot(s1(i,j), xscale,X_ss_lower_m((i-1)*15 + j,:),'b--', ...
+%                       xscale,X_ss_lower_f((i-1)*15 + j,:),'r--');
+%         plot(s1(i,j), xscale,X_ss_upper_m((i-1)*15 + j,:),'b--', ...
+%                       xscale,X_ss_upper_f((i-1)*15 + j,:),'r--');
+%         hold(s1(i,j), 'off')
+
+        plot(s1(i,j), xscale,X_rel_mean_m ((i-1)*15 + j,:),'b-' , ...
+                      xscale,X_rel_mean_f ((i-1)*15 + j,:),'r-' );
+        
+%         xlim([xlower, xupper])
+%         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
+
+        xlabel_name = strcat(scenario2{fixed_ss2}, ' %');
+        xlabel(xlabel_name, 'FontSize',12)
+        title(var_names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
+%         legend('Male', 'Female')
+    end
+end
+
+%% Plot Mean Arterial Pressure. 
+
+% Actual and % change in MAP. 
+MAP_ss_mean_m  = X_ss_mean_m (42,:);
+MAP_ss_lower_m = X_ss_lower_m(42,:);
+MAP_ss_upper_m = X_ss_upper_m(42,:);
+MAP_rel_mean_m  = X_rel_mean_m (42,:);
+MAP_rel_lower_m = X_rel_lower_m(42,:);
+MAP_rel_upper_m = X_rel_upper_m(42,:);
+% ---
+MAP_ss_mean_f  = X_ss_mean_f (42,:);
+MAP_ss_lower_f = X_ss_lower_f(42,:);
+MAP_ss_upper_f = X_ss_upper_f(42,:);
+MAP_rel_mean_f  = X_rel_mean_f (42,:);
+MAP_rel_lower_f = X_rel_lower_f(42,:);
+MAP_rel_upper_f = X_rel_upper_f(42,:);
+
+dose_res_MAP = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 4]);
+t2 = tiledlayout(1,2,'TileSpacing','Normal','Padding','Compact');
+nexttile
+plot(xscale,MAP_ss_mean_m , '-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('MAP (mmHg)');
+hold on
+plot(xscale,MAP_ss_mean_f , '-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ss_lower_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_ss_lower_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_ss_upper_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_ss_upper_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
+hold off
+legend('Male', 'Female')
+title('A', 'FontWeight','normal')
+% ---
+nexttile
+plot(xscale,MAP_rel_mean_m , '-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('% \DeltaMAP');
+hold on
+plot(xscale,MAP_rel_mean_f , '-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_rel_lower_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_rel_lower_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_rel_upper_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_rel_upper_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
+hold off
+title('B', 'FontWeight','normal')
 
 %% % Post processing
 % 
@@ -517,50 +575,15 @@ load(load_data_name_vars, ...
 % pars_success_f = pars_rel_f(:,MAP_success_ind_f);
 % pars_failure_f = pars_rel_f(:,MAP_failure_ind_f);
 
-%% Success Failure Overall
-
-% MAP success threshold indices - % change
-% X_rel_mean = X(var,         dose)
-% X_rel      = X(var, sample, dose)
-MAP_rel_mean_m = X_rel_mean_m(42,:);
-dose_target_ind_m = find(abs(MAP_rel_mean_m) <= abs(MAP_th), 1,'last');
-MAP_rel_m = reshape(X_rel_m(42,:,:), [num_samples,num_dose]);
-MAP_target_m = MAP_rel_m(:,dose_target_ind_m);
-% mean(MAP_target_m)
-MAP_succ_m = mean(MAP_target_m) - std(MAP_target_m);
-MAP_fail_m = mean(MAP_target_m) + std(MAP_target_m);
-MAP_succ_ind_m = find(MAP_target_m <= MAP_succ_m);
-MAP_fail_ind_m = find(MAP_target_m >= MAP_fail_m);
-% length(MAP_succ_ind_m)
-% length(MAP_fail_ind_m)
-% intersect(MAP_succ_ind_m, MAP_fail_ind_m)
-num_succ_m = length(MAP_succ_ind_m); num_fail_m = length(MAP_fail_ind_m); 
-% mean(MAP_target_m(MAP_succ_ind_m))
-% mean(MAP_target_m(MAP_fail_ind_m))
-% ---
-MAP_rel_mean_f = X_rel_mean_f(42,:);
-dose_target_ind_f = find(abs(MAP_rel_mean_f) <= abs(MAP_th), 1,'last');
-MAP_rel_f = reshape(X_rel_f(42,:,:), [num_samples,num_dose]);
-MAP_target_f = MAP_rel_f(:,dose_target_ind_f);
-% mean(MAP_target_f)
-MAP_succ_f = mean(MAP_target_f) - std(MAP_target_f);
-MAP_fail_f = mean(MAP_target_f) + std(MAP_target_f);
-MAP_succ_ind_f = find(MAP_target_f <= MAP_succ_f);
-MAP_fail_ind_f = find(MAP_target_f >= MAP_fail_f);
-% length(MAP_succ_ind_f)
-% length(MAP_fail_ind_f)
-% intersect(MAP_succ_ind_f, MAP_fail_ind_f)
-num_succ_f = length(MAP_succ_ind_f); num_fail_f = length(MAP_fail_ind_f); 
-% mean(MAP_target_f(MAP_succ_ind_f))
-% mean(MAP_target_f(MAP_fail_ind_f))
-
-% % MAP success threshold indices - abs change
-% % X_ss_mean = X(var,         dose)
-% % X_ss      = X(var, sample, dose)
-% MAP_ss_mean_m = X_ss_mean_m(42,:);
-% dose_target_ind_m = find(MAP_ss_mean_m >= MAP_th, 1,'last');
-% MAP_ss_m = reshape(X_ss_m(42,:,:), [num_samples,num_dose]);
-% MAP_target_m = MAP_ss_m(:,dose_target_ind_m);
+%% % Success Failure Overall
+% 
+% % MAP success threshold indices - % change
+% % X_rel_mean = X(var,         dose)
+% % X_rel      = X(var, sample, dose)
+% MAP_rel_mean_m = X_rel_mean_m(42,:);
+% dose_target_ind_m = find(abs(MAP_rel_mean_m) <= abs(MAP_th), 1,'last');
+% MAP_rel_m = reshape(X_rel_m(42,:,:), [num_samples,num_dose]);
+% MAP_target_m = MAP_rel_m(:,dose_target_ind_m);
 % % mean(MAP_target_m)
 % MAP_succ_m = mean(MAP_target_m) - std(MAP_target_m);
 % MAP_fail_m = mean(MAP_target_m) + std(MAP_target_m);
@@ -573,10 +596,10 @@ num_succ_f = length(MAP_succ_ind_f); num_fail_f = length(MAP_fail_ind_f);
 % % mean(MAP_target_m(MAP_succ_ind_m))
 % % mean(MAP_target_m(MAP_fail_ind_m))
 % % ---
-% MAP_ss_mean_f = X_ss_mean_f(42,:);
-% dose_target_ind_f = find(MAP_ss_mean_f >= MAP_th, 1,'last');
-% MAP_ss_f = reshape(X_ss_f(42,:,:), [num_samples,num_dose]);
-% MAP_target_f = MAP_ss_f(:,dose_target_ind_f);
+% MAP_rel_mean_f = X_rel_mean_f(42,:);
+% dose_target_ind_f = find(abs(MAP_rel_mean_f) <= abs(MAP_th), 1,'last');
+% MAP_rel_f = reshape(X_rel_f(42,:,:), [num_samples,num_dose]);
+% MAP_target_f = MAP_rel_f(:,dose_target_ind_f);
 % % mean(MAP_target_f)
 % MAP_succ_f = mean(MAP_target_f) - std(MAP_target_f);
 % MAP_fail_f = mean(MAP_target_f) + std(MAP_target_f);
@@ -588,135 +611,170 @@ num_succ_f = length(MAP_succ_ind_f); num_fail_f = length(MAP_fail_ind_f);
 % num_succ_f = length(MAP_succ_ind_f); num_fail_f = length(MAP_fail_ind_f); 
 % % mean(MAP_target_f(MAP_succ_ind_f))
 % % mean(MAP_target_f(MAP_fail_ind_f))
+% 
+% % % MAP success threshold indices - abs change
+% % % X_ss_mean = X(var,         dose)
+% % % X_ss      = X(var, sample, dose)
+% % MAP_ss_mean_m = X_ss_mean_m(42,:);
+% % dose_target_ind_m = find(MAP_ss_mean_m >= MAP_th, 1,'last');
+% % MAP_ss_m = reshape(X_ss_m(42,:,:), [num_samples,num_dose]);
+% % MAP_target_m = MAP_ss_m(:,dose_target_ind_m);
+% % % mean(MAP_target_m)
+% % MAP_succ_m = mean(MAP_target_m) - std(MAP_target_m);
+% % MAP_fail_m = mean(MAP_target_m) + std(MAP_target_m);
+% % MAP_succ_ind_m = find(MAP_target_m <= MAP_succ_m);
+% % MAP_fail_ind_m = find(MAP_target_m >= MAP_fail_m);
+% % % length(MAP_succ_ind_m)
+% % % length(MAP_fail_ind_m)
+% % % intersect(MAP_succ_ind_m, MAP_fail_ind_m)
+% % num_succ_m = length(MAP_succ_ind_m); num_fail_m = length(MAP_fail_ind_m); 
+% % % mean(MAP_target_m(MAP_succ_ind_m))
+% % % mean(MAP_target_m(MAP_fail_ind_m))
+% % % ---
+% % MAP_ss_mean_f = X_ss_mean_f(42,:);
+% % dose_target_ind_f = find(MAP_ss_mean_f >= MAP_th, 1,'last');
+% % MAP_ss_f = reshape(X_ss_f(42,:,:), [num_samples,num_dose]);
+% % MAP_target_f = MAP_ss_f(:,dose_target_ind_f);
+% % % mean(MAP_target_f)
+% % MAP_succ_f = mean(MAP_target_f) - std(MAP_target_f);
+% % MAP_fail_f = mean(MAP_target_f) + std(MAP_target_f);
+% % MAP_succ_ind_f = find(MAP_target_f <= MAP_succ_f);
+% % MAP_fail_ind_f = find(MAP_target_f >= MAP_fail_f);
+% % % length(MAP_succ_ind_f)
+% % % length(MAP_fail_ind_f)
+% % % intersect(MAP_succ_ind_f, MAP_fail_ind_f)
+% % num_succ_f = length(MAP_succ_ind_f); num_fail_f = length(MAP_fail_ind_f); 
+% % % mean(MAP_target_f(MAP_succ_ind_f))
+% % % mean(MAP_target_f(MAP_fail_ind_f))
+% 
+% % Success/failure hypertensive variables before drug dose.
+% % X_bl = X(var, sample)
+% X_succ_m = X_bl_m(:,MAP_succ_ind_m);
+% X_fail_m = X_bl_m(:,MAP_fail_ind_m);
+% % ---
+% X_succ_f = X_bl_f(:,MAP_succ_ind_f);
+% X_fail_f = X_bl_f(:,MAP_fail_ind_f);
+% 
+% % Success/failure hypertensive variables before drug dose mean and standard deviation.
+% X_succ_mean_m = mean(X_succ_m,  2); 
+% X_fail_mean_m = mean(X_fail_m,  2); 
+% X_succ_std_m  = std (X_succ_m,0,2); 
+% X_fail_std_m  = std (X_fail_m,0,2); 
+% % ---
+% X_succ_mean_f = mean(X_succ_f,  2);
+% X_fail_mean_f = mean(X_fail_f,  2);
+% X_succ_std_f  = std (X_succ_f,0,2);
+% X_fail_std_f  = std (X_fail_f,0,2);
+% 
+% % Relative change between variables before drug dose
+% X_sf_rel_m = (X_succ_mean_m - X_fail_mean_m) ./ X_succ_mean_m * 100;
+% % ---
+% X_sf_rel_f = (X_succ_mean_f - X_fail_mean_f) ./ X_succ_mean_f * 100;
+% 
+% % Round to 3 significant digits.
+% X_succ_mean_m = round(X_succ_mean_m,3,'significant');
+% X_fail_mean_m = round(X_fail_mean_m,3,'significant');
+% X_succ_std_m  = round(X_succ_std_m, 3,'significant');
+% X_fail_std_m  = round(X_fail_std_m, 3,'significant');
+% X_sf_rel_m    = round(X_sf_rel_m,   3,'significant');
+% X_succ_m      = round(X_succ_m,     3,'significant');
+% X_fail_m      = round(X_fail_m,     3,'significant');
+% % ---
+% X_succ_mean_f = round(X_succ_mean_f,3,'significant');
+% X_fail_mean_f = round(X_fail_mean_f,3,'significant');
+% X_succ_std_f  = round(X_succ_std_f, 3,'significant');
+% X_fail_std_f  = round(X_fail_std_f, 3,'significant');
+% X_sf_rel_f    = round(X_sf_rel_f,   3,'significant');
+% X_succ_f      = round(X_succ_f,     3,'significant');
+% X_fail_f      = round(X_fail_f,     3,'significant');
+% 
+% % Compute statistical significance of difference between success and
+% % failure variables before treatment.
+% [h_m,p_m] = ttest2(X_succ_m',X_fail_m');
+% sig_m = [p_m',h_m']; 
+% % ---
+% [h_f,p_f] = ttest2(X_succ_f',X_fail_f');
+% sig_f = [p_f',h_f'];
+% 
+% % Compute relative change in parameters.
+% pars_rel_m = (pars_hyp_m(:,:) - pars_bl_m(:)) ./ pars_bl_m(:) * 100;
+% % ---
+% pars_rel_f = (pars_hyp_f(:,:) - pars_bl_f(:)) ./ pars_bl_f(:) * 100;
+% 
+% % Success/failure relative change in parameters from normotensive to hypertensive.
+% pars_succ_m = pars_rel_m(:,MAP_succ_ind_m);
+% pars_fail_m = pars_rel_m(:,MAP_fail_ind_m);
+% % ---
+% pars_succ_f = pars_rel_f(:,MAP_succ_ind_f);
+% pars_fail_f = pars_rel_f(:,MAP_fail_ind_f);
 
-% Success/failure hypertensive variables before drug dose.
-% X_bl = X(var, sample)
-X_succ_m = X_bl_m(:,MAP_succ_ind_m);
-X_fail_m = X_bl_m(:,MAP_fail_ind_m);
-% ---
-X_succ_f = X_bl_f(:,MAP_succ_ind_f);
-X_fail_f = X_bl_f(:,MAP_fail_ind_f);
-
-% Success/failure hypertensive variables before drug dose mean and standard deviation.
-X_succ_mean_m = mean(X_succ_m,  2); 
-X_fail_mean_m = mean(X_fail_m,  2); 
-X_succ_std_m  = std (X_succ_m,0,2); 
-X_fail_std_m  = std (X_fail_m,0,2); 
-% ---
-X_succ_mean_f = mean(X_succ_f,  2);
-X_fail_mean_f = mean(X_fail_f,  2);
-X_succ_std_f  = std (X_succ_f,0,2);
-X_fail_std_f  = std (X_fail_f,0,2);
-
-% Relative change between variables before drug dose
-X_sf_rel_m = (X_succ_mean_m - X_fail_mean_m) ./ X_succ_mean_m * 100;
-% ---
-X_sf_rel_f = (X_succ_mean_f - X_fail_mean_f) ./ X_succ_mean_f * 100;
-
-% Round to 3 significant digits.
-X_succ_mean_m = round(X_succ_mean_m,3,'significant');
-X_fail_mean_m = round(X_fail_mean_m,3,'significant');
-X_succ_std_m  = round(X_succ_std_m, 3,'significant');
-X_fail_std_m  = round(X_fail_std_m, 3,'significant');
-X_sf_rel_m    = round(X_sf_rel_m,   3,'significant');
-X_succ_m      = round(X_succ_m,     3,'significant');
-X_fail_m      = round(X_fail_m,     3,'significant');
-% ---
-X_succ_mean_f = round(X_succ_mean_f,3,'significant');
-X_fail_mean_f = round(X_fail_mean_f,3,'significant');
-X_succ_std_f  = round(X_succ_std_f, 3,'significant');
-X_fail_std_f  = round(X_fail_std_f, 3,'significant');
-X_sf_rel_f    = round(X_sf_rel_f,   3,'significant');
-X_succ_f      = round(X_succ_f,     3,'significant');
-X_fail_f      = round(X_fail_f,     3,'significant');
-
-% Compute statistical significance of difference between success and
-% failure variables before treatment.
-[h_m,p_m] = ttest2(X_succ_m',X_fail_m');
-sig_m = [p_m',h_m']; 
-% ---
-[h_f,p_f] = ttest2(X_succ_f',X_fail_f');
-sig_f = [p_f',h_f'];
-
-% Compute relative change in parameters.
-pars_rel_m = (pars_hyp_m(:,:) - pars_bl_m(:)) ./ pars_bl_m(:) * 100;
-% ---
-pars_rel_f = (pars_hyp_f(:,:) - pars_bl_f(:)) ./ pars_bl_f(:) * 100;
-
-% Success/failure relative change in parameters from normotensive to hypertensive.
-pars_succ_m = pars_rel_m(:,MAP_succ_ind_m);
-pars_fail_m = pars_rel_m(:,MAP_fail_ind_m);
-% ---
-pars_succ_f = pars_rel_f(:,MAP_succ_ind_f);
-pars_fail_f = pars_rel_f(:,MAP_fail_ind_f);
-
-%% Success failure linear regression
-
-% Linear regression parameters
-r_par_reg_m = zeros(pars_hyp_num,1);
-p_par_reg_m = zeros(pars_hyp_num,1);
-b_par_reg_m = zeros(pars_hyp_num,2);
-y_par_reg_m = zeros(pars_hyp_num,num_samples);
-% r_par_reg2_m = zeros(pars_hyp_num,1);
-% SSres        = zeros(pars_hyp_num,1);
-% ybar_m = mean(MAP_target_m);
-% SStot = sum((MAP_target_m - ybar_m).^2);
-for i = 1:pars_hyp_num    
-    [b_par_reg_m(i,:),~,~,~,stats_par_reg_m] = ...
-        regress(MAP_target_m,[ones(num_samples,1),pars_rel_m(i,:)']);
-    r_par_reg_m(i) = stats_par_reg_m(1);
-    p_par_reg_m(i) = stats_par_reg_m(3);
-    
-    y_par_reg_m(i,:) = b_par_reg_m(i,1) + b_par_reg_m(i,2)*pars_rel_m(i,:);
-    
-%     SSres(i) = sum((MAP_target_m' - y_par_reg_m(i,:)).^2);
-%     r_par_reg2_m(i) = 1 - SSres(i)/SStot;
-end
-% [b_par_multi_reg_m,~,~,~,stats_par_multi_reg_m] = ...
-%     regress(MAP_target_m,[ones(num_samples,1),pars_rel_m(3:end,:)']);
-% r_par_multi_reg_m = stats_par_multi_reg_m(1);
-% p_par_multi_reg_m = stats_par_multi_reg_m(3);
-
-% ---
-r_par_reg_f = zeros(pars_hyp_num,1);
-p_par_reg_f = zeros(pars_hyp_num,1);
-b_par_reg_f = zeros(pars_hyp_num,2);
-y_par_reg_f = zeros(pars_hyp_num,num_samples);
-for i = 1:pars_hyp_num
-    [b_par_reg_f(i,:),~,~,~,stats_par_reg_f] = ...
-        regress(MAP_target_f, [ones(num_samples,1),pars_rel_f(i,:)']);
-    r_par_reg_f(i) = stats_par_reg_f(1);
-    p_par_reg_f(i) = stats_par_reg_f(3);
-    
-    y_par_reg_f(i,:) = b_par_reg_f(i,1) + b_par_reg_f(i,2)*pars_rel_f(i,:);
-end
-
-% Linear regression variables
-r_var_reg_m = zeros(num_vars,1);
-p_var_reg_m = zeros(num_vars,1);
-b_var_reg_m = zeros(num_vars,2);
-y_var_reg_m = zeros(num_vars,num_samples);
-for i = 1:num_vars
-    [b_var_reg_m(i,:),~,~,~,stats_var_reg_m] = ...
-        regress(MAP_target_m, [ones(num_samples,1),X_bl_m(i,:)']);
-    r_var_reg_m(i) = stats_var_reg_m(1);
-    p_var_reg_m(i) = stats_var_reg_m(3);
-    
-    y_var_reg_m(i,:) = b_var_reg_m(i,1) + b_var_reg_m(i,2)*X_bl_m(i,:);
-end
-% ---
-r_var_reg_f = zeros(num_vars,1);
-p_var_reg_f = zeros(num_vars,1);
-b_var_reg_f = zeros(num_vars,2);
-y_var_reg_f = zeros(num_vars,num_samples);
-for i = 1:num_vars
-    [b_var_reg_f(i,:),~,~,~,stats_var_reg_f] = ...
-        regress(MAP_target_f, [ones(num_samples,1),X_bl_f(i,:)']);
-    r_var_reg_f(i) = stats_var_reg_f(1);
-    p_var_reg_f(i) = stats_var_reg_f(3);
-    
-    y_var_reg_f(i,:) = b_var_reg_f(i,1) + b_var_reg_f(i,2)*X_bl_f(i,:);
-end
+%% % Success failure linear regression
+% 
+% % Linear regression parameters
+% r_par_reg_m = zeros(pars_hyp_num,1);
+% p_par_reg_m = zeros(pars_hyp_num,1);
+% b_par_reg_m = zeros(pars_hyp_num,2);
+% y_par_reg_m = zeros(pars_hyp_num,num_samples);
+% % r_par_reg2_m = zeros(pars_hyp_num,1);
+% % SSres        = zeros(pars_hyp_num,1);
+% % ybar_m = mean(MAP_target_m);
+% % SStot = sum((MAP_target_m - ybar_m).^2);
+% for i = 1:pars_hyp_num    
+%     [b_par_reg_m(i,:),~,~,~,stats_par_reg_m] = ...
+%         regress(MAP_target_m,[ones(num_samples,1),pars_rel_m(i,:)']);
+%     r_par_reg_m(i) = stats_par_reg_m(1);
+%     p_par_reg_m(i) = stats_par_reg_m(3);
+%     
+%     y_par_reg_m(i,:) = b_par_reg_m(i,1) + b_par_reg_m(i,2)*pars_rel_m(i,:);
+%     
+% %     SSres(i) = sum((MAP_target_m' - y_par_reg_m(i,:)).^2);
+% %     r_par_reg2_m(i) = 1 - SSres(i)/SStot;
+% end
+% % [b_par_multi_reg_m,~,~,~,stats_par_multi_reg_m] = ...
+% %     regress(MAP_target_m,[ones(num_samples,1),pars_rel_m(3:end,:)']);
+% % r_par_multi_reg_m = stats_par_multi_reg_m(1);
+% % p_par_multi_reg_m = stats_par_multi_reg_m(3);
+% 
+% % ---
+% r_par_reg_f = zeros(pars_hyp_num,1);
+% p_par_reg_f = zeros(pars_hyp_num,1);
+% b_par_reg_f = zeros(pars_hyp_num,2);
+% y_par_reg_f = zeros(pars_hyp_num,num_samples);
+% for i = 1:pars_hyp_num
+%     [b_par_reg_f(i,:),~,~,~,stats_par_reg_f] = ...
+%         regress(MAP_target_f, [ones(num_samples,1),pars_rel_f(i,:)']);
+%     r_par_reg_f(i) = stats_par_reg_f(1);
+%     p_par_reg_f(i) = stats_par_reg_f(3);
+%     
+%     y_par_reg_f(i,:) = b_par_reg_f(i,1) + b_par_reg_f(i,2)*pars_rel_f(i,:);
+% end
+% 
+% % Linear regression variables
+% r_var_reg_m = zeros(num_vars,1);
+% p_var_reg_m = zeros(num_vars,1);
+% b_var_reg_m = zeros(num_vars,2);
+% y_var_reg_m = zeros(num_vars,num_samples);
+% for i = 1:num_vars
+%     [b_var_reg_m(i,:),~,~,~,stats_var_reg_m] = ...
+%         regress(MAP_target_m, [ones(num_samples,1),X_bl_m(i,:)']);
+%     r_var_reg_m(i) = stats_var_reg_m(1);
+%     p_var_reg_m(i) = stats_var_reg_m(3);
+%     
+%     y_var_reg_m(i,:) = b_var_reg_m(i,1) + b_var_reg_m(i,2)*X_bl_m(i,:);
+% end
+% % ---
+% r_var_reg_f = zeros(num_vars,1);
+% p_var_reg_f = zeros(num_vars,1);
+% b_var_reg_f = zeros(num_vars,2);
+% y_var_reg_f = zeros(num_vars,num_samples);
+% for i = 1:num_vars
+%     [b_var_reg_f(i,:),~,~,~,stats_var_reg_f] = ...
+%         regress(MAP_target_f, [ones(num_samples,1),X_bl_f(i,:)']);
+%     r_var_reg_f(i) = stats_var_reg_f(1);
+%     p_var_reg_f(i) = stats_var_reg_f(3);
+%     
+%     y_var_reg_f(i,:) = b_var_reg_f(i,1) + b_var_reg_f(i,2)*X_bl_f(i,:);
+% end
 
 %% % Plot success and failure.
 % 
@@ -1072,139 +1130,139 @@ end
 % xlabel(s_map1(3), '% \DeltaMAP');
 % title(s_map1(3), 'C')
 
-%% Plot scatter plot of resulting target MAP vs predrug pars/vars.---------
-
-par_title = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
-
-% Plot parameters.
-scat_par_plot_m = figure('DefaultAxesFontSize',18);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 15, 7]);
-scat_par_t_m = tiledlayout(2,4,'TileSpacing','Compact','Padding','Compact');
-for i = 1:pars_hyp_num
-    nexttile
-    scatter(pars_rel_m(i,:),MAP_target_m,'MarkerEdgeColor',[0.203, 0.592, 0.835]);
-    hold on
-    plot(pars_rel_m(i,:),y_par_reg_m(i,:),'Color','k')
-    hold off
-
-    reg_str = sprintf('$r^{2} = %s$', num2str(r_par_reg_m(i)));
-    text(0.05,0.05, reg_str, 'Units','normalized', ...
-        'Interpreter','latex', 'FontSize',16)
-
-    xlabel_name = strcat(pars_names_des(i));
-%     xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
-    xlabel(xlabel_name) 
-%     ylabel('MAP (mmHg)')
-%     ylabel('% \DeltaMAP')
-    
-%     reg_str = sprintf(', r = %s', num2str(r_par_reg_m(i)));
-%     reg_str = strcat(par_title{i}, reg_str);
-%     title(reg_str)
-    title(par_title{i}, 'FontWeight','normal')
-end
-ylabel(scat_par_t_m, '% \DeltaMAP', 'FontSize',18)
-whole_title = sprintf('Male Parameters %s %s%%', ...
-    scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_m)*100));
-sgtitle(scat_par_t_m, whole_title, 'FontSize',18)
-% ---
-scat_par_plot_f = figure('DefaultAxesFontSize',18);
-set(gcf, 'Units', 'Inches', 'Position', [0, 0, 15, 7]);
-scat_par_t_f = tiledlayout(2,4,'TileSpacing','Compact','Padding','Compact');
-for i = 1:pars_hyp_num
-    nexttile
-    scatter(pars_rel_f(i,:),MAP_target_f,'MarkerEdgeColor',[0.835, 0.203, 0.576]);
-    hold on
-    plot(pars_rel_f(i,:),y_par_reg_f(i,:),'Color','k')
-    hold off
-
-    reg_str = sprintf('$r^{2} = %s$', num2str(r_par_reg_f(i)));
-    text(0.05,0.05, reg_str, 'Units','normalized', ...
-        'Interpreter','latex', 'FontSize',16)
-
-    xlabel_name = strcat(pars_names_des(i));
-%     xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
-    xlabel(xlabel_name) 
-%     ylabel('MAP (mmHg)')
-%     ylabel('% \DeltaMAP')
-    
-%     reg_str = sprintf(', r = %s', num2str(r_par_reg_f(i)));
-%     reg_str = strcat(par_title{i}, reg_str);
-%     title(reg_str)
-    title(par_title{i}, 'FontWeight','normal')
-end
-ylabel(scat_par_t_f, '% \DeltaMAP', 'FontSize',18)
-whole_title = sprintf('Female Parameters %s %s%%', ...
-    scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_f)*100));
-sgtitle(scat_par_t_f, whole_title, 'FontSize',18)
-
-% Plot variables
-scat_var_plot_m = gobjects(7,1);
-scat_var_t_m = gobjects(7,1);
-% Loop through each set of subplots.
-for i = 1:7
-    scat_var_plot_m(i) = figure('pos',[750 500 650 450]);
-    scat_var_t_m(i) = ...
-        tiledlayout(3,5,'TileSpacing','Compact','Padding','Compact');
-%     This is to avoid the empty plots in the last subplot set.
-    if i == 7
-        last_plot = mod(num_vars, 15);
-    else
-        last_plot = 15;
-    end
-%     Loop through each subplot within a set of subplots.
-    for j = 1:last_plot
-        nexttile
-        scatter(X_bl_m((i-1)*15 + j,:),MAP_target_m,'MarkerEdgeColor',[0.203, 0.592, 0.835]);
-        hold on
-        plot(X_bl_m((i-1)*15 + j,:),y_var_reg_m((i-1)*15 + j,:),'Color','k')
-        hold off
-
-        xlabel_name = strcat(var_names((i-1)*15 + j));
-        xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16)
-        ylabel('MAP')
-
-        reg_str = sprintf('$r^{2} = %s$', num2str(r_var_reg_m((i-1)*15 + j)));
-        title(reg_str,'Interpreter','latex')
-%         legend('Male', 'Female')
-    end
-    hist_title = sprintf('Male Variables %s %s%%', ...
-        scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_m)*100));
-    sgtitle(hist_title, 'FontSize',14)
-end
-% ---
-scat_var_plot_f = gobjects(7,1);
-scat_var_t_f = gobjects(7,1);
-% Loop through each set of subplots.
-for i = 1:7
-    scat_var_plot_f(i) = figure('pos',[750 500 650 450]);
-    scat_var_t_f(i) = ...
-        tiledlayout(3,5,'TileSpacing','Compact','Padding','Compact');
-%     This is to avoid the empty plots in the last subplot set.
-    if i == 7
-        last_plot = mod(num_vars, 15);
-    else
-        last_plot = 15;
-    end
-%     Loop through each subplot within a set of subplots.
-    for j = 1:last_plot
-        nexttile
-        scatter(X_bl_f((i-1)*15 + j,:),MAP_target_f,'MarkerEdgeColor',[0.835, 0.203, 0.576]);
-        hold on
-        plot(X_bl_f((i-1)*15 + j,:),y_var_reg_f((i-1)*15 + j,:),'Color','k')
-        hold off
-
-        xlabel_name = strcat(var_names((i-1)*15 + j));
-        xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16)
-        ylabel('MAP')
-
-        reg_str = sprintf('$r^{2} = %s$', num2str(r_var_reg_f((i-1)*15 + j)));
-        title(reg_str,'Interpreter','latex')
-%         legend('Male', 'Female')
-    end
-    hist_title = sprintf('Female Variables %s %s%%', ...
-        scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_f)*100));
-    sgtitle(hist_title, 'FontSize',14)
-end
+%% % Plot scatter plot of resulting target MAP vs predrug pars/vars.---------
+% 
+% par_title = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+% 
+% % Plot parameters.
+% scat_par_plot_m = figure('DefaultAxesFontSize',18);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 15, 7]);
+% scat_par_t_m = tiledlayout(2,4,'TileSpacing','Compact','Padding','Compact');
+% for i = 1:pars_hyp_num
+%     nexttile
+%     scatter(pars_rel_m(i,:),MAP_target_m,'MarkerEdgeColor',[0.203, 0.592, 0.835]);
+%     hold on
+%     plot(pars_rel_m(i,:),y_par_reg_m(i,:),'Color','k')
+%     hold off
+% 
+%     reg_str = sprintf('$r^{2} = %s$', num2str(r_par_reg_m(i)));
+%     text(0.05,0.05, reg_str, 'Units','normalized', ...
+%         'Interpreter','latex', 'FontSize',16)
+% 
+%     xlabel_name = strcat(pars_names_des(i));
+% %     xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+%     xlabel(xlabel_name) 
+% %     ylabel('MAP (mmHg)')
+% %     ylabel('% \DeltaMAP')
+%     
+% %     reg_str = sprintf(', r = %s', num2str(r_par_reg_m(i)));
+% %     reg_str = strcat(par_title{i}, reg_str);
+% %     title(reg_str)
+%     title(par_title{i}, 'FontWeight','normal')
+% end
+% ylabel(scat_par_t_m, '% \DeltaMAP', 'FontSize',18)
+% whole_title = sprintf('Male Parameters %s %s%%', ...
+%     scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_m)*100));
+% sgtitle(scat_par_t_m, whole_title, 'FontSize',18)
+% % ---
+% scat_par_plot_f = figure('DefaultAxesFontSize',18);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 15, 7]);
+% scat_par_t_f = tiledlayout(2,4,'TileSpacing','Compact','Padding','Compact');
+% for i = 1:pars_hyp_num
+%     nexttile
+%     scatter(pars_rel_f(i,:),MAP_target_f,'MarkerEdgeColor',[0.835, 0.203, 0.576]);
+%     hold on
+%     plot(pars_rel_f(i,:),y_par_reg_f(i,:),'Color','k')
+%     hold off
+% 
+%     reg_str = sprintf('$r^{2} = %s$', num2str(r_par_reg_f(i)));
+%     text(0.05,0.05, reg_str, 'Units','normalized', ...
+%         'Interpreter','latex', 'FontSize',16)
+% 
+%     xlabel_name = strcat(pars_names_des(i));
+% %     xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16) 
+%     xlabel(xlabel_name) 
+% %     ylabel('MAP (mmHg)')
+% %     ylabel('% \DeltaMAP')
+%     
+% %     reg_str = sprintf(', r = %s', num2str(r_par_reg_f(i)));
+% %     reg_str = strcat(par_title{i}, reg_str);
+% %     title(reg_str)
+%     title(par_title{i}, 'FontWeight','normal')
+% end
+% ylabel(scat_par_t_f, '% \DeltaMAP', 'FontSize',18)
+% whole_title = sprintf('Female Parameters %s %s%%', ...
+%     scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_f)*100));
+% sgtitle(scat_par_t_f, whole_title, 'FontSize',18)
+% 
+% % Plot variables
+% scat_var_plot_m = gobjects(7,1);
+% scat_var_t_m = gobjects(7,1);
+% % Loop through each set of subplots.
+% for i = 1:7
+%     scat_var_plot_m(i) = figure('pos',[750 500 650 450]);
+%     scat_var_t_m(i) = ...
+%         tiledlayout(3,5,'TileSpacing','Compact','Padding','Compact');
+% %     This is to avoid the empty plots in the last subplot set.
+%     if i == 7
+%         last_plot = mod(num_vars, 15);
+%     else
+%         last_plot = 15;
+%     end
+% %     Loop through each subplot within a set of subplots.
+%     for j = 1:last_plot
+%         nexttile
+%         scatter(X_bl_m((i-1)*15 + j,:),MAP_target_m,'MarkerEdgeColor',[0.203, 0.592, 0.835]);
+%         hold on
+%         plot(X_bl_m((i-1)*15 + j,:),y_var_reg_m((i-1)*15 + j,:),'Color','k')
+%         hold off
+% 
+%         xlabel_name = strcat(var_names((i-1)*15 + j));
+%         xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16)
+%         ylabel('MAP')
+% 
+%         reg_str = sprintf('$r^{2} = %s$', num2str(r_var_reg_m((i-1)*15 + j)));
+%         title(reg_str,'Interpreter','latex')
+% %         legend('Male', 'Female')
+%     end
+%     hist_title = sprintf('Male Variables %s %s%%', ...
+%         scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_m)*100));
+%     sgtitle(hist_title, 'FontSize',14)
+% end
+% % ---
+% scat_var_plot_f = gobjects(7,1);
+% scat_var_t_f = gobjects(7,1);
+% % Loop through each set of subplots.
+% for i = 1:7
+%     scat_var_plot_f(i) = figure('pos',[750 500 650 450]);
+%     scat_var_t_f(i) = ...
+%         tiledlayout(3,5,'TileSpacing','Compact','Padding','Compact');
+% %     This is to avoid the empty plots in the last subplot set.
+%     if i == 7
+%         last_plot = mod(num_vars, 15);
+%     else
+%         last_plot = 15;
+%     end
+% %     Loop through each subplot within a set of subplots.
+%     for j = 1:last_plot
+%         nexttile
+%         scatter(X_bl_f((i-1)*15 + j,:),MAP_target_f,'MarkerEdgeColor',[0.835, 0.203, 0.576]);
+%         hold on
+%         plot(X_bl_f((i-1)*15 + j,:),y_var_reg_f((i-1)*15 + j,:),'Color','k')
+%         hold off
+% 
+%         xlabel_name = strcat(var_names((i-1)*15 + j));
+%         xlabel(xlabel_name, 'Interpreter','latex', 'FontSize',16)
+%         ylabel('MAP')
+% 
+%         reg_str = sprintf('$r^{2} = %s$', num2str(r_var_reg_f((i-1)*15 + j)));
+%         title(reg_str,'Interpreter','latex')
+% %         legend('Male', 'Female')
+%     end
+%     hist_title = sprintf('Female Variables %s %s%%', ...
+%         scenario2{fixed_ss2},num2str(drug_dose(dose_target_ind_f)*100));
+%     sgtitle(hist_title, 'FontSize',14)
+% end
 
 %% % Save figures and data.
 
@@ -1212,6 +1270,10 @@ end
 % save_data_name = sprintf('dose_response_rel_%s.fig', scenario2{fixed_ss2});
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig(f_dose_res_rel, save_data_name)
+% % ---
+save_data_name = sprintf('dose_response_%s_MAP.png', scenario2{fixed_ss2});
+save_data_name = strcat('Figures/', save_data_name);
+exportgraphics(dose_res_MAP, save_data_name)
 
 % % Save ? ----------------------------------------------------------------
 % save_data_name = sprintf('success_failure_MAP_%s%s%%.fig', ...
@@ -1277,21 +1339,21 @@ end
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([f_dose_res_rel], save_data_name)
 
-% Save regression -------------------------------------------------------
-save_data_name = sprintf('scat_plot_%s_MAP%s.fig', ...
-                         scenario2{fixed_ss2}, num2str(MAP_th));
-save_data_name = strcat('Figures/', save_data_name);
-savefig([scat_par_plot_m; scat_par_plot_f; ...
-         scat_var_plot_m; scat_var_plot_f], save_data_name)
-% ---
-save_data_name = sprintf('scat_plot_m_%s_MAP%s.png', ...
-                         scenario2{fixed_ss2}, num2str(MAP_th));
-save_data_name = strcat('Figures/', save_data_name);
-exportgraphics(scat_par_plot_m, save_data_name)
-save_data_name = sprintf('scat_plot_f_%s_MAP%s.png', ...
-                         scenario2{fixed_ss2}, num2str(MAP_th));
-save_data_name = strcat('Figures/', save_data_name);
-exportgraphics(scat_par_plot_f, save_data_name)
+% % Save regression -------------------------------------------------------
+% save_data_name = sprintf('scat_plot_%s_MAP%s.fig', ...
+%                          scenario2{fixed_ss2}, num2str(MAP_th));
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([scat_par_plot_m; scat_par_plot_f; ...
+%          scat_var_plot_m; scat_var_plot_f], save_data_name)
+% % ---
+% save_data_name = sprintf('scat_plot_m_%s_MAP%s.png', ...
+%                          scenario2{fixed_ss2}, num2str(MAP_th));
+% save_data_name = strcat('Figures/', save_data_name);
+% exportgraphics(scat_par_plot_m, save_data_name)
+% save_data_name = sprintf('scat_plot_f_%s_MAP%s.png', ...
+%                          scenario2{fixed_ss2}, num2str(MAP_th));
+% save_data_name = strcat('Figures/', save_data_name);
+% exportgraphics(scat_par_plot_f, save_data_name)
 
 end
 

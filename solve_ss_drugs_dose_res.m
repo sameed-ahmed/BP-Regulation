@@ -278,15 +278,15 @@ X_rel_mean_f = reshape(mean(X_rel_f,  2), [num_vars,num_dose]);
 X_rel_std_m  = reshape(std (X_rel_m,0,2), [num_vars,num_dose]); 
 X_rel_std_f  = reshape(std (X_rel_f,0,2), [num_vars,num_dose]); 
 
-% Compute confidence interval
-X_bl_lower_m  = X_bl_mean_m  - X_bl_std_m ; X_bl_upper_m  = X_bl_mean_m  + X_bl_std_m ;
-X_bl_lower_f  = X_bl_mean_f  - X_bl_std_f ; X_bl_upper_f  = X_bl_mean_f  + X_bl_std_f ;
+% Compute 95% confidence interval
+X_bl_lower_m  = X_bl_mean_m  - 2*X_bl_std_m ; X_bl_upper_m  = X_bl_mean_m  + 2*X_bl_std_m ;
+X_bl_lower_f  = X_bl_mean_f  - 2*X_bl_std_f ; X_bl_upper_f  = X_bl_mean_f  + 2*X_bl_std_f ;
 % ---
-X_ss_lower_m  = X_ss_mean_m  - X_ss_std_m ; X_ss_upper_m  = X_ss_mean_m  + X_ss_std_m ;
-X_ss_lower_f  = X_ss_mean_f  - X_ss_std_f ; X_ss_upper_f  = X_ss_mean_f  + X_ss_std_f ;
+X_ss_lower_m  = X_ss_mean_m  - 2*X_ss_std_m ; X_ss_upper_m  = X_ss_mean_m  + 2*X_ss_std_m ;
+X_ss_lower_f  = X_ss_mean_f  - 2*X_ss_std_f ; X_ss_upper_f  = X_ss_mean_f  + 2*X_ss_std_f ;
 % ---
-X_rel_lower_m = X_rel_mean_m - X_rel_std_m; X_rel_upper_m = X_rel_mean_m + X_rel_std_m;
-X_rel_lower_f = X_rel_mean_f - X_rel_std_f; X_rel_upper_f = X_rel_mean_f + X_rel_std_f;
+X_rel_lower_m = X_rel_mean_m - 2*X_rel_std_m; X_rel_upper_m = X_rel_mean_m + 2*X_rel_std_m;
+X_rel_lower_f = X_rel_mean_f - 2*X_rel_std_f; X_rel_upper_f = X_rel_mean_f + 2*X_rel_std_f;
 
 %% Plot
 
