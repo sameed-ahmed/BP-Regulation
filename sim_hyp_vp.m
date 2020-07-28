@@ -51,7 +51,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % Sodin    - sodium loading
 % RPP      - manipulate renal perfusion pressure
 sim_scenario = {'Baseline', 'AngII', 'Sodin', 'RPP'};
-exact_sim_scen = 2;
+exact_sim_scen = 3;
 
 % Species
 spe_ind = 2;
@@ -202,15 +202,15 @@ end
 
 %% Save figures.
 
-% save_data_name = sprintf('Pri_hyp_sim_%s_VI%sNEW.fig', ...
-%                          sim_scenario{exact_sim_scen},num2str(sample_num));
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig(fig, save_data_name)
-% % ---
-% save_data_name = sprintf('Pri_hyp_sim_%s_VI%sNEW.png', ...
-%                          sim_scenario{exact_sim_scen},num2str(sample_num));
-% save_data_name = strcat('Figures/', save_data_name);
-% exportgraphics(fig(end), save_data_name)
+save_data_name = sprintf('Pri_hyp_sim_%s_VI%sNEW.fig', ...
+                         sim_scenario{exact_sim_scen},num2str(sample_num));
+save_data_name = strcat('Figures/', save_data_name);
+savefig(fig, save_data_name)
+% ---
+save_data_name = sprintf('Pri_hyp_sim_%s_VI%sNEW.png', ...
+                         sim_scenario{exact_sim_scen},num2str(sample_num));
+save_data_name = strcat('Figures/', save_data_name);
+exportgraphics(fig(end), save_data_name)
 
 %% Subfunctions
 
@@ -1085,24 +1085,25 @@ title(s_main(4), 'D')
 
 MAP_bl_m = X_m(42,iteration,fixed_ss);
 MAP_bl_f = X_f(42,iteration,fixed_ss);
-point_m = [15+MAP_bl_m,4; 25+MAP_bl_m,4];
-point_f = [ 5+MAP_bl_f,4; 10+MAP_bl_f,4];
+point_m = [4,15+MAP_bl_m; 4,25+MAP_bl_m];
+point_f = [4, 5+MAP_bl_f; 4,10+MAP_bl_f];
 
 f4 = figure('DefaultAxesFontSize',16*1.5);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 3.5*2, 2.5*2]);
-plot(X_m(42,:,fixed_ss),xscale,'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3*1.5);
-xlim([125, 175])
-ylim([lower, upper+0.1])
+plot(xscale,X_m(42,:,fixed_ss),'-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3*1.5);
+ylim([125, 175])
+xlim([lower, upper+0.1])
 ax = gca;
-ax.XTick = (130 : 10 : 170);
-xlabel('MAP (mmHg)')
-ylabel({'Fold change in'; 'sodium excretion'})
+ax.YTick = (130 : 10 : 170);
+ylabel('MAP (mmHg)')
+% xlabel({'Fold change in'; 'sodium excretion'})
+xlabel({'Fold change in sodium excretion'})
 hold on
 plot(point_m(:,1),point_m(:,2),'o-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
-plot(X_f(42,:,fixed_ss),xscale,'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3*1.5)
-plot(point_f(:,1),point_m(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
-legend('Male sim','Female sim','Male data','Female data', 'Location','Southeast')
-[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',8*1.5,'Location','Southeast');
+plot(xscale,X_f(42,:,fixed_ss),'-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3*1.5)
+plot(point_f(:,1),point_f(:,2),'o-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',2*1.5, 'MarkerSize',6*1.5)
+legend('Male sim','Female sim','Male data','Female data', 'Location','Northwest')
+[~, hobj, ~, ~] = legend({'Male sim','Male data','Female sim','Female data'}, 'FontSize',8*1.5,'Location','Northwest');
 hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5*1.5);
 hold off
