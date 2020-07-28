@@ -78,7 +78,7 @@ fixed_ss2 = [5];
 spe_ind = 2;
 
 % Number of days to run simulation after change; Day at which to induce change;
-days = 7; day_change = 1;
+days = 20; day_change = 1;
 % Number of points for plotting resolution
 % N = ((days+1)*1440) / 2;
 N = (days+1)*100 + 1;
@@ -90,8 +90,12 @@ sample_num = 119
 % sample_num = 655
 
 % Drug dose
-drug_dose = 0.50
-drug_dose_vaso = 0           % DIU
+drug_dose = 0.99
+% ---
+% drug_dose_vaso = 0.1           % DIU
+% drug_dose_vaso = drug_dose/5
+drug_dose_vaso = 0
+% ---
 % a = 3; b = 1;
 a = 11/9; b = 1/9;
 % drug_dose_rsec = drug_dose + 0.5 % DIU
@@ -107,7 +111,7 @@ drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
-% Number of variables
+% Number of variabl
 num_vars = 93;
 
 % Initialize variables.
