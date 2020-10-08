@@ -72,13 +72,13 @@ num_scen = length(scenario1);
 % AngII  - Ang II infusion fmol/(ml min)
 scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [5];
+fixed_ss2 = [2];
 
 % Species
 spe_ind = 2;
 
 % Number of days to run simulation after change; Day at which to induce change;
-days = 20; day_change = 1;
+days = 2; day_change = 1;
 % Number of points for plotting resolution
 % N = ((days+1)*1440) / 2;
 N = (days+1)*100 + 1;
@@ -90,7 +90,7 @@ sample_num = 119
 % sample_num = 655
 
 % Drug dose
-drug_dose = 0.99
+drug_dose = 0.96
 % ---
 % drug_dose_vaso = 0.1           % DIU
 % drug_dose_vaso = drug_dose/5
@@ -128,7 +128,9 @@ varargin_input = {scenario1{sce_ind},true};
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
+% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
+%                               species{spe_ind},sex{sex_ind});
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 num_pars   = size(pars_rep,1);
@@ -136,7 +138,9 @@ num_sample = size(pars_rep,2);
 pars_rep = pars_rep(:,sample_num);
 
 % Variables
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
+% load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
+%                               species{spe_ind},sex{sex_ind});
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 num_vars   = size(SSdata_rep,1);

@@ -179,109 +179,109 @@ X_bl_lower_f  = X_bl_mean_f  - 2*X_bl_std_f ; X_bl_upper_f  = X_bl_mean_f  + 2*X
 X_ss_lower_f  = X_ss_mean_f  - 2*X_ss_std_f ; X_ss_upper_f  = X_ss_mean_f  + 2*X_ss_std_f ;
 X_rel_lower_f = X_rel_mean_f - 2*X_rel_std_f; X_rel_upper_f = X_rel_mean_f + 2*X_rel_std_f;
 
-%% % Plot all vars vs dose. 
-% 
-% % x-axis
-% xscale = drug_dose * 100;
-% xlower = drug_dose(1) * 100; xupper = drug_dose(end) * 100; 
-% 
-% % y-axis limits
-% ylower = zeros(num_vars,1); yupper = ylower; 
-% for i = 1:length(ylower)
-%     ylower(i) = 0.95*min( min(X_rel_mean_m(i,:)), min(X_rel_mean_f(i,:)) );
-%     yupper(i) = 1.05*max( max(X_rel_mean_m(i,:)), max(X_rel_mean_f(i,:)) );
-%     if abs(yupper(i)) < eps*100
-%         ylower(i) = -10^(-5); yupper(i) = 10^(-5);
-%     end
-% end
-% 
-% f_dose_res_rel = gobjects(7,1);
-% s1 = gobjects(7,15);
-% % Loop through each set of subplots.
-% for i = 1:7
-%     f_dose_res_rel(i) = figure('pos',[750 500 650 450]);
-%     % This is to avoid the empty plots in the last subplot set.
-%     if i == 7
-%         last_plot = mod(num_vars, 15);
-%     else
-%         last_plot = 15;
-%     end
-%     % Loop through each subplot within a set of subplots.
-%     for j = 1:last_plot
-%         s1(i,j) = subplot(3,5,j);
-% %         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
-%         
-% %         plot(s1(i,j), xscale,X_ss_mean_m ((i-1)*15 + j,:),'b-' , ...
-% %                       xscale,X_ss_mean_f ((i-1)*15 + j,:),'r-' );
-% %         hold(s1(i,j), 'on')
-% %         plot(s1(i,j), xscale,X_ss_lower_m((i-1)*15 + j,:),'b--', ...
-% %                       xscale,X_ss_lower_f((i-1)*15 + j,:),'r--');
-% %         plot(s1(i,j), xscale,X_ss_upper_m((i-1)*15 + j,:),'b--', ...
-% %                       xscale,X_ss_upper_f((i-1)*15 + j,:),'r--');
-% %         hold(s1(i,j), 'off')
-% 
-%         plot(s1(i,j), xscale,X_rel_mean_m ((i-1)*15 + j,:),'b-' , ...
-%                       xscale,X_rel_mean_f ((i-1)*15 + j,:),'r-' );
-%         
-% %         xlim([xlower, xupper])
-% %         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
-% 
-%         xlabel_name = strcat(scenario2{fixed_ss2}, ' %');
-%         xlabel(xlabel_name, 'FontSize',12)
-%         title(var_names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
-% %         legend('Male', 'Female')
-%     end
-% end
+%% Plot all vars vs dose. 
 
-%% % Plot Mean Arterial Pressure. 
-% 
-% % Actual and % change in MAP. 
-% MAP_ss_mean_m  = X_ss_mean_m (42,:);
-% MAP_ss_lower_m = X_ss_lower_m(42,:);
-% MAP_ss_upper_m = X_ss_upper_m(42,:);
-% MAP_rel_mean_m  = X_rel_mean_m (42,:);
-% MAP_rel_lower_m = X_rel_lower_m(42,:);
-% MAP_rel_upper_m = X_rel_upper_m(42,:);
-% % ---
-% MAP_ss_mean_f  = X_ss_mean_f (42,:);
-% MAP_ss_lower_f = X_ss_lower_f(42,:);
-% MAP_ss_upper_f = X_ss_upper_f(42,:);
-% MAP_rel_mean_f  = X_rel_mean_f (42,:);
-% MAP_rel_lower_f = X_rel_lower_f(42,:);
-% MAP_rel_upper_f = X_rel_upper_f(42,:);
-% 
-% dose_res_MAP = figure('DefaultAxesFontSize',18);
-% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 4]);
-% t2 = tiledlayout(1,2,'TileSpacing','Normal','Padding','Compact');
-% nexttile
-% plot(xscale,MAP_ss_mean_m , '-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-% % xlim([xlower, xupper]);
-% xticks(0:20:100);
-% xlabel(xlabel_name); ylabel('MAP (mmHg)');
-% hold on
-% plot(xscale,MAP_ss_mean_f , '-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-% plot(xscale,MAP_ss_lower_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
-% plot(xscale,MAP_ss_lower_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
-% plot(xscale,MAP_ss_upper_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
-% plot(xscale,MAP_ss_upper_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
-% hold off
-% legend('Male', 'Female')
-% title('A', 'FontWeight','normal')
-% % ---
-% nexttile
-% plot(xscale,MAP_rel_mean_m , '-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
-% % xlim([xlower, xupper]);
-% xticks(0:20:100);
-% ylim([-50, 0]);
-% xlabel(xlabel_name); ylabel('% \DeltaMAP');
-% hold on
-% plot(xscale,MAP_rel_mean_f , '-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
-% plot(xscale,MAP_rel_lower_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
-% plot(xscale,MAP_rel_lower_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
-% plot(xscale,MAP_rel_upper_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
-% plot(xscale,MAP_rel_upper_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
-% hold off
-% title('B', 'FontWeight','normal')
+% x-axis
+xscale = drug_dose * 100;
+xlower = drug_dose(1) * 100; xupper = drug_dose(end) * 100; 
+
+% y-axis limits
+ylower = zeros(num_vars,1); yupper = ylower; 
+for i = 1:length(ylower)
+    ylower(i) = 0.95*min( min(X_rel_mean_m(i,:)), min(X_rel_mean_f(i,:)) );
+    yupper(i) = 1.05*max( max(X_rel_mean_m(i,:)), max(X_rel_mean_f(i,:)) );
+    if abs(yupper(i)) < eps*100
+        ylower(i) = -10^(-5); yupper(i) = 10^(-5);
+    end
+end
+
+f_dose_res_rel = gobjects(7,1);
+s1 = gobjects(7,15);
+% Loop through each set of subplots.
+for i = 1:7
+    f_dose_res_rel(i) = figure('pos',[750 500 650 450]);
+    % This is to avoid the empty plots in the last subplot set.
+    if i == 7
+        last_plot = mod(num_vars, 15);
+    else
+        last_plot = 15;
+    end
+    % Loop through each subplot within a set of subplots.
+    for j = 1:last_plot
+        s1(i,j) = subplot(3,5,j);
+%         s(i,j).Position = s(i,j).Position + [0 0 0.01 0];
+        
+%         plot(s1(i,j), xscale,X_ss_mean_m ((i-1)*15 + j,:),'b-' , ...
+%                       xscale,X_ss_mean_f ((i-1)*15 + j,:),'r-' );
+%         hold(s1(i,j), 'on')
+%         plot(s1(i,j), xscale,X_ss_lower_m((i-1)*15 + j,:),'b--', ...
+%                       xscale,X_ss_lower_f((i-1)*15 + j,:),'r--');
+%         plot(s1(i,j), xscale,X_ss_upper_m((i-1)*15 + j,:),'b--', ...
+%                       xscale,X_ss_upper_f((i-1)*15 + j,:),'r--');
+%         hold(s1(i,j), 'off')
+
+        plot(s1(i,j), xscale,X_rel_mean_m ((i-1)*15 + j,:),'b-' , ...
+                      xscale,X_rel_mean_f ((i-1)*15 + j,:),'r-' );
+        
+%         xlim([xlower, xupper])
+%         ylim([ylower((i-1)*15 + j), yupper((i-1)*15 + j)])
+
+        xlabel_name = strcat(scenario2{fixed_ss2}, ' %');
+        xlabel(xlabel_name, 'FontSize',12)
+        title(var_names((i-1)*15 + j), 'Interpreter','latex', 'FontSize',15)
+%         legend('Male', 'Female')
+    end
+end
+
+%% Plot Mean Arterial Pressure. 
+
+% Actual and % change in MAP. 
+MAP_ss_mean_m  = X_ss_mean_m (42,:);
+MAP_ss_lower_m = X_ss_lower_m(42,:);
+MAP_ss_upper_m = X_ss_upper_m(42,:);
+MAP_rel_mean_m  = X_rel_mean_m (42,:);
+MAP_rel_lower_m = X_rel_lower_m(42,:);
+MAP_rel_upper_m = X_rel_upper_m(42,:);
+% ---
+MAP_ss_mean_f  = X_ss_mean_f (42,:);
+MAP_ss_lower_f = X_ss_lower_f(42,:);
+MAP_ss_upper_f = X_ss_upper_f(42,:);
+MAP_rel_mean_f  = X_rel_mean_f (42,:);
+MAP_rel_lower_f = X_rel_lower_f(42,:);
+MAP_rel_upper_f = X_rel_upper_f(42,:);
+
+dose_res_MAP = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 4]);
+t2 = tiledlayout(1,2,'TileSpacing','Normal','Padding','Compact');
+nexttile
+plot(xscale,MAP_ss_mean_m , '-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+xlabel(xlabel_name); ylabel('MAP (mmHg)');
+hold on
+plot(xscale,MAP_ss_mean_f , '-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_ss_lower_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_ss_lower_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_ss_upper_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_ss_upper_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
+hold off
+legend('Male', 'Female')
+title('A', 'FontWeight','normal')
+% ---
+nexttile
+plot(xscale,MAP_rel_mean_m , '-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
+% xlim([xlower, xupper]);
+xticks(0:20:100);
+ylim([-50, 0]);
+xlabel(xlabel_name); ylabel('% \DeltaMAP');
+hold on
+plot(xscale,MAP_rel_mean_f , '-', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+plot(xscale,MAP_rel_lower_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_rel_lower_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_rel_upper_m, ':', 'Color',[0.203, 0.592, 0.835], 'LineWidth',1, 'MarkerSize',8);
+plot(xscale,MAP_rel_upper_f, ':', 'Color',[0.835, 0.203, 0.576], 'LineWidth',1, 'MarkerSize',8);
+hold off
+title('B', 'FontWeight','normal')
 
 %% % Post processing
 % 
@@ -1342,21 +1342,21 @@ end
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([f_dose_res_rel], save_data_name)
 
-% Save regression -------------------------------------------------------
-save_data_name = sprintf('scat_plot_%s_MAP%s.fig', ...
-                         scenario2{fixed_ss2}, num2str(MAP_th));
-save_data_name = strcat('Figures/', save_data_name);
-savefig([scat_par_plot_m; scat_par_plot_f; ...
-         scat_var_plot_m; scat_var_plot_f], save_data_name)
-% ---
-save_data_name = sprintf('scat_plot_m_%s_MAP%s.png', ...
-                         scenario2{fixed_ss2}, num2str(MAP_th));
-save_data_name = strcat('Figures/', save_data_name);
-exportgraphics(scat_par_plot_m, save_data_name)
-save_data_name = sprintf('scat_plot_f_%s_MAP%s.png', ...
-                         scenario2{fixed_ss2}, num2str(MAP_th));
-save_data_name = strcat('Figures/', save_data_name);
-exportgraphics(scat_par_plot_f, save_data_name)
+% % Save regression -------------------------------------------------------
+% save_data_name = sprintf('scat_plot_%s_MAP%s.fig', ...
+%                          scenario2{fixed_ss2}, num2str(MAP_th));
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([scat_par_plot_m; scat_par_plot_f; ...
+%          scat_var_plot_m; scat_var_plot_f], save_data_name)
+% % ---
+% save_data_name = sprintf('scat_plot_m_%s_MAP%s.png', ...
+%                          scenario2{fixed_ss2}, num2str(MAP_th));
+% save_data_name = strcat('Figures/', save_data_name);
+% exportgraphics(scat_par_plot_m, save_data_name)
+% save_data_name = sprintf('scat_plot_f_%s_MAP%s.png', ...
+%                          scenario2{fixed_ss2}, num2str(MAP_th));
+% save_data_name = strcat('Figures/', save_data_name);
+% exportgraphics(scat_par_plot_f, save_data_name)
 
 end
 

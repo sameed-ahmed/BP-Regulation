@@ -589,26 +589,26 @@ plot(xscale,MAP_pc_upper_f, '--', 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 
 hold off
 title('C')
 
-%% Save figures and data. 
- 
-save_data_name = sprintf('dose_response_%sNEW.fig', ...
-                         scenario2{fixed_ss2});
-save_data_name = strcat('Figures/', save_data_name);
-savefig([f1;f2;g1;g2], save_data_name)
-
-save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%sNEW.mat'  , ...
-                         species{spe_ind},scenario2{fixed_ss2});
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'X_bl_m' , 'X_bl_mean_m' , 'X_bl_std_m' , ...
-                     'X_ss_m' , 'X_ss_mean_m' , 'X_ss_std_m' , ...
-                     'X_rel_m', 'X_rel_mean_m', 'X_rel_std_m')
-
-save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%sNEW.mat', ...
-                         species{spe_ind},scenario2{fixed_ss2});
-save_data_name = strcat('Data/', save_data_name);
-save(save_data_name, 'X_bl_f' , 'X_bl_mean_f' , 'X_bl_std_f' , ...
-                     'X_ss_f' , 'X_ss_mean_f' , 'X_ss_std_f' , ...
-                     'X_rel_f', 'X_rel_mean_f', 'X_rel_std_f')
+%% % Save figures and data. 
+%  
+% save_data_name = sprintf('dose_response_%sNEW.fig', ...
+%                          scenario2{fixed_ss2});
+% save_data_name = strcat('Figures/', save_data_name);
+% savefig([f1;f2;g1;g2], save_data_name)
+% 
+% save_data_name = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%sNEW.mat'  , ...
+%                          species{spe_ind},scenario2{fixed_ss2});
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'X_bl_m' , 'X_bl_mean_m' , 'X_bl_std_m' , ...
+%                      'X_ss_m' , 'X_ss_mean_m' , 'X_ss_std_m' , ...
+%                      'X_rel_m', 'X_rel_mean_m', 'X_rel_std_m')
+% 
+% save_data_name = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%sNEW.mat', ...
+%                          species{spe_ind},scenario2{fixed_ss2});
+% save_data_name = strcat('Data/', save_data_name);
+% save(save_data_name, 'X_bl_f' , 'X_bl_mean_f' , 'X_bl_std_f' , ...
+%                      'X_ss_f' , 'X_ss_mean_f' , 'X_ss_std_f' , ...
+%                      'X_rel_f', 'X_rel_mean_f', 'X_rel_std_f')
 
 end
 
