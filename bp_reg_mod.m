@@ -111,7 +111,7 @@ for i = 1:2:length(varargin)
     elseif strcmp(varargin{i},'CCB' )
         kappa_CCB_inp   = varargin{i + 1}(1);
         CCB_less        = varargin{i + 1}(2);
-    elseif strcmp(varargin{i},'DIU' )
+    elseif strcmp(varargin{i},'TZD' )
         kappa_DI_S_inp  = varargin{i + 1}(1);
         kappa_DI_V_inp  = varargin{i + 1}(2);
         kappa_DI_R_inp  = varargin{i + 1}(3);

@@ -67,13 +67,13 @@ num_scen = length(scenario1);
 % ACEi   - Angiotensin converting enzyme inhibitor % 95
 % ARB1   - Angiotensin receptor 1 blocker % 94
 % CCB    - Calcium channel blocker % 84
-% DIU    - Thiazide diuretic % 0.5 1?
+% TZD    - Thiazide diuretic % 0.5 1?
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 % AngII  - Ang II infusion fmol/(ml min)
-scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'TZD', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
 fixed_ss2 = [2];
 

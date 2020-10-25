@@ -18,7 +18,6 @@ function [pars, residual_pars, exitflag_pars] = ...
 % Parameters to perturb
 % K_bar            - par 13; - 0%, +200%
 % R_bv             - par 14; - 0%, +200%
-% % C_gcf            - par 8 ; -20%
 % R_aass           - par 4 ; - 0%, +100%
 % N_rs             - par 21; - 0%, +100%
 % N_als_eq         - par 18; - 0%, +100%

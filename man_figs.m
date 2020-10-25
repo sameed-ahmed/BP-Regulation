@@ -64,9 +64,9 @@ num_scen = length(scenario1);
 % ACEi   - Angiotensin converting enzyme inhibitor % 96
 % ARB1   - Angiotensin receptor 1 blocker % 94
 % CCB    - Calcium channel blocker % 85
-% DIU    - Thiazide diuretic % 50 100
-scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU'};
-fixed_ss2 = [2];
+% TZD    - Thiazide diuretic % 50 100
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'TZD'};
+fixed_ss2 = [5];
 
 % Species
 spe_ind = 2;
@@ -84,15 +84,15 @@ sample_num = 422
 % sample_num = 655
 
 % Drug dose
-drug_dose = 0.96
+drug_dose = 0.50
 % ---
-% drug_dose_vaso = 0.1           % DIU
+% drug_dose_vaso = 0.1           % TZD
 % drug_dose_vaso = drug_dose/5
 drug_dose_vaso = 0
 % ---
 % a = 3; b = 1;
 a = 11/9; b = 1/9;
-% drug_dose_rsec = drug_dose + 0.5 % DIU
+% drug_dose_rsec = drug_dose + 0.5 % TZD
 % drug_dose_rsec = 2*drug_dose
 drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
 % drug_dose_rsec = 0
@@ -151,11 +151,11 @@ for i = 1:length(fixed_ss2)
             varargin_input = [varargin_input, 'ARB1' ,drug_dose]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'CCB'  )
             varargin_input = [varargin_input, 'CCB'  ,[drug_dose,2/3]]; % 
-    elseif strcmp(scenario2{fixed_ss2(i)}, 'DIU'  )
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'TZD'  )
         if     strcmp(sex{sex_ind}, 'male')
-            varargin_input = [varargin_input, 'DIU'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
+            varargin_input = [varargin_input, 'TZD'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
         elseif strcmp(sex{sex_ind}, 'female')
-            varargin_input = [varargin_input, 'DIU'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
+            varargin_input = [varargin_input, 'TZD'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
         end
     end
 end
@@ -388,7 +388,7 @@ elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('C', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
     title('B', 'FontWeight','normal')
-elseif strcmp(scenario2{fixed_ss2}, 'DIU' )
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('-', 'FontWeight','normal')
 end
 
@@ -417,7 +417,7 @@ elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('D', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
     title('C', 'FontWeight','normal')
-elseif strcmp(scenario2{fixed_ss2}, 'DIU' )
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('B', 'FontWeight','normal')
 end
 
@@ -439,7 +439,7 @@ elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('E', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
     title('-', 'FontWeight','normal')
-elseif strcmp(scenario2{fixed_ss2}, 'DIU' )
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('-', 'FontWeight','normal')
 end
 
@@ -461,7 +461,7 @@ elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('-', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
     title('D', 'FontWeight','normal')
-elseif strcmp(scenario2{fixed_ss2}, 'DIU' )
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('E', 'FontWeight','normal')
 end
 
@@ -490,7 +490,7 @@ elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('-', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
     title('-', 'FontWeight','normal')
-elseif strcmp(scenario2{fixed_ss2}, 'DIU' )
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('C', 'FontWeight','normal')
 end
 
@@ -512,7 +512,7 @@ elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('-', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
     title('-', 'FontWeight','normal')
-elseif strcmp(scenario2{fixed_ss2}, 'DIU' )
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('D', 'FontWeight','normal')
 end
 
@@ -537,7 +537,7 @@ elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('B', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
     title('A', 'FontWeight','normal')
-elseif strcmp(scenario2{fixed_ss2}, 'DIU' )
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('A', 'FontWeight','normal')
 end
 
@@ -547,11 +547,11 @@ end
 %                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
 % save_data_name = strcat('Figures/', save_data_name);
 % savefig([man_f], save_data_name)
-% % % ---
-% % save_data_name = sprintf('man_figs_%s%s%%_VI%s.png', ...
-% %                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
-% % save_data_name = strcat('Figures/', save_data_name);
-% % exportgraphics([man_f], save_data_name)
+% % ---
+% save_data_name = sprintf('man_figs_%s%s%%_VI%s.png', ...
+%                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
+% save_data_name = strcat('Figures/', save_data_name);
+% exportgraphics([man_f(7)], save_data_name)
 
 
 end

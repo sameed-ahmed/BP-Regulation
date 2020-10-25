@@ -64,13 +64,13 @@ num_scen = length(scenario1);
 % ACEi   - Angiotensin converting enzyme inhibitor % 95
 % ARB1   - Angiotensin receptor 1 blocker % 94
 % CCB    - Calcium channel blocker % 84
-% DIU    - Thiazide diuretic % 0.5 1?
+% TZD    - Thiazide diuretic % 0.5 1?
 % ARB2   - Angiotensin receptor 2 blocker %
 % DRI    - Direct renin inhibitor %
 % MRB    - Aldosterone blocker (MR?) %
 % RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
 % AngII  - Ang II infusion fmol/(ml min)
-scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'DIU', ...
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'TZD', ...
              'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
 fixed_ss2 = [2];
 
@@ -92,13 +92,13 @@ sample_num = 119
 % Drug dose
 drug_dose = 0.96
 % ---
-% drug_dose_vaso = 0.1           % DIU
+% drug_dose_vaso = 0.1           % TZD
 % drug_dose_vaso = drug_dose/5
 drug_dose_vaso = 0
 % ---
 % a = 3; b = 1;
 a = 11/9; b = 1/9;
-% drug_dose_rsec = drug_dose + 0.5 % DIU
+% drug_dose_rsec = drug_dose + 0.5 % TZD
 % drug_dose_rsec = 2*drug_dose
 drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
 % drug_dose_rsec = 0
@@ -155,11 +155,11 @@ for i = 1:length(fixed_ss2)
             varargin_input = [varargin_input, 'ARB1' ,drug_dose]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'CCB'  )
             varargin_input = [varargin_input, 'CCB'  ,[drug_dose,2/3]]; % 
-    elseif strcmp(scenario2{fixed_ss2(i)}, 'DIU'  )
+    elseif strcmp(scenario2{fixed_ss2(i)}, 'TZD'  )
         if     strcmp(sex{sex_ind}, 'male')
-            varargin_input = [varargin_input, 'DIU'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
+            varargin_input = [varargin_input, 'TZD'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
         elseif strcmp(sex{sex_ind}, 'female')
-            varargin_input = [varargin_input, 'DIU'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
+            varargin_input = [varargin_input, 'TZD'  ,[drug_dose/1.0,drug_dose_vaso,drug_dose_rsec]]; % 
         end
     elseif strcmp(scenario2{fixed_ss2(i)}, 'ARB2' )
             varargin_input = [varargin_input, 'ARB2' ,drug_dose]; % 
@@ -558,7 +558,7 @@ plot(t_dy,TPR_f  (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth'
 hold off
 title('C')
 
-% DIU
+% TZD
 g3 = figure('DefaultAxesFontSize',14);
 % set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10, 3]);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 10*3/3, 3*2]);
