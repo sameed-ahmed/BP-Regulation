@@ -2,7 +2,7 @@
 % drug administration for a given virtual individual.
 % 
 % Parameters and steady state data for the virtual population are 
-% calculated by create_par_bs_rep.m.m and create_vp.m, respectively.
+% calculated by create_par_bs_rep.m and create_vp.m, respectively.
 
 % Input
 % scenario1 : scenario to simulate

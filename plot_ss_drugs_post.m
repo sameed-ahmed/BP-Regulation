@@ -2,6 +2,9 @@
 % administering a drug on the model for the entire inhibition range of the
 % drug and the entire virtual population.
 
+% Steady state data for the virtual population after drug administration 
+% are calculated by solve_ss_drugs_dose_res.m.
+
 % Input
 % fixed_ss2      : index of which drug to administer
 % fixed_drug_dose: inhibition level to fix for distribution plots
@@ -11,7 +14,7 @@
 % -plots and saves  all variables relative change distribution for a fixed 
 %  drug dose inhibition level
 
-function solve_ss_drugs_post
+function plot_ss_drugs_post
 
 close all
 

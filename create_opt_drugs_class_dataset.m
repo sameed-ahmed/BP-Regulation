@@ -6,7 +6,7 @@
 % learner app.
 % 
 % Parameters and steady state data for the virtual population are 
-% calculated by create_par_bs_rep.m.m and create_vp.m, respectively.
+% calculated by create_par_bs_rep.m and create_vp.m, respectively.
 
 % Input : threshold percent decrease in MAP at which to compare all drugs
 % Output: saves dataset that uses 
