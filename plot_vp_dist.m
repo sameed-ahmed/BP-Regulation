@@ -5,7 +5,7 @@
 % Input:  none
 % Output: saves figures of parameter and variable distributions.
 
-function create_vp_dist
+function plot_vp_dist
 
 close all
 
@@ -233,7 +233,7 @@ save_data_name = sprintf('par_var_dist1000NEW.png');
 save_data_name = strcat('Figures/', save_data_name);
 exportgraphics(g2, save_data_name)
 
-end % create_vp_dist
+end % plot_vp_dist
 
 
 
