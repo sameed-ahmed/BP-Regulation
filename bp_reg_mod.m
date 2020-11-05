@@ -14,7 +14,7 @@
 %            it is a variable length input argument
 
 % Output
-% f        - left hand side of y = f(t,x(t),x'(t);theta).
+% f        - left hand side of f(t,x(t),x'(t);theta) = 0.
 
 function f = bp_reg_mod(t,x,x_p,pars,tchange,varargin)
 
