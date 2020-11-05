@@ -119,7 +119,7 @@ end
 
 %% Variables initial guess
 
-% Variable names for plotting.
+%% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -149,6 +149,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
           '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
           '$\Phi_{u}$'; '$\Phi_{win}$'};
+%%
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
@@ -531,7 +532,7 @@ xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'Fon
 % hAxes.XAxis.FontSize = 6;
 title(s1(2), 'B', 'FontSize',14)
 
-% % Save figures. -----------------------------------------------------------
+%% Save figures.
 % 
 % save_data_name = sprintf('all_vars_vs_Phisodin.fig');
 % save_data_name = strcat('Figures/', save_data_name);

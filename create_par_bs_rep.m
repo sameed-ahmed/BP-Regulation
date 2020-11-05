@@ -1,4 +1,15 @@
-% 
+% This script fits the subset of parameters corresponding to the
+% pathophysiology of hypertension.
+
+% The data fitted are three-fold. First, the constraints are satisfied for
+% certain key physiological variables to be within range of measurements in
+% the SHR. The other two datasets to be fit are perturbation experiments.
+% One is dynamic response of MAP to Ang II infusion. The other is steady
+% state MAP response to sodium loading.
+
+% This script calls upon solve_ss_hyp_fit.m.
+
+% Warning: This script takes a really long time.
 
 function create_par_bs_rep
 
@@ -11,9 +22,7 @@ addpath(genpath(mypath))
 
 % Scenarios
 % Normal - Normal conditions
-% m_RAS  - male RAS pars
-% m_Reab - male fractional sodium and water reabsorption
-scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_m_Reab'};
+scenario = {'Normal'};
 % Index of scenario to fix.
 fixed_ss = 1;
 
@@ -21,19 +30,21 @@ fixed_ss = 1;
 spe_ind = 2;
 
 % sample_num = random('Discrete Uniform',1000)
-sample_num = 158
-
-% ind_vec = {[140 154 155 187 248 299 475 500 624 653 755 867 921 944 974]; ...
-%            [004 082 186 360 550 596 862 928]};
+% sample_num = 158
 
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
+% Create parallel pool on cluster. 
+% To be used by global optimizer in solve_ss_hyp_fit.m
 parpool
-for sex_ind = 2:2 % sex
+
+% Fit parameters for each sex.
+for sex_ind = 1:2 % sex
 
 %% Parameters
 
+% Optional parameter input
 varargin_input = {scenario{fixed_ss},true};
 
 % Parameter input
@@ -42,18 +53,17 @@ pars0 = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 %% Variables initial guess
 
 % Load data for steady state initial guess. 
-% Set name for data file to be loaded based upon sex.    
 load_data_name_IG = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},scenario{fixed_ss});
+                            species{spe_ind},sex{sex_ind},scenario{fixed_ss});
 load(load_data_name_IG, 'SSdata');
 
 %% Load bootstrap replicate data created by create_data_bs_rep.m.
 
-load_data_name_data = sprintf('%s_%s_AngII_data_bs_rep.mat', species{spe_ind},sex{sex_ind});
+load_data_name_data = sprintf('%s_%s_AngII_data_bs_rep.mat', ...
+                              species{spe_ind},sex{sex_ind});
 load(load_data_name_data, 'AngII_data_rep');
 
 num_sample = size(AngII_data_rep,1);
-% num_sample = 10;
 
 %% Find fitted parameters for given data set.
 
@@ -61,39 +71,45 @@ num_sample = size(AngII_data_rep,1);
 pars_rep = zeros(153,num_sample);
 % Initialize residual error.
 residual_pars = zeros(1,num_sample);
+
+% Oddly, the solver converges to bad fits, despite using the global
+% optimizer. Or it gets stuck at certain internal steps depending upon a
+% bad starting value for the parameters. Or it converges to a point for
+% which the model is undefined. Therefore, I have nested the solver within 
+% a while loop that ensures that the solver reruns with a new starting
+% point for the parameters when the time is too long, the model is
+% undefined, or the residual error is too large.
+
+% Initialize the iteration count. This is just as a sanity check to see how
+% many whole optimizer iterations are needed to find a good set of
+% parameters for a given virtual individual. It also provides a saftey to
+% see that if the iteration count is too high, then the solver is likely
+% stuck.
+
 % Intialize exitflag. Need this because solver gets stuck for certain bad
 % initial guesses. So a maximum time is set in the solver options. If
 % reached, exitflag = 0. Then this script reruns the solver with a new
 % random initial guess.
 
-tic
-for j = sample_num:sample_num
-% for j = 1:sample_num 
-% for j = 1:10
-% for j = sample_num-250+1:sample_num
-% for j = 1:250
-% for j = 80:80
-% for j = ind_vec{sex_ind}
-% parfor j = 1:10
-% [SSdata, pars] = solve_ss_hyp_fit2(sex_ind,AngII_MAP_data);
+% Initialize residual error. Keeping track of this because despite using
+% the global optimizer, the optimizer may still converge to a bad local
+% minimum. Therefore the optimizer is instructed to rerun for a given
+% virtual individual if the residual error is too large.
 
+tic
+% for j = sample_num:sample_num
+for j = 1:num_sample 
     iter = 0;
     exitflag_pars = 0;
     residual_pars(j) = 0.40;
     while exitflag_pars <= 0 || residual_pars(j) >= 0.40
         iter = iter + 1;
-%         [pars_rep(:,j),exitflag_pars] = ...
-%             solve_ss_hyp_fit2(sex_ind,AngII_data_rep(j,:));
         [pars_rep(:,j),residual_pars(j),exitflag_pars] = ...
-            solve_ss_hyp_fit2(sex_ind,varargin_input,pars0,SSdata,AngII_data_rep(j,:),iter);
+            solve_ss_hyp_fit(sex_ind,varargin_input,pars0,SSdata,AngII_data_rep(j,:));
         fprintf('********** %s while loop iteration = %s ********** \n', ...
                 sex{sex_ind},num2str(iter))
     end
     
-%     [pars_rep(:,j),exitflag_pars] = ...
-%             solve_ss_hyp_fit2(sex_ind,AngII_data_rep(j,:));
-%     exitflag_pars
-        
     % Sanity check to see script's progress. Also a check for where to
     % troubleshoot in case the solver gets stuck.
     fprintf('********** %s iteration = %s out of %s ********** \n', ...
@@ -121,29 +137,17 @@ bs_rep_fit_time = toc
 
 %% Save data.
 
-% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp.mat', ...
-%                          species{spe_ind},sex{sex_ind});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata')
-% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
-%                          species{spe_ind},sex{sex_ind});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'pars_rep', 'sample_num', 'bs_rep_fit_time')
-
-% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
-%                          species{spe_ind},sex{sex_ind});
-% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
-%                          species{spe_ind},sex{sex_ind},num2str(sample_num));
-save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_repSUB_IND.mat', ...
+save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
                          species{spe_ind},sex{sex_ind});
 save_data_name = strcat('Data/', save_data_name);
 save(save_data_name, 'pars_rep', 'residual_pars', 'num_sample', 'bs_rep_fit_time')
 
 end % sex
-delete(gcp)
-% delete(myCluster.Jobs)
 
-end
+% Shut down parallel pool on cluster. 
+delete(gcp)
+
+end % create_par_bs_rep
 
 
 

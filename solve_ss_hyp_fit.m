@@ -1,15 +1,28 @@
-% This script calculates the steady state values of the blood pressure 
-% regulation model bp_reg_solve_baseline.m by using fsolve.
-% It is adopted with modifications from Karaaslan 2005 and Leete 2018.
-% 
-% Steady state data for the intial guess is inputted by solver_initial_guess_data.m.
+% This function estimates the pathophysiological parameters by fitting to
+% Ang II infusion data and sodium loading data, while satisfying the 
+% constraints of certain physiological variables being within range.
 
-function solve_ss_hyp_fit
+% This function is called upon by create_par_bs_rep.m. 
 
-% Add directory containing data.
-mypath = pwd;
-mypath = strcat(mypath, '/Data');
-addpath(genpath(mypath))
+% Input
+% sex_ind       : sex index
+% varargin_input: optional parameters
+% pars0         : parameter initial guess
+% SSdata        : variable steady state data initial guess
+% Angii_MAP_data: bootstrap replicate of Ang II infusion data
+% Output
+% pars         : optimized parameters
+% residual_pars: residual error from estimating the parameters
+% exitflag_pars: optimizer exitflag for stopping
+
+% User input
+% index of parameters to perturb
+% range of perturbed parametes
+% index of variables to check in constraint
+% range of variables to check in constraint
+
+function [pars, residual_pars, exitflag_pars] = ...
+    solve_ss_hyp_fit(sex_ind,varargin_input,pars0,SSdata,AngII_MAP_data)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Begin user input.
@@ -18,17 +31,18 @@ addpath(genpath(mypath))
 % Parameters to perturb
 % K_bar            - par 13; - 0%, +200%
 % R_bv             - par 14; - 0%, +200%
-% % C_gcf            - par 8 ; -20%
 % R_aass           - par 4 ; - 0%, +100%
 % N_rs             - par 21; - 0%, +100%
 % N_als_eq         - par 18; - 0%, +100%
 % N_rsna           - par 3 ; - 0%, +100%
+% N_adhs_eq        - par 15; - 0%, +100%
+% sigmamyo_b       - par 41; - 0%, +900%
 % Indices
-par_ind = [13;14;4;21;18;3];
+par_ind = [13;14;4;21;18;3;15;41];
 par_num = length(par_ind);
 % Range for parameters
-par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ]/100;
-par_range_upper = [200;200;100;100;100;100]/100;
+par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
+par_range_upper = [200;600;200;100;100;100;100;900]/100;
 
 % Variables to check
 % P_ma      - var 42; +30,40, +40,50
@@ -47,17 +61,6 @@ var_range_upper_change_m = [50*100;5;5;5;5;5;2]/100;
 var_range_lower_change_f = [30*100;5;5;5;5;5;2]/100;
 var_range_upper_change_f = [40*100;5;5;5;5;5;2]/100;
 
-% Scenarios
-% Normal - Normal conditions
-% m_RAS  - male RAS pars
-% m_Reab - male fractional sodium and water reabsorption
-scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_m_Reab'};
-% Index of scenario to fix.
-fixed_ss = 1;
-
-% Species
-spe_ind = 2;
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -65,47 +68,17 @@ spe_ind = 2;
 % Number of variables; number of parameters; 
 num_vars = 93; num_pars = 47; % + SF + fixed_var_pars + SSdata
 
-species = {'human', 'rat'   };
+% species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
-parpool
-for sex_ind = 1:2 % sex
-
 %% Parameters
-
-varargin_input = {scenario{fixed_ss},true};
-
-% Parameter input
-pars0 = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 
 % Set interval bounds for parameters.
 lower = pars0(par_ind) - par_range_lower .* pars0(par_ind);
 upper = pars0(par_ind) + par_range_upper .* pars0(par_ind);
 
-%% Drugs
-
-% drugs = [Ang II inf rate fmol/(ml min), ACEi target level, ARB target level]
-if     strcmp(scenario{fixed_ss}, 'AngII')
-    if     strcmp(sex{sex_ind}, 'male'  )
-%         varargin_input = {'AngII',2022}; % Sampson 2008
-        varargin_input = {'AngII',910 }; % Sullivan 2010
-    elseif strcmp(sex{sex_ind}, 'female')
-%         varargin_input = {'AngII',2060}; % Sampson 2008
-        varargin_input = {'AngII',505 }; % Sullivan 2010
-    end
-elseif strcmp(scenario{fixed_ss}, 'ACEi' )
-        varargin_input = {'ACEi' ,0.78 }; % Leete 2018
-elseif strcmp(scenario{fixed_ss}, 'ARB'  )
-        varargin_input = {'ARB'  ,0.67 }; % Leete 2018
-end
-
 %% Variables initial guess
 
-% Load data for steady state initial guess. 
-% Set name for data file to be loaded based upon sex.    
-load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},scenario{fixed_ss});
-load(load_data_name, 'SSdata');
 SSdataIG = SSdata;
 
 % Set acceptable range for certain variables.
@@ -128,7 +101,7 @@ var_range_upper = [MAP_upper; var_range_upper];
 
 clear SSdata
 
-% Order
+%% Order
 % x  = [rsna; alpha_map; alpha_rap; R_r; beta_rsna; Phi_rb; Phi_gfilt; ...
 %       P_f; P_gh; Sigma_tgf; Phi_filsod; Phi_ptsodreab; eta_ptsodreab; ...
 %       gamma_filsod; gamma_at; gamma_rsna; Phi_mdsod; Phi_dtsodreab; ...
@@ -144,6 +117,7 @@ clear SSdata
 %       Phi_ptwreab; eta_ptwreab; mu_ptsodreab; ...
 %       Phi_mdu; Phi_dtwreab; eta_dtwreab; mu_dtsodreab; Phi_dtu; ...
 %       Phi_cdwreab; eta_cdwreab; mu_cdsodreab; mu_adh; Phi_u; Phi_win];
+%%
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
@@ -156,12 +130,35 @@ tchange = 0;
 %% Uniformly randomly sample perturbed parameters from range.
 
 % Sample between 0 and 1.
+% rng('default')
 ran_vec = random('unif',0,1,par_num,1);
 % Sample within interval.
 ran_vec = lower + ran_vec .* (upper - lower);
 % Replace input parameters with newly sampled parameter.
 pars0(par_ind) = ran_vec;
-pars0_est = ran_vec;
+pars0_est = ran_vec
+% pars0_est = [24.5664; 11.9122; 3.2875; 1.9027; 1.9448; 1.4909; 1.4893; 4.8474] % diverges for j = 076
+% pars0_est = [30.2589; 12.5101; 3.6061; 1.19  ; 1.50  ; 1.12  ] % diverges for j = 15?
+% pars0_est = [17.9423; 13.9705; 5.6973; 1.5338; 1.1092; 1.8258] % mycon get stuck for j = 15
+% if iter == 1
+%     pars0_est = [24.5664; 11.9122; 3.2875; 1.9027; 1.9448; 1.4909; 1.4893; 4.8474]
+% else
+%     pars0_est = ran_vec
+% end
+
+% options_pre_ss = optimset('Display','iter', 'MaxFunEvals',2000);
+% [~, ~, exitflag_pre_ss, ~] = ...
+%     fsolve(@(x) ...
+%            bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
+%            x0, options_pre_ss);
+
+% % Check for solver convergence.
+% if exitflag_pre_ss == 0
+%     error('Infeasible initial point')
+% else
+%     error('Feasible initial point')
+% end
+
 
 % Initialize last pars to avoid unnecessary computation for SSdata.
 pars_est_last = [];
@@ -170,19 +167,15 @@ SSdata_iter = [];
 
 %% Optimize.
 
-% pars0
-% spe_par = pars0(1);
-% sex_par = pars0(2);
-
 % Place holders for fmincon.
 A = []; b = []; Aeq = []; beq = []; 
 % Nonlinear constraints.
-nonlcon = @mycon;
+nonlcon = @mycon; iter = 0;
 % Lower and upper bounds for parameters in fmincon.
 lb = lower;
 ub = upper;
 
-tic
+% tic
 % % Edit options for optimizer. - fmincon
 % opt_name = 'fm';
 % options = optimoptions('fmincon', 'Display','iter', 'UseParallel',true);
@@ -231,8 +224,12 @@ tic
 % Edit options for optimizer. - pattersearch
 opt_name = 'ps';
 % options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true);
+% options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
+%                        'UseParallel',true, 'UseVectorized',false, 'OutputFcn',@outfun);
 options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
-                       'UseParallel',true, 'UseVectorized',false);
+                       'UseParallel',true, 'UseVectorized',false, 'MaxTime',450);
+% options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true, ...
+%                        'UseParallel',false, 'UseVectorized',false, 'TimeLimit',1000 );
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     patternsearch(@(pars_est) ...
 %                   cost_fun(t,x0,x_p0,pars0,pars_est,par_ind,tchange,varargin_input, ...
@@ -262,7 +259,7 @@ options = optimoptions('patternsearch', 'Display','iter', 'UseCompletePoll',true
 % %                    pars0_est,lb,ub,options);
 % [pars_est_min, residual_pars, exitflag_pars, output_pars] = ...
 %     simulannealbnd(@cost_fun,pars0_est,lb,ub,options);
-opt_time = toc
+% opt_time = toc
 
 % % tic
 % test1 = cost_fun(pars0_est);
@@ -274,41 +271,14 @@ opt_time = toc
 % Place estimated pars in proper location.
 pars = pars0;
 pars(par_ind) = pars_est_min;
+pars_est_min
 
-% pars_min
-% spe_par = pars_min(1);
-% sex_par = pars_min(2);
-
-% Solve system with found pars.
-options2 = optimset();
-[SSdata, residual_ss, exitflag_ss, output_ss] = ...
-    fsolve(@(x) ...
-           bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
-           x0, options2); % %#ok<ASGLU>
-
-%% Save values.
-
-% % Steady state data
-% % save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_%s.mat', ...
-% %                          species{spe_ind},sex{sex_ind},opt_name);
-% save_data_name = sprintf('%s_%s_ss_data_scenario_Pri_Hyp.mat', ...
-%                          species{spe_ind},sex{sex_ind});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual_ss', 'exitflag_ss', 'output_ss')
-% % Parameters
-% % save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp_%s.mat', ...
-% %                          species{spe_ind},sex{sex_ind},opt_name);
-% save_data_name = sprintf('%s_%s_pars_scenario_Pri_Hyp.mat', ...
-%                          species{spe_ind},sex{sex_ind});
-% save_data_name = strcat('Data/', save_data_name);
-% if strcmp(opt_name, 'ms') || strcmp(opt_name, 'gs')
-%     save(save_data_name, 'pars', 'solutions', 'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time') %#ok<USESWNS>
-% else
-%     save(save_data_name, 'pars',              'residual_pars', 'exitflag_pars', 'output_pars', 'opt_time')
-% end
-
-end % sex
-delete(gcp)
+% % Solve system with found pars.
+% options2 = optimset();
+% [SSdata, residual_ss, exitflag_ss, output_ss] = ...
+%     fsolve(@(x) ...
+%            bp_reg_mod(t,x,x_p0,pars,tchange,varargin_input{:}), ...
+%            x0, options2); % %#ok<ASGLU>
 
 % -------------------------------------------------------------------------
 % Cost function
@@ -317,12 +287,12 @@ delete(gcp)
 function tot_err = cost_fun(pars_est)
 
 % Total error
-% alpha = 0.0; % beta  = 2.0 - alpha;
 % tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
 % tot_err = (0.0*range_err + 2.0*AngII_MAP_err) / 2;
-% tot_err = AngII_err(pars_est);
+tot_err = AngII_err(pars_est);
 % tot_err = range_err;
-tot_err = (AngII_err(pars_est) + Sodin_err(pars_est)) / 2;
+% tot_err = (AngII_err(pars_est) + Sodin_err(pars_est)) / 2;
+% tot_err = 0;
 
 end % tot err
 
@@ -349,52 +319,7 @@ if ~isequal(pars_est,pars_est_last)
 end
 % toc1 = toc
 
-% % Check for solver convergence.
-% if exitflag == 0
-%     tot_err = 1;
-%     return
-% end
-% 
-% % Check for imaginary solution.
-% if not (isreal(SSdata))
-%     tot_err = 1;
-%     return
-% end
-% 
-% % Set any values that are within machine precision of 0 equal to 0.
-% for i = 1:length(SSdata)
-%     if abs(SSdata(i)) < eps*100
-%         SSdata(i) = 0;
-%     end
-% end
-% 
-% % Compute error within range of specified variables.
-% num_vars = length(var_ind);
-% range_err = zeros(num_vars,1);
-% for i = 1:num_vars
-%     range_err(i) = max( ( (SSdata(var_ind(i)) - (var_range_lower(i) + var_range_upper(i))/2)^2 - ...
-%                     (                     (var_range_upper(i) - var_range_lower(i))/2)^2 ) ...
-%                   / SSdata(var_ind(i))^2, 0 );
-% end
-% 
-% % Range error
-% range_err = sqrt(sum(range_err)) / num_vars;
-
 %% Run Ang II infusion simulation. ----------------------------------------
-
-% % Retrieve species and sex identifier. 
-% spe_par = pars0(1);
-% sex_par = pars0(2);
-% if     spe_par == 1
-%     species_iter = 'human';
-% elseif spe_par == 0
-%     species_iter = 'rat';
-% end
-% if     sex_par == 1
-%     sex_iter = 'male';
-% elseif sex_par == 0
-%     sex_iter = 'female';
-% end
 
 % Initialization, etc.
 
@@ -414,15 +339,12 @@ X = zeros(num_vars,N);
 
 % Ang II inf rate fmol/(ml min)
 if     strcmp(sex{sex_ind}, 'male')
-%     kappa_AngII = 2022; % Sampson 2008
     kappa_AngII = 910; % Sullivan 2010
-%     kappa_AngII = 707; % Sullivan 2010
 elseif strcmp(sex{sex_ind}, 'female')
-%     kappa_AngII = 2060; % Sampson 2008
     kappa_AngII = 505; % Sullivan 2010
-%     kappa_AngII = 707; % Sullivan 2010
 end
 
+% Optional parameters
 varargin_input_angII = [varargin_input, 'AngII',kappa_AngII];
 
 %% Solve DAE.
@@ -436,11 +358,16 @@ t0 = 0*1440; tend = tchange_angII + days*1440;
 % Time vector
 tspan = linspace(t0,tend,N);
 
+% Start time counter.
+odestart = tic;
+
 % Initial value is steady state solution with given pars.
 x0_angII = SSdata_iter;
 
 % ode options
-options_dae = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
+options_dae = odeset('MaxStep',1000, 'Events',@(t,x,xp) myevent(t,x,xp)); 
+% default MaxStep is 0.1*abs(t0-tf)
+
 % tic
 % Solve dae
 [~,x] = ode15i(@(t,x,x_p) ...
@@ -461,14 +388,6 @@ X(:,:) = x';
 % Data from Sullivan 2010. MAP is in difference from baseline.
 tdata       = [0+1 , 1+1 , 2+1 , 3+1 , 4+1 , 5+1 , 6+1 ,...
                7+1 , 8+1 , 9+1 , 10+1, 11+1, 12+1, 13+1, 14+1]*1 + 1;
-if     strcmp(sex{sex_ind}, 'male'  )
-    MAPdata = [0   , 1.1 , 2.3 , 8.9 , 15.5, 18.3, 22.7, 22.6, ...
-               28.6, 31.2, 30.9, 32.8, 37.4, 41.4, 40.3];
-elseif strcmp(sex{sex_ind}, 'female')
-    MAPdata = [0   , 5.2 ,  5.3,  3.9,  3.6,  5.9,    8,   13, ...
-               15.7, 17.4, 19.8, 23.7, 25.8,  23.5,  24];
-end
-num_points = length(tdata);
 
 % tic
 % Substract MAP by baseline.
@@ -476,103 +395,123 @@ num_points = length(tdata);
 MAP = X(42,tdata) - X(42,1);
 
 % Ang II inf error
-AngII_MAP_err        = (MAP - MAPdata).^2;
-AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ MAPdata(2:end).^2;
-% AngII_MAP_err        = sqrt(sum(AngII_MAP_err(8:end)) / (num_points-7));
-AngII_MAP_err        = sqrt(mean(AngII_MAP_err(8:end)));
+AngII_MAP_err        = (MAP - AngII_MAP_data).^2;
+AngII_MAP_err(2:end) = AngII_MAP_err(2:end) ./ AngII_MAP_data(2:end).^2;
+AngII_MAP_err        = sqrt(mean(AngII_MAP_err(12:end)));
 % toc3 = toc
 
 % Error
-% alpha = 0.0; % beta  = 2.0 - alpha;
-% tot_err = (1.0*range_err + 1.0*AngII_MAP_err) / 2;
-% tot_err = (0.0*range_err + 2.0*AngII_MAP_err) / 2;
 err = AngII_MAP_err;
-% tot_err = range_err;
+
+%% Event function
+
+function [values,isterminal,direction] = myevent(t,x,xp)
+
+% pause(2)
+
+%  Don't let integration go for more than 1.2 seconds.
+if toc(odestart) > 1
+    values = 0;
+else
+    values = 1;
+end
+
+isterminal = 1;
+direction = 0;
+
+end
 
 end % Ang II err
 
+%% ------------------------------------------------------------------------
+% Sodium intake error
 % -------------------------------------------------------------------------
-% Sodiun intake error
-% -------------------------------------------------------------------------
 
-function err = Sodin_err(pars_est)
+% function err = Sodin_err(pars_est)
+% 
+% % Place estimated pars in proper location.
+% pars0(par_ind) = pars_est;
+% 
+% % 4-fold increase in sodium intake.
+% pars_sodin = pars0;
+% pars_sodin(17) = 4 * pars_sodin(17);
+% 
+% %% Find steady state solution ---------------------------------------------
+% 
+% % tic
+% % Check if computation is necessary for baseine SSdata.
+% if ~isequal(pars_est,pars_est_last)
+%     options_ss = optimset('Display','off');
+%     [SSdata_iter, ~, ~, ~] = ...
+%         fsolve(@(x) ...
+%                bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
+%                x0, options_ss);
+%     pars_est_last = pars_est;
+% end
+% % toc1 = toc
+% 
+% % tic
+% % Compute SSdata for increased sodium intake.
+% options_ss = optimset('Display','off');
+% [SSdata_sodin, ~, exitflag, ~] = ...
+%     fsolve(@(x) ...
+%            bp_reg_mod(t,x,x_p0,pars_sodin,tchange,varargin_input{:}), ...
+%            x0, options_ss);
+% 
+% % Check for solver convergence.
+% if exitflag == 0
+%     err = 5;
+%     return
+% end
+% 
+% % Check for imaginary solution.
+% if not (isreal(SSdata_sodin))
+%     err = 5;
+%     return
+% end
+% % toc2 = toc
+% 
+% %% Compute error.
+% 
+% % Data from several sources. See 'change in MAP.xlsx'.
+% if     strcmp(sex{sex_ind}, 'male'  )
+%     sodin_MAP_data = [15,25];
+% %     MAPdata = [0,100];
+% %     MAPdata = 20;
+% elseif strcmp(sex{sex_ind}, 'female')
+%     sodin_MAP_data = [ 5,10];
+% %     MAPdata = [0,100];
+% %     MAPdata = 7;
+% end
+% 
+% % tic
+% % Substract MAP by baseline.
+% % X = (variable, points)
+% MAP = SSdata_sodin(42) - SSdata_iter(42);
+% 
+% % Sodin error
+% err = max( ( (MAP - (sodin_MAP_data(1) + sodin_MAP_data(2))/2)^2 -  ...
+%              (      (sodin_MAP_data(2) - sodin_MAP_data(1))/2)^2 ), ...
+%          0 );
+% err = err / mean(sodin_MAP_data)^2;
+% err = sqrt(err);
+% % err = abs(MAP - MAPdata) / MAPdata;
+% % toc3 = toc
+% 
+% end % Sodin err
 
-% Place estimated pars in proper location.
-pars0(par_ind) = pars_est;
-
-% 4-fold increase in sodium intake.
-pars_sodin = pars0;
-pars_sodin(17) = 4 * pars_sodin(17);
-
-%% Find steady state solution ---------------------------------------------
-
-% tic
-% Check if computation is necessary for baseine SSdata.
-if ~isequal(pars_est,pars_est_last)
-    options_ss = optimset('Display','off');
-    [SSdata_iter, ~, ~, ~] = ...
-        fsolve(@(x) ...
-               bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
-               x0, options_ss);
-    pars_est_last = pars_est;
-end
-% toc1 = toc
-
-% tic
-% Compute SSdata for increased sodium intake.
-options_ss = optimset('Display','off');
-[SSdata_sodin, ~, exitflag, ~] = ...
-    fsolve(@(x) ...
-           bp_reg_mod(t,x,x_p0,pars_sodin,tchange,varargin_input{:}), ...
-           x0, options_ss);
-
-% Check for solver convergence.
-if exitflag == 0
-    err = 5;
-    return
-end
-
-% Check for imaginary solution.
-if not (isreal(SSdata_sodin))
-    err = 5;
-    return
-end
-% toc2 = toc
-
-%% Compute error.
-
-% Data from several sources. See 'change in MAP.xlsx'.
-if     strcmp(sex{sex_ind}, 'male'  )
-    MAPdata = [15,25];
-%     MAPdata = [0,100];
-%     MAPdata = 20;
-elseif strcmp(sex{sex_ind}, 'female')
-    MAPdata = [ 5,10];
-%     MAPdata = [0,100];
-%     MAPdata = 7;
-end
-
-% tic
-% Substract MAP by baseline.
-% X = (variable, points)
-MAP = SSdata_sodin(42) - SSdata_iter(42);
-
-% Sodin error
-err = max( ( (MAP - (MAPdata(1) + MAPdata(2))/2)^2 -  ...
-             (      (MAPdata(2) - MAPdata(1))/2)^2 ), ...
-         0 );
-err = err / mean(MAPdata)^2;
-err = sqrt(err);
-% err = abs(MAP - MAPdata) / MAPdata;
-% toc3 = toc
-
-end % Sodin err
-
-% -------------------------------------------------------------------------
+%% ------------------------------------------------------------------------
 % Nonlinear constraints
 % -------------------------------------------------------------------------
 
 function [c,ceq] = mycon(pars_est)
+
+% if iter > 2
+% %     iter = 0
+%     c   =  1;
+%     ceq = [];
+%     return
+% end
 
 % Place estimated pars in proper location.
 pars0(par_ind) = pars_est;
@@ -582,50 +521,114 @@ pars0(par_ind) = pars_est;
 % tic
 % Check if computation is necessary for SSdata.
 if ~isequal(pars_est,pars_est_last)
-    options_ss = optimset('Display','off');
-    [SSdata_iter, ~, exitflag, ~] = ...
+    options_ss = optimset('Display','off', 'MaxFunEvals',2000);
+    [SSdata_iter, ~, exitflag_ss, ~] = ...
         fsolve(@(x) ...
                bp_reg_mod(t,x,x_p0,pars0,tchange,varargin_input{:}), ...
                x0, options_ss);
     pars_est_last = pars_est;
-           
+    
     % Check for solver convergence.
-    if exitflag == 0
-        c   = 1;
+    if exitflag_ss == 0
+        c   =  1;
         ceq = [];
+%         iter = iter + 1;
         return
+%     else
+%         iter = 0;
     end
 
     % Check for imaginary solution.
     if not (isreal(SSdata_iter))
-        c   = 1;
+        c   =  1;
         ceq = [];
         return
     end
 end
 % toc1 = toc
 
-% % Set any values that are within machine precision of 0 equal to 0.
-% for i = 1:length(SSdata)
-%     if abs(SSdata(i)) < eps*100
-%         SSdata(i) = 0;
-%     end
-% end
-
 % tic
-% Nonlinear inequalities.
+%% Nonlinear inequalities steady state. -----------------------------------
+
 % num_vars_check = length(var_ind);
-c = zeros(2*num_vars_check,1);
+% c = zeros(2*num_vars_check,1);
+c = zeros(2*num_vars_check+2,1);
 for i = 1:num_vars_check
     c(2*i-1) =    SSdata_iter(var_ind(i)) - var_range_upper(i)  ;
     c(2*i)   = -( SSdata_iter(var_ind(i)) - var_range_lower(i) );
 end
 % toc2 = toc
 
+%% Find steady state solution sodin. --------------------------------------
+
+% 4-fold increase in sodium intake.
+pars_sodin = pars0;
+pars_sodin(17) = 4 * pars_sodin(17);
+
+% tic
+% Compute SSdata for increased sodium intake.
+options_ss = optimset('Display','off', 'MaxFunEvals',2000);
+[SSdata_sodin, ~, exitflag, ~] = ...
+    fsolve(@(x) ...
+           bp_reg_mod(t,x,x_p0,pars_sodin,tchange,varargin_input{:}), ...
+           x0, options_ss);
+
+% Check for solver convergence.
+if exitflag == 0
+    c(end) = 1;
+    ceq = [];
+%     err = 5;
+    return
+end
+
+% Check for imaginary solution.
+if not (isreal(SSdata_sodin))
+    c(end) = 1;
+    ceq = [];
+%     err = 5;
+    return
+end
+% toc2 = toc
+
+%% Nonlinear inequalities sodin. ------------------------------------------
+
+% Data from several sources. See 'change in MAP.xlsx'.
+if     strcmp(sex{sex_ind}, 'male'  )
+    sodin_MAP_data = [15,25];
+elseif strcmp(sex{sex_ind}, 'female')
+    sodin_MAP_data = [ 5,10];
+end
+
+% tic
+% Substract MAP by baseline.
+% X = (variable, points)
+MAP = SSdata_sodin(42) - SSdata_iter(42);
+
+c(end-1) =    MAP - sodin_MAP_data(2)  ;
+c(end)   = -( MAP - sodin_MAP_data(1) );
+
 % Nonlinear equalities.
 ceq = [];
 
 end % mycon
+
+%% -------------------------------------------------------------------------
+% % Output function
+% % -------------------------------------------------------------------------
+% 
+% function [stop,options,optchanged]  = outfun(optimvalues,options,flag)
+% 
+% stop = false;
+% optchanged = false;
+% 
+% switch flag
+%     case 'init'
+%         disp('Starting the algorithm');
+%     case {'iter','interrupt'}
+%         disp('Iterating ...')
+%     case 'done'
+%         disp('Performing final task');
+% end
 
 end % solve_ss_hyp_fit
 

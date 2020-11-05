@@ -1,8 +1,17 @@
-% This simulates the blood pressure regulation model bp_reg.m for drug administration.
+% This simulates the blood pressure regulation model bp_reg_mod.m for 
+% drug administration for a given virtual individual.
 % 
-% Steady state data is calculated by solve_ss_scenario.m.
+% Parameters and steady state data for the virtual population are 
+% calculated by create_par_bs_rep.m.m and create_vp.m, respectively.
 
-function run_sim_drugs
+% Input
+% scenario1 : scenario to simulate
+% scenario2 : drug scenario to simulate
+% sample_num: index of virtual individual
+% Output
+% plots and saves figures corresponding to the scenario.
+
+function run_sim_hyp_drugs
 
 close all
 
@@ -10,6 +19,77 @@ close all
 mypath = pwd;
 mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Begin user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Physiological scenarios
+% Normal  - Normal conditions
+% m_RAS   - male RAS pars
+% m_Reab  - male fractional sodium and water reabsorption
+% Pri_Hyp - essential/primary hypertension
+scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+             'm_RAS_m_Reab', 'm_RSNA_m_Reab'};
+% scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+%              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
+%              'Pri_Hyp'};
+fixed_ss1 = 1;
+num_scen = length(scenario1);
+% Drug scenarios
+% Normal - Normal conditions
+% ACEi   - Angiotensin converting enzyme inhibitor % 
+% ARB1   - Angiotensin receptor 1 blocker % 
+% CCB    - Calcium channel blocker % 
+% TZD    - Thiazide diuretic % 
+% ARB2   - Angiotensin receptor 2 blocker %
+% DRI    - Direct renin inhibitor %
+% MRB    - Aldosterone blocker %
+scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', ...
+             'TZD'   , 'ARB2', 'DRI' , 'MRB'};
+fixed_ss2 = [1];
+
+% Species
+spe_ind = 2;
+
+% Number of days to run simulation after change; Day at which to induce change;
+days = 2; day_change = 1;
+% Number of points for plotting resolution
+% N = ((days+1)*1440) / 2;
+N = (days+1)*100 + 1;
+
+% Bootstrap replicate sample number
+sample_num = random('Discrete Uniform',1000)
+% sample_num = 119
+
+% Drug dose
+% Inibition level for primary effect
+drug_dose = 0.96
+% TZD effect on vasodilation
+drug_dose_vaso = 0
+% TZD effect on renin secretion
+a = 11/9; b = 1/9;
+% drug_dose_rsec = drug_dose + 0.5 % TZD
+% drug_dose_rsec = 2*drug_dose
+drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
+% drug_dose_rsec = 0
+% drug_dose_rsec = 1
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           End user input.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+species = {'human', 'rat'   };
+sex     = {'male' , 'female'};
+
+% Number of variabl
+num_vars = 93;
+
+% Initialize variables.
+% X = (variables, points, sex, scenario)
+X_dy = zeros(num_vars,N,2,num_scen);
+% X = (variables, sex, scenario)
+X_ss = zeros(num_vars,2,num_scen);
 
 %% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -43,104 +123,22 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{u}$'; '$\Phi_{win}$'};
 %%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           Begin user input.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Physiological scenarios
-% Normal  - Normal conditions
-% m_RAS   - male RAS pars
-% m_Reab  - male fractional sodium and water reabsorption
-% Pri_Hyp - essential/primary hypertension
-scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-             'm_RAS_m_Reab', 'm_RSNA_m_Reab'};
-% scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-%              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
-%              'Pri_Hyp'};
-fixed_ss1 = 1;
-num_scen = length(scenario1);
-% Drug scenarios
-% Normal - Normal conditions
-% ACEi   - Angiotensin converting enzyme inhibitor % 95
-% ARB1   - Angiotensin receptor 1 blocker % 94
-% CCB    - Calcium channel blocker % 84
-% TZD    - Thiazide diuretic % 0.5 1?
-% ARB2   - Angiotensin receptor 2 blocker %
-% DRI    - Direct renin inhibitor %
-% MRB    - Aldosterone blocker (MR?) %
-% RSS    - Renin secretion stimulator (thiazide?) % % NOT COMPLETE
-% AngII  - Ang II infusion fmol/(ml min)
-scenario2 = {'Normal', 'ACEi', 'ARB1', 'CCB', 'TZD', ...
-             'ARB2'  , 'DRI' , 'MRB' , 'RSS', 'AngII'};
-fixed_ss2 = [2];
-
-% Species
-spe_ind = 2;
-
-% Number of days to run simulation after change; Day at which to induce change;
-days = 2; day_change = 1;
-% Number of points for plotting resolution
-% N = ((days+1)*1440) / 2;
-N = (days+1)*100 + 1;
-
-% Bootstrap replicate sample number
-% sample_num = random('Discrete Uniform',1000)
-% sample_num = 42 % male and female MAP similar
-sample_num = 119
-% sample_num = 655
-
-% Drug dose
-drug_dose = 0.96
-% ---
-% drug_dose_vaso = 0.1           % TZD
-% drug_dose_vaso = drug_dose/5
-drug_dose_vaso = 0
-% ---
-% a = 3; b = 1;
-a = 11/9; b = 1/9;
-% drug_dose_rsec = drug_dose + 0.5 % TZD
-% drug_dose_rsec = 2*drug_dose
-drug_dose_rsec = a * drug_dose ./ (b + drug_dose)
-% drug_dose_rsec = 0
-% drug_dose_rsec = 1
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           End user input.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-species = {'human', 'rat'   };
-sex     = {'male' , 'female'};
-
-% Number of variabl
-num_vars = 93;
-
-% Initialize variables.
-% X = (variables, points, sex, scenario)
-X_dy = zeros(num_vars,N,2,num_scen);
-% X = (variables, sex, scenario)
-X_ss = zeros(num_vars,2,num_scen);
-
 for sce_ind = fixed_ss1:fixed_ss1 % scenario
 for sex_ind = 1:2        % sex
 
+%% Retrieve variables and parameters.
+
+% Optional parameters
 varargin_input = {scenario1{sce_ind},true};
 
-%% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
-
 % Parameters
-% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-%                               species{spe_ind},sex{sex_ind});
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
-num_pars   = size(pars_rep,1);
-num_sample = size(pars_rep,2);
 pars_rep = pars_rep(:,sample_num);
 
 % Variables
-% load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-%                               species{spe_ind},sex{sex_ind});
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 num_vars   = size(SSdata_rep,1);
@@ -167,19 +165,10 @@ for i = 1:length(fixed_ss2)
             varargin_input = [varargin_input, 'DRI'  ,drug_dose]; % 
     elseif strcmp(scenario2{fixed_ss2(i)}, 'MRB'  )
             varargin_input = [varargin_input, 'MRB'  ,drug_dose]; % 
-    elseif strcmp(scenario2{fixed_ss2(i)}, 'RSS'  )
-            varargin_input = [varargin_input, 'RSS'  ,drug_dose]; % 
-
-    elseif strcmp(scenario2{fixed_ss2(i)}, 'AngII')
-        if     strcmp(sex{sex_ind}, 'male')
-            varargin_input = [varargin_input, 'AngII',910]; % Sullivan 2010
-        elseif strcmp(sex{sex_ind}, 'female')
-            varargin_input = [varargin_input, 'AngII',505]; % Sullivan 2010
-        end
     end
 end
 
-%% Solve DAE dynamic
+%% Solve DAE
 
 % Initial condition for the variables and their derivatives. 
 % System is initially at steady state, so the derivative is 0.
@@ -201,47 +190,9 @@ options_dy = odeset('MaxStep',1000); % default is 0.1*abs(t0-tf)
                bp_reg_mod(t,x,x_p,pars_rep,tchange_dy,varargin_input{:}), ...
                tspan, x0_dy, x_p0_dy, options_dy);
 
+% Store solution.
 % X = (variables, points, sex, scenario)
 X_dy(:,:,sex_ind,sce_ind) = x';
-
-% %% Solve system steady state
-% 
-% % Initial guess for the variables.
-% % Find the steady state solution, so the derivative is 0.
-% % Arbitrary value for time to input, greater than tchange + deltat.
-% x0_ss = SSdata_rep; x_p0_ss = zeros(num_vars,1); t_ss = 30;
-% 
-% % Time at which to change place holder.
-% tchange_ss = 0;
-% 
-% % Solver options
-% options_ss = optimset();
-% % Solve system
-% [SSdata, residual, ...
-%  exitflag, output] = fsolve(@(x) ...
-%                             bp_reg_mod(t_ss,x,x_p0_ss,pars_rep,tchange_ss,varargin_input{:}), ...
-%                             x0_ss, options_ss);
-% 
-% % Check for solver convergence.
-% if exitflag == 0
-%     disp('Solver did not converge.')
-%     disp(output)
-% end
-% 
-% % Check for imaginary solution.
-% if not (isreal(SSdata))
-%     disp('Imaginary number returned.')
-% end
-% 
-% % Set any values that are within machine precision of 0 equal to 0.
-% for i = 1:length(SSdata)
-%     if abs(SSdata(i)) < eps*100
-%         SSdata(i) = 0;
-%     end
-% end
-% 
-% % X = (variables, sex, scenario)
-% X_ss(:,sex_ind,sce_ind) = SSdata;
 
 end % sex
 end % scenario
@@ -253,9 +204,6 @@ end % scenario
 t_dy = t_dy';
 X_dy_m = reshape(X_dy(:,:,1,:), [num_vars,N,num_scen]); 
 X_dy_f = reshape(X_dy(:,:,2,:), [num_vars,N,num_scen]); 
-% % X_m/f = (variables, scenario)
-% X_ss_m = reshape(X_ss(:,  1,:), [num_vars,  num_scen]); 
-% X_ss_f = reshape(X_ss(:,  2,:), [num_vars,  num_scen]); 
 
 % Total urine and sodium excretion
 % 27, 92
@@ -731,17 +679,17 @@ plot(t_dy,CSOD_f   (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidt
 hold off
 title('E')
 
-%% Save figures. ----------------------------------------------------------
+%% Save figures.
 
-% save_data_name = sprintf('Pri_hyp_sim_%s%s%%_VI%s.fig', ...
-%                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f1;f2;g1;g2;g3;h1], save_data_name)
-% ---
-% save_data_name = sprintf('Pri_hyp_sim_all_vars_%s%s%%_VI%s.fig', ...
-%                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([f1], save_data_name)
+save_data_name = sprintf('Pri_hyp_sim_%s%s%%_VI%s.fig', ...
+                         scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
+save_data_name = strcat('Figures/', save_data_name);
+savefig([f1;f2;g1;g2;g3;h1], save_data_name)
+---
+save_data_name = sprintf('Pri_hyp_sim_all_vars_%s%s%%_VI%s.fig', ...
+                         scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
+save_data_name = strcat('Figures/', save_data_name);
+savefig([f1], save_data_name)
 
 end
 

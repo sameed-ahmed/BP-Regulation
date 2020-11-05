@@ -1,7 +1,8 @@
 % This script calculates the steady state values of the blood pressure 
-% regulation model bp_reg_solve_baseline.m for some alternative scenarios.
-% 
-% Steady state data for the intial guess is calculated by solve_ss_baseline.m.
+% regulation model bp_reg_mod.m for some baseline and alternative scenarios.
+
+% Input:  scenario
+% Output: saves data files for steady values of model variables
 
 function solve_ss_scenario
 
@@ -138,11 +139,12 @@ for i = 1:length(SSdata)
     end
 end
 
-% % Save values.
-% save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-%                          species{spe_ind},sex{sex_ind},scenario{sce_ind});
-% save_data_name = strcat('Data/', save_data_name);
-% save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
+%% Save values.
+
+save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
+                         species{spe_ind},sex{sex_ind},scenario{sce_ind});
+save_data_name = strcat('Data/', save_data_name);
+save(save_data_name, 'SSdata', 'residual', 'exitflag', 'output')
 
 end % sex
 end % scenario

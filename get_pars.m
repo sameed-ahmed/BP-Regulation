@@ -1,4 +1,12 @@
-% 
+% This function retrieves parameters.
+
+% Input
+% species : species identifier
+% sex     : sex identifier
+% varargin: optimal parameters (e.g., scenarios)
+
+% Output
+% pars    : model parameters corresponding to input
 
 function pars = get_pars(species, sex, varargin)
 

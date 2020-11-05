@@ -1,7 +1,10 @@
 % This simulates the blood pressure regulation model bp_reg.m.
 % It is adopted with modifications from Karaaslan 2005 and Leete 2018.
 % 
-% Steady state data is calculated by solve_ss_baseline.m or solve_ss_scenario.m.
+% Steady state data is calculated by solve_ss_scenario.m.
+
+% Input:  scenario
+% Output: plots of all variables vs time
 
 % function [SSdata, f] = run_sim
 function run_sim
@@ -22,12 +25,10 @@ addpath(genpath(mypath))
 % m_RAS   - male RAS pars
 % m_Reab  - male fractional sodium and water reabsorption
 % Pri_Hyp - essential/primary hypertension
-scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-             'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
-             'Pri_Hyp'};
-scenario2 = {'Normal', 'AngII', 'ACEi', 'ARB'};
-fixed_ss1 = 1;
-fixed_ss2 = 1;
+scenario = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
+            'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
+            'Pri_Hyp'};
+fixed_ss = 1;
 
 % Species
 spe_ind = 2;
@@ -51,55 +52,25 @@ T = cell(1,2);
 
 for sex_ind = 1:2 % sex
 
+%% Retrieve variables and parameters.
+
 % Initial value
 % This initial condition is the steady state data value taken from
 % solve_ss_scenario.m.
 
 % Set name for data file to be loaded based upon sex and scenario.    
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-                         species{spe_ind},sex{sex_ind},scenario1{fixed_ss1});
-% load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-%                          species{sp},sex{sex_ind},scenario1{1});
+                         species{spe_ind},sex{sex_ind},scenario{fixed_ss});
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 
-varargin_input = {scenario1{fixed_ss1},true};
-% varargin_input = [varargin_input, 'Control Water Intake',{{true, SSdata(93)}}];
-
-%% Parameters
+% Optional parameters
+varargin_input = {scenario{fixed_ss},true};
 
 % Parameter input
 pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
-% pars([1;7;20;29;55]+58)
-
-%% Drugs
-
-% Ang II inf rate fmol/(ml min), ACEi target level (%), ARB target level (%)
-if     strcmp(scenario2{fixed_ss2}, 'AngII')
-    if     strcmp(sex{sex_ind}, 'male')
-        varargin_input = [varargin_input, 'AngII',2022]; % Sampson 2008
-    elseif strcmp(sex{sex_ind}, 'female')
-        varargin_input = [varargin_input, 'AngII',2060]; % Sampson 2008
-    end
-elseif strcmp(scenario2{fixed_ss2}, 'ACEi')
-        varargin_input = [varargin_input, 'ACEi',0.95]; 
-elseif strcmp(scenario2{fixed_ss2}, 'ARB')
-        varargin_input = [varargin_input, 'ARB',0.67]; % Leete 2018
-end
 
 %% Solve DAE
-
-% % Initial value
-% % This initial condition is the steady state data value taken from
-% % solve_ss_scenario.m.
-% 
-% % Set name for data file to be loaded based upon sex and scenario.    
-% load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-%                          species{spe_ind},sex{sex_ind},scenario1{fixed_ss1});
-% % load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-% %                          species{sp},sex{sex_ind},scenario1{1});
-% % Load data for steady state initial value. 
-% load(load_data_name, 'SSdata');
 
 %% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
@@ -154,6 +125,7 @@ options = odeset('MaxStep',100); % default is 0.1*abs(t0-tf)
                bp_reg_mod(t,x,x_p,pars,tchange,varargin_input{:}), ...
                tspan, x0, x_p0, options);
 
+% Store time and variables.
 T{sex_ind} = t';
 X{sex_ind} = x';
 
@@ -220,7 +192,7 @@ for i = 1:7
 end
 
 %% Save figures.
-% 
+
 % if strcmp(scenario1{fixed_ss1}, 'Normal') && strcmp(scenario2{fixed_ss2}, 'Normal')
 %     save_data_name = sprintf('all_vars_baseline.fig');
 %     save_data_name = strcat('Figures/', save_data_name);

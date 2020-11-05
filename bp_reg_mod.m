@@ -1,7 +1,8 @@
 % This is a model of long-term model blood pressure regulation.
-% It is adopted with modifications from Karaaslan 2005 and Leete 2018.
+% It is adopted with modifications from Karaaslan 2005, Leete 2019, Ahmed 2020.
 
-% This function file is to solve for the steady state solution in different scenarios.
+% This function file is to solve for the steady state or dynamic solution 
+% for different scenarios.
 
 % Input
 % t        - time
@@ -13,11 +14,11 @@
 %            it is a variable length input argument
 
 % Output
-% f        - left hand side of f(t,x(t),x'(t);theta) = 0.
+% f        - left hand side of y = f(t,x(t),x'(t);theta).
 
 function f = bp_reg_mod(t,x,x_p,pars,tchange,varargin)
 
-%% Retrieve species and sex identifier. 
+%% Retrieve species and sex identifiers. 
 
 spe_par = pars(1);
 sex_par = pars(2);
@@ -67,7 +68,6 @@ kappa_DI_R_inp  = 0; % Thiazide diuretic renin secretion %
 kappa_ARB2_inp  = 0; % Angiotensin receptor 2 blocker %
 kappa_DRI_inp   = 0; % Direct renin inhibitor %
 kappa_MRB_inp   = 0; % Aldosterone blocker %
-kappa_RSS_inp   = 0; % Renin secretion stimulator %
 
 kappa_f_inp     = 0; % Furosemide values. array of length 2
 kappa_f_md_inp  = 0; % Furosemide values. array of length 2
@@ -103,7 +103,6 @@ for i = 1:2:length(varargin)
     % Drugs
     if     strcmp(varargin{i},'AngII')
         kappa_AngII_inp = varargin{i + 1};
-
     elseif strcmp(varargin{i},'ACEi')
         kappa_ACEi_inp  = varargin{i + 1};
     elseif strcmp(varargin{i},'ARB1')
@@ -121,8 +120,6 @@ for i = 1:2:length(varargin)
         kappa_DRI_inp   = varargin{i + 1};
     elseif strcmp(varargin{i},'MRB' )
         kappa_MRB_inp   = varargin{i + 1};
-    elseif strcmp(varargin{i},'RSS' )
-        kappa_RSS_inp   = varargin{i + 1};
     elseif strcmp(varargin{i},'furosemide')
         f_dose          = varargin{i + 1};
         kappa_f_inp     = f_dose(1);
@@ -259,7 +256,6 @@ SAL = 1;
 
 % Drugs
 alpha = 0.005; % slope for parameter increase
-% alpha = 0.002; % slope for parameter increase
 if     t <  tchange
     kappa_AngII = 0; 
     kappa_ACEi  = 0;
@@ -271,7 +267,6 @@ if     t <  tchange
     kappa_ARB2  = 0;
     kappa_DRI   = 0;
     kappa_MRB   = 0;
-    kappa_RSS   = 0;
     kappa_f     = 0;
     kappa_f_md  = 0; 
 elseif t >= tchange %&& t < 2*tchange
@@ -285,7 +280,6 @@ elseif t >= tchange %&& t < 2*tchange
     kappa_ARB2  = kappa_ARB2_inp  * tanh(alpha * (t-tchange)); 
     kappa_DRI   = kappa_DRI_inp   * tanh(alpha * (t-tchange)); 
     kappa_MRB   = kappa_MRB_inp   * tanh(alpha * (t-tchange)); 
-    kappa_RSS   = kappa_RSS_inp   * tanh(alpha * (t-tchange)); 
     kappa_f     = kappa_f_inp     * tanh(alpha * (t-tchange)); 
     kappa_f_md  = kappa_f_md_inp  * tanh(alpha * (t-tchange)); 
 % elseif t >= 2*tchange && t < 3*tchange
@@ -456,9 +450,7 @@ c_AT1R           = pars(37);
 c_AT2R           = pars(38);
 AT1R_eq          = pars(39);
 AT2R_eq          = pars(40);
-
 sigmamyo_b       = pars(41);
-
 Psi_AT2RAA_eq    = pars(42);
 Psi_AT2REA_eq    = pars(43);
 ALD_eq           = pars(44);
@@ -581,7 +573,7 @@ Phi_u         = x(92); Phi_u_p         = x_p(92);
 Phi_win       = x(93); Phi_win_p       = x_p(93);
 end
 
-%% Differential algebraic equation system f(t,x,x') = 0.
+%% Differential algebraic equation system y = f(t,x,x').
 
 f = zeros(length(x),1);
 
@@ -779,7 +771,6 @@ f(36) = vas_f - ( (11.312 * exp(-Phi_co * vasf_a)) / 100 );
 f(37) = vas_d - ( vas * K_vd );
 % R_a
 f(38) = R_a - ( R_ba * epsilon_aum * (1-kappa_CCB*CCB_less) * (1-kappa_DI_V) );
-% f(38) = R_a - ( R_ba * epsilon_aum * (1-kappa_CCB) );
 % R_ba
 f(39) = R_ba - ( K_bar / vas );
 % R_vr
@@ -891,7 +882,7 @@ elseif strcmp(species, 'rat')
     f(63) = nu_AT1 - ( (AT1R / AT1R_eq)^(-0.95) );
 end
 % R_sec
-f(64) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 * (1+kappa_RSS) * (1+kappa_DI_R) );
+f(64) = R_sec - ( N_rs * nu_mdsod * nu_rsna * nu_AT1 * (1+kappa_DI_R) );
 % PRC
 f(65) = PRC_p - ( R_sec - log(2)/h_renin * PRC );
 % PRA
@@ -910,10 +901,8 @@ f(71) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
 f(72) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
 % R_aa
 f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA * (1-kappa_CCB) * (1-kappa_DI_V));
-% f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA * (1-0*kappa_CCB));
 % R_ea
 f(74) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA * (1-kappa_CCB*CCB_less) );
-% f(74) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA * (1-0*kappa_CCB) );
 % Sigma_myo
 if     strcmp(species, 'human')
     if imp_Myo_ind
@@ -925,7 +914,7 @@ if     strcmp(species, 'human')
     sigmamyo_c = 9;
     sigmamyo_e = 62;
 elseif strcmp(species, 'rat')
-    sigmamyo_a = 0.75; %sigmamyo_b = 1.2; 
+    sigmamyo_a = 0.75;
     sigmamyo_d = 0.6;
     sigmamyo_c = sigmamyo_b / (1-sigmamyo_a) - 1;
     sigmamyo_e = fixed_var_pars(9);

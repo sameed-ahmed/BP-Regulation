@@ -1,6 +1,16 @@
-% This script ...
+% This simulates the blood pressure regulation model bp_reg_mod.m for 
+% various scenarios for a given virtual individual.
+% 
+% Parameters and steady state data for the virtual population are 
+% calculated by create_par_bs_rep.m.m and create_vp.m, respectively.
 
-function sim_hyp_vp
+% Input
+% sim_scenario: scenario to simulate
+% sample_num  : index of virtual individual
+% Output
+% plots and saves figures corresponding to the scenario.
+
+function run_sim_hyp_scen
 
 close all
 
@@ -51,67 +61,14 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 % Sodin    - sodium loading
 % RPP      - manipulate renal perfusion pressure
 sim_scenario = {'Baseline', 'AngII', 'Sodin', 'RPP'};
-exact_sim_scen = 3;
+exact_sim_scen = 1;
 
 % Species
 spe_ind = 2;
 
-% Dataset
-% dataset = 'old';
-% dataset = 'new';
-dataset = 'newnew';
-% dataset = 'particular';
-% dataset = 'particular range';
-
-fixed_sex_ind = 2
-
 % Bootstrap replicate sample number
-% sample_num = random('Discrete Uniform',1000)
-sample_num = 119
-% sample_num_range = 010;
-% ---
-% Old remarkable samples
-% sample_num = 42 % male and female MAP similar
-% sample_num = 707 % bad female fit for Ang II
-% sample_num = 208
-% sample_num = 655
-% sample_num = 47  % good fits for Ang II
-% ---
-% female bad fit for new1
-% sample_num = 239 
-% sample_num = 723 
-% sample_num = 261 
-% sample_num = 823 
-% sample_num = 098 
-%   male bad fit for new1 ~
-% sample_num = 975 
-% sample_num = 080 
-%   both bad fit for new1 ~
-% sample_num = 003 
-%  both good fit for new1
-% sample_num = 318 
-% sample_num = 951 
-% sample_num = 035 
-% ---
-% female bad fit for old
-% sample_num = 212 
-% sample_num = 463 
-% sample_num = 167 
-%  both good fit for old
-% sample_num = 206 
-% sample_num = 573 
-% sample_num = 742 
-% sample_num = 077 
-% sample_num = 207 
-% sample_num = 862
-% sample_num = 695
-% ---
-% new2?
-% sample_num = 001
-% sample_num = 002
-% sample_num = 003 % *      AngII male
-% sample_num = 004 % ***    AngII female
-% sample_num = 005 % *      AngII female
+sample_num = random('Discrete Uniform',1000)
+% sample_num = 119
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -123,27 +80,12 @@ sex     = {'male' , 'female'};
 PARS = cell(1,2); SSDATA = cell(1,2); 
 
 for sex_ind = 1:2 % sex
-% for sex_ind = fixed_sex_ind:fixed_sex_ind % sex 
 
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-if     strcmp(dataset, 'old')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'new')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'newnew')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'particular')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
-                                  species{spe_ind},sex{sex_ind},num2str(sample_num));
-elseif strcmp(dataset, 'particular range')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
-                                  species{spe_ind},sex{sex_ind},num2str(sample_num_range));
-end
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                              species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 num_pars   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
@@ -154,37 +96,11 @@ PARS{sex_ind} = pars_rep;
 % PARS{sex_ind}(par_ind,sample_num) = pars0_est;
 
 % Variables
-if     strcmp(dataset, 'old')
-    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'new')
-    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'newnew')
-    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'particular')
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
-                              species{spe_ind},sex{sex_ind},num2str(sample_num));
-elseif strcmp(dataset, 'particular range')
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
-                              species{spe_ind},sex{sex_ind},num2str(sample_num_range));
-end
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                              species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 num_vars   = size(SSdata_rep,1);
 SSDATA{sex_ind} = SSdata_rep;
-
-%% % Load baseline parameters and variables for comparison.
-% 
-% % Parameters
-% varargin_input = {scenario{1},true};
-% pars_bl = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
-% 
-% % Variables
-% load_data_name_vars_bl = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
-%                          species{spe_ind},sex{sex_ind},scenario{1});
-% load(load_data_name_vars_bl, 'SSdata');
-% SSdata_bl = SSdata; clear SSdata;
 
 end % sex
 
@@ -202,17 +118,19 @@ end
 
 %% Save figures.
 
-save_data_name = sprintf('Pri_hyp_sim_%s_VI%sNEW.fig', ...
+save_data_name = sprintf('Pri_hyp_sim_%s_VI%s.fig', ...
                          sim_scenario{exact_sim_scen},num2str(sample_num));
 save_data_name = strcat('Figures/', save_data_name);
 savefig(fig, save_data_name)
 % ---
-save_data_name = sprintf('Pri_hyp_sim_%s_VI%sNEW.png', ...
+save_data_name = sprintf('Pri_hyp_sim_%s_VI%s.png', ...
                          sim_scenario{exact_sim_scen},num2str(sample_num));
 save_data_name = strcat('Figures/', save_data_name);
 exportgraphics(fig(end), save_data_name)
 
+%% ---------------------------------
 %% Subfunctions
+%% ---------------------------------
 
 % -------------------------------------------------------------------------
 % Steady state simulation
@@ -1220,22 +1138,18 @@ function f = run_sim_RPP(PARS,SSDATA,sample_num)
 % Enter postive for increase or negative for decrease.
 RPP_per = [-20; 0; 20];
 num_per = length(RPP_per);
-
-% Scenarios
-% Denerve - cut off rsna from kidney
-scenario = {'Normal'};
-% scenario = {'Pri_Hyp'};
-num_scen = length(scenario);
-
-% Number of points for plotting resolution
-num_points = 121;
-
 % Index of RPP to plot for all variables
 exact_per = 3;
 
+% Scenarios
+scenario = {'Normal'};
+% scenario = {'Pri_Hyp'};
+num_scen = length(scenario);
 % Index of scenario to plot for all variables
-% Scenario 'Denerve' is the one from Hilliard 2011.
 exact_scen = 1;
+
+% Number of points for plotting resolution
+num_points = 121;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.

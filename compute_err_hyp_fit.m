@@ -1,3 +1,9 @@
+% This script computes the error for the perturbation experiments for any
+% user inputed virtual individual.
+% The perturbation experiments are Ang II infusion and sodium loading.
+
+% Input:  index of virtual individual
+% Output: error between simulated and experimental data
 
 function compute_err_hyp_fit
 
@@ -14,59 +20,13 @@ fprintf('------------------------------------------ \n')
 
 % Scenarios
 % Normal - Normal conditions
-% m_RAS  - male RAS pars
-% m_Reab - male fractional sodium and water reabsorption
-scenario = {'Normal', 'm_RAS', 'm_Reab', 'm_RAS_m_Reab'};
+scenario = {'Normal'};
 % Index of scenario to fix.
 fixed_ss = 1;
-
-% Dataset
-% dataset = 'old';
-% dataset = 'new';
-dataset = 'newnew';
-% dataset = 'particular';
-% dataset = 'particular range';
 
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
 sample_num = 974
-% sample_num_range = 010;
-% ---
-% female bad fit for new1
-% sample_num = 239 
-% sample_num = 723 
-% sample_num = 261 
-% sample_num = 823 
-% sample_num = 098 
-%   male bad fit for new1 ~
-% sample_num = 975 
-% sample_num = 080 
-%   both bad fit for new1 ~
-% sample_num = 003 
-%  both good fit for new1
-% sample_num = 318 
-% sample_num = 951 
-% sample_num = 035 
-% ---
-% female bad fit for old
-% sample_num = 212 
-% sample_num = 463 
-% sample_num = 167 
-%  both good fit for old
-% sample_num = 206 
-% sample_num = 573 
-% sample_num = 742 
-% sample_num = 077 
-% sample_num = 207 
-% sample_num = 862
-% sample_num = 695
-% ---
-% new?
-% sample_num = 001
-% sample_num = 002
-% sample_num = 003 % *      male
-% sample_num = 004 % ***    female
-% sample_num = 005 % *      female
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           End user input.
@@ -88,41 +48,13 @@ for sex_ind = 1:2 % sex
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-if     strcmp(dataset, 'old')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'new')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'newnew')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'particular')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
-                                  species{spe_ind},sex{sex_ind},num2str(sample_num));
-elseif strcmp(dataset, 'particular range')
-    load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep%s.mat', ...
-                                  species{spe_ind},sex{sex_ind},num2str(sample_num_range));
-end
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                              species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 
 % Variables
-if     strcmp(dataset, 'old')
-    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'new')
-    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEW.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'newnew')
-    load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
-                                  species{spe_ind},sex{sex_ind});
-elseif strcmp(dataset, 'particular')
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
-                              species{spe_ind},sex{sex_ind},num2str(sample_num));
-elseif strcmp(dataset, 'particular range')
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep%s.mat', ...
-                              species{spe_ind},sex{sex_ind},num2str(sample_num_range));
-end
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
+                              species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 
 %% Load bootstrap replicate data created by create_data_bs_rep.m.
@@ -303,7 +235,7 @@ err = sqrt(err);
 
 end % Sodin err
 
-end % solve_ss_hyp_fit
+end % compute_err_hyp_fit
 
 
 

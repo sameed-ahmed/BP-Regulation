@@ -1,6 +1,9 @@
-% This script loads the bootstrap replicate parameters and steady state
-% variables for the virtual population. It then plots the distribution for
-% each and saves the figures.
+% This script loads the bootstrap replicate parameter sets and corresponding 
+% steady state variables for the virtual population. It then plots the 
+% distribution for each and saves the figures.
+
+% Input:  none
+% Output: saves figures of parameter and variable distributions.
 
 function create_vp_dist
 
@@ -11,14 +14,9 @@ mypath = pwd;
 mypath = strcat(mypath, '/Data');
 addpath(genpath(mypath))
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           Begin user input.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Parameters to perturb
 % K_bar            - par 13; - 0%, +200%
 % R_bv             - par 14; - 0%, +200%
-% % C_gcf            - par 8 ; -20%
 % R_aass           - par 4 ; - 0%, +100%
 % N_rs             - par 21; - 0%, +100%
 % N_als_eq         - par 18; - 0%, +100%
@@ -28,9 +26,7 @@ addpath(genpath(mypath))
 % Indices
 pars_ind = [13;14;4;21;18;3;15;41];
 pars_hyp_num = length(pars_ind);
-% Range for parameters
-par_range_lower = [0  ;0  ;0  ;0  ;0  ;0  ;0  ;0  ]/100;
-par_range_upper = [200;600;200;100;100;100;100;900]/100;
+
 %% par names + units
 pars_names   = {'$K_{bar}$'            , '$R_{bv}$'             , ...
                 '$R_{aa-ss}$'          , '$N_{rs}$'             , ...
@@ -62,10 +58,6 @@ scenario = {'Normal'};
 % Species
 spe_ind = 2;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           End user input.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
@@ -74,9 +66,7 @@ for sex_ind = 1:2 % sex
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-%                               species{spe_ind},sex{sex_ind});
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_hyp = pars_rep(pars_ind,:);
@@ -85,9 +75,7 @@ num_pars   = size(pars_rep,1);
 num_sample = size(pars_rep,2);
 
 % Variables
-% load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-%                               species{spe_ind},sex{sex_ind});
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 vars_hyp = SSdata_rep(vars_ind,:);
@@ -110,9 +98,6 @@ vars_hyp_bl = SSdata_bl(vars_ind,:);
 
 %% Plot parameter and variable distributions.
 
-% % Parameter bin edges.
-% edges_pars = [];
-
 % Plot parameters
 f(sex_ind,1) = figure('DefaultAxesFontSize',14);%, 'pos',[750 500 500 600]);
 set(gcf, 'Units', 'Inches', 'Position', [7, 0, 8, 10]);
@@ -126,9 +111,6 @@ for i = 1:pars_hyp_num
 end
 hist_title = sprintf('%s pars',sex{sex_ind});
 sgtitle(hist_title, 'FontSize',16)
-
-% % Variable bin edges.
-% edges_vars = [];
 
 % Variable number of bins.
 % P_ma_edge      = linspace(min(vars_hyp(1,:)),max(vars_hyp(1,:)),7);
@@ -151,9 +133,6 @@ Phi_gfilt_edge = [0.90*vars_hyp_bl(8), 0.95*vars_hyp_bl(8), ...
 Phi_u_edge     = [0.90*vars_hyp_bl(9), 0.95*vars_hyp_bl(9), ...
                   1.00*vars_hyp_bl(9), 1.05*vars_hyp_bl(9), 1.10*vars_hyp_bl(9)];
 bins_vars = {P_ma_edge;Phi_co_edge;6;6;6;C_sod_edge;Phi_rb_edge;Phi_gfilt_edge;Phi_u_edge};
-% bins_vars = {6;3;10;10;10;3;3;3;3};
-
-% Variable bin height for 
 
 % Plot variables
 f(sex_ind,2) = figure('DefaultAxesFontSize',14);
@@ -177,12 +156,12 @@ end % sex
 %% Plot parameters male and female together.
 
 % Load hypertensive and baseline parameters.
-load_data_name_pars = sprintf(  '%s_male_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', species{spe_ind});
+load_data_name_pars = sprintf(  '%s_male_pars_scenario_Pri_Hyp_bs_rep1000.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_bl_m = get_pars(species{spe_ind}, sex{1}, varargin_input{:});
 pars_hyp_m    = pars_rep (pars_ind,:);
 pars_hyp_bl_m = pars_bl_m(pars_ind  );
-load_data_name_pars = sprintf('%s_female_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', species{spe_ind});
+load_data_name_pars = sprintf('%s_female_pars_scenario_Pri_Hyp_bs_rep1000.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 pars_bl_f = get_pars(species{spe_ind}, sex{2}, varargin_input{:});
 pars_hyp_f    = pars_rep (pars_ind,:);

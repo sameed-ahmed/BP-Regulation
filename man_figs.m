@@ -1,6 +1,4 @@
-% This simulates the blood pressure regulation model bp_reg.m for drug administration.
-% 
-% Steady state data is calculated by solve_ss_scenario.m.
+% This script to output the specific figures in Ahmed 2021.
 
 function man_figs
 
@@ -49,14 +47,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
 
 % Physiological scenarios
 % Normal  - Normal conditions
-% m_RAS   - male RAS pars
-% m_Reab  - male fractional sodium and water reabsorption
-% Pri_Hyp - essential/primary hypertension
-scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-             'm_RAS_m_Reab', 'm_RSNA_m_Reab'};
-% scenario1 = {'Normal', 'm_RSNA', 'm_AT2R', 'm_RAS', 'm_Reab', ...
-%              'm_RAS_m_Reab', 'm_RSNA_m_Reab', ...
-%              'Pri_Hyp'};
+scenario1 = {'Normal'};
 fixed_ss1 = 1;
 num_scen = length(scenario1);
 % Drug scenarios
@@ -84,13 +75,11 @@ sample_num = 422
 % sample_num = 655
 
 % Drug dose
+% Inibition level for primary effect
 drug_dose = 0.50
-% ---
-% drug_dose_vaso = 0.1           % TZD
-% drug_dose_vaso = drug_dose/5
+% TZD effect on vasodilation
 drug_dose_vaso = 0
-% ---
-% a = 3; b = 1;
+% TZD effect on renin secretion
 a = 11/9; b = 1/9;
 % drug_dose_rsec = drug_dose + 0.5 % TZD
 % drug_dose_rsec = 2*drug_dose
@@ -109,7 +98,7 @@ drug_dose_range = linspace(0,0.99,num_dose);
 species = {'human', 'rat'   };
 sex     = {'male' , 'female'};
 
-% Number of variabl
+% Number of variables
 num_vars = 93;
 
 % Initialize variables.
@@ -119,14 +108,13 @@ X_dy = zeros(num_vars,N,2,num_scen);
 for sce_ind = fixed_ss1:fixed_ss1 % scenario
 for sex_ind = 1:2        % sex
 
+% Set optional parameters.
 varargin_input = {scenario1{sce_ind},true};
 
 %% Load bootstrap replicate parameters & variables created by create_par_bs_rep.m.
 
 % Parameters
-% load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-%                               species{spe_ind},sex{sex_ind});
-load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
+load_data_name_pars = sprintf('%s_%s_pars_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_pars, 'pars_rep');
 num_pars   = size(pars_rep,1);
@@ -134,9 +122,7 @@ num_sample = size(pars_rep,2);
 pars_rep = pars_rep(:,sample_num);
 
 % Variables
-% load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000OLD.mat', ...
-%                               species{spe_ind},sex{sex_ind});
-load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', ...
+load_data_name_vars = sprintf('%s_%s_ss_data_scenario_Pri_Hyp_bs_rep1000.mat', ...
                               species{spe_ind},sex{sex_ind});
 load(load_data_name_vars, 'SSdata_rep');
 num_vars   = size(SSdata_rep,1);
@@ -191,30 +177,22 @@ end % scenario
 %% Load bootstrap replicate parameters & variables before and after drug dose.
 
 % Parameters
-% load_data_name_pars = sprintf(...
-%     '%s_male_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', species{spe_ind});
 load_data_name_pars = sprintf(...
-      '%s_male_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', species{spe_ind});
+      '%s_male_pars_scenario_Pri_Hyp_bs_rep1000.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
-% load_data_name_pars = sprintf(...
-%     '%s_female_pars_scenario_Pri_Hyp_bs_rep1000OLD.mat', species{spe_ind});
 load_data_name_pars = sprintf(...
-    '%s_female_pars_scenario_Pri_Hyp_bs_rep1000NEWNEW.mat', species{spe_ind});
+    '%s_female_pars_scenario_Pri_Hyp_bs_rep1000.mat', species{spe_ind});
 load(load_data_name_pars, 'pars_rep');
 
-% Variables after drug dose and hypertensiv baseline before drug dose
+% Variables after drug dose and hypertensive baseline before drug dose
 % X_m/f = (variable, sample, scenario)
-% load_data_name_vars = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s.mat'  , ...
-%                               species{spe_ind},scenario2{fixed_ss2})
-load_data_name_vars = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%sNEW.mat'  , ...
+load_data_name_vars = sprintf('%s_male_ss_data_scenario_Pri_Hyp_%s.mat'  , ...
                               species{spe_ind},scenario2{fixed_ss2})
 load(load_data_name_vars, ...
      'X_ss_m' , 'X_ss_mean_m' , 'X_ss_std_m' , ...
      'X_bl_m' , 'X_bl_mean_m' , 'X_bl_std_m' , ...
      'X_rel_m', 'X_rel_mean_m', 'X_rel_std_m');
-% load_data_name_vars = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s.mat', ...
-%                               species{spe_ind},scenario2{fixed_ss2})
-load_data_name_vars = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%sNEW.mat', ...
+load_data_name_vars = sprintf('%s_female_ss_data_scenario_Pri_Hyp_%s.mat', ...
                               species{spe_ind},scenario2{fixed_ss2})
 load(load_data_name_vars, ...
      'X_ss_f' , 'X_ss_mean_f' , 'X_ss_std_f' , ...
@@ -260,7 +238,7 @@ for i = 1:length(ylower)
     end
 end
 
-% Calibration/validation quantities for each sex and all scenarios.
+%% Quantities used for calibration/validation for each sex and all scenarios.
 % X_m/f = (variable, points, scenario)
 BV_m   = reshape(X_dy_m(30,:,:), [N,num_scen]);
 BV_f   = reshape(X_dy_f(30,:,:), [N,num_scen]);
@@ -349,6 +327,7 @@ for i = 1:N
     CSOD_m(i,:)  = CSOD_m (i,:) ./ CSOD_m_bl ;
     CSOD_f(i,:)  = CSOD_f (i,:) ./ CSOD_f_bl ;
 end
+%%
 
 % Actual and % change in MAP. 
 MAP_ss_mean_m   = X_ss_mean_m (42,:);
@@ -543,15 +522,15 @@ end
 
 %% Save figures. ----------------------------------------------------------
 
-% save_data_name = sprintf('man_figs_%s%s%%_VI%s.fig', ...
-%                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
-% save_data_name = strcat('Figures/', save_data_name);
-% savefig([man_f], save_data_name)
-% % ---
-% save_data_name = sprintf('man_figs_%s%s%%_VI%s.png', ...
-%                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
-% save_data_name = strcat('Figures/', save_data_name);
-% exportgraphics([man_f(7)], save_data_name)
+save_data_name = sprintf('man_figs_%s%s%%_VI%s.fig', ...
+                         scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
+save_data_name = strcat('Figures/', save_data_name);
+savefig([man_f], save_data_name)
+% ---
+save_data_name = sprintf('man_figs_%s%s%%_VI%s.png', ...
+                         scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
+save_data_name = strcat('Figures/', save_data_name);
+exportgraphics([man_f(7)], save_data_name)
 
 
 end

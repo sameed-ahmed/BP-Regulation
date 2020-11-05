@@ -1,9 +1,16 @@
+% This script creates bootstrap replicates of the dataset.
+% The dataset is the time course response of MAP to Ang II infusion. 
+% It is from Sullivan 2010 Hypertension.
+
+% Input:  none
+% Output: saves dataset of 1000 bootstrap replicates.
+
 function create_data_bs_rep
 
 close all
 clear
 
-% Species
+% Species index
 spe_ind = 2;
 
 species = {'human', 'rat'   };
@@ -59,7 +66,7 @@ save(save_data_name, 'AngII_data_rep', 'num_sample')
 
 end % sex
 
-end
+end % create_data_bs_rep
 
 
 
