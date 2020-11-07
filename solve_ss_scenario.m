@@ -76,12 +76,11 @@ end
 % Set name for data file to be loaded based upon gender.
 load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
                          species{sp},sex{sex_ind},scenario{sce_ind});
-% load_data_name = sprintf('NEW%s_ss_data_IG.mat', gender{gg});
 load(load_data_name, 'SSdata');
 SSdataIG     = SSdata;
 clear SSdata
 
-% load_data_name = sprintf('NEW%s_%s_ss_data_IG.mat', species{sp},gender{gg});
+% load_data_name = sprintf('%s_%s_ss_data_IG.mat', species{sp},sex{sex_ind});
 % load(load_data_name, 'SSdataIG');
 
 % Order
@@ -135,7 +134,8 @@ for i = 1:length(SSdata)
     end
 end
 
-% Save values.
+%% Save values.
+
 save_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
                          species{sp}, sex{sex_ind},scenario{sce_ind});
 save_data_name = strcat('Rat_Data/', save_data_name);

@@ -25,6 +25,8 @@ RPP_per   = [lower_per : inc_per : upper_per]';
 num_per   = length(RPP_per);
 % Index for baseline perturbation
 bl_per    = (0 - RPP_per(1)) / inc_per + 1;
+% Index of RPP to plot for all variables
+exact_per = 3;
 
 % Scenarios
 % Normal      - normal conditions
@@ -32,20 +34,15 @@ bl_per    = (0 - RPP_per(1)) / inc_per + 1;
 % No Myo      - block myogenic response
 % No TGF      - block tubuloglomerular feedback
 % No Myo, TGF - block myogenic response and tubuloglomerular feedback
-scenario1 = {'Denerve'};
-scenario2 = {'Normal' , 'Linear Myo', ...
-             'No Myo' , 'No TGF' };
-num_scen = length(scenario2)+1; % The extra scenario is both no myo and no TGF.
-
-% Number of points for plotting resolution
-num_points = 121;
-
-% Index of RPP to plot for all variables
-exact_per = 3;
-
+scenario = {'Normal' , 'Linear Myo', ...
+            'No Myo' , 'No TGF' };
+num_scen = length(scenario)+1; % The extra scenario is both no myo and no TGF.
 % Index of scenario to plot for all variables
 % Scenario 'Denerve' is the one from Hilliard 2011.
 exact_scen = 1;
+
+% Number of points for plotting resolution
+num_points = 121;
 
 % Species
 spe_ind = 2;
@@ -90,13 +87,13 @@ load(load_data_name, 'SSdata');
 if sce_ind == num_scen
     varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, ...
                       'Denerve',{true, SSdata}, ...
-                      scenario2{sce_ind-2},true, ...
-                      scenario2{sce_ind-1},true, ...
+                      scenario{sce_ind-2},true, ...
+                      scenario{sce_ind-1},true, ...
                       'Fixed Water Intake',{true, SSdata}};
 else
     varargin_input = {'RPP',{RPP_per(per_ind), SSdata}, ...
                       'Denerve',{true, SSdata}, ...
-                      scenario2{sce_ind},true, ...
+                      scenario{sce_ind},true, ...
                       'Fixed Water Intake',{true, SSdata}};
 end
 
@@ -110,7 +107,7 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 % Renal Perfusion Pressure.
 RPP(sex_ind,sce_ind) = SSdata(42);
 
-% Variable names for plotting.
+%% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -140,6 +137,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
           '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
           '$\Phi_{u}$'; '$\Phi_{win}$'};
+%%
 
 % Initial condition for the variables and their derivatives. 
 % System is initially at steady state, so the derivative is 0.
@@ -449,7 +447,7 @@ plot(arr_lower,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off');
 plot(arr_upper,arr_line,'k--', 'LineWidth',1.5,'HandleVisibility','off'); 
 hold off
 
-% Save figures.
+%% Save figures.
 
 save_data_name = sprintf('quant_of_int_vs_RPP_whole.fig' );
 save_data_name = strcat('Rat_Figures/', save_data_name);

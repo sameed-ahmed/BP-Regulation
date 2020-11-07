@@ -287,7 +287,7 @@ legend(s2(2), bars2([4,2,3,1]), {'Male Dec','Male Inc','Female Dec','Female Inc'
 hold(s2(2), 'off')
 title(s2(2), 'B')
 
-% Save figures ------------------------------------------------------------
+%% Save figures.
 
 save_data_name = sprintf('quant_of_int_sen_anal.fig' );
 save_data_name = strcat('Rat_Figures/', save_data_name);

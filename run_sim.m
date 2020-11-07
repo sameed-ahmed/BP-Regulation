@@ -86,7 +86,7 @@ load_data_name = sprintf('%s_%s_ss_data_scenario_%s.mat', ...
 % Load data for steady state initial value. 
 load(load_data_name, 'SSdata');
 
-% Variable names for plotting.
+%% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -116,6 +116,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
           '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
           '$\Phi_{u}$'; '$\Phi_{win}$'};
+%%
 
 % Initial condition for the variables and their derivatives. 
 % System is initially at steady state, so the derivative is 0.
@@ -200,7 +201,7 @@ for i = 1:7
     end
 end
 
-% Save figures.
+%% Save figures.
 
 if strcmp(scenario1{fixed_ss1}, 'Normal') && strcmp(scenario2{fixed_ss2}, 'Normal')
     save_data_name = sprintf('all_vars_baseline.fig');

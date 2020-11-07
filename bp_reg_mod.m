@@ -34,15 +34,7 @@ end
 
 %% Retrieve species specific additional things.
 
-if     strcmp(species, 'human')
-    % Scaling factors
-    % Rat value = Human value x SF
-    % Note: This includes conversion of units.
-    SF_S =                    1; % sodium flow
-    SF_U =                    1; % urine flow
-    SF_R =                    1; % resistance
-    SF_V =                    1; % volume
-elseif strcmp(species, 'rat')
+if strcmp(species, 'rat')
     % Steady state variable values
     SSdata_input     = pars(end-92:end);
     pars(end-92:end) = '';
@@ -50,21 +42,15 @@ elseif strcmp(species, 'rat')
     % Fixed variable parameters
     fixed_var_pars  = pars(end-8:end);
     pars(end-8:end) = '';
-
-    % Physiological variables which determine scaling factors.
-    Phi_usod_new = pars(end-3)      ; % Munger 1988, Karaaslan 2005
-    Phi_u_new    = pars(end-2)      ; % Munger 1988, Layton 2016
-    R_r_new      = pars(end-1)      ; % Munger 1988
-    W_b          = pars(end  )      ; % Munger 1988
-    V_b_new      = 0.06 * W_b + 0.77; % Lee 1985
-    % Scaling factors
-    % Rat value = Human value x SF
-    % Note: This includes conversion of units.
-    SF_S = Phi_usod_new / 0.126; % sodium flow
-    SF_U = Phi_u_new    / 0.001; % urine flow
-    SF_R = R_r_new      / 83.3 ; % resistance
-    SF_V = V_b_new      / 5    ; % volume
 end
+
+% Scaling factors
+% Rat value = Human value x SF
+% Note: This includes conversion of units.
+SF_S = pars(end-3); % sodium flow
+SF_U = pars(end-2); % urine flow
+SF_R = pars(end-1); % resistance
+SF_V = pars(end  ); % volume
 
 %% Default parameter inputs for changes in simulation.
 
@@ -670,7 +656,7 @@ f(71) = Ang17_p - ( c_NEP * AngI + c_ACE2 * AngII - log(2)/h_Ang17 * Ang17 );
 % AngIV
 f(72) = AngIV_p - ( c_IIIV * AngII - log(2)/h_AngIV * AngIV );
 % R_aa
-f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA);
+f(73) = R_aa - ( R_aass * beta_rsna * Sigma_tgf * Sigma_myo * Psi_AT1RAA * Psi_AT2RAA );
 % R_ea
 f(74) = R_ea - ( R_eass * Psi_AT1REA * Psi_AT2REA );
 % Sigma_myo
@@ -701,23 +687,41 @@ f(76) = Psi_AT1RAA - ( 0.8   + 0.2092 * (AT1R / AT1R_eq) - 0.0092 / (AT1R / AT1R
 % Psi_AT1REA
 f(77) = Psi_AT1REA - ( 0.925 + 0.0835 * (AT1R / AT1R_eq) - 0.0085 / (AT1R / AT1R_eq) );
 % Psi_AT2RAA
+if     strcmp(species, 'human')
+    psiat2raa_a = 0.9;
+    psiat2raa_b = 1 - psiat2raa_a;
+    psiat2raa_c = 1;
+elseif strcmp(species, 'rat')
+    psiat2raa_a = 0.75;
+    psiat2raa_b = 1 - psiat2raa_a;
+    psiat2raa_c = 0.15;
+end
 if     strcmp(sex,'male')
         f(78) = Psi_AT2RAA - ( 1 );
 elseif strcmp(sex,'female')
     if   m_AT2R
         f(78) = Psi_AT2RAA - ( 1 );
     else
-        f(78) = Psi_AT2RAA - ( Psi_AT2RAA_eq * (0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1))) );
+        f(78) = Psi_AT2RAA - ( Psi_AT2RAA_eq * (psiat2raa_a + psiat2raa_b * exp(-psiat2raa_c * (AT2R/AT2R_eq - 1))) );
     end
 end
 % Psi_AT2REA
+if     strcmp(species, 'human')
+    psiat2rea_a = 0.9;
+    psiat2rea_b = 1 - psiat2rea_a;
+    psiat2rea_c = 1;
+elseif strcmp(species, 'rat')
+    psiat2rea_a = 0.8;
+    psiat2rea_b = 1 - psiat2rea_a;
+    psiat2rea_c = 0.15;
+end
 if     strcmp(sex,'male')
         f(79) = Psi_AT2REA - ( 1 );
 elseif strcmp(sex,'female')
     if   m_AT2R
         f(79) = Psi_AT2REA - ( 1 );
     else
-        f(79) = Psi_AT2REA - ( Psi_AT2REA_eq * (0.9 + 0.1 * exp(-(AT2R/AT2R_eq - 1))) );
+        f(79) = Psi_AT2REA - ( Psi_AT2REA_eq * (psiat2rea_a + psiat2rea_b * exp(-psiat2rea_c * (AT2R/AT2R_eq - 1))) );
     end    
 end
 
@@ -774,9 +778,15 @@ elseif strcmp(species, 'rat')
     if     fix_win
         f(93) = Phi_win - ( SSdata_fix(93) );
     else
-        phiwin_a = 0.8; phiwin_c = 0.002313;
-        phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.0150 - 1);
-        f(93) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
+%         phiwin_a = 0.8; phiwin_c = 0.002313;
+%         phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / 0.030 - 1);
+%         f(93) = Phi_win - ( phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) );
+%         phiwin_a = 0.45; phiwin_c = 0.006; phiwin_d = 0.000;
+        phiwin_a = 0.94; phiwin_c = 0.0027; phiwin_d = 0.025;
+        phiwin_b = SSdata_input(47) + 1 / phiwin_a * log(phiwin_c*SF_U / (0.030 - phiwin_d) - 1);
+        f(93) = Phi_win - ( (phiwin_c * SF_U / (1 + exp(-phiwin_a * (C_adh - phiwin_b))) + phiwin_d) );
+%         f(93) = Phi_win - ( 0.03 );
+%         f(93) = Phi_win - ( 0.03 * Phi_sodin_const/2.4424/2 + (0.03-0.03/2) );
     end
 end
 

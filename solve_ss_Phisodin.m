@@ -90,8 +90,8 @@ for iter = 1:iteration % range
 %% Parameters
 
 % Baseline/range of sodium intake.
-Phi_sodin_bl_m = 1.2212;
-Phi_sodin_bl_f = 1.2212;
+Phi_sodin_bl_m = 2.4424;
+Phi_sodin_bl_f = 2.4424;
 Phi_sodin_range_m = Phi_sodin_bl_m * iter_range;
 Phi_sodin_range_f = Phi_sodin_bl_f * iter_range;
 
@@ -126,7 +126,7 @@ end
 
 %% Variables initial guess
 
-% Variable names for plotting.
+%% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -156,6 +156,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
           '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
           '$\Phi_{u}$'; '$\Phi_{win}$'};
+%%
 
 % Initial guess for the variables.
 % Find the steady state solution, so the derivative is 0.
@@ -510,7 +511,7 @@ xlabel(s1(2), 'Scenario', 'FontSize',14); ylabel(s1(2), '\DeltaMAP (mmHg)', 'Fon
 % hAxes.XAxis.FontSize = 6;
 title(s1(2), 'B', 'FontSize',14)
 
-% Save figures. -----------------------------------------------------------
+%% Save figures.
 
 save_data_name = sprintf('all_vars_vs_Phisodin.fig');
 save_data_name = strcat('Rat_Figures/', save_data_name);

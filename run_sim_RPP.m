@@ -20,21 +20,19 @@ addpath(genpath(mypath))
 % Enter postive for increase or negative for decrease.
 RPP_per = [-20; 0; 20];
 num_per = length(RPP_per);
+% Index of RPP to plot for all variables
+exact_per = 3;
 
 % Scenarios
 % Denerve - cut off rsna from kidney
 scenario = {'Normal'};
 num_scen = length(scenario);
-
-% Number of points for plotting resolution
-num_points = 121;
-
-% Index of RPP to plot for all variables
-exact_per = 3;
-
 % Index of scenario to plot for all variables
 % Scenario 'Denerve' is the one from Hilliard 2011.
 exact_scen = 1;
+
+% Number of points for plotting resolution
+num_points = 121;
 
 % Species
 spe_ind = 2;
@@ -88,7 +86,7 @@ pars = get_pars(species{spe_ind}, sex{sex_ind}, varargin_input{:});
 % Renal Perfusion Pressure.
 RPP(sex_ind,sce_ind) = SSdata(42);
 
-% Variable names for plotting.
+%% Variable names for plotting.
 names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\beta_{rsna}$'; '$\Phi_{rb}$'; '$\Phi_{gfilt}$'; '$P_{f}$'; ...
           '$P_{gh}$'; '$\Sigma_{tgf}$'; '$\Phi_{filsod}$'; ...
@@ -118,6 +116,7 @@ names  = {'$rsna$'; '$\alpha_{map}$'; '$\alpha_{rap}$'; '$R_{r}$'; ...
           '$\Phi_{cd-wreab}$'; '$\eta_{cd-wreab}$'; ...
           '$\mu_{cd-sodreab}$'; '$\mu_{adh}$'; ...
           '$\Phi_{u}$'; '$\Phi_{win}$'};
+%%
 
 % Initial condition for the variables and their derivatives. 
 % System is initially at steady state, so the derivative is 0.
@@ -329,7 +328,7 @@ plot(s_rel1(4), RPP_f,USODdata_rel_f(:,2         ) ,'o--', 'Color',[0.835, 0.203
 hold(s_rel1(4), 'off')
 title(s_rel1(4), 'D')
 
-% Save figures. -----------------------------------------------------------
+%% Save figures.
 
 save_data_name = sprintf('quant_of_int_vs_RPP.fig' );
 save_data_name = strcat('Rat_Figures/', save_data_name);
