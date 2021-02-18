@@ -71,8 +71,9 @@ N = (days+1)*100 + 1;
 % Bootstrap replicate sample number
 % sample_num = random('Discrete Uniform',1000)
 % sample_num = 42 % male and female MAP similar
-sample_num = 422
+sample_num = 422 % manuscript figures
 % sample_num = 655
+% sample_num = 958 % manuscript figures CCB
 
 % Drug dose
 % Inibition level for primary effect
@@ -239,6 +240,7 @@ for i = 1:length(ylower)
 end
 
 %% Quantities used for calibration/validation for each sex and all scenarios.
+
 % X_m/f = (variable, points, scenario)
 BV_m   = reshape(X_dy_m(30,:,:), [N,num_scen]);
 BV_f   = reshape(X_dy_f(30,:,:), [N,num_scen]);
@@ -252,6 +254,10 @@ UNA_m  = reshape(X_dy_m(27,:,:), [N,num_scen]);
 UNA_f  = reshape(X_dy_f(27,:,:), [N,num_scen]);
 UW_m   = reshape(X_dy_m(92,:,:), [N,num_scen]);
 UW_f   = reshape(X_dy_f(92,:,:), [N,num_scen]);
+CALD_m = reshape(X_dy_m(55,:,:), [N,num_scen]);
+CALD_f = reshape(X_dy_f(55,:,:), [N,num_scen]);
+RSNA_m = reshape(X_dy_m( 1,:,:), [N,num_scen]);
+RSNA_f = reshape(X_dy_f( 1,:,:), [N,num_scen]);
 % 
 FRNA_m = reshape((X_dy_m(11,:,:) - X_dy_m(27,:,:)) ./ X_dy_m(11,:,:), [N,num_scen]) * 100;
 FRNA_f = reshape((X_dy_f(11,:,:) - X_dy_f(27,:,:)) ./ X_dy_f(11,:,:), [N,num_scen]) * 100;
@@ -269,18 +275,22 @@ ANGII_f = reshape(X_dy_f(68,:,:), [N,num_scen]);
 CSOD_m  = reshape(X_dy_m(52,:,:), [N,num_scen]);
 CSOD_f  = reshape(X_dy_f(52,:,:), [N,num_scen]);
 % Plot as relative change in order to compare male and female.
-BV_m_bl  = BV_m (1,:);
-BV_f_bl  = BV_f (1,:);
-R_m_bl   = R_m  (1,:);
-R_f_bl   = R_f  (1,:);
-CO_m_bl  = CO_m (1,:);
-CO_f_bl  = CO_f (1,:);
-TPR_m_bl = TPR_m(1,:);
-TPR_f_bl = TPR_f(1,:);
-UNA_m_bl = UNA_m(1,:);
-UNA_f_bl = UNA_f(1,:);
-UW_m_bl  = UW_m (1,:);
-UW_f_bl  = UW_f (1,:);
+BV_m_bl   = BV_m  (1,:);
+BV_f_bl   = BV_f  (1,:);
+R_m_bl    = R_m   (1,:);
+R_f_bl    = R_f   (1,:);
+CO_m_bl   = CO_m  (1,:);
+CO_f_bl   = CO_f  (1,:);
+TPR_m_bl  = TPR_m (1,:);
+TPR_f_bl  = TPR_f (1,:);
+UNA_m_bl  = UNA_m (1,:);
+UNA_f_bl  = UNA_f (1,:);
+UW_m_bl   = UW_m  (1,:);
+UW_f_bl   = UW_f  (1,:);
+CALD_m_bl = CALD_m(1,:);
+CALD_f_bl = CALD_f(1,:);
+RSNA_m_bl = RSNA_m(1,:);
+RSNA_f_bl = RSNA_f(1,:);
 % 
 FRNA_m_bl = FRNA_m(1,:);
 FRNA_f_bl = FRNA_f(1,:);
@@ -298,18 +308,22 @@ ANGII_f_bl = ANGII_f(1,:);
 CSOD_m_bl  = CSOD_m (1,:);
 CSOD_f_bl  = CSOD_f (1,:);
 for i = 1:N
-    BV_m (i,:) = BV_m (i,:) ./ BV_m_bl ;
-    BV_f (i,:) = BV_f (i,:) ./ BV_f_bl ;
-    R_m  (i,:) = R_m  (i,:) ./ R_m_bl  ;
-    R_f  (i,:) = R_f  (i,:) ./ R_f_bl  ;
-    CO_m (i,:) = CO_m (i,:) ./ CO_m_bl ;
-    CO_f (i,:) = CO_f (i,:) ./ CO_f_bl ;
-    TPR_m(i,:) = TPR_m(i,:) ./ TPR_m_bl;
-    TPR_f(i,:) = TPR_f(i,:) ./ TPR_f_bl;
-    UNA_m(i,:) = UNA_m(i,:) ./ UNA_m_bl;
-    UNA_f(i,:) = UNA_f(i,:) ./ UNA_f_bl;
-    UW_m (i,:) = UW_m (i,:) ./ UW_m_bl ;
-    UW_f (i,:) = UW_f (i,:) ./ UW_f_bl ;
+    BV_m  (i,:) = BV_m  (i,:) ./ BV_m_bl  ;
+    BV_f  (i,:) = BV_f  (i,:) ./ BV_f_bl  ;
+    R_m   (i,:) = R_m   (i,:) ./ R_m_bl   ;
+    R_f   (i,:) = R_f   (i,:) ./ R_f_bl   ;
+    CO_m  (i,:) = CO_m  (i,:) ./ CO_m_bl  ;
+    CO_f  (i,:) = CO_f  (i,:) ./ CO_f_bl  ;
+    TPR_m (i,:) = TPR_m (i,:) ./ TPR_m_bl ;
+    TPR_f (i,:) = TPR_f (i,:) ./ TPR_f_bl ;
+    UNA_m (i,:) = UNA_m (i,:) ./ UNA_m_bl ;
+    UNA_f (i,:) = UNA_f (i,:) ./ UNA_f_bl ;
+    UW_m  (i,:) = UW_m  (i,:) ./ UW_m_bl  ;
+    UW_f  (i,:) = UW_f  (i,:) ./ UW_f_bl  ;
+    CALD_m(i,:) = CALD_m(i,:) ./ CALD_m_bl;
+    CALD_f(i,:) = CALD_f(i,:) ./ CALD_f_bl;
+    RSNA_m(i,:) = RSNA_m(i,:) ./ RSNA_m_bl;
+    RSNA_f(i,:) = RSNA_f(i,:) ./ RSNA_f_bl;
 %     
     FRNA_m(i,:) = FRNA_m(i,:) ./ FRNA_m_bl;
     FRNA_f(i,:) = FRNA_f(i,:) ./ FRNA_f_bl;
@@ -391,11 +405,11 @@ hl = findobj(hobj,'type','line');
 set(hl,'LineWidth',1.5);
 hold off
 if     strcmp(scenario2{fixed_ss2}, 'ACEi')
-    title('D', 'FontWeight','normal')
+    title('E', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
-    title('D', 'FontWeight','normal')
+    title('E', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
-    title('C', 'FontWeight','normal')
+    title('D', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('B', 'FontWeight','normal')
 end
@@ -413,9 +427,9 @@ plot(t_dy,BV_f   (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth'
 hold off
 legend('Male','Female', 'FontSize',9,'Location','Northeast');
 if     strcmp(scenario2{fixed_ss2}, 'ACEi')
-    title('E', 'FontWeight','normal')
+    title('F', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
-    title('E', 'FontWeight','normal')
+    title('F', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
     title('-', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
@@ -439,7 +453,7 @@ if     strcmp(scenario2{fixed_ss2}, 'ACEi')
 elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('-', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
-    title('D', 'FontWeight','normal')
+    title('F', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('E', 'FontWeight','normal')
 end
@@ -475,6 +489,50 @@ end
 
 man_f(6) = figure('DefaultAxesFontSize',18);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 5.0, 3.5]);
+plot(t_dy,CALD_m   (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim([xlower, xupper]);
+xticks([tchange_dy+0*(1) : 1 : tchange_dy+days*(1)]);
+xticklabels({'0','1','2','3','4','5','6','7'});
+% ylim(s_main(1), [0.75,1.05])
+xlabel('Time (days)'); ylabel('ALD (relative)');
+hold on
+plot(t_dy,CALD_f   (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+legend('Male','Female', 'FontSize',9,'Location','Northeast');
+if     strcmp(scenario2{fixed_ss2}, 'ACEi')
+    title('D', 'FontWeight','normal')
+elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
+    title('D', 'FontWeight','normal')
+elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
+    title('-', 'FontWeight','normal')
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
+    title('-', 'FontWeight','normal')
+end
+
+man_f(7) = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 5.0, 3.5]);
+plot(t_dy,RSNA_m   (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+xlim([xlower, xupper]);
+xticks([tchange_dy+0*(1) : 1 : tchange_dy+days*(1)]);
+xticklabels({'0','1','2','3','4','5','6','7'});
+% ylim(s_main(1), [0.75,1.05])
+xlabel('Time (days)'); ylabel('RSNA (relative)');
+hold on
+plot(t_dy,RSNA_f   (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+hold off
+legend('Male','Female', 'FontSize',9,'Location','Northeast');
+if     strcmp(scenario2{fixed_ss2}, 'ACEi')
+    title('-', 'FontWeight','normal')
+elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
+    title('-', 'FontWeight','normal')
+elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
+    title('C', 'FontWeight','normal')
+elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
+    title('-', 'FontWeight','normal')
+end
+
+man_f(8) = figure('DefaultAxesFontSize',18);
+set(gcf, 'Units', 'Inches', 'Position', [0, 0, 5.0, 3.5]);
 plot(t_dy,CO_m   (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
 xlim([xlower, xupper]);
 xticks([tchange_dy+0*(1) : 1 : tchange_dy+days*(1)]);
@@ -490,12 +548,34 @@ if     strcmp(scenario2{fixed_ss2}, 'ACEi')
 elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
     title('-', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
-    title('-', 'FontWeight','normal')
+    title('E', 'FontWeight','normal')
 elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
     title('D', 'FontWeight','normal')
 end
 
-man_f(7) = figure('DefaultAxesFontSize',18);
+% figure('DefaultAxesFontSize',18);
+% set(gcf, 'Units', 'Inches', 'Position', [0, 0, 5.0, 3.5]);
+% plot(t_dy,MAP_m   (:,fixed_ss1), '-' , 'Color',[0.203, 0.592, 0.835], 'LineWidth',3,'MarkerSize',8);
+% xlim([xlower, xupper]);
+% xticks([tchange_dy+0*(1) : 1 : tchange_dy+days*(1)]);
+% xticklabels({'0','1','2','3','4','5','6','7'});
+% % ylim(s_main(1), [0.75,1.05])
+% xlabel('Time (days)'); ylabel('MAP (relative)');
+% hold on
+% plot(t_dy,MAP_f   (:,fixed_ss1), '-' , 'Color',[0.835, 0.203, 0.576], 'LineWidth',3, 'MarkerSize',8);
+% hold off
+% legend('Male','Female', 'FontSize',9,'Location','Northeast');
+% if     strcmp(scenario2{fixed_ss2}, 'ACEi')
+%     title('-', 'FontWeight','normal')
+% elseif strcmp(scenario2{fixed_ss2}, 'ARB1')
+%     title('-', 'FontWeight','normal')
+% elseif strcmp(scenario2{fixed_ss2}, 'CCB' )
+%     title('-', 'FontWeight','normal')
+% elseif strcmp(scenario2{fixed_ss2}, 'TZD' )
+%     title('-', 'FontWeight','normal')
+% end
+
+man_f(9) = figure('DefaultAxesFontSize',18);
 set(gcf, 'Units', 'Inches', 'Position', [0, 0, 5.0, 3.5]);
 plot(xscale,MAP_rel_mean_m , '-', 'Color',[0.203, 0.592, 0.835], 'LineWidth',3, 'MarkerSize',8);
 % xlim([xlower, xupper]);
@@ -527,10 +607,18 @@ save_data_name = sprintf('man_figs_%s%s%%_VI%s.fig', ...
 save_data_name = strcat('Figures/', save_data_name);
 savefig([man_f], save_data_name)
 % ---
-save_data_name = sprintf('man_figs_%s%s%%_VI%s.png', ...
-                         scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
+fig_names = {'R','FR','BV','TPR','UF','ALD','RSNA','CO','MAP'};
+for i = 1:length(man_f)
+save_data_name = sprintf('%s_%s.png', ...
+                         scenario2{fixed_ss2},fig_names{i});
 save_data_name = strcat('Figures/', save_data_name);
-exportgraphics([man_f(7)], save_data_name)
+exportgraphics([man_f(i)], save_data_name)
+end
+
+% save_data_name = sprintf('man_figs_%s%s%%_VI%s.png', ...
+%                          scenario2{fixed_ss2},num2str(drug_dose*100),num2str(sample_num));
+% save_data_name = strcat('Figures/', save_data_name);
+% exportgraphics([man_f(5)], save_data_name)
 
 
 end
