@@ -35,7 +35,7 @@ models = [0,0,0;... %normal dose
 % This will loop through available initial guesses for the solver. Will
 % display if a solution was found for each simulation or not.
 disp('----------Computing steady state solutions----------')
-disp({'sex','normo/hyp','impaired myogenic'})
+disp({'sex','normo/hyp'})
 for gg= 1:2
     for AA = 1:2
         for c =  0:1 % loop through healthy and impaired myogenic response
@@ -58,17 +58,27 @@ for gg= 1:2
     end
 end 
         
-% % % Run time course simulations  
+% % Run time course simulations  
 disp('----------Computing time course simulations----------')
 disp({'sex','normo/hyp','impaired myogenic','low water intake'})
 myo_ending = {'','_impairedmyo'};
 for gg= 1:2 %loop through sex
     for AA = 1:2 %loop through normo/hypertension
+        disp({gender{gg}, health_labels{AA}})
+        disp({char(9), 'Impaired Myogenic',num2str(0),'Low Water Intake',num2str(0)})
+        for i = 1:4 %loop through control and single treatments
+            disp({char(9),char(9),'ACEi',num2str(models(i,1)),'furosemide',num2str(models(i,2)),'NSAID',num2str(models(i,3))})
+            IG = sprintf('Human_Data/human_%s_ss_%s_%s_%s_rsna%s.mat',gender{gg},num2str(0),num2str(0),num2str(models(i,3)),...
+                         num2str(rsna(AA)));
+            %disp(IG)
+            run_sim_treatments(human,gg,IG,'ACEi',models(i,1),'furosemide',models(i,2),'NSAID',models(i,3),...
+                                                  'RSNA',rsna(AA));
+        end
         for c = 0:1 % loop through healthy and impaired myogenic response
             for w = 0:1 % loop through normal and low water intake
-                disp({gender{gg}, health_labels{AA},num2str(c),num2str(w)})
-                for i = 1:length(models) %loop through drug treatments to simulate
-                    disp({char(9),'ACEi',num2str(models(i,1)),'furosemide',num2str(models(i,2)),'NSAID',num2str(models(i,3))})
+                disp({char(9), 'Impaired Myogenic',num2str(c),'Low Water Intake',num2str(w)})
+                for i = [1,5:8,12:length(models)] %loop through drug treatments to simulate
+                    disp({char(9),char(9),'ACEi',num2str(models(i,1)),'furosemide',num2str(models(i,2)),'NSAID',num2str(models(i,3))})
                     IG = sprintf('Human_Data/human_%s_ss_%s_%s_%s_rsna%s%s.mat',gender{gg},num2str(0),num2str(0),num2str(models(i,3)),...
                                  num2str(rsna(AA)),myo_ending{c+1});
                     %disp(IG)
@@ -80,10 +90,10 @@ for gg= 1:2 %loop through sex
     end
 end 
 % % 
-% % % Plot 2 day scatter plots (Figure 4)
-plot_scatter();
-% % 
-% % % Plot risk factor bar charts (Figure 5)
-plot_riskfactors();
+% % % % Plot 2 day scatter plots (Figure 4)
+ plot_scatter();
+% % % 
+% % % % Plot risk factor bar charts (Figure 5)
+ plot_riskfactors();
         
         

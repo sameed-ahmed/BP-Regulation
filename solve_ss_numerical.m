@@ -13,7 +13,7 @@
 % 'Low Water Intake', # - 0 for normal, 1 for low water intake. Default is 0.
 % 'RSNA', # - value by which N_rsna is multiplied by to induce hypertension. In my simulations it is 1 for normotensive simulations, 2.5 for hypertensive. Default is 1.
 
-function [exitflag,imag] = solve_ss_numerical(human,gg,IG,varargin)
+function [exitflag,imag,SSdata] = solve_ss_numerical(human,gg,IG,varargin)
 species = {'rat','human'};
 gender     = {'male', 'female'};
 
@@ -24,6 +24,8 @@ furosemide = 0;
 NSAID = 0;
 myo_ind = 0;
 water_ind = 0;
+%kappa_f = 0;
+%kappa_f_md = 0;
 
 %% Read and assign optional variables
 for i = 1:2:length(varargin)
@@ -31,6 +33,9 @@ for i = 1:2:length(varargin)
         ACEi = varargin{i + 1}; %ACEi indicator
     elseif strcmp(varargin{i},'furosemide')
         furosemide = varargin{i + 1}; %furosemide indicator
+        %temp = varargin{i + 1};
+        %kappa_f = temp(1);
+        %kappa_f_md = temp(2);
     elseif strcmp(varargin{i},'NSAID')
         NSAID = varargin{i+1}; %indicator
    elseif strcmp(varargin{i},'Impaired Myogenic Response')
@@ -47,8 +52,8 @@ pars = get_pars(species{human+1},gender{gg},'RSNA',AA);
 
 %% Drug Treatments
 kappa_ACEi = 0;
-kappa_f = 0;
-kappa_f_md = 0;
+ kappa_f = 0;
+ kappa_f_md = 0;
 
 if ACEi == 1
     kappa_ACEi = 0.76;
@@ -56,8 +61,8 @@ elseif ACEi > 1
     kappa_ACEi = 0.90;
 end
 if furosemide == 1
-    kappa_f = 0.15;
-    kappa_f_md = 0.4;
+    kappa_f = 0.08;%0.15;
+    kappa_f_md = 0.3;%0.4;%0.4;
 elseif furosemide ==2
     kappa_f = 0.3;
     kappa_f_md = 0.5;
