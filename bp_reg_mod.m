@@ -379,7 +379,7 @@ else
 end
 % Sigma_tgf
 if     strcmp(species, 'human')
-    Sigmatgf_a = 3.859 * SF_S;
+    Sigmatgf_a = 3.8901;%3.859 * SF_S;
 elseif strcmp(species, 'rat')
     Sigmatgf_a = fixed_var_pars(2);
 end
@@ -407,7 +407,7 @@ end
 f(14) = gamma_filsod - ( gammafilsod_a + 0.3 / (1 + exp((Phi_filsod - gammafilsod_b)/(138 * SF_S) )) );
 % gamma_at
 if     strcmp(species, 'human')
-    gammaat_c = 2.6/2.3418; gammaat_d = 0.95; gammaat_a = 0.12 ; 
+    gammaat_c = 2.6/2.3418; gammaat_d = 0.95-0.002296748732024; gammaat_a = 0.12 ; 
     gammaat_b = 2.3418;
 elseif strcmp(species, 'rat')
     gammaat_c = 0.8017; gammaat_d = 0.92; gammaat_a = 0.136;
@@ -428,7 +428,7 @@ f(18) = Phi_dtsodreab - ( Phi_mdsod * eta_dtsodreab );
 f(19) = eta_dtsodreab - ( eta_dtsodreab_eq * psi_al );
 % psi_al
 if     strcmp(species, 'human')
-    f(20) = psi_al - (0.17 + 0.94/(1+exp((0.48 - 1.2*log(C_al))/0.88)));
+    f(20) = psi_al - (0.07 + 0.94/(1+exp((0.48 - 1.2*log(C_al))/0.88))); %rounding error
 elseif strcmp(species, 'rat')
     psial_b = 0.1; psial_d = 1.05 / psial_b; psial_a = (1 + psial_b) * psial_d;
     psial_c = -1/ALD_eq * log((psial_a / (1 + psial_d) - 1) / psial_b);
@@ -479,10 +479,11 @@ elseif strcmp(species, 'rat')
 end
 % Phi_sodin
 if     strcmp(species, 'human')
-    sodin_E = 0.14; sodin_C = 0.14; sodin_D = 0.765; sodin_L = 0.1;
-    sodin_B = (sodin_L*sodin_C - sodin_E*sodin_C +(sodin_E - 0.126)*sodin_C*ALD_eq^sodin_D)/(0.126-sodin_L);
-    sodin_A = (0.126-sodin_E)*(sodin_B+sodin_C*ALD_eq^sodin_D);
-    f(28) = Phi_sodin - max(0,sodin_A/(sodin_B+sodin_C*C_al^sodin_D)+sodin_E);
+%    sodin_E = 0.14; sodin_C = 0.14; sodin_D = 0.765; sodin_L = 0.1;
+%    sodin_B = (sodin_L*sodin_C - sodin_E*sodin_C +(sodin_E - 0.126)*sodin_C*ALD_eq^sodin_D)/(0.126-sodin_L);
+%    sodin_A = (0.126-sodin_E)*(sodin_B+sodin_C*ALD_eq^sodin_D);
+%    f(28) = Phi_sodin - max(0,sodin_A/(sodin_B+sodin_C*C_al^sodin_D)+sodin_E);
+    f(28) = Phi_sodin - 0.126;%max(0,sodin_A/(sodin_B+sodin_C*C_al^sodin_D)+sodin_E);
 elseif strcmp(species, 'rat')
     f(28) = Phi_sodin - ( Phi_sodin_const );
 end
@@ -490,7 +491,7 @@ end
 f(29) = V_ecf_p - ( Phi_win - Phi_u );
 % V_b
 if     strcmp(species, 'human')
-    f(30) = V_b - ( 0.325 * V_ecf );
+    f(30) = V_b - (  V_ecf/3 );
 elseif strcmp(species, 'rat')
     f(30) = V_b - ( SF_V*( 4.5479 + 2.4312 / (1 + exp(-(V_ecf - 18.1128*SF_V) * (0.4744/SF_V) )) ) );
 end
@@ -504,9 +505,9 @@ f(33) = Phi_co - ( Phi_vr );
 % P_ra
 if     strcmp(species, 'human')
     if     strcmp(sex,'male')
-        pra_a =  0.8268;
+        pra_a =  0.2787 * exp(5 * 0.2281);
     elseif strcmp(sex,'female')
-        pra_a =   0.8245;
+        pra_a =   0.2787 * exp(5 * 0.2281);
     end
     f(34) = P_ra - ( 0.2787 * exp(Phi_co * 0.2281 * SF_R) - pra_a );
 elseif strcmp(species, 'rat')
@@ -518,7 +519,7 @@ end
 f(35) = vas_p - ( 1 / 1000 * (vas_f - vas_d) );
 % vas_f
 if     strcmp(species, 'human')
-    vasf_a = 0.4799;
+    vasf_a = log(1/11.312)/-5;%0.4799;
 elseif strcmp(species, 'rat')
     vasf_a = -1/SSdata_input(33) * log(1/11.312);
 end
@@ -573,9 +574,9 @@ f(52) = C_sod - ( M_sod / V_ecf );
 % nu_mdsod
 if     strcmp(species, 'human')
     if     strcmp(sex,'male')
-        numdsod_a = 1.731 * SF_S;
+        numdsod_a = 1.658530182310191;%1.731 * SF_S;
     elseif strcmp(sex,'female')
-        numdsod_a = 1.637 * SF_S;
+        numdsod_a = 1.658530182310191;%1.637 * SF_S;
     end
 elseif strcmp(species, 'rat')
     numdsod_a = fixed_var_pars(7);
@@ -587,7 +588,7 @@ else
 end
 % nu_rsna
 if     strcmp(species, 'human')
-    nursna_a = 0.8667;
+    nursna_a = -log(-2.056/(1 - 1.822) - 1.358) + 1;%0.8667;
 elseif strcmp(species, 'rat')
     nursna_a = 0.8662;
 end
@@ -740,7 +741,7 @@ if     strcmp(species, 'human')
     end
     % Phi_win
     if low_win_ind
-        f(84) = Phi_win - (max(0, 0.0177    / (3.9271  + 18.22*C_adh^-1.607) - 0.002));
+        f(84) = Phi_win - min(0.001,(max(0, 0.0078541 / (0.65451 + 18.22*C_adh^-1.607) - 0.002)));%max(0, 0.0177    / (3.9271  + 18.22*C_adh^-1.607) - 0.002));
     else
         f(84) = Phi_win - (max(0, 0.0078541 / (0.65451 + 18.22*C_adh^-1.607) - 0.002));
     end

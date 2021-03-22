@@ -73,9 +73,9 @@ Psi_AT2REA_eq = 1   ; % -
 %% Species and sex specific parameters
 
 if     strcmp(species, 'human')
-    R_aass    = 31.67  ; % mmHg min / l
-    R_eass    = 51.66  ; % mmHg min / l
-    C_gcf     = 0.00781;
+    R_aass    = 31.666666666  ; % mmHg min / l
+    R_eass    = 51.666666666  ; % mmHg min / l
+    C_gcf     = 0.0078125;
     Phi_sodin = 0.126  ;
     
     %Sodium transport
@@ -98,9 +98,9 @@ if     strcmp(species, 'human')
         AT2R_eq = 5.0854   ;
         ALD_eq  = 85       ;
         if   hyp > 1
-            A_twreab = 0.0182;
+            A_twreab = 0.025-0.0056922-0.00011266-1.7128e-05;%0.0182;
         else
-            A_twreab = 0.0193;
+            A_twreab = 0.025-0.00018412-   2.4683e-05;%0.0193;
         end
     elseif strcmp(sex, 'female')
         k_AGT   = 610.39   ;
@@ -115,15 +115,15 @@ if     strcmp(species, 'human')
         AT2R_eq = 5.0854   ;
         ALD_eq  = 69.1775  ;
         if   hyp > 1
-            A_twreab = 0.0181;
+            A_twreab = 0.025-    0.0049325-  0.00010883;%0.0181;
         else
-            A_twreab = 0.0199;
+            A_twreab = 0.025;%+2.364645137771515e-04;%0.0199;
         end
     end
     
-    pt_sod_reab_EQ = 13.909;
-    dt_sod_reab_EQ = 1.5859;
-    cd_sod_reab_EQ = 1.6909;
+    pt_sod_reab_EQ = 14.4;%13.909;
+    dt_sod_reab_EQ = 1.8;%1.5859;
+    cd_sod_reab_EQ = 1.674;%1.6909;
     
 elseif strcmp(species, 'rat')
     Phi_sodin = 2.4424; % microEq / min

@@ -90,9 +90,9 @@ else
         yrange=yy(2)-yy(1);
         yunit=(y-yy(1))/yrange;
         if yunit<0.2
-            text(x(1)+0.02*(x(2)-x(1)),y+0.02*yrange,label,'color',get(h,'color'))
+            text(x(1)+0.9*(x(2)-x(1)),y+0.02*yrange,label,'color',get(h,'color'),'Fontsize',14)
         else
-            text(x(1)+0.02*(x(2)-x(1)),y-0.02*yrange,label,'color',get(h,'color'))
+            text(x(1)+0.9*(x(2)-x(1)),y-0.02*yrange,label,'color',get(h,'color'),'Fontsize',14)
         end
     end
 
